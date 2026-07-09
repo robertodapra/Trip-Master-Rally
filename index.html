@@ -11,7 +11,9 @@
     --panel:#111417;
     --line:#2a2f36;
     --amber:#ffb400;
+    --amber-dim:#8a6200;
     --green:#39d353;
+    --blue:#3b9dff;
     --red:#ff4d4d;
     --text:#f2f4f7;
     --muted:#8b949e;
@@ -31,23 +33,36 @@
     display:flex;justify-content:space-between;align-items:center;
     padding:6px 12px;font-size:12px;color:var(--muted);
   }
-  #gpsdot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--red);margin-right:6px;vertical-align:middle}
-  #gpsdot.ok{background:var(--green)}
-  #gpsdot.warn{background:var(--amber)}
+  #gpsdot{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--red);vertical-align:middle}
+  #gpsdot.g{background:var(--green)}
+  #gpsdot.b{background:var(--blue)}
+  #gpsdot.r{background:var(--red)}
+  #btnInfo{
+    background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--muted);
+    border-radius:50%;width:22px;height:22px;font-size:12px;margin-left:8px;vertical-align:middle;
+  }
   #btnSettings{background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:4px 10px;font-size:12px}
 
-  /* ====== LAYOUT PRINCIPALE ====== */
+  #legend{
+    position:fixed;top:36px;left:10px;z-index:9;
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:12px 16px;font-size:13px;display:none;max-width:280px;line-height:1.6;
+  }
+  #legend.open{display:block}
+  #legend b{display:block;margin-bottom:4px;color:var(--text)}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+
+  /* ====== LAYOUT ====== */
   #app{
     display:grid;
     height:100dvh;
     padding-top:30px;
-    grid-template-columns:1.2fr 1fr;   /* sinistra | destra */
+    grid-template-columns:1.2fr 1fr;
     grid-template-rows:1fr 1fr;
     grid-template-areas:
       "word total"
       "word partial";
   }
-  /* in verticale: impila */
   @media (orientation:portrait){
     #app{
       grid-template-columns:1fr;
@@ -69,15 +84,15 @@
     overflow:hidden;
   }
   .zlabel{
-    position:absolute;top:10px;left:14px;
-    font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);
+    position:absolute;top:10px;left:14px;right:14px;
+    font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);
   }
   .unit{font-size:14px;color:var(--muted);margin-top:2px;letter-spacing:.1em}
 
   #zoneTotal{grid-area:total;cursor:pointer}
   #totalVal{
     font-family:ui-monospace,Menlo,Consolas,monospace;
-    font-size:clamp(40px,9vw,90px);font-weight:700;
+    font-size:clamp(36px,8vw,84px);font-weight:700;
     font-variant-numeric:tabular-nums;line-height:1;
   }
 
@@ -88,7 +103,7 @@
     font-variant-numeric:tabular-nums;line-height:1;
     color:var(--amber);
   }
-  #zonePartial.stopped #partialVal{color:#8a6200}
+  #zonePartial.stopped #partialVal{color:var(--amber-dim)}
 
   #zoneWord{grid-area:word;cursor:pointer}
   #wordVal{
@@ -105,37 +120,45 @@
     color:var(--amber);
     font-variant-numeric:tabular-nums;
   }
-  #zoneWord.stopped #wordVal.numeric{color:#8a6200}
+  #zoneWord.stopped #wordVal.numeric{color:var(--amber-dim)}
   #wordState{
     position:absolute;bottom:12px;
     font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);
   }
   #wordState.run{color:var(--green)}
 
-  /* ====== IMPOSTAZIONI ====== */
-  #settings{
+  /* ====== OVERLAY (intro + impostazioni) ====== */
+  .overlay{
     position:fixed;inset:0;background:var(--bg);z-index:10;
-    display:none;flex-direction:column;padding:16px;overflow-y:auto;
+    display:none;flex-direction:column;padding:18px;overflow-y:auto;
   }
-  #settings.open{display:flex}
-  #settings h2{font-size:16px;letter-spacing:.15em;text-transform:uppercase;color:var(--amber);margin-bottom:4px}
-  #settings p{font-size:13px;color:var(--muted);margin-bottom:14px}
+  .overlay.open{display:flex}
+  .overlay h2{font-size:17px;letter-spacing:.15em;text-transform:uppercase;color:var(--amber);margin-bottom:10px}
+  .overlay p{font-size:14px;color:var(--text);margin-bottom:10px;line-height:1.5}
+  .overlay p.small{font-size:13px;color:var(--muted)}
+  .okbtn{
+    background:var(--amber);color:#000;border:none;width:100%;
+    padding:15px;border-radius:10px;font-size:16px;font-weight:700;margin-top:auto;
+  }
+  .chk{display:flex;align-items:center;gap:10px;font-size:14px;margin:14px 0}
+  .chk input{width:22px;height:22px}
+
   table{width:100%;border-collapse:collapse;margin-bottom:14px}
-  th{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);text-align:left;padding:6px 4px}
-  td{padding:4px}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);text-align:left;padding:6px 3px}
+  td{padding:3px}
   td input{
-    width:100%;padding:10px;background:var(--panel);border:1px solid var(--line);
+    width:100%;padding:10px 8px;background:#1a1f25;border:1px solid var(--line);
     border-radius:8px;color:var(--text);font-size:16px;
   }
   td button{background:none;border:none;color:var(--red);font-size:20px;padding:6px}
   .rowbtns{display:flex;gap:10px;margin-bottom:20px}
-  .rowbtns button, #closeSettings{
+  .rowbtns button{
     flex:1;padding:14px;border-radius:10px;font-size:15px;font-weight:600;
     background:var(--panel);border:1px solid var(--line);color:var(--text);
   }
-  #closeSettings{background:var(--amber);color:#000;border:none;width:100%;margin-top:auto}
   .setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;font-size:14px}
-  .setting-row input[type=number]{width:90px;padding:10px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:16px;text-align:center}
+  .setting-row input[type=number]{width:90px;padding:10px;background:#1a1f25;border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:16px;text-align:center}
+  .setting-row select{padding:10px;background:#1a1f25;border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:15px}
 
   #flash{
     position:fixed;inset:0;background:rgba(255,180,0,.15);z-index:5;
@@ -146,25 +169,32 @@
 <body>
 
 <div id="statusbar">
-  <span><span id="gpsdot"></span><span id="gpsText">GPS: in attesa…</span></span>
-  <button id="btnSettings">⚙ Tabella</button>
+  <span><span id="gpsdot" class="r"></span><button id="btnInfo">i</button></span>
+  <button id="btnSettings">⚙</button>
+</div>
+
+<div id="legend">
+  <b data-t="legTitle"></b>
+  <span class="dot" style="background:var(--green)"></span><span data-t="legGreen"></span><br>
+  <span class="dot" style="background:var(--blue)"></span><span data-t="legBlue"></span><br>
+  <span class="dot" style="background:var(--red)"></span><span data-t="legRed"></span>
 </div>
 
 <div id="app">
   <div class="zone" id="zoneWord">
-    <span class="zlabel">Parola / Parziale · tocca per start-stop</span>
+    <span class="zlabel" data-t="wordLabel"></span>
     <div id="wordVal" class="numeric">0</div>
-    <div id="wordState">Pronto</div>
+    <div id="wordState"></div>
   </div>
 
   <div class="zone" id="zoneTotal">
-    <span class="zlabel">Totale · tocca per azzerare</span>
-    <div id="totalVal">0</div>
-    <div class="unit">m</div>
+    <span class="zlabel" data-t="totalLabel"></span>
+    <div id="totalVal">0,00</div>
+    <div class="unit">km</div>
   </div>
 
   <div class="zone stopped" id="zonePartial">
-    <span class="zlabel">Parziale</span>
+    <span class="zlabel" data-t="partialLabel"></span>
     <div id="partialVal">0</div>
     <div class="unit">m</div>
   </div>
@@ -172,60 +202,227 @@
 
 <div id="flash"></div>
 
+<!-- ============ INTRODUZIONE ============ -->
+<div class="overlay" id="intro">
+  <h2 data-t="introTitle"></h2>
+  <p data-t="intro1"></p>
+  <p data-t="intro2"></p>
+  <p data-t="intro3"></p>
+  <p class="small" data-t="intro4"></p>
+  <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
+  <button class="okbtn" id="closeIntro" data-t="start"></button>
+</div>
+
 <!-- ============ IMPOSTAZIONI ============ -->
-<div id="settings">
-  <h2>Tabella parole</h2>
-  <p>Quando il <b>parziale</b> raggiunge i metri indicati, a sinistra appare la parola scelta al posto del numero.</p>
+<div class="overlay" id="settings">
+  <h2 data-t="setTitle"></h2>
+  <p class="small" data-t="setDesc"></p>
   <table>
-    <thead><tr><th style="width:35%">Metri</th><th>Parola / testo</th><th></th></tr></thead>
+    <thead><tr><th style="width:26%" data-t="thFrom"></th><th style="width:26%" data-t="thTo"></th><th data-t="thWord"></th><th></th></tr></thead>
     <tbody id="tblBody"></tbody>
   </table>
   <div class="rowbtns">
-    <button id="addRow">+ Aggiungi riga</button>
+    <button id="addRow" data-t="addRow"></button>
   </div>
 
   <div class="setting-row">
-    <span>Precisione GPS minima richiesta (m)<br><small style="color:var(--muted)">I dati meno precisi vengono scartati</small></span>
+    <span data-t="langLabel"></span>
+    <select id="langSel">
+      <option value="it">Italiano</option>
+      <option value="en">English</option>
+      <option value="fr">Français</option>
+      <option value="es">Español</option>
+      <option value="de">Deutsch</option>
+      <option value="pt">Português</option>
+      <option value="ja">日本語</option>
+      <option value="cs">Čeština</option>
+    </select>
+  </div>
+  <div class="setting-row">
+    <span><span data-t="accLabel"></span><br><small style="color:var(--muted)" data-t="accSmall"></small></span>
     <input type="number" id="accLimit" min="5" max="100" step="1">
   </div>
   <div class="setting-row">
-    <span>Leggi la parola a voce (sintesi vocale)</span>
+    <span data-t="speakLabel"></span>
     <input type="checkbox" id="speakToggle" style="width:24px;height:24px">
   </div>
 
-  <button id="closeSettings">Chiudi e salva</button>
+  <button class="okbtn" id="closeSettings" data-t="close"></button>
 </div>
 
 <script>
 (function(){
 'use strict';
 
+/* ================= TRADUZIONI ================= */
+const T = {
+it:{introTitle:"Come funziona",
+  intro1:"In alto a destra c'è la distanza TOTALE in km: toccala per azzerarla.",
+  intro2:"In basso a destra c'è il PARZIALE in metri. Tocca la zona grande a sinistra (o premi il tasto Bluetooth) per avviarlo e fermarlo: ogni avvio riparte da zero.",
+  intro3:"Nella tabella (⚙) puoi impostare intervalli di metri: quando il parziale è nell'intervallo, a sinistra appare la tua parola al posto del numero.",
+  intro4:"Puntino GPS: verde = ottimo (<6 m) · blu = buono (6–10 m) · rosso = debole (>10 m).",
+  dontShow:"Non mostrare più",start:"Inizia",
+  totalLabel:"Totale · tocca per azzerare",partialLabel:"Parziale",
+  wordLabel:"Parola / Parziale · tocca per start-stop",
+  ready:"Pronto",running:"In misurazione…",stopped:"Fermo — premi per ripartire da 0",
+  setTitle:"Tabella parole",setDesc:"La parola appare quando il parziale è tra i due valori (Da incluso, A escluso). Lascia vuoto \"A\" per non avere limite.",
+  thFrom:"Da (m)",thTo:"A (m)",thWord:"Parola",addRow:"+ Aggiungi riga",
+  langLabel:"Lingua",accLabel:"Precisione GPS minima (m)",accSmall:"I dati meno precisi vengono scartati",
+  speakLabel:"Leggi la parola a voce",close:"Chiudi e salva",
+  legTitle:"Segnale GPS",legGreen:"Verde: ottimo (meno di 6 m)",legBlue:"Blu: buono (6–10 m)",legRed:"Rosso: debole (oltre 10 m)"},
+en:{introTitle:"How it works",
+  intro1:"Top right: TOTAL distance in km — tap it to reset.",
+  intro2:"Bottom right: PARTIAL distance in metres. Tap the big left area (or press your Bluetooth button) to start and stop it: each start begins from zero.",
+  intro3:"In the table (⚙) you can set metre ranges: when the partial is inside a range, your word appears on the left instead of the number.",
+  intro4:"GPS dot: green = excellent (<6 m) · blue = good (6–10 m) · red = weak (>10 m).",
+  dontShow:"Don't show again",start:"Start",
+  totalLabel:"Total · tap to reset",partialLabel:"Partial",
+  wordLabel:"Word / Partial · tap to start-stop",
+  ready:"Ready",running:"Measuring…",stopped:"Stopped — press to restart from 0",
+  setTitle:"Word table",setDesc:"The word shows when the partial is between the two values (From included, To excluded). Leave \"To\" empty for no limit.",
+  thFrom:"From (m)",thTo:"To (m)",thWord:"Word",addRow:"+ Add row",
+  langLabel:"Language",accLabel:"Min GPS accuracy (m)",accSmall:"Less accurate data is discarded",
+  speakLabel:"Speak the word aloud",close:"Save and close",
+  legTitle:"GPS signal",legGreen:"Green: excellent (under 6 m)",legBlue:"Blue: good (6–10 m)",legRed:"Red: weak (over 10 m)"},
+fr:{introTitle:"Comment ça marche",
+  intro1:"En haut à droite : distance TOTALE en km — touchez pour remettre à zéro.",
+  intro2:"En bas à droite : distance PARTIELLE en mètres. Touchez la grande zone à gauche (ou appuyez sur le bouton Bluetooth) pour démarrer et arrêter : chaque départ repart de zéro.",
+  intro3:"Dans le tableau (⚙), définissez des intervalles en mètres : quand le partiel est dans l'intervalle, votre mot s'affiche à gauche à la place du nombre.",
+  intro4:"Point GPS : vert = excellent (<6 m) · bleu = bon (6–10 m) · rouge = faible (>10 m).",
+  dontShow:"Ne plus afficher",start:"Commencer",
+  totalLabel:"Total · toucher pour remettre à zéro",partialLabel:"Partiel",
+  wordLabel:"Mot / Partiel · toucher pour start-stop",
+  ready:"Prêt",running:"Mesure en cours…",stopped:"Arrêté — appuyez pour repartir de 0",
+  setTitle:"Tableau des mots",setDesc:"Le mot s'affiche quand le partiel est entre les deux valeurs (De inclus, À exclu). Laissez \"À\" vide pour aucune limite.",
+  thFrom:"De (m)",thTo:"À (m)",thWord:"Mot",addRow:"+ Ajouter une ligne",
+  langLabel:"Langue",accLabel:"Précision GPS min (m)",accSmall:"Les données moins précises sont ignorées",
+  speakLabel:"Lire le mot à voix haute",close:"Enregistrer et fermer",
+  legTitle:"Signal GPS",legGreen:"Vert : excellent (moins de 6 m)",legBlue:"Bleu : bon (6–10 m)",legRed:"Rouge : faible (plus de 10 m)"},
+es:{introTitle:"Cómo funciona",
+  intro1:"Arriba a la derecha: distancia TOTAL en km — tócala para ponerla a cero.",
+  intro2:"Abajo a la derecha: distancia PARCIAL en metros. Toca la zona grande de la izquierda (o pulsa el botón Bluetooth) para iniciarla y detenerla: cada inicio parte de cero.",
+  intro3:"En la tabla (⚙) puedes definir intervalos de metros: cuando el parcial está dentro del intervalo, tu palabra aparece a la izquierda en lugar del número.",
+  intro4:"Punto GPS: verde = excelente (<6 m) · azul = bueno (6–10 m) · rojo = débil (>10 m).",
+  dontShow:"No mostrar más",start:"Empezar",
+  totalLabel:"Total · toca para poner a cero",partialLabel:"Parcial",
+  wordLabel:"Palabra / Parcial · toca para start-stop",
+  ready:"Listo",running:"Midiendo…",stopped:"Parado — pulsa para reiniciar desde 0",
+  setTitle:"Tabla de palabras",setDesc:"La palabra aparece cuando el parcial está entre los dos valores (Desde incluido, Hasta excluido). Deja \"Hasta\" vacío para sin límite.",
+  thFrom:"Desde (m)",thTo:"Hasta (m)",thWord:"Palabra",addRow:"+ Añadir fila",
+  langLabel:"Idioma",accLabel:"Precisión GPS mín (m)",accSmall:"Los datos menos precisos se descartan",
+  speakLabel:"Leer la palabra en voz alta",close:"Guardar y cerrar",
+  legTitle:"Señal GPS",legGreen:"Verde: excelente (menos de 6 m)",legBlue:"Azul: buena (6–10 m)",legRed:"Rojo: débil (más de 10 m)"},
+de:{introTitle:"So funktioniert es",
+  intro1:"Oben rechts: GESAMTdistanz in km — zum Nullstellen antippen.",
+  intro2:"Unten rechts: TEILdistanz in Metern. Tippe auf den großen linken Bereich (oder drücke die Bluetooth-Taste) zum Starten und Stoppen: jeder Start beginnt bei null.",
+  intro3:"In der Tabelle (⚙) kannst du Meterbereiche festlegen: liegt die Teildistanz im Bereich, erscheint links dein Wort statt der Zahl.",
+  intro4:"GPS-Punkt: grün = ausgezeichnet (<6 m) · blau = gut (6–10 m) · rot = schwach (>10 m).",
+  dontShow:"Nicht mehr anzeigen",start:"Los geht's",
+  totalLabel:"Gesamt · zum Nullstellen tippen",partialLabel:"Teilstrecke",
+  wordLabel:"Wort / Teilstrecke · tippen für Start-Stopp",
+  ready:"Bereit",running:"Messung läuft…",stopped:"Gestoppt — drücken für Neustart ab 0",
+  setTitle:"Worttabelle",setDesc:"Das Wort erscheint, wenn die Teildistanz zwischen den Werten liegt (Von inklusive, Bis exklusive). \"Bis\" leer lassen für kein Limit.",
+  thFrom:"Von (m)",thTo:"Bis (m)",thWord:"Wort",addRow:"+ Zeile hinzufügen",
+  langLabel:"Sprache",accLabel:"Min. GPS-Genauigkeit (m)",accSmall:"Ungenauere Daten werden verworfen",
+  speakLabel:"Wort vorlesen",close:"Speichern und schließen",
+  legTitle:"GPS-Signal",legGreen:"Grün: ausgezeichnet (unter 6 m)",legBlue:"Blau: gut (6–10 m)",legRed:"Rot: schwach (über 10 m)"},
+pt:{introTitle:"Como funciona",
+  intro1:"No canto superior direito: distância TOTAL em km — toque para zerar.",
+  intro2:"No canto inferior direito: distância PARCIAL em metros. Toque na área grande à esquerda (ou pressione o botão Bluetooth) para iniciar e parar: cada início parte do zero.",
+  intro3:"Na tabela (⚙) pode definir intervalos de metros: quando o parcial está no intervalo, a sua palavra aparece à esquerda em vez do número.",
+  intro4:"Ponto GPS: verde = excelente (<6 m) · azul = bom (6–10 m) · vermelho = fraco (>10 m).",
+  dontShow:"Não mostrar novamente",start:"Começar",
+  totalLabel:"Total · toque para zerar",partialLabel:"Parcial",
+  wordLabel:"Palavra / Parcial · toque para start-stop",
+  ready:"Pronto",running:"A medir…",stopped:"Parado — pressione para recomeçar do 0",
+  setTitle:"Tabela de palavras",setDesc:"A palavra aparece quando o parcial está entre os dois valores (De incluído, Até excluído). Deixe \"Até\" vazio para sem limite.",
+  thFrom:"De (m)",thTo:"Até (m)",thWord:"Palavra",addRow:"+ Adicionar linha",
+  langLabel:"Idioma",accLabel:"Precisão GPS mín (m)",accSmall:"Dados menos precisos são descartados",
+  speakLabel:"Ler a palavra em voz alta",close:"Guardar e fechar",
+  legTitle:"Sinal GPS",legGreen:"Verde: excelente (menos de 6 m)",legBlue:"Azul: bom (6–10 m)",legRed:"Vermelho: fraco (mais de 10 m)"},
+ja:{introTitle:"使い方",
+  intro1:"右上：合計距離（km）— タップでリセット。",
+  intro2:"右下:区間距離(メートル)。左の大きなエリアをタップ(またはBluetoothボタンを押す)で開始・停止。開始のたびにゼロから計測します。",
+  intro3:"テーブル(⚙)でメートルの範囲を設定できます。区間距離が範囲内のとき、数字の代わりに設定した言葉が左に表示されます。",
+  intro4:"GPSドット:緑=非常に良い(<6m) · 青=良い(6–10m) · 赤=弱い(>10m)。",
+  dontShow:"次回から表示しない",start:"スタート",
+  totalLabel:"合計 · タップでリセット",partialLabel:"区間",
+  wordLabel:"言葉 / 区間 · タップで開始・停止",
+  ready:"準備完了",running:"計測中…",stopped:"停止 — 押すと0から再開",
+  setTitle:"言葉テーブル",setDesc:"区間距離が2つの値の間にあるとき言葉が表示されます(「から」含む、「まで」含まない)。「まで」を空欄にすると上限なし。",
+  thFrom:"から(m)",thTo:"まで(m)",thWord:"言葉",addRow:"+ 行を追加",
+  langLabel:"言語",accLabel:"最低GPS精度(m)",accSmall:"精度の低いデータは破棄されます",
+  speakLabel:"言葉を読み上げる",close:"保存して閉じる",
+  legTitle:"GPS信号",legGreen:"緑:非常に良い(6m未満)",legBlue:"青:良い(6–10m)",legRed:"赤:弱い(10m超)"},
+cs:{introTitle:"Jak to funguje",
+  intro1:"Vpravo nahoře: CELKOVÁ vzdálenost v km — klepnutím vynulujete.",
+  intro2:"Vpravo dole: DÍLČÍ vzdálenost v metrech. Klepněte na velkou levou oblast (nebo stiskněte Bluetooth tlačítko) pro start a stop: každý start začíná od nuly.",
+  intro3:"V tabulce (⚙) můžete nastavit rozsahy metrů: když je dílčí vzdálenost v rozsahu, vlevo se místo čísla zobrazí vaše slovo.",
+  intro4:"GPS tečka: zelená = výborný (<6 m) · modrá = dobrý (6–10 m) · červená = slabý (>10 m).",
+  dontShow:"Příště nezobrazovat",start:"Začít",
+  totalLabel:"Celkem · klepnutím vynulovat",partialLabel:"Dílčí",
+  wordLabel:"Slovo / Dílčí · klepnutím start-stop",
+  ready:"Připraveno",running:"Měření…",stopped:"Zastaveno — stiskněte pro restart od 0",
+  setTitle:"Tabulka slov",setDesc:"Slovo se zobrazí, když je dílčí vzdálenost mezi hodnotami (Od včetně, Do vyjma). Nechte \"Do\" prázdné pro bez limitu.",
+  thFrom:"Od (m)",thTo:"Do (m)",thWord:"Slovo",addRow:"+ Přidat řádek",
+  langLabel:"Jazyk",accLabel:"Min. přesnost GPS (m)",accSmall:"Méně přesná data se zahazují",
+  speakLabel:"Přečíst slovo nahlas",close:"Uložit a zavřít",
+  legTitle:"GPS signál",legGreen:"Zelená: výborný (méně než 6 m)",legBlue:"Modrá: dobrý (6–10 m)",legRed:"Červená: slabý (více než 10 m)"}
+};
+const LOCALES = {it:'it-IT',en:'en-US',fr:'fr-FR',es:'es-ES',de:'de-DE',pt:'pt-PT',ja:'ja-JP',cs:'cs-CZ'};
+
 /* ================= STATO ================= */
-let total = 0;
-let partial = 0;
+let total = 0, partial = 0;
 let running = false;
 let lastPos = null;
-let lastWordShown = null;
+let curSpeed = 0;          // m/s per l'interpolazione in tempo reale
+let lastFixTime = 0;       // timestamp ultimo fix accettato
 let currentWord = null;
+let lastSpoken = null;
 let cfg = {
-  rows: [ {m:10, w:"ESEMPIO"} ],
+  rows: [ {from:15, to:20, w:"ESEMPIO"} ],
   accLimit: 20,
-  speak: false
+  speak: false,
+  lang: null,
+  hideIntro: false
 };
 
 try{
   const saved = JSON.parse(localStorage.getItem('rallytrip_cfg'));
-  if(saved && Array.isArray(saved.rows)) cfg = Object.assign(cfg, saved);
+  if(saved){
+    cfg = Object.assign(cfg, saved);
+    // migrazione dal vecchio formato {m,w} a {from,to,w}
+    cfg.rows = (cfg.rows||[]).map(r => r.m !== undefined ? {from:r.m, to:'', w:r.w} : r);
+  }
 }catch(e){}
-
+if(!cfg.lang){
+  const nav = (navigator.language||'en').slice(0,2).toLowerCase();
+  cfg.lang = T[nav] ? nav : 'en';
+}
 function saveCfg(){ localStorage.setItem('rallytrip_cfg', JSON.stringify(cfg)); }
+
+/* ================= LINGUA ================= */
+function t(k){ return (T[cfg.lang]||T.en)[k] || T.en[k] || k; }
+function applyLang(){
+  document.documentElement.lang = cfg.lang;
+  document.querySelectorAll('[data-t]').forEach(el=>{
+    el.textContent = t(el.dataset.t);
+  });
+  updateStateText();
+}
 
 /* ================= ELEMENTI ================= */
 const $ = id => document.getElementById(id);
 const totalVal=$('totalVal'), partialVal=$('partialVal'),
       wordVal=$('wordVal'), wordState=$('wordState'),
       zoneWord=$('zoneWord'), zonePartial=$('zonePartial'),
-      gpsdot=$('gpsdot'), gpsText=$('gpsText'), flash=$('flash');
+      gpsdot=$('gpsdot'), flash=$('flash');
+
+function updateStateText(){
+  if(running){ wordState.textContent=t('running'); wordState.className='run'; }
+  else if(partial>0){ wordState.textContent=t('stopped'); wordState.className=''; }
+  else { wordState.textContent=t('ready'); wordState.className=''; }
+}
 
 /* ================= GPS ================= */
 function haversine(lat1, lon1, lat2, lon2){
@@ -240,35 +437,33 @@ function onFix(pos){
   const c = pos.coords;
   const acc = c.accuracy;
 
-  if(acc <= 8){ gpsdot.className='ok'; }
-  else if(acc <= cfg.accLimit){ gpsdot.className='warn'; }
-  else { gpsdot.className=''; }
-  gpsText.textContent = 'GPS ±' + Math.round(acc) + ' m';
+  // puntino: verde <6, blu 6-10, rosso >10
+  gpsdot.className = acc < 6 ? 'g' : (acc <= 10 ? 'b' : 'r');
 
   if(acc > cfg.accLimit) return;
 
   if(lastPos){
     const d = haversine(lastPos.latitude, lastPos.longitude, c.latitude, c.longitude);
     const noiseFloor = Math.max(2, acc * 0.5);
-    // se il GPS dice che sei fermo, non conta nulla
     const fermo = (c.speed !== null && c.speed < 0.7);
     if(fermo){
+      curSpeed = 0;
       lastPos = c;
+      lastFixTime = performance.now();
     } else if(d >= noiseFloor && d < 500){
       total += d;
       if(running) partial += d;
+      curSpeed = (c.speed !== null && !isNaN(c.speed)) ? c.speed : 0;
       lastPos = c;
-      render();
+      lastFixTime = performance.now();
     }
   } else {
     lastPos = c;
+    lastFixTime = performance.now();
   }
 }
 
-function onErr(err){
-  gpsdot.className='';
-  gpsText.textContent = 'GPS: ' + (err.code===1 ? 'permesso negato' : 'errore');
-}
+function onErr(err){ gpsdot.className='r'; }
 
 navigator.geolocation.watchPosition(onFix, onErr, {
   enableHighAccuracy: true,
@@ -276,42 +471,56 @@ navigator.geolocation.watchPosition(onFix, onErr, {
   timeout: 15000
 });
 
-/* ================= RENDER ================= */
-function fmt(m){ return Math.round(m).toLocaleString('it-IT'); }
-
-function render(){
-  totalVal.textContent = fmt(total);
-  partialVal.textContent = fmt(partial);
-  checkWords();
-  // zona sinistra: parola se c'è, altrimenti replica il parziale
-  if(currentWord){
-    wordVal.textContent = currentWord;
-    wordVal.classList.remove('numeric');
-  } else {
-    wordVal.textContent = fmt(partial);
-    wordVal.classList.add('numeric');
+/* ================= PAROLE A INTERVALLI ================= */
+function activeWord(p){
+  for(const r of cfg.rows){
+    const a = parseFloat(r.from);
+    const b = (r.to === '' || r.to === null || r.to === undefined) ? Infinity : parseFloat(r.to);
+    if(!isNaN(a) && r.w && p >= a && p < (isNaN(b) ? Infinity : b)) return r.w;
   }
+  return null;
 }
 
-function checkWords(){
-  if(!running) return;
-  let best = null;
-  for(const r of cfg.rows){
-    const m = parseFloat(r.m);
-    if(!isNaN(m) && r.w && partial >= m && (best===null || m > best.m)){
-      best = {m:m, w:r.w};
-    }
+/* ================= RENDER IN TEMPO REALE ================= */
+const loc = () => LOCALES[cfg.lang] || 'en-US';
+function fmtKm(m){ return (m/1000).toLocaleString(loc(), {minimumFractionDigits:2, maximumFractionDigits:2}); }
+function fmtM(m){ return Math.round(m).toLocaleString(loc()); }
+
+function frame(){
+  const now = performance.now();
+  // interpolazione: tra un fix GPS e l'altro, avanza usando la velocità
+  let extra = 0;
+  const dt = (now - lastFixTime) / 1000;
+  if(curSpeed > 0.7 && dt < 3){        // max 3 s senza fix, poi si ferma
+    extra = Math.min(curSpeed * dt, 60);
   }
-  if(best && best.m !== lastWordShown){
-    lastWordShown = best.m;
-    currentWord = best.w;
-    if(cfg.speak && 'speechSynthesis' in window){
-      const u = new SpeechSynthesisUtterance(best.w);
-      u.lang = 'it-IT';
+  const dispTotal = total + extra;
+  const dispPartial = running ? partial + extra : partial;
+
+  totalVal.textContent = fmtKm(dispTotal);
+  partialVal.textContent = fmtM(dispPartial);
+
+  // zona sinistra: parola se nell'intervallo, altrimenti il numero
+  if(running){
+    const w = activeWord(dispPartial);
+    currentWord = w;
+    if(w && cfg.speak && w !== lastSpoken && 'speechSynthesis' in window){
+      lastSpoken = w;
+      const u = new SpeechSynthesisUtterance(w);
+      u.lang = loc();
       speechSynthesis.cancel();
       speechSynthesis.speak(u);
     }
+    if(!w) lastSpoken = null;
   }
+  if(currentWord){
+    if(wordVal.textContent !== currentWord){ wordVal.textContent = currentWord; }
+    wordVal.classList.remove('numeric');
+  } else {
+    wordVal.textContent = fmtM(dispPartial);
+    wordVal.classList.add('numeric');
+  }
+  requestAnimationFrame(frame);
 }
 
 /* ================= PARZIALE: toggle ================= */
@@ -320,40 +529,52 @@ function togglePartial(){
     running = false;
     zonePartial.classList.add('stopped');
     zoneWord.classList.add('stopped');
-    wordState.textContent = 'Fermo — premi per ripartire da 0';
-    wordState.className = '';
   } else {
     partial = 0;
-    lastWordShown = null;
     currentWord = null;
+    lastSpoken = null;
     running = true;
     zonePartial.classList.remove('stopped');
     zoneWord.classList.remove('stopped');
-    wordState.textContent = 'In misurazione…';
-    wordState.className = 'run';
   }
-  render();
+  updateStateText();
   flash.style.opacity = 1;
   setTimeout(()=>flash.style.opacity=0, 200);
   if(navigator.vibrate) navigator.vibrate(60);
 }
 
-// tocco sulla zona sinistra
 zoneWord.addEventListener('click', togglePartial);
 
-// QUALSIASI tasto (clicker Bluetooth accoppiato come tastiera)
 window.addEventListener('keydown', e => {
-  if($('settings').classList.contains('open')) return;
+  if($('settings').classList.contains('open') || $('intro').classList.contains('open')) return;
   if(e.target.tagName === 'INPUT') return;
   e.preventDefault();
   togglePartial();
 });
 
-/* ================= TOTALE: reset al tocco ================= */
+/* ================= TOTALE: reset ================= */
 $('zoneTotal').addEventListener('click', ()=>{
   total = 0;
-  render();
   if(navigator.vibrate) navigator.vibrate([40,40,40]);
+});
+
+/* ================= LEGENDA GPS ================= */
+$('btnInfo').addEventListener('click', e=>{
+  e.stopPropagation();
+  $('legend').classList.toggle('open');
+});
+document.addEventListener('click', e=>{
+  if(!$('legend').contains(e.target) && e.target.id!=='btnInfo'){
+    $('legend').classList.remove('open');
+  }
+}, true);
+
+/* ================= INTRODUZIONE ================= */
+if(!cfg.hideIntro) $('intro').classList.add('open');
+$('closeIntro').addEventListener('click', ()=>{
+  cfg.hideIntro = $('hideIntro').checked;
+  saveCfg();
+  $('intro').classList.remove('open');
 });
 
 /* ================= IMPOSTAZIONI ================= */
@@ -364,8 +585,9 @@ function buildTable(){
   cfg.rows.forEach((r,i)=>{
     const tr = document.createElement('tr');
     tr.innerHTML =
-      '<td><input type="number" inputmode="decimal" value="'+ (r.m ?? '') +'" data-i="'+i+'" data-f="m" placeholder="metri"></td>' +
-      '<td><input type="text" value="'+ (r.w ? String(r.w).replace(/"/g,'&quot;') : '') +'" data-i="'+i+'" data-f="w" placeholder="parola"></td>' +
+      '<td><input type="number" inputmode="decimal" value="'+ (r.from ?? '') +'" data-i="'+i+'" data-f="from"></td>' +
+      '<td><input type="number" inputmode="decimal" value="'+ (r.to ?? '') +'" data-i="'+i+'" data-f="to"></td>' +
+      '<td><input type="text" value="'+ (r.w ? String(r.w).replace(/"/g,'&quot;') : '') +'" data-i="'+i+'" data-f="w"></td>' +
       '<td><button data-del="'+i+'">✕</button></td>';
     tblBody.appendChild(tr);
   });
@@ -379,21 +601,28 @@ tblBody.addEventListener('click', e=>{
   const del = e.target.dataset.del;
   if(del !== undefined){ cfg.rows.splice(del,1); buildTable(); }
 });
-$('addRow').addEventListener('click', ()=>{ cfg.rows.push({m:'',w:''}); buildTable(); });
+$('addRow').addEventListener('click', ()=>{ cfg.rows.push({from:'',to:'',w:''}); buildTable(); });
 
 $('btnSettings').addEventListener('click', e=>{
   e.stopPropagation();
   $('accLimit').value = cfg.accLimit;
   $('speakToggle').checked = cfg.speak;
+  $('langSel').value = cfg.lang;
   buildTable();
   settings.classList.add('open');
+});
+$('langSel') && $('langSel').addEventListener('change', ()=>{
+  cfg.lang = $('langSel').value;
+  applyLang();
 });
 $('closeSettings').addEventListener('click', ()=>{
   cfg.accLimit = Math.max(5, parseFloat($('accLimit').value) || 20);
   cfg.speak = $('speakToggle').checked;
-  cfg.rows = cfg.rows.filter(r => r.m !== '' && r.w !== '');
-  cfg.rows.sort((a,b)=>parseFloat(a.m)-parseFloat(b.m));
+  cfg.lang = $('langSel').value;
+  cfg.rows = cfg.rows.filter(r => r.from !== '' && r.w !== '');
+  cfg.rows.sort((a,b)=>parseFloat(a.from)-parseFloat(b.from));
   saveCfg();
+  applyLang();
   settings.classList.remove('open');
 });
 
@@ -411,7 +640,8 @@ document.addEventListener('visibilitychange', ()=>{
 });
 keepAwake();
 
-render();
+applyLang();
+requestAnimationFrame(frame);
 })();
 </script>
 </body>
