@@ -3,18 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#0b0d10">
+<meta name="theme-color" content="#000000">
 <title>Rally Trip</title>
 <style>
   :root{
-    --bg:#0b0d10;
-    --panel:#14181d;
-    --line:#242b33;
+    --bg:#000;
+    --panel:#111417;
+    --line:#2a2f36;
     --amber:#ffb400;
-    --amber-dim:#8a6200;
     --green:#39d353;
     --red:#ff4d4d;
-    --text:#e8eaed;
+    --text:#f2f4f7;
     --muted:#8b949e;
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -24,87 +23,96 @@
     color:var(--text);
     font-family:system-ui,-apple-system,sans-serif;
     overflow:hidden;
-    user-select:none;
-    -webkit-user-select:none;
+    user-select:none;-webkit-user-select:none;
   }
-  #app{display:flex;flex-direction:column;height:100dvh}
 
-  /* ---- barra stato ---- */
   #statusbar{
+    position:fixed;top:0;left:0;right:0;z-index:3;
     display:flex;justify-content:space-between;align-items:center;
-    padding:8px 14px;font-size:12px;color:var(--muted);
-    border-bottom:1px solid var(--line);
+    padding:6px 12px;font-size:12px;color:var(--muted);
   }
   #gpsdot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--red);margin-right:6px;vertical-align:middle}
   #gpsdot.ok{background:var(--green)}
   #gpsdot.warn{background:var(--amber)}
-  #btnSettings{background:none;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:4px 10px;font-size:12px}
+  #btnSettings{background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:4px 10px;font-size:12px}
 
-  /* ---- display totale ---- */
-  #totalZone{
-    flex:0 0 auto;
-    padding:14px 16px 10px;
-    text-align:center;
-    border-bottom:1px solid var(--line);
-    cursor:pointer;
+  /* ====== LAYOUT PRINCIPALE ====== */
+  #app{
+    display:grid;
+    height:100dvh;
+    padding-top:30px;
+    grid-template-columns:1.2fr 1fr;   /* sinistra | destra */
+    grid-template-rows:1fr 1fr;
+    grid-template-areas:
+      "word total"
+      "word partial";
   }
-  .label{font-size:11px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase}
-  #totalVal{
-    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
-    font-size:clamp(38px,11vw,64px);
-    font-weight:700;
-    color:var(--text);
-    line-height:1.1;
-    font-variant-numeric:tabular-nums;
+  /* in verticale: impila */
+  @media (orientation:portrait){
+    #app{
+      grid-template-columns:1fr;
+      grid-template-rows:1fr 1fr 2fr;
+      grid-template-areas:
+        "total"
+        "partial"
+        "word";
+    }
   }
-  #totalHint{font-size:10px;color:var(--muted);margin-top:2px}
 
-  /* ---- display parziale ---- */
-  #partialZone{
-    flex:1 1 auto;
+  .zone{
     display:flex;flex-direction:column;justify-content:center;align-items:center;
-    padding:10px 16px;
-    position:relative;
-  }
-  #partialVal{
-    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
-    font-size:clamp(72px,24vw,150px);
-    font-weight:800;
-    color:var(--amber);
-    line-height:1;
-    font-variant-numeric:tabular-nums;
-    text-shadow:0 0 30px rgba(255,180,0,.25);
-  }
-  #partialVal.stopped{color:var(--amber-dim);text-shadow:none}
-  #partialState{
-    margin-top:8px;font-size:13px;letter-spacing:.15em;text-transform:uppercase;
-    color:var(--muted);
-  }
-  #partialState.run{color:var(--green)}
-  #wordBox{
-    min-height:56px;
-    margin-top:14px;
-    font-size:clamp(28px,9vw,52px);
-    font-weight:800;
-    color:var(--green);
-    text-align:center;
-    text-transform:uppercase;
-  }
-
-  /* ---- pulsante grande ---- */
-  #bigBtn{
-    flex:0 0 auto;
-    margin:0 16px 18px;
-    padding:20px;
-    font-size:20px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    border:1px solid var(--line);
+    border-radius:18px;
+    margin:8px;
     background:var(--panel);
-    color:var(--amber);
-    border:2px solid var(--amber-dim);
-    border-radius:14px;
+    position:relative;
+    overflow:hidden;
   }
-  #bigBtn:active{background:var(--amber);color:#000}
+  .zlabel{
+    position:absolute;top:10px;left:14px;
+    font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);
+  }
+  .unit{font-size:14px;color:var(--muted);margin-top:2px;letter-spacing:.1em}
 
-  /* ---- impostazioni ---- */
+  #zoneTotal{grid-area:total;cursor:pointer}
+  #totalVal{
+    font-family:ui-monospace,Menlo,Consolas,monospace;
+    font-size:clamp(40px,9vw,90px);font-weight:700;
+    font-variant-numeric:tabular-nums;line-height:1;
+  }
+
+  #zonePartial{grid-area:partial}
+  #partialVal{
+    font-family:ui-monospace,Menlo,Consolas,monospace;
+    font-size:clamp(40px,9vw,90px);font-weight:800;
+    font-variant-numeric:tabular-nums;line-height:1;
+    color:var(--amber);
+  }
+  #zonePartial.stopped #partialVal{color:#8a6200}
+
+  #zoneWord{grid-area:word;cursor:pointer}
+  #wordVal{
+    font-size:clamp(60px,14vw,160px);
+    font-weight:900;line-height:1;
+    text-align:center;
+    color:var(--green);
+    text-transform:uppercase;
+    word-break:break-word;
+    padding:0 10px;
+  }
+  #wordVal.numeric{
+    font-family:ui-monospace,Menlo,Consolas,monospace;
+    color:var(--amber);
+    font-variant-numeric:tabular-nums;
+  }
+  #zoneWord.stopped #wordVal.numeric{color:#8a6200}
+  #wordState{
+    position:absolute;bottom:12px;
+    font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);
+  }
+  #wordState.run{color:var(--green)}
+
+  /* ====== IMPOSTAZIONI ====== */
   #settings{
     position:fixed;inset:0;background:var(--bg);z-index:10;
     display:none;flex-direction:column;padding:16px;overflow-y:auto;
@@ -136,27 +144,30 @@
 </style>
 </head>
 <body>
+
+<div id="statusbar">
+  <span><span id="gpsdot"></span><span id="gpsText">GPS: in attesa…</span></span>
+  <button id="btnSettings">⚙ Tabella</button>
+</div>
+
 <div id="app">
-
-  <div id="statusbar">
-    <span><span id="gpsdot"></span><span id="gpsText">GPS: in attesa…</span></span>
-    <button id="btnSettings">⚙ Tabella</button>
+  <div class="zone" id="zoneWord">
+    <span class="zlabel">Parola / Parziale · tocca per start-stop</span>
+    <div id="wordVal" class="numeric">0</div>
+    <div id="wordState">Pronto</div>
   </div>
 
-  <div id="totalZone" title="Tocca per azzerare il totale">
-    <div class="label">Distanza totale · tocca per azzerare</div>
+  <div class="zone" id="zoneTotal">
+    <span class="zlabel">Totale · tocca per azzerare</span>
     <div id="totalVal">0</div>
-    <div id="totalHint">metri</div>
+    <div class="unit">m</div>
   </div>
 
-  <div id="partialZone">
-    <div class="label">Parziale</div>
-    <div id="partialVal" class="stopped">0</div>
-    <div id="partialState">Pronto — premi il tasto per partire</div>
-    <div id="wordBox"></div>
+  <div class="zone stopped" id="zonePartial">
+    <span class="zlabel">Parziale</span>
+    <div id="partialVal">0</div>
+    <div class="unit">m</div>
   </div>
-
-  <button id="bigBtn">Start / Stop parziale</button>
 </div>
 
 <div id="flash"></div>
@@ -164,7 +175,7 @@
 <!-- ============ IMPOSTAZIONI ============ -->
 <div id="settings">
   <h2>Tabella parole</h2>
-  <p>Quando il <b>parziale</b> raggiunge i metri indicati, sullo schermo appare la parola scelta al posto del numero.</p>
+  <p>Quando il <b>parziale</b> raggiunge i metri indicati, a sinistra appare la parola scelta al posto del numero.</p>
   <table>
     <thead><tr><th style="width:35%">Metri</th><th>Parola / testo</th><th></th></tr></thead>
     <tbody id="tblBody"></tbody>
@@ -190,18 +201,18 @@
 'use strict';
 
 /* ================= STATO ================= */
-let total = 0;            // metri totali
-let partial = 0;          // metri parziale
-let running = false;      // parziale in corsa?
-let lastPos = null;       // ultima posizione GPS accettata
-let lastWordShown = null; // ultima soglia annunciata
+let total = 0;
+let partial = 0;
+let running = false;
+let lastPos = null;
+let lastWordShown = null;
+let currentWord = null;
 let cfg = {
   rows: [ {m:10, w:"ESEMPIO"} ],
   accLimit: 20,
   speak: false
 };
 
-// carica configurazione salvata
 try{
   const saved = JSON.parse(localStorage.getItem('rallytrip_cfg'));
   if(saved && Array.isArray(saved.rows)) cfg = Object.assign(cfg, saved);
@@ -211,9 +222,10 @@ function saveCfg(){ localStorage.setItem('rallytrip_cfg', JSON.stringify(cfg)); 
 
 /* ================= ELEMENTI ================= */
 const $ = id => document.getElementById(id);
-const totalVal = $('totalVal'), partialVal = $('partialVal'),
-      partialState = $('partialState'), wordBox = $('wordBox'),
-      gpsdot = $('gpsdot'), gpsText = $('gpsText'), flash = $('flash');
+const totalVal=$('totalVal'), partialVal=$('partialVal'),
+      wordVal=$('wordVal'), wordState=$('wordState'),
+      zoneWord=$('zoneWord'), zonePartial=$('zonePartial'),
+      gpsdot=$('gpsdot'), gpsText=$('gpsText'), flash=$('flash');
 
 /* ================= GPS ================= */
 function haversine(lat1, lon1, lat2, lon2){
@@ -228,21 +240,21 @@ function onFix(pos){
   const c = pos.coords;
   const acc = c.accuracy;
 
-  // indicatore qualità
   if(acc <= 8){ gpsdot.className='ok'; }
   else if(acc <= cfg.accLimit){ gpsdot.className='warn'; }
   else { gpsdot.className=''; }
   gpsText.textContent = 'GPS ±' + Math.round(acc) + ' m';
 
-  // scarta fix troppo imprecisi
   if(acc > cfg.accLimit) return;
 
   if(lastPos){
     const d = haversine(lastPos.latitude, lastPos.longitude, c.latitude, c.longitude);
-    // filtro anti-rumore: da fermi il GPS "balla" di 1-2 m.
-    // Accetta lo spostamento solo se supera una soglia proporzionale alla precisione.
-    const noiseFloor = Math.max(1.5, acc * 0.35);
-    if(d >= noiseFloor && d < 500){ // <500 m per scartare salti anomali
+    const noiseFloor = Math.max(2, acc * 0.5);
+    // se il GPS dice che sei fermo, non conta nulla
+    const fermo = (c.speed !== null && c.speed < 0.7);
+    if(fermo){
+      lastPos = c;
+    } else if(d >= noiseFloor && d < 500){
       total += d;
       if(running) partial += d;
       lastPos = c;
@@ -271,11 +283,18 @@ function render(){
   totalVal.textContent = fmt(total);
   partialVal.textContent = fmt(partial);
   checkWords();
+  // zona sinistra: parola se c'è, altrimenti replica il parziale
+  if(currentWord){
+    wordVal.textContent = currentWord;
+    wordVal.classList.remove('numeric');
+  } else {
+    wordVal.textContent = fmt(partial);
+    wordVal.classList.add('numeric');
+  }
 }
 
 function checkWords(){
-  if(!running){ return; }
-  // trova la soglia più alta già raggiunta
+  if(!running) return;
   let best = null;
   for(const r of cfg.rows){
     const m = parseFloat(r.m);
@@ -285,7 +304,7 @@ function checkWords(){
   }
   if(best && best.m !== lastWordShown){
     lastWordShown = best.m;
-    wordBox.textContent = best.w;
+    currentWord = best.w;
     if(cfg.speak && 'speechSynthesis' in window){
       const u = new SpeechSynthesisUtterance(best.w);
       u.lang = 'it-IT';
@@ -298,41 +317,40 @@ function checkWords(){
 /* ================= PARZIALE: toggle ================= */
 function togglePartial(){
   if(running){
-    // STOP: congela la misura
     running = false;
-    partialVal.classList.add('stopped');
-    partialState.textContent = 'Fermo — ' + fmt(partial) + ' m · premi per ripartire da zero';
-    partialState.className = '';
+    zonePartial.classList.add('stopped');
+    zoneWord.classList.add('stopped');
+    wordState.textContent = 'Fermo — premi per ripartire da 0';
+    wordState.className = '';
   } else {
-    // START: riparte sempre da zero
     partial = 0;
     lastWordShown = null;
-    wordBox.textContent = '';
+    currentWord = null;
     running = true;
-    partialVal.classList.remove('stopped');
-    partialState.textContent = 'In misurazione…';
-    partialState.className = 'run';
+    zonePartial.classList.remove('stopped');
+    zoneWord.classList.remove('stopped');
+    wordState.textContent = 'In misurazione…';
+    wordState.className = 'run';
   }
   render();
-  // feedback visivo + vibrazione
   flash.style.opacity = 1;
   setTimeout(()=>flash.style.opacity=0, 200);
   if(navigator.vibrate) navigator.vibrate(60);
 }
 
-// pulsante a schermo
-$('bigBtn').addEventListener('click', e => { e.stopPropagation(); togglePartial(); });
+// tocco sulla zona sinistra
+zoneWord.addEventListener('click', togglePartial);
 
-// QUALSIASI tasto (tastiera o clicker Bluetooth accoppiato come tastiera)
+// QUALSIASI tasto (clicker Bluetooth accoppiato come tastiera)
 window.addEventListener('keydown', e => {
-  if($('settings').classList.contains('open')) return; // non nelle impostazioni
+  if($('settings').classList.contains('open')) return;
   if(e.target.tagName === 'INPUT') return;
   e.preventDefault();
   togglePartial();
 });
 
 /* ================= TOTALE: reset al tocco ================= */
-$('totalZone').addEventListener('click', ()=>{
+$('zoneTotal').addEventListener('click', ()=>{
   total = 0;
   render();
   if(navigator.vibrate) navigator.vibrate([40,40,40]);
@@ -373,7 +391,6 @@ $('btnSettings').addEventListener('click', e=>{
 $('closeSettings').addEventListener('click', ()=>{
   cfg.accLimit = Math.max(5, parseFloat($('accLimit').value) || 20);
   cfg.speak = $('speakToggle').checked;
-  // pulisci righe vuote e ordina
   cfg.rows = cfg.rows.filter(r => r.m !== '' && r.w !== '');
   cfg.rows.sort((a,b)=>parseFloat(a.m)-parseFloat(b.m));
   saveCfg();
