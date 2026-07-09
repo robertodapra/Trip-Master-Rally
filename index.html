@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0b0d10">
+<title>Rally Trip</title>
+<style>
+  :root{
+    --bg:#0b0d10;
+    --panel:#14181d;
+    --line:#242b33;
+    --amber:#ffb400;
+    --amber-dim:#8a6200;
+    --green:#39d353;
+    --red:#ff4d4d;
+    --text:#e8eaed;
+    --muted:#8b949e;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:system-ui,-apple-system,sans-serif;
+    overflow:hidden;
+    user-select:none;
+    -webkit-user-select:none;
+  }
+  #app{display:flex;flex-direction:column;height:100dvh}
+
+  /* ---- barra stato ---- */
+  #statusbar{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:8px 14px;font-size:12px;color:var(--muted);
+    border-bottom:1px solid var(--line);
+  }
+  #gpsdot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--red);margin-right:6px;vertical-align:middle}
+  #gpsdot.ok{background:var(--green)}
+  #gpsdot.warn{background:var(--amber)}
+  #btnSettings{background:none;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:4px 10px;font-size:12px}
+
+  /* ---- display totale ---- */
+  #totalZone{
+    flex:0 0 auto;
+    padding:14px 16px 10px;
+    text-align:center;
+    border-bottom:1px solid var(--line);
+    cursor:pointer;
+  }
+  .label{font-size:11px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase}
+  #totalVal{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    font-size:clamp(38px,11vw,64px);
+    font-weight:700;
+    color:var(--text);
+    line-height:1.1;
+    font-variant-numeric:tabular-nums;
+  }
+  #totalHint{font-size:10px;color:var(--muted);margin-top:2px}
+
+  /* ---- display parziale ---- */
+  #partialZone{
+    flex:1 1 auto;
+    display:flex;flex-direction:column;justify-content:center;align-items:center;
+    padding:10px 16px;
+    position:relative;
+  }
+  #partialVal{
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    font-size:clamp(72px,24vw,150px);
+    font-weight:800;
+    color:var(--amber);
+    line-height:1;
+    font-variant-numeric:tabular-nums;
+    text-shadow:0 0 30px rgba(255,180,0,.25);
+  }
+  #partialVal.stopped{color:var(--amber-dim);text-shadow:none}
+  #partialState{
+    margin-top:8px;font-size:13px;letter-spacing:.15em;text-transform:uppercase;
+    color:var(--muted);
+  }
+  #partialState.run{color:var(--green)}
+  #wordBox{
+    min-height:56px;
+    margin-top:14px;
+    font-size:clamp(28px,9vw,52px);
+    font-weight:800;
+    color:var(--green);
+    text-align:center;
+    text-transform:uppercase;
+  }
+
+  /* ---- pulsante grande ---- */
+  #bigBtn{
+    flex:0 0 auto;
+    margin:0 16px 18px;
+    padding:20px;
+    font-size:20px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    background:var(--panel);
+    color:var(--amber);
+    border:2px solid var(--amber-dim);
+    border-radius:14px;
+  }
+  #bigBtn:active{background:var(--amber);color:#000}
+
+  /* ---- impostazioni ---- */
+  #settings{
+    position:fixed;inset:0;background:var(--bg);z-index:10;
+    display:none;flex-direction:column;padding:16px;overflow-y:auto;
+  }
+  #settings.open{display:flex}
+  #settings h2{font-size:16px;letter-spacing:.15em;text-transform:uppercase;color:var(--amber);margin-bottom:4px}
+  #settings p{font-size:13px;color:var(--muted);margin-bottom:14px}
+  table{width:100%;border-collapse:collapse;margin-bottom:14px}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);text-align:left;padding:6px 4px}
+  td{padding:4px}
+  td input{
+    width:100%;padding:10px;background:var(--panel);border:1px solid var(--line);
+    border-radius:8px;color:var(--text);font-size:16px;
+  }
+  td button{background:none;border:none;color:var(--red);font-size:20px;padding:6px}
+  .rowbtns{display:flex;gap:10px;margin-bottom:20px}
+  .rowbtns button, #closeSettings{
+    flex:1;padding:14px;border-radius:10px;font-size:15px;font-weight:600;
+    background:var(--panel);border:1px solid var(--line);color:var(--text);
+  }
+  #closeSettings{background:var(--amber);color:#000;border:none;width:100%;margin-top:auto}
+  .setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;font-size:14px}
+  .setting-row input[type=number]{width:90px;padding:10px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:16px;text-align:center}
+
+  #flash{
+    position:fixed;inset:0;background:rgba(255,180,0,.15);z-index:5;
+    opacity:0;pointer-events:none;transition:opacity .3s;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="statusbar">
+    <span><span id="gpsdot"></span><span id="gpsText">GPS: in attesa…</span></span>
+    <button id="btnSettings">⚙ Tabella</button>
+  </div>
+
+  <div id="totalZone" title="Tocca per azzerare il totale">
+    <div class="label">Distanza totale · tocca per azzerare</div>
+    <div id="totalVal">0</div>
+    <div id="totalHint">metri</div>
+  </div>
+
+  <div id="partialZone">
+    <div class="label">Parziale</div>
+    <div id="partialVal" class="stopped">0</div>
+    <div id="partialState">Pronto — premi il tasto per partire</div>
+    <div id="wordBox"></div>
+  </div>
+
+  <button id="bigBtn">Start / Stop parziale</button>
+</div>
+
+<div id="flash"></div>
+
+<!-- ============ IMPOSTAZIONI ============ -->
+<div id="settings">
+  <h2>Tabella parole</h2>
+  <p>Quando il <b>parziale</b> raggiunge i metri indicati, sullo schermo appare la parola scelta al posto del numero.</p>
+  <table>
+    <thead><tr><th style="width:35%">Metri</th><th>Parola / testo</th><th></th></tr></thead>
+    <tbody id="tblBody"></tbody>
+  </table>
+  <div class="rowbtns">
+    <button id="addRow">+ Aggiungi riga</button>
+  </div>
+
+  <div class="setting-row">
+    <span>Precisione GPS minima richiesta (m)<br><small style="color:var(--muted)">I dati meno precisi vengono scartati</small></span>
+    <input type="number" id="accLimit" min="5" max="100" step="1">
+  </div>
+  <div class="setting-row">
+    <span>Leggi la parola a voce (sintesi vocale)</span>
+    <input type="checkbox" id="speakToggle" style="width:24px;height:24px">
+  </div>
+
+  <button id="closeSettings">Chiudi e salva</button>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ================= STATO ================= */
+let total = 0;            // metri totali
+let partial = 0;          // metri parziale
+let running = false;      // parziale in corsa?
+let lastPos = null;       // ultima posizione GPS accettata
+let lastWordShown = null; // ultima soglia annunciata
+let cfg = {
+  rows: [ {m:10, w:"ESEMPIO"} ],
+  accLimit: 20,
+  speak: false
+};
+
+// carica configurazione salvata
+try{
+  const saved = JSON.parse(localStorage.getItem('rallytrip_cfg'));
+  if(saved && Array.isArray(saved.rows)) cfg = Object.assign(cfg, saved);
+}catch(e){}
+
+function saveCfg(){ localStorage.setItem('rallytrip_cfg', JSON.stringify(cfg)); }
+
+/* ================= ELEMENTI ================= */
+const $ = id => document.getElementById(id);
+const totalVal = $('totalVal'), partialVal = $('partialVal'),
+      partialState = $('partialState'), wordBox = $('wordBox'),
+      gpsdot = $('gpsdot'), gpsText = $('gpsText'), flash = $('flash');
+
+/* ================= GPS ================= */
+function haversine(lat1, lon1, lat2, lon2){
+  const R = 6371000, rad = Math.PI/180;
+  const dLat = (lat2-lat1)*rad, dLon = (lon2-lon1)*rad;
+  const a = Math.sin(dLat/2)**2 +
+            Math.cos(lat1*rad)*Math.cos(lat2*rad)*Math.sin(dLon/2)**2;
+  return 2*R*Math.asin(Math.sqrt(a));
+}
+
+function onFix(pos){
+  const c = pos.coords;
+  const acc = c.accuracy;
+
+  // indicatore qualità
+  if(acc <= 8){ gpsdot.className='ok'; }
+  else if(acc <= cfg.accLimit){ gpsdot.className='warn'; }
+  else { gpsdot.className=''; }
+  gpsText.textContent = 'GPS ±' + Math.round(acc) + ' m';
+
+  // scarta fix troppo imprecisi
+  if(acc > cfg.accLimit) return;
+
+  if(lastPos){
+    const d = haversine(lastPos.latitude, lastPos.longitude, c.latitude, c.longitude);
+    // filtro anti-rumore: da fermi il GPS "balla" di 1-2 m.
+    // Accetta lo spostamento solo se supera una soglia proporzionale alla precisione.
+    const noiseFloor = Math.max(1.5, acc * 0.35);
+    if(d >= noiseFloor && d < 500){ // <500 m per scartare salti anomali
+      total += d;
+      if(running) partial += d;
+      lastPos = c;
+      render();
+    }
+  } else {
+    lastPos = c;
+  }
+}
+
+function onErr(err){
+  gpsdot.className='';
+  gpsText.textContent = 'GPS: ' + (err.code===1 ? 'permesso negato' : 'errore');
+}
+
+navigator.geolocation.watchPosition(onFix, onErr, {
+  enableHighAccuracy: true,
+  maximumAge: 0,
+  timeout: 15000
+});
+
+/* ================= RENDER ================= */
+function fmt(m){ return Math.round(m).toLocaleString('it-IT'); }
+
+function render(){
+  totalVal.textContent = fmt(total);
+  partialVal.textContent = fmt(partial);
+  checkWords();
+}
+
+function checkWords(){
+  if(!running){ return; }
+  // trova la soglia più alta già raggiunta
+  let best = null;
+  for(const r of cfg.rows){
+    const m = parseFloat(r.m);
+    if(!isNaN(m) && r.w && partial >= m && (best===null || m > best.m)){
+      best = {m:m, w:r.w};
+    }
+  }
+  if(best && best.m !== lastWordShown){
+    lastWordShown = best.m;
+    wordBox.textContent = best.w;
+    if(cfg.speak && 'speechSynthesis' in window){
+      const u = new SpeechSynthesisUtterance(best.w);
+      u.lang = 'it-IT';
+      speechSynthesis.cancel();
+      speechSynthesis.speak(u);
+    }
+  }
+}
+
+/* ================= PARZIALE: toggle ================= */
+function togglePartial(){
+  if(running){
+    // STOP: congela la misura
+    running = false;
+    partialVal.classList.add('stopped');
+    partialState.textContent = 'Fermo — ' + fmt(partial) + ' m · premi per ripartire da zero';
+    partialState.className = '';
+  } else {
+    // START: riparte sempre da zero
+    partial = 0;
+    lastWordShown = null;
+    wordBox.textContent = '';
+    running = true;
+    partialVal.classList.remove('stopped');
+    partialState.textContent = 'In misurazione…';
+    partialState.className = 'run';
+  }
+  render();
+  // feedback visivo + vibrazione
+  flash.style.opacity = 1;
+  setTimeout(()=>flash.style.opacity=0, 200);
+  if(navigator.vibrate) navigator.vibrate(60);
+}
+
+// pulsante a schermo
+$('bigBtn').addEventListener('click', e => { e.stopPropagation(); togglePartial(); });
+
+// QUALSIASI tasto (tastiera o clicker Bluetooth accoppiato come tastiera)
+window.addEventListener('keydown', e => {
+  if($('settings').classList.contains('open')) return; // non nelle impostazioni
+  if(e.target.tagName === 'INPUT') return;
+  e.preventDefault();
+  togglePartial();
+});
+
+/* ================= TOTALE: reset al tocco ================= */
+$('totalZone').addEventListener('click', ()=>{
+  total = 0;
+  render();
+  if(navigator.vibrate) navigator.vibrate([40,40,40]);
+});
+
+/* ================= IMPOSTAZIONI ================= */
+const settings = $('settings'), tblBody = $('tblBody');
+
+function buildTable(){
+  tblBody.innerHTML = '';
+  cfg.rows.forEach((r,i)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><input type="number" inputmode="decimal" value="'+ (r.m ?? '') +'" data-i="'+i+'" data-f="m" placeholder="metri"></td>' +
+      '<td><input type="text" value="'+ (r.w ? String(r.w).replace(/"/g,'&quot;') : '') +'" data-i="'+i+'" data-f="w" placeholder="parola"></td>' +
+      '<td><button data-del="'+i+'">✕</button></td>';
+    tblBody.appendChild(tr);
+  });
+}
+
+tblBody.addEventListener('input', e=>{
+  const i = e.target.dataset.i, f = e.target.dataset.f;
+  if(i !== undefined && f) cfg.rows[i][f] = e.target.value;
+});
+tblBody.addEventListener('click', e=>{
+  const del = e.target.dataset.del;
+  if(del !== undefined){ cfg.rows.splice(del,1); buildTable(); }
+});
+$('addRow').addEventListener('click', ()=>{ cfg.rows.push({m:'',w:''}); buildTable(); });
+
+$('btnSettings').addEventListener('click', e=>{
+  e.stopPropagation();
+  $('accLimit').value = cfg.accLimit;
+  $('speakToggle').checked = cfg.speak;
+  buildTable();
+  settings.classList.add('open');
+});
+$('closeSettings').addEventListener('click', ()=>{
+  cfg.accLimit = Math.max(5, parseFloat($('accLimit').value) || 20);
+  cfg.speak = $('speakToggle').checked;
+  // pulisci righe vuote e ordina
+  cfg.rows = cfg.rows.filter(r => r.m !== '' && r.w !== '');
+  cfg.rows.sort((a,b)=>parseFloat(a.m)-parseFloat(b.m));
+  saveCfg();
+  settings.classList.remove('open');
+});
+
+/* ================= SCHERMO SEMPRE ACCESO ================= */
+let wakeLock = null;
+async function keepAwake(){
+  try{
+    if('wakeLock' in navigator){
+      wakeLock = await navigator.wakeLock.request('screen');
+    }
+  }catch(e){}
+}
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState === 'visible') keepAwake();
+});
+keepAwake();
+
+render();
+})();
+</script>
+</body>
+</html>
