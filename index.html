@@ -90,7 +90,7 @@
   body[data-mode="nav"] #zoneWord{display:none}
   body[data-mode="nav"] #zonePartial{cursor:pointer}
   body[data-mode="nav"] #partialVal{
-    font-size:clamp(80px,20vw,220px);
+    font-size:clamp(70px,17vw,200px);
     color:var(--amber);
   }
   body[data-mode="nav"] #totalVal{
@@ -230,7 +230,7 @@
   <div class="zone stopped" id="zonePartial">
     <span class="zlabel" id="partialLbl" data-t="partialLabel"></span>
     <div id="partialVal">0</div>
-    <div class="unit">m</div>
+    <div class="unit" id="partialUnit">m</div>
   </div>
 </div>
 
@@ -304,7 +304,7 @@ const T = {
 it:{introTitle:"Come funziona",
   intro1:"In alto c'è l'orologio e la distanza TOTALE in km: toccala per azzerarla.",
   intro2:"MODALITÀ PILOTA: parziale in metri con start-stop (tocca la zona grande o premi il tasto Bluetooth). Nella tabella puoi impostare parole che appaiono in certi intervalli di metri.",
-  intro5:"MODALITÀ NAVIGATORE: il parziale conta sempre, come il trip dell'auto — ogni tocco lo azzera e riparte subito.",
+  intro5:"MODALITÀ NAVIGATORE: il parziale (in km) conta sempre, come il trip dell'auto — ogni tocco lo azzera e riparte subito.",
   intro3:"Apri il menu (☰) per cambiare modalità, tabella parole, lingua e opzioni.",
   intro4:"Puntino GPS: verde = ottimo (<6 m) · blu = buono (6–10 m) · rosso = debole (>10 m).",
   dontShow:"Non mostrare più",start:"Inizia",
@@ -313,7 +313,7 @@ it:{introTitle:"Come funziona",
   wordLabel:"Parola / Parziale · tocca per start-stop",
   ready:"Pronto",running:"In misurazione…",stopped:"Fermo — premi per ripartire da 0",
   setTitle:"Menu",modeLabel:"Modalità",modePilot:"Pilota",modeNav:"Navigatore",
-  modeDesc:"Pilota: parziale con start-stop e parole. Navigatore: parziale sempre attivo, un tocco lo azzera (come il trip dell'auto).",
+  modeDesc:"Pilota: parziale in metri con start-stop e parole. Navigatore: parziale in km sempre attivo, un tocco lo azzera (come il trip dell'auto).",
   wordsTitle:"Tabella parole (modalità Pilota)",
   setDesc:"La parola appare quando il parziale è tra i due valori (Da incluso, A escluso). Lascia vuoto \"A\" per non avere limite.",
   thFrom:"Da (m)",thTo:"A (m)",thWord:"Parola",addRow:"+ Aggiungi riga",
@@ -324,7 +324,7 @@ it:{introTitle:"Come funziona",
 en:{introTitle:"How it works",
   intro1:"At the top: the clock and the TOTAL distance in km — tap it to reset.",
   intro2:"DRIVER MODE: partial in metres with start-stop (tap the big area or press your Bluetooth button). In the table you can set words that appear within metre ranges.",
-  intro5:"CO-DRIVER MODE: the partial always counts, like a car trip meter — each tap resets it to zero and it restarts immediately.",
+  intro5:"CO-DRIVER MODE: the partial (in km) always counts, like a car trip meter — each tap resets it to zero and it restarts immediately.",
   intro3:"Open the menu (☰) to change mode, word table, language and options.",
   intro4:"GPS dot: green = excellent (<6 m) · blue = good (6–10 m) · red = weak (>10 m).",
   dontShow:"Don't show again",start:"Start",
@@ -333,7 +333,7 @@ en:{introTitle:"How it works",
   wordLabel:"Word / Partial · tap to start-stop",
   ready:"Ready",running:"Measuring…",stopped:"Stopped — press to restart from 0",
   setTitle:"Menu",modeLabel:"Mode",modePilot:"Driver",modeNav:"Co-driver",
-  modeDesc:"Driver: partial with start-stop and words. Co-driver: partial always running, one tap resets it (like a car trip meter).",
+  modeDesc:"Driver: partial in metres with start-stop and words. Co-driver: partial in km always running, one tap resets it (like a car trip meter).",
   wordsTitle:"Word table (Driver mode)",
   setDesc:"The word shows when the partial is between the two values (From included, To excluded). Leave \"To\" empty for no limit.",
   thFrom:"From (m)",thTo:"To (m)",thWord:"Word",addRow:"+ Add row",
@@ -344,7 +344,7 @@ en:{introTitle:"How it works",
 fr:{introTitle:"Comment ça marche",
   intro1:"En haut : l'horloge et la distance TOTALE en km — touchez pour remettre à zéro.",
   intro2:"MODE PILOTE : partiel en mètres avec start-stop (touchez la grande zone ou appuyez sur le bouton Bluetooth). Dans le tableau, définissez des mots qui apparaissent dans certains intervalles.",
-  intro5:"MODE COPILOTE : le partiel compte toujours, comme le trip d'une voiture — chaque touche le remet à zéro et il repart aussitôt.",
+  intro5:"MODE COPILOTE : le partiel (en km) compte toujours, comme le trip d'une voiture — chaque touche le remet à zéro et il repart aussitôt.",
   intro3:"Ouvrez le menu (☰) pour changer de mode, tableau des mots, langue et options.",
   intro4:"Point GPS : vert = excellent (<6 m) · bleu = bon (6–10 m) · rouge = faible (>10 m).",
   dontShow:"Ne plus afficher",start:"Commencer",
@@ -353,7 +353,7 @@ fr:{introTitle:"Comment ça marche",
   wordLabel:"Mot / Partiel · toucher pour start-stop",
   ready:"Prêt",running:"Mesure en cours…",stopped:"Arrêté — appuyez pour repartir de 0",
   setTitle:"Menu",modeLabel:"Mode",modePilot:"Pilote",modeNav:"Copilote",
-  modeDesc:"Pilote : partiel avec start-stop et mots. Copilote : partiel toujours actif, une touche le remet à zéro (comme le trip d'une voiture).",
+  modeDesc:"Pilote : partiel en mètres avec start-stop et mots. Copilote : partiel en km toujours actif, une touche le remet à zéro (comme le trip d'une voiture).",
   wordsTitle:"Tableau des mots (mode Pilote)",
   setDesc:"Le mot s'affiche quand le partiel est entre les deux valeurs (De inclus, À exclu). Laissez \"À\" vide pour aucune limite.",
   thFrom:"De (m)",thTo:"À (m)",thWord:"Mot",addRow:"+ Ajouter une ligne",
@@ -364,7 +364,7 @@ fr:{introTitle:"Comment ça marche",
 es:{introTitle:"Cómo funciona",
   intro1:"Arriba: el reloj y la distancia TOTAL en km — tócala para ponerla a cero.",
   intro2:"MODO PILOTO: parcial en metros con start-stop (toca la zona grande o pulsa el botón Bluetooth). En la tabla puedes definir palabras que aparecen en ciertos intervalos.",
-  intro5:"MODO COPILOTO: el parcial cuenta siempre, como el trip del coche — cada toque lo pone a cero y arranca de inmediato.",
+  intro5:"MODO COPILOTO: el parcial (en km) cuenta siempre, como el trip del coche — cada toque lo pone a cero y arranca de inmediato.",
   intro3:"Abre el menú (☰) para cambiar de modo, tabla de palabras, idioma y opciones.",
   intro4:"Punto GPS: verde = excelente (<6 m) · azul = bueno (6–10 m) · rojo = débil (>10 m).",
   dontShow:"No mostrar más",start:"Empezar",
@@ -373,7 +373,7 @@ es:{introTitle:"Cómo funciona",
   wordLabel:"Palabra / Parcial · toca para start-stop",
   ready:"Listo",running:"Midiendo…",stopped:"Parado — pulsa para reiniciar desde 0",
   setTitle:"Menú",modeLabel:"Modo",modePilot:"Piloto",modeNav:"Copiloto",
-  modeDesc:"Piloto: parcial con start-stop y palabras. Copiloto: parcial siempre activo, un toque lo pone a cero (como el trip del coche).",
+  modeDesc:"Piloto: parcial en metros con start-stop y palabras. Copiloto: parcial en km siempre activo, un toque lo pone a cero (como el trip del coche).",
   wordsTitle:"Tabla de palabras (modo Piloto)",
   setDesc:"La palabra aparece cuando el parcial está entre los dos valores (Desde incluido, Hasta excluido). Deja \"Hasta\" vacío para sin límite.",
   thFrom:"Desde (m)",thTo:"Hasta (m)",thWord:"Palabra",addRow:"+ Añadir fila",
@@ -384,7 +384,7 @@ es:{introTitle:"Cómo funciona",
 de:{introTitle:"So funktioniert es",
   intro1:"Oben: die Uhr und die GESAMTdistanz in km — zum Nullstellen antippen.",
   intro2:"FAHRER-MODUS: Teildistanz in Metern mit Start-Stopp (großen Bereich antippen oder Bluetooth-Taste drücken). In der Tabelle kannst du Wörter für Meterbereiche festlegen.",
-  intro5:"BEIFAHRER-MODUS: die Teildistanz zählt immer, wie der Tageskilometerzähler — jedes Antippen stellt sie auf null und sie läuft sofort weiter.",
+  intro5:"BEIFAHRER-MODUS: die Teildistanz (in km) zählt immer, wie der Tageskilometerzähler — jedes Antippen stellt sie auf null und sie läuft sofort weiter.",
   intro3:"Öffne das Menü (☰) für Modus, Worttabelle, Sprache und Optionen.",
   intro4:"GPS-Punkt: grün = ausgezeichnet (<6 m) · blau = gut (6–10 m) · rot = schwach (>10 m).",
   dontShow:"Nicht mehr anzeigen",start:"Los geht's",
@@ -393,7 +393,7 @@ de:{introTitle:"So funktioniert es",
   wordLabel:"Wort / Teilstrecke · tippen für Start-Stopp",
   ready:"Bereit",running:"Messung läuft…",stopped:"Gestoppt — drücken für Neustart ab 0",
   setTitle:"Menü",modeLabel:"Modus",modePilot:"Fahrer",modeNav:"Beifahrer",
-  modeDesc:"Fahrer: Teildistanz mit Start-Stopp und Wörtern. Beifahrer: Teildistanz läuft immer, ein Tippen stellt sie auf null (wie der Tageskilometerzähler).",
+  modeDesc:"Fahrer: Teildistanz in Metern mit Start-Stopp und Wörtern. Beifahrer: Teildistanz in km läuft immer, ein Tippen stellt sie auf null (wie der Tageskilometerzähler).",
   wordsTitle:"Worttabelle (Fahrer-Modus)",
   setDesc:"Das Wort erscheint, wenn die Teildistanz zwischen den Werten liegt (Von inklusive, Bis exklusive). \"Bis\" leer lassen für kein Limit.",
   thFrom:"Von (m)",thTo:"Bis (m)",thWord:"Wort",addRow:"+ Zeile hinzufügen",
@@ -404,7 +404,7 @@ de:{introTitle:"So funktioniert es",
 pt:{introTitle:"Como funciona",
   intro1:"No topo: o relógio e a distância TOTAL em km — toque para zerar.",
   intro2:"MODO PILOTO: parcial em metros com start-stop (toque na área grande ou pressione o botão Bluetooth). Na tabela pode definir palavras que aparecem em certos intervalos.",
-  intro5:"MODO NAVEGADOR: o parcial conta sempre, como o trip do carro — cada toque zera e recomeça de imediato.",
+  intro5:"MODO NAVEGADOR: o parcial (em km) conta sempre, como o trip do carro — cada toque zera e recomeça de imediato.",
   intro3:"Abra o menu (☰) para mudar o modo, tabela de palavras, idioma e opções.",
   intro4:"Ponto GPS: verde = excelente (<6 m) · azul = bom (6–10 m) · vermelho = fraco (>10 m).",
   dontShow:"Não mostrar novamente",start:"Começar",
@@ -413,7 +413,7 @@ pt:{introTitle:"Como funciona",
   wordLabel:"Palavra / Parcial · toque para start-stop",
   ready:"Pronto",running:"A medir…",stopped:"Parado — pressione para recomeçar do 0",
   setTitle:"Menu",modeLabel:"Modo",modePilot:"Piloto",modeNav:"Navegador",
-  modeDesc:"Piloto: parcial com start-stop e palavras. Navegador: parcial sempre ativo, um toque zera (como o trip do carro).",
+  modeDesc:"Piloto: parcial em metros com start-stop e palavras. Navegador: parcial em km sempre ativo, um toque zera (como o trip do carro).",
   wordsTitle:"Tabela de palavras (modo Piloto)",
   setDesc:"A palavra aparece quando o parcial está entre os dois valores (De incluído, Até excluído). Deixe \"Até\" vazio para sem limite.",
   thFrom:"De (m)",thTo:"Até (m)",thWord:"Palavra",addRow:"+ Adicionar linha",
@@ -424,7 +424,7 @@ pt:{introTitle:"Como funciona",
 ja:{introTitle:"使い方",
   intro1:"上部:時計と合計距離(km)— タップでリセット。",
   intro2:"ドライバーモード:メートル単位の区間距離をスタート・ストップ(大きなエリアをタップ、またはBluetoothボタン)。テーブルで範囲ごとの言葉を設定できます。",
-  intro5:"ナビゲーターモード:区間距離は常にカウント。車のトリップメーターのように、タップするたびにゼロに戻りすぐ再開します。",
+  intro5:"ナビゲーターモード:区間距離(km)は常にカウント。車のトリップメーターのように、タップするたびにゼロに戻りすぐ再開します。",
   intro3:"メニュー(☰)からモード、言葉テーブル、言語、オプションを変更できます。",
   intro4:"GPSドット:緑=非常に良い(<6m) · 青=良い(6–10m) · 赤=弱い(>10m)。",
   dontShow:"次回から表示しない",start:"スタート",
@@ -433,7 +433,7 @@ ja:{introTitle:"使い方",
   wordLabel:"言葉 / 区間 · タップで開始・停止",
   ready:"準備完了",running:"計測中…",stopped:"停止 — 押すと0から再開",
   setTitle:"メニュー",modeLabel:"モード",modePilot:"ドライバー",modeNav:"ナビゲーター",
-  modeDesc:"ドライバー:スタート・ストップと言葉付きの区間距離。ナビゲーター:常にカウント、タップでゼロに(車のトリップメーターのように)。",
+  modeDesc:"ドライバー:メートル単位、スタート・ストップと言葉付き。ナビゲーター:km単位で常にカウント、タップでゼロに(車のトリップメーターのように)。",
   wordsTitle:"言葉テーブル(ドライバーモード)",
   setDesc:"区間距離が2つの値の間にあるとき言葉が表示されます(「から」含む、「まで」含まない)。「まで」を空欄にすると上限なし。",
   thFrom:"から(m)",thTo:"まで(m)",thWord:"言葉",addRow:"+ 行を追加",
@@ -444,7 +444,7 @@ ja:{introTitle:"使い方",
 cs:{introTitle:"Jak to funguje",
   intro1:"Nahoře: hodiny a CELKOVÁ vzdálenost v km — klepnutím vynulujete.",
   intro2:"REŽIM ŘIDIČ: dílčí vzdálenost v metrech se start-stop (klepněte na velkou oblast nebo stiskněte Bluetooth tlačítko). V tabulce můžete nastavit slova pro rozsahy metrů.",
-  intro5:"REŽIM NAVIGÁTOR: dílčí vzdálenost počítá stále, jako trip v autě — každé klepnutí ji vynuluje a hned znovu běží.",
+  intro5:"REŽIM NAVIGÁTOR: dílčí vzdálenost (v km) počítá stále, jako trip v autě — každé klepnutí ji vynuluje a hned znovu běží.",
   intro3:"Otevřete menu (☰) pro změnu režimu, tabulky slov, jazyka a možností.",
   intro4:"GPS tečka: zelená = výborný (<6 m) · modrá = dobrý (6–10 m) · červená = slabý (>10 m).",
   dontShow:"Příště nezobrazovat",start:"Začít",
@@ -453,7 +453,7 @@ cs:{introTitle:"Jak to funguje",
   wordLabel:"Slovo / Dílčí · klepnutím start-stop",
   ready:"Připraveno",running:"Měření…",stopped:"Zastaveno — stiskněte pro restart od 0",
   setTitle:"Menu",modeLabel:"Režim",modePilot:"Řidič",modeNav:"Navigátor",
-  modeDesc:"Řidič: dílčí se start-stop a slovy. Navigátor: dílčí stále běží, klepnutí vynuluje (jako trip v autě).",
+  modeDesc:"Řidič: dílčí v metrech se start-stop a slovy. Navigátor: dílčí v km stále běží, klepnutí vynuluje (jako trip v autě).",
   wordsTitle:"Tabulka slov (režim Řidič)",
   setDesc:"Slovo se zobrazí, když je dílčí vzdálenost mezi hodnotami (Od včetně, Do vyjma). Nechte \"Do\" prázdné pro bez limitu.",
   thFrom:"Od (m)",thTo:"Do (m)",thWord:"Slovo",addRow:"+ Přidat řádek",
@@ -512,7 +512,7 @@ const totalVal=$('totalVal'), partialVal=$('partialVal'),
       wordVal=$('wordVal'), wordState=$('wordState'),
       zoneWord=$('zoneWord'), zonePartial=$('zonePartial'),
       gpsdot=$('gpsdot'), flash=$('flash'), clock=$('clock'),
-      partialLbl=$('partialLbl');
+      partialLbl=$('partialLbl'), partialUnit=$('partialUnit');
 
 function updateStateText(){
   if(running){ wordState.textContent=t('running'); wordState.className='run'; }
@@ -524,6 +524,7 @@ function updateStateText(){
 function applyMode(){
   document.body.dataset.mode = cfg.mode;
   partialLbl.dataset.t = cfg.mode === 'nav' ? 'navPartialLabel' : 'partialLabel';
+  partialUnit.textContent = cfg.mode === 'nav' ? 'km' : 'm';
   $('modePilot').classList.toggle('sel', cfg.mode === 'pilot');
   $('modeNav').classList.toggle('sel', cfg.mode === 'nav');
   if(cfg.mode === 'nav'){
@@ -533,7 +534,6 @@ function applyMode(){
   }
   applyLang();
 }
-// in modalità nav il parziale conta sempre
 function partialActive(){ return running || cfg.mode === 'nav'; }
 
 /* ================= GPS ================= */
@@ -623,7 +623,8 @@ function frame(){
   const dispPartial = partialActive() ? partial + extra : partial;
 
   totalVal.textContent = fmtKm(dispTotal);
-  partialVal.textContent = fmtM(dispPartial);
+  // parziale: km in modalità navigatore, metri in modalità pilota
+  partialVal.textContent = cfg.mode === 'nav' ? fmtKm(dispPartial) : fmtM(dispPartial);
 
   // zona sinistra (solo modalità pilota)
   if(cfg.mode === 'pilot'){
@@ -653,10 +654,8 @@ function frame(){
 /* ================= AZIONE PRINCIPALE (tocco / tasto BT) ================= */
 function mainAction(){
   if(cfg.mode === 'nav'){
-    // trip: azzera e riparte subito
     partial = 0;
   } else {
-    // pilota: start-stop
     if(running){
       running = false;
       zonePartial.classList.add('stopped');
