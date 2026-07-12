@@ -341,7 +341,7 @@ pt:{introTitle:"Como funciona",
   speakLabel:"Ler a palavra em voz alta",close:"Guardar e fechar",
   legTitle:"Sinal GPS",legGreen:"Verde: excelente (menos de 6 m)",legBlue:"Azul: bom (6–10 m)",legRed:"Vermelho: fraco (mais de 10 m)"},
 ja:{introTitle:"使い方",
-  intro1:"右上：合計距離（km）— タップでリセット。",
+  intro1:"右上:合計距離(km)— タップでリセット。",
   intro2:"右下:区間距離(メートル)。左の大きなエリアをタップ(またはBluetoothボタンを押す)で開始・停止。開始のたびにゼロから計測します。",
   intro3:"テーブル(⚙)でメートルの範囲を設定できます。区間距離が範囲内のとき、数字の代わりに設定した言葉が左に表示されます。",
   intro4:"GPSドット:緑=非常に良い(<6m) · 青=良い(6–10m) · 赤=弱い(>10m)。",
@@ -376,7 +376,8 @@ let total = 0, partial = 0;
 let running = false;
 let lastPos = null;
 let curSpeed = 0;          // m/s per l'interpolazione in tempo reale
-let lastFixTime = 0;       // timestamp ultimo fix accettato
+let lastFixTime = 0;       // performance.now() dell'ultimo fix accettato
+let lastFixTs = null;      // timestamp GPS del fix precedente
 let currentWord = null;
 let lastSpoken = null;
 let cfg = {
@@ -440,26 +441,38 @@ function onFix(pos){
   // puntino: verde <6, blu 6-10, rosso >10
   gpsdot.className = acc < 6 ? 'g' : (acc <= 10 ? 'b' : 'r');
 
-  if(acc > cfg.accLimit) return;
+  const hasSpeed = (c.speed !== null && !isNaN(c.speed));
 
-  if(lastPos){
-    const d = haversine(lastPos.latitude, lastPos.longitude, c.latitude, c.longitude);
-    const noiseFloor = Math.max(2, acc * 0.5);
-    const fermo = (c.speed !== null && c.speed < 0.7);
-    if(fermo){
-      curSpeed = 0;
-      lastPos = c;
-      lastFixTime = performance.now();
-    } else if(d >= noiseFloor && d < 500){
-      total += d;
-      if(running) partial += d;
-      curSpeed = (c.speed !== null && !isNaN(c.speed)) ? c.speed : 0;
-      lastPos = c;
-      lastFixTime = performance.now();
+  if(hasSpeed){
+    // METODO PRINCIPALE: velocità GPS (Doppler).
+    // Affidabile fin dal primo dato, anche con precisione di posizione
+    // ancora scarsa: l'app conta subito, anche se aperta già in movimento.
+    const v = c.speed < 0.7 ? 0 : c.speed;
+    if(lastFixTs !== null){
+      const dt = (pos.timestamp - lastFixTs) / 1000;
+      if(dt > 0 && dt < 5 && v > 0){
+        const d = v * dt;
+        total += d;
+        if(running) partial += d;
+      }
     }
-  } else {
-    lastPos = c;
+    curSpeed = v;
+    lastFixTs = pos.timestamp;
     lastFixTime = performance.now();
+    lastPos = c;
+  } else {
+    // FALLBACK: distanza tra posizioni (se manca il dato di velocità)
+    if(acc > cfg.accLimit) return;
+    if(lastPos){
+      const d = haversine(lastPos.latitude, lastPos.longitude, c.latitude, c.longitude);
+      const noiseFloor = Math.max(2, acc * 0.5);
+      if(d >= noiseFloor && d < 500){
+        total += d;
+        if(running) partial += d;
+        lastFixTime = performance.now();
+      }
+    }
+    lastPos = c;
   }
 }
 
@@ -611,7 +624,7 @@ $('btnSettings').addEventListener('click', e=>{
   buildTable();
   settings.classList.add('open');
 });
-$('langSel') && $('langSel').addEventListener('change', ()=>{
+$('langSel').addEventListener('change', ()=>{
   cfg.lang = $('langSel').value;
   applyLang();
 });
@@ -631,7 +644,7 @@ let wakeLock = null;
 async function keepAwake(){
   try{
     if('wakeLock' in navigator){
-      wakeLock = await navigator.wakeLock.request('screen');
+  wakeLock = await navigator.wakeLock.request('screen');
     }
   }catch(e){}
 }
