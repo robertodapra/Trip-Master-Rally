@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#000000">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rally Trip">
+<link rel="apple-touch-icon" href="icon.png">
 <title>Rally Trip</title>
 <style>
   :root{
@@ -32,6 +37,7 @@
     position:fixed;top:0;left:0;right:0;z-index:3;
     display:flex;justify-content:space-between;align-items:center;
     padding:6px 12px;font-size:12px;color:var(--muted);
+    padding-top:max(6px, env(safe-area-inset-top));
   }
   #clock{
     font-family:ui-monospace,Menlo,Consolas,monospace;
@@ -49,7 +55,7 @@
   #btnSettings{background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:4px 12px;font-size:16px}
 
   #legend{
-    position:fixed;top:36px;left:10px;z-index:9;
+    position:fixed;top:56px;left:10px;z-index:9;
     background:var(--panel);border:1px solid var(--line);border-radius:12px;
     padding:12px 16px;font-size:13px;display:none;max-width:280px;line-height:1.6;
   }
@@ -61,7 +67,7 @@
   #app{
     display:grid;
     height:100dvh;
-    padding-top:34px;
+    padding-top:calc(34px + env(safe-area-inset-top));
     grid-template-columns:1.2fr 1fr;
     grid-template-rows:1fr 1fr;
     grid-template-areas:
@@ -155,6 +161,7 @@
   .overlay{
     position:fixed;inset:0;background:var(--bg);z-index:10;
     display:none;flex-direction:column;padding:18px;overflow-y:auto;
+    padding-top:max(18px, env(safe-area-inset-top));
   }
   .overlay.open{display:flex}
   .overlay h2{font-size:17px;letter-spacing:.15em;text-transform:uppercase;color:var(--amber);margin-bottom:10px}
@@ -775,6 +782,11 @@ document.addEventListener('visibilitychange', ()=>{
   if(document.visibilityState === 'visible') keepAwake();
 });
 keepAwake();
+
+/* ================= SERVICE WORKER (PWA) ================= */
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
 
 applyMode();
 requestAnimationFrame(frame);
