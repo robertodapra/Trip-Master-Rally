@@ -229,6 +229,7 @@
   .setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;font-size:14px}
   .setting-row input[type=number]{width:90px;padding:10px;background:#1a1f25;border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:16px;text-align:center}
   .setting-row select{padding:10px;background:#1a1f25;border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:15px}
+  .setting-row input[type=checkbox]{width:24px;height:24px}
 
   #flash{
     position:fixed;inset:0;background:rgba(255,180,0,.15);z-index:5;
@@ -334,12 +335,16 @@
     </select>
   </div>
   <div class="setting-row">
+    <span><span data-t="tunnelLabel"></span><br><small style="color:var(--muted)" data-t="tunnelSmall"></small></span>
+    <input type="checkbox" id="tunnelToggle">
+  </div>
+  <div class="setting-row">
     <span><span data-t="accLabel"></span><br><small style="color:var(--muted)" data-t="accSmall"></small></span>
     <input type="number" id="accLimit" min="5" max="100" step="1">
   </div>
   <div class="setting-row">
     <span data-t="speakLabel"></span>
-    <input type="checkbox" id="speakToggle" style="width:24px;height:24px">
+    <input type="checkbox" id="speakToggle">
   </div>
 
   <button class="okbtn" id="closeSettings" data-t="close"></button>
@@ -370,6 +375,7 @@ it:{introTitle:"Come funziona",
   thFrom:"Da (m)",thTo:"A (m)",thWord:"Parola",addRow:"+ Aggiungi riga",
   optTitle:"Opzioni",
   langLabel:"Lingua",unitLabel:"Unità di misura",
+  tunnelLabel:"Modalità galleria",tunnelSmall:"Senza segnale GPS continua a contare con l'ultima velocità (max 60 s)",
   accLabel:"Precisione GPS minima (m)",accSmall:"I dati meno precisi vengono scartati",
   speakLabel:"Leggi la parola a voce",close:"Chiudi e salva",
   legTitle:"Segnale GPS",legGreen:"Verde: ottimo (meno di 6 m)",legBlue:"Blu: buono (6–10 m)",legRed:"Rosso: debole (oltre 10 m)"},
@@ -392,6 +398,7 @@ en:{introTitle:"How it works",
   thFrom:"From (m)",thTo:"To (m)",thWord:"Word",addRow:"+ Add row",
   optTitle:"Options",
   langLabel:"Language",unitLabel:"Units",
+  tunnelLabel:"Tunnel mode",tunnelSmall:"Without GPS signal keeps counting at the last speed (max 60 s)",
   accLabel:"Min GPS accuracy (m)",accSmall:"Less accurate data is discarded",
   speakLabel:"Speak the word aloud",close:"Save and close",
   legTitle:"GPS signal",legGreen:"Green: excellent (under 6 m)",legBlue:"Blue: good (6–10 m)",legRed:"Red: weak (over 10 m)"},
@@ -414,6 +421,7 @@ fr:{introTitle:"Comment ça marche",
   thFrom:"De (m)",thTo:"À (m)",thWord:"Mot",addRow:"+ Ajouter une ligne",
   optTitle:"Options",
   langLabel:"Langue",unitLabel:"Unités",
+  tunnelLabel:"Mode tunnel",tunnelSmall:"Sans signal GPS continue à compter à la dernière vitesse (max 60 s)",
   accLabel:"Précision GPS min (m)",accSmall:"Les données moins précises sont ignorées",
   speakLabel:"Lire le mot à voix haute",close:"Enregistrer et fermer",
   legTitle:"Signal GPS",legGreen:"Vert : excellent (moins de 6 m)",legBlue:"Bleu : bon (6–10 m)",legRed:"Rouge : faible (plus de 10 m)"},
@@ -436,6 +444,7 @@ es:{introTitle:"Cómo funciona",
   thFrom:"Desde (m)",thTo:"Hasta (m)",thWord:"Palabra",addRow:"+ Añadir fila",
   optTitle:"Opciones",
   langLabel:"Idioma",unitLabel:"Unidades",
+  tunnelLabel:"Modo túnel",tunnelSmall:"Sin señal GPS sigue contando con la última velocidad (máx 60 s)",
   accLabel:"Precisión GPS mín (m)",accSmall:"Los datos menos precisos se descartan",
   speakLabel:"Leer la palabra en voz alta",close:"Guardar y cerrar",
   legTitle:"Señal GPS",legGreen:"Verde: excelente (menos de 6 m)",legBlue:"Azul: buena (6–10 m)",legRed:"Rojo: débil (más de 10 m)"},
@@ -458,6 +467,7 @@ de:{introTitle:"So funktioniert es",
   thFrom:"Von (m)",thTo:"Bis (m)",thWord:"Wort",addRow:"+ Zeile hinzufügen",
   optTitle:"Optionen",
   langLabel:"Sprache",unitLabel:"Einheiten",
+  tunnelLabel:"Tunnelmodus",tunnelSmall:"Ohne GPS-Signal zählt mit der letzten Geschwindigkeit weiter (max. 60 s)",
   accLabel:"Min. GPS-Genauigkeit (m)",accSmall:"Ungenauere Daten werden verworfen",
   speakLabel:"Wort vorlesen",close:"Speichern und schließen",
   legTitle:"GPS-Signal",legGreen:"Grün: ausgezeichnet (unter 6 m)",legBlue:"Blau: gut (6–10 m)",legRed:"Rot: schwach (über 10 m)"},
@@ -480,6 +490,7 @@ pt:{introTitle:"Como funciona",
   thFrom:"De (m)",thTo:"Até (m)",thWord:"Palavra",addRow:"+ Adicionar linha",
   optTitle:"Opções",
   langLabel:"Idioma",unitLabel:"Unidades",
+  tunnelLabel:"Modo túnel",tunnelSmall:"Sem sinal GPS continua a contar com a última velocidade (máx 60 s)",
   accLabel:"Precisão GPS mín (m)",accSmall:"Dados menos precisos são descartados",
   speakLabel:"Ler a palavra em voz alta",close:"Guardar e fechar",
   legTitle:"Sinal GPS",legGreen:"Verde: excelente (menos de 6 m)",legBlue:"Azul: bom (6–10 m)",legRed:"Vermelho: fraco (mais de 10 m)"},
@@ -502,6 +513,7 @@ ja:{introTitle:"使い方",
   thFrom:"から(m)",thTo:"まで(m)",thWord:"言葉",addRow:"+ 行を追加",
   optTitle:"オプション",
   langLabel:"言語",unitLabel:"単位",
+  tunnelLabel:"トンネルモード",tunnelSmall:"GPSなしで直前の速度のまま計測を継続(最大60秒)",
   accLabel:"最低GPS精度(m)",accSmall:"精度の低いデータは破棄されます",
   speakLabel:"言葉を読み上げる",close:"保存して閉じる",
   legTitle:"GPS信号",legGreen:"緑:非常に良い(6m未満)",legBlue:"青:良い(6–10m)",legRed:"赤:弱い(10m超)"},
@@ -524,6 +536,7 @@ cs:{introTitle:"Jak to funguje",
   thFrom:"Od (m)",thTo:"Do (m)",thWord:"Slovo",addRow:"+ Přidat řádek",
   optTitle:"Možnosti",
   langLabel:"Jazyk",unitLabel:"Jednotky",
+  tunnelLabel:"Režim tunelu",tunnelSmall:"Bez GPS signálu počítá dál poslední rychlostí (max 60 s)",
   accLabel:"Min. přesnost GPS (m)",accSmall:"Méně přesná data se zahazují",
   speakLabel:"Přečíst slovo nahlas",close:"Uložit a zavřít",
   legTitle:"GPS signál",legGreen:"Zelená: výborný (méně než 6 m)",legBlue:"Modrá: dobrý (6–10 m)",legRed:"Červená: slabý (více než 10 m)"}
@@ -534,9 +547,9 @@ const LOCALES = {it:'it-IT',en:'en-US',fr:'fr-FR',es:'es-ES',de:'de-DE',pt:'pt-P
 let total = 0, partial = 0;
 let running = false;
 let lastPos = null;
-let curSpeed = 0;
-let lastFixTime = 0;
-let lastFixTs = null;
+let curSpeed = 0;          // m/s dall'ultimo fix valido
+let lastGoodFix = 0;       // performance.now() dell'ultimo fix valido
+let lastFrame = performance.now();
 let currentWord = null;
 let lastSpoken = null;
 let cfg = {
@@ -546,7 +559,8 @@ let cfg = {
   lang: null,
   hideIntro: false,
   mode: 'pilot',
-  units: 'metric'
+  units: 'metric',
+  tunnel: true
 };
 
 try{
@@ -562,6 +576,7 @@ if(!cfg.lang){
 }
 if(cfg.mode !== 'pilot' && cfg.mode !== 'nav') cfg.mode = 'pilot';
 if(cfg.units !== 'metric' && cfg.units !== 'imperial') cfg.units = 'metric';
+if(typeof cfg.tunnel !== 'boolean') cfg.tunnel = true;
 function saveCfg(){ localStorage.setItem('rallytrip_cfg', JSON.stringify(cfg)); }
 
 /* ================= LINGUA ================= */
@@ -617,6 +632,18 @@ function applyUnits(){
 function partialActive(){ return running || cfg.mode === 'nav'; }
 
 /* ================= GPS ================= */
+/*
+  ANTI-DERIVA (in casa / da fermo):
+  - i fix con precisione peggiore della soglia vengono SCARTATI del tutto,
+    a meno che la velocità non sia alta (>3 m/s ≈ 11 km/h): il rumore da
+    fermo non produce mai velocità simili, un'auto in marcia sì.
+  - sotto 0,7 m/s la velocità è considerata zero.
+
+  GALLERIE:
+  - il conteggio avviene in modo continuo (nel ciclo di rendering) usando
+    l'ultima velocità valida; se il segnale sparisce e la "Modalità galleria"
+    è attiva, si continua a contare con quella velocità per max 60 s.
+*/
 function haversine(lat1, lon1, lat2, lon2){
   const R = 6371000, rad = Math.PI/180;
   const dLat = (lat2-lat1)*rad, dLon = (lon2-lon1)*rad;
@@ -632,32 +659,28 @@ function onFix(pos){
   gpsdot.className = acc < 6 ? 'g' : (acc <= 10 ? 'b' : 'r');
 
   const hasSpeed = (c.speed !== null && !isNaN(c.speed));
+  const v = hasSpeed ? (c.speed < 0.7 ? 0 : c.speed) : null;
 
-  if(hasSpeed){
-    const v = c.speed < 0.7 ? 0 : c.speed;
-    if(lastFixTs !== null){
-      const dt = (pos.timestamp - lastFixTs) / 1000;
-      if(dt > 0 && dt < 5 && v > 0){
-        const d = v * dt;
-        total += d;
-        if(partialActive()) partial += d;
-      }
-    }
+  // scarta fix imprecisi (casa, garage, uscita galleria)…
+  // …tranne quando la velocità è chiaramente da veicolo in marcia
+  if(acc > cfg.accLimit && !(v !== null && v > 3)) return;
+
+  if(v !== null){
     curSpeed = v;
-    lastFixTs = pos.timestamp;
-    lastFixTime = performance.now();
+    lastGoodFix = performance.now();
     lastPos = c;
   } else {
-    if(acc > cfg.accLimit) return;
+    // fallback: distanza tra posizioni (se il dato velocità manca)
     if(lastPos){
       const d = haversine(lastPos.latitude, lastPos.longitude, c.latitude, c.longitude);
       const noiseFloor = Math.max(2, acc * 0.5);
       if(d >= noiseFloor && d < 500){
         total += d;
         if(partialActive()) partial += d;
-        lastFixTime = performance.now();
       }
     }
+    curSpeed = 0;
+    lastGoodFix = performance.now();
     lastPos = c;
   }
 }
@@ -680,7 +703,7 @@ function activeWord(p){
   return null;
 }
 
-/* ================= RENDER IN TEMPO REALE ================= */
+/* ================= CONTEGGIO CONTINUO + RENDER ================= */
 const loc = () => LOCALES[cfg.lang] || 'en-US';
 function fmtDist(m){
   const v = isImp() ? m/MI : m/1000;
@@ -691,28 +714,29 @@ function pad(n){ return n < 10 ? '0'+n : ''+n; }
 
 function frame(){
   const now = performance.now();
+  const dtF = (now - lastFrame) / 1000;
+  lastFrame = now;
 
   // orologio
   const d0 = new Date();
   clock.textContent = pad(d0.getHours())+':'+pad(d0.getMinutes())+':'+pad(d0.getSeconds());
 
-  // interpolazione: tra un fix GPS e l'altro, avanza usando la velocità
-  let extra = 0;
-  const dt = (now - lastFixTime) / 1000;
-  const fresh = dt < 3;
-  if(curSpeed > 0.7 && fresh){
-    extra = Math.min(curSpeed * dt, 60);
+  // conteggio continuo alla velocità corrente
+  const sinceFix = (now - lastGoodFix) / 1000;
+  const maxGap = cfg.tunnel ? 60 : 3;   // modalità galleria: fino a 60 s senza segnale
+  const counting = curSpeed > 0 && lastGoodFix > 0 && sinceFix < maxGap;
+  if(counting && dtF > 0 && dtF < 1){   // dtF>1 = app era in pausa: non contare
+    const d = curSpeed * dtF;
+    total += d;
+    if(partialActive()) partial += d;
   }
-  const dispTotal = total + extra;
-  const dispPartial = partialActive() ? partial + extra : partial;
 
-  totalVal.textContent = fmtDist(dispTotal);
-  // parziale: km/mi in modalità navigatore, metri in modalità pilota
-  partialVal.textContent = cfg.mode === 'nav' ? fmtDist(dispPartial) : fmtM(dispPartial);
+  totalVal.textContent = fmtDist(total);
+  partialVal.textContent = cfg.mode === 'nav' ? fmtDist(partial) : fmtM(partial);
 
   // velocità in tempo reale (modalità navigatore)
   if(cfg.mode === 'nav'){
-    const v = fresh ? curSpeed : 0;
+    const v = counting ? curSpeed : 0;
     const s = isImp() ? v*2.236936 : v*3.6;
     speedVal.textContent = s.toLocaleString(loc(), {minimumFractionDigits:1, maximumFractionDigits:1});
   }
@@ -720,7 +744,7 @@ function frame(){
   // zona sinistra (solo modalità pilota)
   if(cfg.mode === 'pilot'){
     if(running){
-      const w = activeWord(dispPartial);
+      const w = activeWord(partial);
       currentWord = w;
       if(w && cfg.speak && w !== lastSpoken && 'speechSynthesis' in window){
         lastSpoken = w;
@@ -735,7 +759,7 @@ function frame(){
       if(wordVal.textContent !== currentWord){ wordVal.textContent = currentWord; }
       wordVal.classList.remove('numeric');
     } else {
-      wordVal.textContent = fmtM(dispPartial);
+      wordVal.textContent = fmtM(partial);
       wordVal.classList.add('numeric');
     }
   }
@@ -836,6 +860,7 @@ $('btnSettings').addEventListener('click', e=>{
   $('speakToggle').checked = cfg.speak;
   $('langSel').value = cfg.lang;
   $('unitSel').value = cfg.units;
+  $('tunnelToggle').checked = cfg.tunnel;
   buildTable();
   settings.classList.add('open');
 });
@@ -852,6 +877,7 @@ $('closeSettings').addEventListener('click', ()=>{
   cfg.speak = $('speakToggle').checked;
   cfg.lang = $('langSel').value;
   cfg.units = $('unitSel').value;
+  cfg.tunnel = $('tunnelToggle').checked;
   cfg.rows = cfg.rows.filter(r => r.from !== '' && r.w !== '');
   cfg.rows.sort((a,b)=>parseFloat(a.from)-parseFloat(b.from));
   saveCfg();
