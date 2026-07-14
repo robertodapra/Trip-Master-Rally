@@ -22,6 +22,22 @@
     --red:#ff4d4d;
     --text:#f2f4f7;
     --muted:#8b949e;
+    --btnbg:rgba(255,255,255,.06);
+    --inputbg:#1a1f25;
+  }
+  body[data-theme="light"]{
+    --bg:#f4f5f7;
+    --panel:#ffffff;
+    --line:#c9ced6;
+    --amber:#b36b00;
+    --amber-dim:#d8b26e;
+    --green:#178c3b;
+    --blue:#0b6bd6;
+    --red:#d62828;
+    --text:#14171c;
+    --muted:#5c6670;
+    --btnbg:rgba(0,0,0,.05);
+    --inputbg:#eef0f3;
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%}
@@ -49,10 +65,10 @@
   #gpsdot.b{background:var(--blue)}
   #gpsdot.r{background:var(--red)}
   #btnInfo{
-    background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--muted);
+    background:var(--btnbg);border:1px solid var(--line);color:var(--muted);
     border-radius:50%;width:22px;height:22px;font-size:12px;margin-left:8px;vertical-align:middle;
   }
-  #btnSettings{background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:4px 12px;font-size:16px}
+  #btnMenu{background:var(--btnbg);border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:4px 12px;font-size:16px}
 
   #legend{
     position:fixed;top:56px;left:10px;z-index:9;
@@ -114,10 +130,9 @@
   body[data-mode="nav"] #totalVal{
     font-size:clamp(44px,10vw,110px);
   }
-  /* etichette a riquadro in modalità navigatore */
   body[data-mode="nav"] .zlabel{
     left:12px;right:auto;top:10px;
-    background:rgba(255,255,255,.07);
+    background:var(--btnbg);
     border:1px solid var(--line);
     border-radius:8px;
     padding:5px 10px;
@@ -187,9 +202,66 @@
   }
   #wordState.run{color:var(--green)}
 
-  /* ====== OVERLAY (intro + menu) ====== */
+  /* ====== BANNER RADAR ====== */
+  #rbBanner{
+    position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
+    z-index:6;display:none;
+    background:var(--panel);
+    border:3px solid var(--green);
+    border-radius:22px;
+    padding:16px 26px;
+    text-align:center;
+    box-shadow:0 8px 40px rgba(0,0,0,.5);
+    min-width:60vw;max-width:92vw;
+  }
+  #rbBanner.open{display:block}
+  #rbNum{
+    display:inline-block;
+    background:var(--green);color:#000;
+    border-radius:8px;padding:2px 12px;
+    font-size:clamp(16px,4vw,26px);font-weight:800;
+    font-family:ui-monospace,Menlo,Consolas,monospace;
+  }
+  #rbSym{font-size:clamp(64px,16vw,140px);line-height:1.1}
+  #rbNote{font-size:clamp(18px,4.5vw,34px);font-weight:800;text-transform:uppercase;margin-top:4px;word-break:break-word}
+  #rbDist{
+    font-family:ui-monospace,Menlo,Consolas,monospace;
+    font-size:clamp(30px,8vw,60px);font-weight:800;color:var(--green);
+    font-variant-numeric:tabular-nums;margin-top:4px;
+  }
+
+  /* ====== DRAWER (menu laterale) ====== */
+  #drawerBg{
+    position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:11;
+    display:none;
+  }
+  #drawerBg.open{display:block}
+  #drawer{
+    position:fixed;top:0;right:0;bottom:0;width:min(300px,85vw);z-index:12;
+    background:var(--panel);border-left:1px solid var(--line);
+    transform:translateX(105%);transition:transform .25s ease;
+    display:flex;flex-direction:column;padding:18px;
+    padding-top:max(18px, env(safe-area-inset-top));
+  }
+  #drawer.open{transform:translateX(0)}
+  #drawer h2{font-size:15px;letter-spacing:.15em;text-transform:uppercase;color:var(--amber);margin-bottom:16px}
+  .drawer-item{
+    display:flex;align-items:center;gap:12px;
+    background:var(--btnbg);border:1px solid var(--line);color:var(--text);
+    border-radius:12px;padding:16px;font-size:16px;font-weight:600;
+    margin-bottom:10px;text-align:left;width:100%;
+  }
+  .drawer-item .di-icon{font-size:22px}
+  .drawer-item .di-tag{
+    margin-left:auto;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--green);border:1px solid var(--green);border-radius:6px;padding:2px 7px;
+    display:none;
+  }
+  .drawer-item.active .di-tag{display:inline-block}
+
+  /* ====== OVERLAY ====== */
   .overlay{
-    position:fixed;inset:0;background:var(--bg);z-index:10;
+    position:fixed;inset:0;background:var(--bg);z-index:13;
     display:none;flex-direction:column;padding:18px;overflow-y:auto;
     padding-top:max(18px, env(safe-area-inset-top));
   }
@@ -199,27 +271,27 @@
   .overlay p{font-size:14px;color:var(--text);margin-bottom:10px;line-height:1.5}
   .overlay p.small{font-size:13px;color:var(--muted)}
   .okbtn{
-    background:var(--amber);color:#000;border:none;width:100%;
+    background:var(--amber);color:#fff;border:none;width:100%;
     padding:15px;border-radius:10px;font-size:16px;font-weight:700;margin-top:auto;
   }
+  body[data-theme="dark"] .okbtn{color:#000}
+  .actbtn{
+    background:var(--btnbg);border:2px solid var(--amber);color:var(--amber);
+    width:100%;padding:14px;border-radius:10px;font-size:15px;font-weight:700;margin-bottom:6px;
+  }
+  .actbtn.active{background:var(--amber);color:#000}
+  body[data-theme="light"] .actbtn.active{color:#fff}
   .chk{display:flex;align-items:center;gap:10px;font-size:14px;margin:14px 0}
   .chk input{width:22px;height:22px}
-
-  /* selettore modalità */
-  #modeSeg{display:flex;gap:8px;margin-bottom:6px}
-  #modeSeg button{
-    flex:1;padding:14px;border-radius:10px;font-size:15px;font-weight:700;
-    background:var(--panel);border:1px solid var(--line);color:var(--muted);
-  }
-  #modeSeg button.sel{background:var(--amber);color:#000;border-color:var(--amber)}
 
   table{width:100%;border-collapse:collapse;margin-bottom:14px}
   th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);text-align:left;padding:6px 3px}
   td{padding:3px}
-  td input{
-    width:100%;padding:10px 8px;background:#1a1f25;border:1px solid var(--line);
+  td input, td select{
+    width:100%;padding:10px 8px;background:var(--inputbg);border:1px solid var(--line);
     border-radius:8px;color:var(--text);font-size:16px;
   }
+  td select{font-size:20px;padding:8px 4px}
   td button{background:none;border:none;color:var(--red);font-size:20px;padding:6px}
   .rowbtns{display:flex;gap:10px;margin-bottom:8px}
   .rowbtns button{
@@ -227,22 +299,35 @@
     background:var(--panel);border:1px solid var(--line);color:var(--text);
   }
   .setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;font-size:14px}
-  .setting-row input[type=number]{width:90px;padding:10px;background:#1a1f25;border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:16px;text-align:center}
-  .setting-row select{padding:10px;background:#1a1f25;border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:15px}
+  .setting-row select{padding:10px;background:var(--inputbg);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:15px}
   .setting-row input[type=checkbox]{width:24px;height:24px}
 
+  #rbImport{
+    width:100%;min-height:110px;
+    background:var(--inputbg);border:1px solid var(--line);border-radius:10px;
+    color:var(--text);font-size:14px;padding:10px;
+    font-family:ui-monospace,Menlo,Consolas,monospace;
+    margin-bottom:8px;
+  }
+  #rbImportBtn{
+    width:100%;padding:13px;border-radius:10px;font-size:15px;font-weight:700;
+    background:var(--btnbg);border:2px solid var(--green);color:var(--green);
+    margin-bottom:6px;
+  }
+  #rbImportMsg{font-size:13px;color:var(--green);margin-bottom:8px;min-height:18px}
+
   #flash{
-    position:fixed;inset:0;background:rgba(255,180,0,.15);z-index:5;
+    position:fixed;inset:0;background:rgba(255,180,0,.18);z-index:5;
     opacity:0;pointer-events:none;transition:opacity .3s;
   }
 </style>
 </head>
-<body data-mode="pilot">
+<body data-mode="pilot" data-theme="dark">
 
 <div id="statusbar">
   <span><span id="gpsdot" class="r"></span><button id="btnInfo">i</button></span>
   <span id="clock">--:--:--</span>
-  <button id="btnSettings">☰</button>
+  <button id="btnMenu">☰</button>
 </div>
 
 <div id="legend">
@@ -278,7 +363,24 @@
   </div>
 </div>
 
+<!-- avviso radar -->
+<div id="rbBanner">
+  <span id="rbNum"></span>
+  <div id="rbSym"></div>
+  <div id="rbNote"></div>
+  <div id="rbDist"></div>
+</div>
+
 <div id="flash"></div>
+
+<!-- ============ MENU LATERALE ============ -->
+<div id="drawerBg"></div>
+<div id="drawer">
+  <h2 data-t="drawerTitle"></h2>
+  <button class="drawer-item" id="drvPilot"><span class="di-icon">🏎</span><span data-t="drvPilot"></span><span class="di-tag" data-t="activeTag"></span></button>
+  <button class="drawer-item" id="drvNav"><span class="di-icon">🧭</span><span data-t="drvNav"></span><span class="di-tag" data-t="activeTag"></span></button>
+  <button class="drawer-item" id="drvSet"><span class="di-icon">⚙️</span><span data-t="drvSet"></span></button>
+</div>
 
 <!-- ============ INTRODUZIONE ============ -->
 <div class="overlay" id="intro">
@@ -292,16 +394,10 @@
   <button class="okbtn" id="closeIntro" data-t="start"></button>
 </div>
 
-<!-- ============ MENU ============ -->
-<div class="overlay" id="settings">
-  <h2 data-t="setTitle"></h2>
-
-  <h3 data-t="modeLabel"></h3>
-  <div id="modeSeg">
-    <button id="modePilot" data-t="modePilot"></button>
-    <button id="modeNav" data-t="modeNav"></button>
-  </div>
-  <p class="small" data-t="modeDesc"></p>
+<!-- ============ MENU PILOTA ============ -->
+<div class="overlay" id="pilotMenu">
+  <h2 data-t="pmTitle"></h2>
+  <button class="actbtn" id="actPilot" data-t="actPilot"></button>
 
   <h3 data-t="wordsTitle"></h3>
   <p class="small" data-t="setDesc"></p>
@@ -312,8 +408,43 @@
   <div class="rowbtns">
     <button id="addRow" data-t="addRow"></button>
   </div>
+  <div class="setting-row">
+    <span data-t="speakLabel"></span>
+    <input type="checkbox" id="speakToggle">
+  </div>
 
-  <h3 data-t="optTitle"></h3>
+  <button class="okbtn" id="closePilot" data-t="close"></button>
+</div>
+
+<!-- ============ MENU NAVIGATORE ============ -->
+<div class="overlay" id="navMenu">
+  <h2 data-t="nmTitle"></h2>
+  <button class="actbtn" id="actNav" data-t="actNav"></button>
+
+  <h3 data-t="rbImpTitle"></h3>
+  <p class="small" data-t="rbImpDesc"></p>
+  <textarea id="rbImport" placeholder="0,00 ; partenza ; T.C. 0&#10;0,22 ; rotonda diritto ; Via Campo Sportivo&#10;0,52 ; rotonda sinistra ; Autostrada Montecatini"></textarea>
+  <button id="rbImportBtn" data-t="rbImpBtn"></button>
+  <div id="rbImportMsg"></div>
+
+  <h3 data-t="rbTitle"></h3>
+  <p class="small" data-t="rbDesc"></p>
+  <table>
+    <thead><tr><th style="width:26%" data-t="thDist"></th><th style="width:22%" data-t="thSym"></th><th data-t="thNote"></th><th></th></tr></thead>
+    <tbody id="rbBody"></tbody>
+  </table>
+  <div class="rowbtns">
+    <button id="rbAddRow" data-t="addRow"></button>
+    <button id="rbClear" data-t="rbClear" style="color:var(--red)"></button>
+  </div>
+
+  <button class="okbtn" id="closeNav" data-t="close"></button>
+</div>
+
+<!-- ============ IMPOSTAZIONI GENERALI ============ -->
+<div class="overlay" id="genMenu">
+  <h2 data-t="gsTitle"></h2>
+
   <div class="setting-row">
     <span data-t="langLabel"></span>
     <select id="langSel">
@@ -335,19 +466,25 @@
     </select>
   </div>
   <div class="setting-row">
+    <span data-t="timeLabel"></span>
+    <select id="timeSel">
+      <option value="24" data-t="time24"></option>
+      <option value="12" data-t="time12"></option>
+    </select>
+  </div>
+  <div class="setting-row">
+    <span data-t="themeLabel"></span>
+    <select id="themeSel">
+      <option value="dark" data-t="themeDark"></option>
+      <option value="light" data-t="themeLight"></option>
+    </select>
+  </div>
+  <div class="setting-row">
     <span><span data-t="tunnelLabel"></span><br><small style="color:var(--muted)" data-t="tunnelSmall"></small></span>
     <input type="checkbox" id="tunnelToggle">
   </div>
-  <div class="setting-row">
-    <span><span data-t="accLabel"></span><br><small style="color:var(--muted)" data-t="accSmall"></small></span>
-    <input type="number" id="accLimit" min="5" max="100" step="1">
-  </div>
-  <div class="setting-row">
-    <span data-t="speakLabel"></span>
-    <input type="checkbox" id="speakToggle">
-  </div>
 
-  <button class="okbtn" id="closeSettings" data-t="close"></button>
+  <button class="okbtn" id="closeGen" data-t="close"></button>
 </div>
 
 <script>
@@ -359,8 +496,8 @@ const T = {
 it:{introTitle:"Come funziona",
   intro1:"In alto c'è l'orologio e la distanza TOTALE: toccala per azzerarla.",
   intro2:"MODALITÀ PILOTA: parziale in metri con start-stop (tocca la zona grande o premi il tasto Bluetooth). Nella tabella puoi impostare parole che appaiono in certi intervalli di metri.",
-  intro5:"MODALITÀ NAVIGATORE: il parziale conta sempre, come il trip dell'auto — ogni tocco lo azzera e riparte subito. In basso c'è la velocità in tempo reale.",
-  intro3:"Apri il menu (☰) per cambiare modalità, tabella parole, lingua, unità e opzioni.",
+  intro5:"MODALITÀ NAVIGATORE: il parziale conta sempre — ogni tocco lo azzera. In più puoi caricare il radar: 50 m prima di ogni riferimento appare il simbolo con la nota.",
+  intro3:"Apri il menu (☰) per entrare nelle sezioni Pilota, Navigatore e Impostazioni generali.",
   intro4:"Puntino GPS: verde = ottimo (<6 m) · blu = buono (6–10 m) · rosso = debole (>10 m).",
   dontShow:"Non mostrare più",start:"Inizia",
   totalLabel:"Totale · tocca per azzerare",partialLabel:"Parziale",
@@ -368,22 +505,35 @@ it:{introTitle:"Come funziona",
   wordLabel:"Parola / Parziale · tocca per start-stop",
   speedLabel:"Velocità",
   ready:"Pronto",running:"In misurazione…",stopped:"Fermo — premi per ripartire da 0",
-  setTitle:"Menu",modeLabel:"Modalità",modePilot:"Pilota",modeNav:"Navigatore",
-  modeDesc:"Pilota: parziale in metri con start-stop e parole. Navigatore: parziale sempre attivo, un tocco lo azzera (come il trip dell'auto), con velocità in tempo reale.",
-  wordsTitle:"Tabella parole (modalità Pilota)",
+  drawerTitle:"Menu",drvPilot:"Pilota",drvNav:"Navigatore",drvSet:"Impostazioni generali",
+  activeTag:"Attiva",
+  pmTitle:"Pilota",actPilot:"Usa modalità Pilota",
+  wordsTitle:"Tabella parole",
   setDesc:"La parola appare quando il parziale è tra i due valori (Da incluso, A escluso). Lascia vuoto \"A\" per non avere limite.",
   thFrom:"Da (m)",thTo:"A (m)",thWord:"Parola",addRow:"+ Aggiungi riga",
-  optTitle:"Opzioni",
+  speakLabel:"Leggi la parola a voce",
+  nmTitle:"Navigatore",actNav:"Usa modalità Navigatore",
+  rbImpTitle:"Importa radar",
+  rbImpDesc:"Fotografa la pagina del radar e falla trascrivere a un'AI (es. Claude) con questo formato, una riga per riferimento: km_totali ; tipo ; nota. Poi incolla qui il testo e premi Importa.",
+  rbImpBtn:"Importa",
+  rbImpOk:"riferimenti importati",
+  rbImpErr:"Nessuna riga valida trovata",
+  rbTitle:"Radar (road book)",
+  rbDesc:"Km totali come stampati sul radar (es. 0,52). Azzera il TOTALE alla partenza del percorso: 50 m prima di ogni riferimento apparirà l'avviso a schermo.",
+  thDist:"Km totali",thSym:"Simbolo",thNote:"Nota",
+  rbClear:"Svuota tutto",
+  gsTitle:"Impostazioni generali",
   langLabel:"Lingua",unitLabel:"Unità di misura",
+  timeLabel:"Formato orario",time24:"24 ore",time12:"12 ore",
+  themeLabel:"Tema",themeDark:"Scuro",themeLight:"Chiaro",
   tunnelLabel:"Modalità galleria",tunnelSmall:"Senza segnale GPS continua a contare con l'ultima velocità (max 60 s)",
-  accLabel:"Precisione GPS minima (m)",accSmall:"I dati meno precisi vengono scartati",
-  speakLabel:"Leggi la parola a voce",close:"Chiudi e salva",
+  close:"Chiudi e salva",
   legTitle:"Segnale GPS",legGreen:"Verde: ottimo (meno di 6 m)",legBlue:"Blu: buono (6–10 m)",legRed:"Rosso: debole (oltre 10 m)"},
 en:{introTitle:"How it works",
   intro1:"At the top: the clock and the TOTAL distance — tap it to reset.",
   intro2:"DRIVER MODE: partial in metres with start-stop (tap the big area or press your Bluetooth button). In the table you can set words that appear within metre ranges.",
-  intro5:"CO-DRIVER MODE: the partial always counts, like a car trip meter — each tap resets it to zero and it restarts immediately. Real-time speed is shown at the bottom.",
-  intro3:"Open the menu (☰) to change mode, word table, language, units and options.",
+  intro5:"CO-DRIVER MODE: the partial always counts — each tap resets it. You can also load the road book: 50 m before each reference the symbol and note appear.",
+  intro3:"Open the menu (☰) to enter the Driver, Co-driver and General settings sections.",
   intro4:"GPS dot: green = excellent (<6 m) · blue = good (6–10 m) · red = weak (>10 m).",
   dontShow:"Don't show again",start:"Start",
   totalLabel:"Total · tap to reset",partialLabel:"Partial",
@@ -391,22 +541,35 @@ en:{introTitle:"How it works",
   wordLabel:"Word / Partial · tap to start-stop",
   speedLabel:"Speed",
   ready:"Ready",running:"Measuring…",stopped:"Stopped — press to restart from 0",
-  setTitle:"Menu",modeLabel:"Mode",modePilot:"Driver",modeNav:"Co-driver",
-  modeDesc:"Driver: partial in metres with start-stop and words. Co-driver: partial always running, one tap resets it (like a car trip meter), with real-time speed.",
-  wordsTitle:"Word table (Driver mode)",
+  drawerTitle:"Menu",drvPilot:"Driver",drvNav:"Co-driver",drvSet:"General settings",
+  activeTag:"Active",
+  pmTitle:"Driver",actPilot:"Use Driver mode",
+  wordsTitle:"Word table",
   setDesc:"The word shows when the partial is between the two values (From included, To excluded). Leave \"To\" empty for no limit.",
   thFrom:"From (m)",thTo:"To (m)",thWord:"Word",addRow:"+ Add row",
-  optTitle:"Options",
+  speakLabel:"Speak the word aloud",
+  nmTitle:"Co-driver",actNav:"Use Co-driver mode",
+  rbImpTitle:"Import road book",
+  rbImpDesc:"Photograph the road book page and have an AI (e.g. Claude) transcribe it in this format, one line per reference: total_km ; type ; note. Then paste the text here and press Import.",
+  rbImpBtn:"Import",
+  rbImpOk:"references imported",
+  rbImpErr:"No valid lines found",
+  rbTitle:"Road book",
+  rbDesc:"Total km as printed on the road book (e.g. 0.52). Reset the TOTAL at the route start: 50 m before each reference the alert will appear.",
+  thDist:"Total km",thSym:"Symbol",thNote:"Note",
+  rbClear:"Clear all",
+  gsTitle:"General settings",
   langLabel:"Language",unitLabel:"Units",
+  timeLabel:"Time format",time24:"24-hour",time12:"12-hour",
+  themeLabel:"Theme",themeDark:"Dark",themeLight:"Light",
   tunnelLabel:"Tunnel mode",tunnelSmall:"Without GPS signal keeps counting at the last speed (max 60 s)",
-  accLabel:"Min GPS accuracy (m)",accSmall:"Less accurate data is discarded",
-  speakLabel:"Speak the word aloud",close:"Save and close",
+  close:"Save and close",
   legTitle:"GPS signal",legGreen:"Green: excellent (under 6 m)",legBlue:"Blue: good (6–10 m)",legRed:"Red: weak (over 10 m)"},
 fr:{introTitle:"Comment ça marche",
   intro1:"En haut : l'horloge et la distance TOTALE — touchez pour remettre à zéro.",
-  intro2:"MODE PILOTE : partiel en mètres avec start-stop (touchez la grande zone ou appuyez sur le bouton Bluetooth). Dans le tableau, définissez des mots qui apparaissent dans certains intervalles.",
-  intro5:"MODE COPILOTE : le partiel compte toujours, comme le trip d'une voiture — chaque touche le remet à zéro et il repart aussitôt. La vitesse en temps réel s'affiche en bas.",
-  intro3:"Ouvrez le menu (☰) pour changer de mode, tableau des mots, langue, unités et options.",
+  intro2:"MODE PILOTE : partiel en mètres avec start-stop (touchez la grande zone ou le bouton Bluetooth). Dans le tableau, définissez des mots qui apparaissent dans certains intervalles.",
+  intro5:"MODE COPILOTE : le partiel compte toujours — chaque touche le remet à zéro. Vous pouvez aussi charger le road book : 50 m avant chaque repère, le symbole et la note s'affichent.",
+  intro3:"Ouvrez le menu (☰) pour accéder aux sections Pilote, Copilote et Réglages généraux.",
   intro4:"Point GPS : vert = excellent (<6 m) · bleu = bon (6–10 m) · rouge = faible (>10 m).",
   dontShow:"Ne plus afficher",start:"Commencer",
   totalLabel:"Total · toucher pour remettre à zéro",partialLabel:"Partiel",
@@ -414,22 +577,35 @@ fr:{introTitle:"Comment ça marche",
   wordLabel:"Mot / Partiel · toucher pour start-stop",
   speedLabel:"Vitesse",
   ready:"Prêt",running:"Mesure en cours…",stopped:"Arrêté — appuyez pour repartir de 0",
-  setTitle:"Menu",modeLabel:"Mode",modePilot:"Pilote",modeNav:"Copilote",
-  modeDesc:"Pilote : partiel en mètres avec start-stop et mots. Copilote : partiel toujours actif, une touche le remet à zéro (comme le trip d'une voiture), avec vitesse en temps réel.",
-  wordsTitle:"Tableau des mots (mode Pilote)",
+  drawerTitle:"Menu",drvPilot:"Pilote",drvNav:"Copilote",drvSet:"Réglages généraux",
+  activeTag:"Actif",
+  pmTitle:"Pilote",actPilot:"Utiliser le mode Pilote",
+  wordsTitle:"Tableau des mots",
   setDesc:"Le mot s'affiche quand le partiel est entre les deux valeurs (De inclus, À exclu). Laissez \"À\" vide pour aucune limite.",
   thFrom:"De (m)",thTo:"À (m)",thWord:"Mot",addRow:"+ Ajouter une ligne",
-  optTitle:"Options",
+  speakLabel:"Lire le mot à voix haute",
+  nmTitle:"Copilote",actNav:"Utiliser le mode Copilote",
+  rbImpTitle:"Importer le road book",
+  rbImpDesc:"Photographiez la page du road book et faites-la transcrire par une IA (ex. Claude) dans ce format, une ligne par repère : km_totaux ; type ; note. Collez le texte ici et appuyez sur Importer.",
+  rbImpBtn:"Importer",
+  rbImpOk:"repères importés",
+  rbImpErr:"Aucune ligne valide trouvée",
+  rbTitle:"Road book",
+  rbDesc:"Km totaux comme imprimés sur le road book (ex. 0,52). Remettez le TOTAL à zéro au départ : 50 m avant chaque repère, l'alerte apparaîtra.",
+  thDist:"Km totaux",thSym:"Symbole",thNote:"Note",
+  rbClear:"Tout effacer",
+  gsTitle:"Réglages généraux",
   langLabel:"Langue",unitLabel:"Unités",
+  timeLabel:"Format horaire",time24:"24 heures",time12:"12 heures",
+  themeLabel:"Thème",themeDark:"Sombre",themeLight:"Clair",
   tunnelLabel:"Mode tunnel",tunnelSmall:"Sans signal GPS continue à compter à la dernière vitesse (max 60 s)",
-  accLabel:"Précision GPS min (m)",accSmall:"Les données moins précises sont ignorées",
-  speakLabel:"Lire le mot à voix haute",close:"Enregistrer et fermer",
+  close:"Enregistrer et fermer",
   legTitle:"Signal GPS",legGreen:"Vert : excellent (moins de 6 m)",legBlue:"Bleu : bon (6–10 m)",legRed:"Rouge : faible (plus de 10 m)"},
 es:{introTitle:"Cómo funciona",
   intro1:"Arriba: el reloj y la distancia TOTAL — tócala para ponerla a cero.",
-  intro2:"MODO PILOTO: parcial en metros con start-stop (toca la zona grande o pulsa el botón Bluetooth). En la tabla puedes definir palabras que aparecen en ciertos intervalos.",
-  intro5:"MODO COPILOTO: el parcial cuenta siempre, como el trip del coche — cada toque lo pone a cero y arranca de inmediato. Abajo se muestra la velocidad en tiempo real.",
-  intro3:"Abre el menú (☰) para cambiar de modo, tabla de palabras, idioma, unidades y opciones.",
+  intro2:"MODO PILOTO: parcial en metros con start-stop (toca la zona grande o el botón Bluetooth). En la tabla puedes definir palabras que aparecen en ciertos intervalos.",
+  intro5:"MODO COPILOTO: el parcial cuenta siempre — cada toque lo pone a cero. Además puedes cargar el road book: 50 m antes de cada referencia aparece el símbolo con la nota.",
+  intro3:"Abre el menú (☰) para entrar en las secciones Piloto, Copiloto y Ajustes generales.",
   intro4:"Punto GPS: verde = excelente (<6 m) · azul = bueno (6–10 m) · rojo = débil (>10 m).",
   dontShow:"No mostrar más",start:"Empezar",
   totalLabel:"Total · toca para poner a cero",partialLabel:"Parcial",
@@ -437,22 +613,35 @@ es:{introTitle:"Cómo funciona",
   wordLabel:"Palabra / Parcial · toca para start-stop",
   speedLabel:"Velocidad",
   ready:"Listo",running:"Midiendo…",stopped:"Parado — pulsa para reiniciar desde 0",
-  setTitle:"Menú",modeLabel:"Modo",modePilot:"Piloto",modeNav:"Copiloto",
-  modeDesc:"Piloto: parcial en metros con start-stop y palabras. Copiloto: parcial siempre activo, un toque lo pone a cero (como el trip del coche), con velocidad en tiempo real.",
-  wordsTitle:"Tabla de palabras (modo Piloto)",
+  drawerTitle:"Menú",drvPilot:"Piloto",drvNav:"Copiloto",drvSet:"Ajustes generales",
+  activeTag:"Activo",
+  pmTitle:"Piloto",actPilot:"Usar modo Piloto",
+  wordsTitle:"Tabla de palabras",
   setDesc:"La palabra aparece cuando el parcial está entre los dos valores (Desde incluido, Hasta excluido). Deja \"Hasta\" vacío para sin límite.",
   thFrom:"Desde (m)",thTo:"Hasta (m)",thWord:"Palabra",addRow:"+ Añadir fila",
-  optTitle:"Opciones",
+  speakLabel:"Leer la palabra en voz alta",
+  nmTitle:"Copiloto",actNav:"Usar modo Copiloto",
+  rbImpTitle:"Importar road book",
+  rbImpDesc:"Fotografía la página del road book y haz que una IA (ej. Claude) la transcriba en este formato, una línea por referencia: km_totales ; tipo ; nota. Pega el texto aquí y pulsa Importar.",
+  rbImpBtn:"Importar",
+  rbImpOk:"referencias importadas",
+  rbImpErr:"No se encontraron líneas válidas",
+  rbTitle:"Road book",
+  rbDesc:"Km totales como impresos en el road book (ej. 0,52). Pon el TOTAL a cero en la salida: 50 m antes de cada referencia aparecerá el aviso.",
+  thDist:"Km totales",thSym:"Símbolo",thNote:"Nota",
+  rbClear:"Vaciar todo",
+  gsTitle:"Ajustes generales",
   langLabel:"Idioma",unitLabel:"Unidades",
+  timeLabel:"Formato de hora",time24:"24 horas",time12:"12 horas",
+  themeLabel:"Tema",themeDark:"Oscuro",themeLight:"Claro",
   tunnelLabel:"Modo túnel",tunnelSmall:"Sin señal GPS sigue contando con la última velocidad (máx 60 s)",
-  accLabel:"Precisión GPS mín (m)",accSmall:"Los datos menos precisos se descartan",
-  speakLabel:"Leer la palabra en voz alta",close:"Guardar y cerrar",
+  close:"Guardar y cerrar",
   legTitle:"Señal GPS",legGreen:"Verde: excelente (menos de 6 m)",legBlue:"Azul: buena (6–10 m)",legRed:"Rojo: débil (más de 10 m)"},
 de:{introTitle:"So funktioniert es",
   intro1:"Oben: die Uhr und die GESAMTdistanz — zum Nullstellen antippen.",
-  intro2:"FAHRER-MODUS: Teildistanz in Metern mit Start-Stopp (großen Bereich antippen oder Bluetooth-Taste drücken). In der Tabelle kannst du Wörter für Meterbereiche festlegen.",
-  intro5:"BEIFAHRER-MODUS: die Teildistanz zählt immer, wie der Tageskilometerzähler — jedes Antippen stellt sie auf null und sie läuft sofort weiter. Unten wird die Echtzeit-Geschwindigkeit angezeigt.",
-  intro3:"Öffne das Menü (☰) für Modus, Worttabelle, Sprache, Einheiten und Optionen.",
+  intro2:"FAHRER-MODUS: Teildistanz in Metern mit Start-Stopp (großen Bereich antippen oder Bluetooth-Taste). In der Tabelle kannst du Wörter für Meterbereiche festlegen.",
+  intro5:"BEIFAHRER-MODUS: die Teildistanz zählt immer — Antippen stellt sie auf null. Zudem kannst du das Roadbook laden: 50 m vor jedem Bezugspunkt erscheint das Symbol mit der Notiz.",
+  intro3:"Öffne das Menü (☰) für die Bereiche Fahrer, Beifahrer und Allgemeine Einstellungen.",
   intro4:"GPS-Punkt: grün = ausgezeichnet (<6 m) · blau = gut (6–10 m) · rot = schwach (>10 m).",
   dontShow:"Nicht mehr anzeigen",start:"Los geht's",
   totalLabel:"Gesamt · zum Nullstellen tippen",partialLabel:"Teilstrecke",
@@ -460,22 +649,35 @@ de:{introTitle:"So funktioniert es",
   wordLabel:"Wort / Teilstrecke · tippen für Start-Stopp",
   speedLabel:"Geschwindigkeit",
   ready:"Bereit",running:"Messung läuft…",stopped:"Gestoppt — drücken für Neustart ab 0",
-  setTitle:"Menü",modeLabel:"Modus",modePilot:"Fahrer",modeNav:"Beifahrer",
-  modeDesc:"Fahrer: Teildistanz in Metern mit Start-Stopp und Wörtern. Beifahrer: Teildistanz läuft immer, ein Tippen stellt sie auf null (wie der Tageskilometerzähler), mit Echtzeit-Geschwindigkeit.",
-  wordsTitle:"Worttabelle (Fahrer-Modus)",
+  drawerTitle:"Menü",drvPilot:"Fahrer",drvNav:"Beifahrer",drvSet:"Allgemeine Einstellungen",
+  activeTag:"Aktiv",
+  pmTitle:"Fahrer",actPilot:"Fahrer-Modus verwenden",
+  wordsTitle:"Worttabelle",
   setDesc:"Das Wort erscheint, wenn die Teildistanz zwischen den Werten liegt (Von inklusive, Bis exklusive). \"Bis\" leer lassen für kein Limit.",
   thFrom:"Von (m)",thTo:"Bis (m)",thWord:"Wort",addRow:"+ Zeile hinzufügen",
-  optTitle:"Optionen",
+  speakLabel:"Wort vorlesen",
+  nmTitle:"Beifahrer",actNav:"Beifahrer-Modus verwenden",
+  rbImpTitle:"Roadbook importieren",
+  rbImpDesc:"Fotografiere die Roadbook-Seite und lass sie von einer KI (z. B. Claude) in diesem Format transkribieren, eine Zeile pro Bezugspunkt: gesamt_km ; typ ; notiz. Füge den Text hier ein und drücke Importieren.",
+  rbImpBtn:"Importieren",
+  rbImpOk:"Bezugspunkte importiert",
+  rbImpErr:"Keine gültigen Zeilen gefunden",
+  rbTitle:"Roadbook",
+  rbDesc:"Gesamt-km wie im Roadbook gedruckt (z. B. 0,52). Stelle die GESAMTdistanz am Start auf null: 50 m vor jedem Bezugspunkt erscheint der Hinweis.",
+  thDist:"Gesamt-km",thSym:"Symbol",thNote:"Notiz",
+  rbClear:"Alles löschen",
+  gsTitle:"Allgemeine Einstellungen",
   langLabel:"Sprache",unitLabel:"Einheiten",
+  timeLabel:"Zeitformat",time24:"24 Stunden",time12:"12 Stunden",
+  themeLabel:"Design",themeDark:"Dunkel",themeLight:"Hell",
   tunnelLabel:"Tunnelmodus",tunnelSmall:"Ohne GPS-Signal zählt mit der letzten Geschwindigkeit weiter (max. 60 s)",
-  accLabel:"Min. GPS-Genauigkeit (m)",accSmall:"Ungenauere Daten werden verworfen",
-  speakLabel:"Wort vorlesen",close:"Speichern und schließen",
+  close:"Speichern und schließen",
   legTitle:"GPS-Signal",legGreen:"Grün: ausgezeichnet (unter 6 m)",legBlue:"Blau: gut (6–10 m)",legRed:"Rot: schwach (über 10 m)"},
 pt:{introTitle:"Como funciona",
   intro1:"No topo: o relógio e a distância TOTAL — toque para zerar.",
-  intro2:"MODO PILOTO: parcial em metros com start-stop (toque na área grande ou pressione o botão Bluetooth). Na tabela pode definir palavras que aparecem em certos intervalos.",
-  intro5:"MODO NAVEGADOR: o parcial conta sempre, como o trip do carro — cada toque zera e recomeça de imediato. Em baixo mostra-se a velocidade em tempo real.",
-  intro3:"Abra o menu (☰) para mudar o modo, tabela de palavras, idioma, unidades e opções.",
+  intro2:"MODO PILOTO: parcial em metros com start-stop (toque na área grande ou no botão Bluetooth). Na tabela pode definir palavras que aparecem em certos intervalos.",
+  intro5:"MODO NAVEGADOR: o parcial conta sempre — cada toque zera. Além disso pode carregar o road book: 50 m antes de cada referência aparece o símbolo com a nota.",
+  intro3:"Abra o menu (☰) para entrar nas secções Piloto, Navegador e Definições gerais.",
   intro4:"Ponto GPS: verde = excelente (<6 m) · azul = bom (6–10 m) · vermelho = fraco (>10 m).",
   dontShow:"Não mostrar novamente",start:"Começar",
   totalLabel:"Total · toque para zerar",partialLabel:"Parcial",
@@ -483,22 +685,35 @@ pt:{introTitle:"Como funciona",
   wordLabel:"Palavra / Parcial · toque para start-stop",
   speedLabel:"Velocidade",
   ready:"Pronto",running:"A medir…",stopped:"Parado — pressione para recomeçar do 0",
-  setTitle:"Menu",modeLabel:"Modo",modePilot:"Piloto",modeNav:"Navegador",
-  modeDesc:"Piloto: parcial em metros com start-stop e palavras. Navegador: parcial sempre ativo, um toque zera (como o trip do carro), com velocidade em tempo real.",
-  wordsTitle:"Tabela de palavras (modo Piloto)",
+  drawerTitle:"Menu",drvPilot:"Piloto",drvNav:"Navegador",drvSet:"Definições gerais",
+  activeTag:"Ativo",
+  pmTitle:"Piloto",actPilot:"Usar modo Piloto",
+  wordsTitle:"Tabela de palavras",
   setDesc:"A palavra aparece quando o parcial está entre os dois valores (De incluído, Até excluído). Deixe \"Até\" vazio para sem limite.",
   thFrom:"De (m)",thTo:"Até (m)",thWord:"Palavra",addRow:"+ Adicionar linha",
-  optTitle:"Opções",
+  speakLabel:"Ler a palavra em voz alta",
+  nmTitle:"Navegador",actNav:"Usar modo Navegador",
+  rbImpTitle:"Importar road book",
+  rbImpDesc:"Fotografe a página do road book e peça a uma IA (ex. Claude) para transcrever neste formato, uma linha por referência: km_totais ; tipo ; nota. Cole o texto aqui e pressione Importar.",
+  rbImpBtn:"Importar",
+  rbImpOk:"referências importadas",
+  rbImpErr:"Nenhuma linha válida encontrada",
+  rbTitle:"Road book",
+  rbDesc:"Km totais como impressos no road book (ex. 0,52). Zere o TOTAL na partida: 50 m antes de cada referência aparecerá o aviso.",
+  thDist:"Km totais",thSym:"Símbolo",thNote:"Nota",
+  rbClear:"Limpar tudo",
+  gsTitle:"Definições gerais",
   langLabel:"Idioma",unitLabel:"Unidades",
+  timeLabel:"Formato da hora",time24:"24 horas",time12:"12 horas",
+  themeLabel:"Tema",themeDark:"Escuro",themeLight:"Claro",
   tunnelLabel:"Modo túnel",tunnelSmall:"Sem sinal GPS continua a contar com a última velocidade (máx 60 s)",
-  accLabel:"Precisão GPS mín (m)",accSmall:"Dados menos precisos são descartados",
-  speakLabel:"Ler a palavra em voz alta",close:"Guardar e fechar",
+  close:"Guardar e fechar",
   legTitle:"Sinal GPS",legGreen:"Verde: excelente (menos de 6 m)",legBlue:"Azul: bom (6–10 m)",legRed:"Vermelho: fraco (mais de 10 m)"},
 ja:{introTitle:"使い方",
   intro1:"上部:時計と合計距離 — タップでリセット。",
   intro2:"ドライバーモード:メートル単位の区間距離をスタート・ストップ(大きなエリアをタップ、またはBluetoothボタン)。テーブルで範囲ごとの言葉を設定できます。",
-  intro5:"ナビゲーターモード:区間距離は常にカウント。車のトリップメーターのように、タップするたびにゼロに戻りすぐ再開します。下部にリアルタイムの速度が表示されます。",
-  intro3:"メニュー(☰)からモード、言葉テーブル、言語、単位、オプションを変更できます。",
+  intro5:"ナビゲーターモード:区間距離は常にカウント — タップでゼロに。ロードブックも登録可能:各基準点の50m手前で記号とメモが表示されます。",
+  intro3:"メニュー(☰)からドライバー、ナビゲーター、一般設定の各セクションに入れます。",
   intro4:"GPSドット:緑=非常に良い(<6m) · 青=良い(6–10m) · 赤=弱い(>10m)。",
   dontShow:"次回から表示しない",start:"スタート",
   totalLabel:"合計 · タップでリセット",partialLabel:"区間",
@@ -506,22 +721,35 @@ ja:{introTitle:"使い方",
   wordLabel:"言葉 / 区間 · タップで開始・停止",
   speedLabel:"速度",
   ready:"準備完了",running:"計測中…",stopped:"停止 — 押すと0から再開",
-  setTitle:"メニュー",modeLabel:"モード",modePilot:"ドライバー",modeNav:"ナビゲーター",
-  modeDesc:"ドライバー:メートル単位、スタート・ストップと言葉付き。ナビゲーター:常にカウント、タップでゼロに(車のトリップメーターのように)、リアルタイム速度付き。",
-  wordsTitle:"言葉テーブル(ドライバーモード)",
+  drawerTitle:"メニュー",drvPilot:"ドライバー",drvNav:"ナビゲーター",drvSet:"一般設定",
+  activeTag:"使用中",
+  pmTitle:"ドライバー",actPilot:"ドライバーモードを使う",
+  wordsTitle:"言葉テーブル",
   setDesc:"区間距離が2つの値の間にあるとき言葉が表示されます(「から」含む、「まで」含まない)。「まで」を空欄にすると上限なし。",
   thFrom:"から(m)",thTo:"まで(m)",thWord:"言葉",addRow:"+ 行を追加",
-  optTitle:"オプション",
+  speakLabel:"言葉を読み上げる",
+  nmTitle:"ナビゲーター",actNav:"ナビゲーターモードを使う",
+  rbImpTitle:"ロードブックを取り込む",
+  rbImpDesc:"ロードブックのページを撮影し、AI(例:Claude)に次の形式で転記してもらいます。1行=1基準点: 合計km ; 種類 ; メモ。テキストをここに貼り付けて「取り込む」を押します。",
+  rbImpBtn:"取り込む",
+  rbImpOk:"件の基準点を取り込みました",
+  rbImpErr:"有効な行が見つかりません",
+  rbTitle:"ロードブック",
+  rbDesc:"ロードブックに印刷された合計km(例:0.52)。スタート時に合計をリセット:各基準点の50m手前で警告が表示されます。",
+  thDist:"合計km",thSym:"記号",thNote:"メモ",
+  rbClear:"すべて消去",
+  gsTitle:"一般設定",
   langLabel:"言語",unitLabel:"単位",
+  timeLabel:"時刻表示",time24:"24時間",time12:"12時間",
+  themeLabel:"テーマ",themeDark:"ダーク",themeLight:"ライト",
   tunnelLabel:"トンネルモード",tunnelSmall:"GPSなしで直前の速度のまま計測を継続(最大60秒)",
-  accLabel:"最低GPS精度(m)",accSmall:"精度の低いデータは破棄されます",
-  speakLabel:"言葉を読み上げる",close:"保存して閉じる",
+  close:"保存して閉じる",
   legTitle:"GPS信号",legGreen:"緑:非常に良い(6m未満)",legBlue:"青:良い(6–10m)",legRed:"赤:弱い(10m超)"},
 cs:{introTitle:"Jak to funguje",
   intro1:"Nahoře: hodiny a CELKOVÁ vzdálenost — klepnutím vynulujete.",
-  intro2:"REŽIM ŘIDIČ: dílčí vzdálenost v metrech se start-stop (klepněte na velkou oblast nebo stiskněte Bluetooth tlačítko). V tabulce můžete nastavit slova pro rozsahy metrů.",
-  intro5:"REŽIM NAVIGÁTOR: dílčí vzdálenost počítá stále, jako trip v autě — každé klepnutí ji vynuluje a hned znovu běží. Dole se zobrazuje rychlost v reálném čase.",
-  intro3:"Otevřete menu (☰) pro změnu režimu, tabulky slov, jazyka, jednotek a možností.",
+  intro2:"REŽIM ŘIDIČ: dílčí vzdálenost v metrech se start-stop (klepněte na velkou oblast nebo Bluetooth tlačítko). V tabulce můžete nastavit slova pro rozsahy metrů.",
+  intro5:"REŽIM NAVIGÁTOR: dílčí vzdálenost počítá stále — klepnutí ji vynuluje. Navíc můžete nahrát roadbook: 50 m před každým bodem se zobrazí symbol s poznámkou.",
+  intro3:"Otevřete menu (☰) pro sekce Řidič, Navigátor a Obecná nastavení.",
   intro4:"GPS tečka: zelená = výborný (<6 m) · modrá = dobrý (6–10 m) · červená = slabý (>10 m).",
   dontShow:"Příště nezobrazovat",start:"Začít",
   totalLabel:"Celkem · klepnutím vynulovat",partialLabel:"Dílčí",
@@ -529,38 +757,79 @@ cs:{introTitle:"Jak to funguje",
   wordLabel:"Slovo / Dílčí · klepnutím start-stop",
   speedLabel:"Rychlost",
   ready:"Připraveno",running:"Měření…",stopped:"Zastaveno — stiskněte pro restart od 0",
-  setTitle:"Menu",modeLabel:"Režim",modePilot:"Řidič",modeNav:"Navigátor",
-  modeDesc:"Řidič: dílčí v metrech se start-stop a slovy. Navigátor: dílčí stále běží, klepnutí vynuluje (jako trip v autě), s rychlostí v reálném čase.",
-  wordsTitle:"Tabulka slov (režim Řidič)",
+  drawerTitle:"Menu",drvPilot:"Řidič",drvNav:"Navigátor",drvSet:"Obecná nastavení",
+  activeTag:"Aktivní",
+  pmTitle:"Řidič",actPilot:"Použít režim Řidič",
+  wordsTitle:"Tabulka slov",
   setDesc:"Slovo se zobrazí, když je dílčí vzdálenost mezi hodnotami (Od včetně, Do vyjma). Nechte \"Do\" prázdné pro bez limitu.",
   thFrom:"Od (m)",thTo:"Do (m)",thWord:"Slovo",addRow:"+ Přidat řádek",
-  optTitle:"Možnosti",
+  speakLabel:"Přečíst slovo nahlas",
+  nmTitle:"Navigátor",actNav:"Použít režim Navigátor",
+  rbImpTitle:"Import roadbooku",
+  rbImpDesc:"Vyfoťte stránku roadbooku a nechte ji AI (např. Claude) přepsat v tomto formátu, jeden řádek na bod: celkem_km ; typ ; poznámka. Vložte text sem a stiskněte Importovat.",
+  rbImpBtn:"Importovat",
+  rbImpOk:"bodů importováno",
+  rbImpErr:"Nenalezeny žádné platné řádky",
+  rbTitle:"Roadbook",
+  rbDesc:"Celkové km jak jsou vytištěny v roadbooku (např. 0,52). Na startu vynulujte CELKOVOU vzdálenost: 50 m před každým bodem se zobrazí upozornění.",
+  thDist:"Celkem km",thSym:"Symbol",thNote:"Poznámka",
+  rbClear:"Vymazat vše",
+  gsTitle:"Obecná nastavení",
   langLabel:"Jazyk",unitLabel:"Jednotky",
+  timeLabel:"Formát času",time24:"24 hodin",time12:"12 hodin",
+  themeLabel:"Vzhled",themeDark:"Tmavý",themeLight:"Světlý",
   tunnelLabel:"Režim tunelu",tunnelSmall:"Bez GPS signálu počítá dál poslední rychlostí (max 60 s)",
-  accLabel:"Min. přesnost GPS (m)",accSmall:"Méně přesná data se zahazují",
-  speakLabel:"Přečíst slovo nahlas",close:"Uložit a zavřít",
+  close:"Uložit a zavřít",
   legTitle:"GPS signál",legGreen:"Zelená: výborný (méně než 6 m)",legBlue:"Modrá: dobrý (6–10 m)",legRed:"Červená: slabý (více než 10 m)"}
 };
 const LOCALES = {it:'it-IT',en:'en-US',fr:'fr-FR',es:'es-ES',de:'de-DE',pt:'pt-PT',ja:'ja-JP',cs:'cs-CZ'};
 
+/* simboli radar disponibili */
+const SYMS = ['⬅️','➡️','⬆','↩️','↪️','➕','🔄','⛪','🏰','🌉','🛤️','🛑','⚠️','⛽','🏠','🌳','🚩','🏁','🕐'];
+
+/* parole chiave → simbolo (per l'import) */
+const SYM_WORDS = [
+  [/rotond|roundabout|rond/i, '🔄'],
+  [/incrocio|crossroad|junction|bivio|fork/i, '➕'],
+  [/sinistra|left|gauche/i, '⬅️'],
+  [/destra|right|droite/i, '➡️'],
+  [/diritto|dritto|straight|ahead/i, '⬆️'],
+  [/stop/i, '🛑'],
+  [/ponte|bridge/i, '🌉'],
+  [/ferrovia|railway|passaggio a livello|rail/i, '🛤️'],
+  [/chiesa|church/i, '⛪'],
+  [/benzina|carburante|fuel|refuel/i, '⛽'],
+  [/pericolo|attenzione|caution|danger|!!/i, '⚠️'],
+  [/partenza|start|t\.?c\.?|c\.?o\.?|controllo|timbro|orologio|clock/i, '🕐'],
+  [/arrivo|finish|fine/i, '🏁']
+];
+function wordToSym(s){
+  // combinazioni: "rotonda sinistra" → priorità alla direzione dentro la rotonda? No: mostra rotonda
+  for(const [re, sym] of SYM_WORDS){ if(re.test(s)) return sym; }
+  return '⚠️';
+}
+
 /* ================= STATO ================= */
+const ACC_LIMIT = 25;
 let total = 0, partial = 0;
 let running = false;
 let lastPos = null;
-let curSpeed = 0;          // m/s dall'ultimo fix valido
-let lastGoodFix = 0;       // performance.now() dell'ultimo fix valido
+let curSpeed = 0;
+let lastGoodFix = 0;
 let lastFrame = performance.now();
 let currentWord = null;
 let lastSpoken = null;
 let cfg = {
   rows: [ {from:15, to:20, w:"ESEMPIO"} ],
-  accLimit: 20,
+  rb: [],
   speak: false,
   lang: null,
   hideIntro: false,
   mode: 'pilot',
   units: 'metric',
-  tunnel: true
+  tunnel: true,
+  theme: 'dark',
+  h24: true
 };
 
 try{
@@ -568,6 +837,9 @@ try{
   if(saved){
     cfg = Object.assign(cfg, saved);
     cfg.rows = (cfg.rows||[]).map(r => r.m !== undefined ? {from:r.m, to:'', w:r.w} : r);
+    if(!Array.isArray(cfg.rb)) cfg.rb = [];
+    // migrazione: righe radar vecchie in metri {d} → km {km}
+    cfg.rb = cfg.rb.map(r => r.d !== undefined && r.km === undefined ? {km:(parseFloat(r.d)/1000)||'', s:r.s, n:r.n} : r);
   }
 }catch(e){}
 if(!cfg.lang){
@@ -576,10 +848,12 @@ if(!cfg.lang){
 }
 if(cfg.mode !== 'pilot' && cfg.mode !== 'nav') cfg.mode = 'pilot';
 if(cfg.units !== 'metric' && cfg.units !== 'imperial') cfg.units = 'metric';
+if(cfg.theme !== 'dark' && cfg.theme !== 'light') cfg.theme = 'dark';
 if(typeof cfg.tunnel !== 'boolean') cfg.tunnel = true;
+if(typeof cfg.h24 !== 'boolean') cfg.h24 = true;
 function saveCfg(){ localStorage.setItem('rallytrip_cfg', JSON.stringify(cfg)); }
 
-/* ================= LINGUA ================= */
+/* ================= LINGUA / TEMA ================= */
 function t(k){ return (T[cfg.lang]||T.en)[k] || T.en[k] || k; }
 function applyLang(){
   document.documentElement.lang = cfg.lang;
@@ -587,6 +861,11 @@ function applyLang(){
     el.textContent = t(el.dataset.t);
   });
   updateStateText();
+}
+function applyTheme(){
+  document.body.dataset.theme = cfg.theme;
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.content = cfg.theme === 'light' ? '#f4f5f7' : '#000000';
 }
 
 /* ================= ELEMENTI ================= */
@@ -596,7 +875,8 @@ const totalVal=$('totalVal'), partialVal=$('partialVal'),
       zoneWord=$('zoneWord'), zonePartial=$('zonePartial'),
       gpsdot=$('gpsdot'), flash=$('flash'), clock=$('clock'),
       partialLbl=$('partialLbl'), partialUnit=$('partialUnit'),
-      totalUnit=$('totalUnit'), speedVal=$('speedVal'), speedUnit=$('speedUnit');
+      totalUnit=$('totalUnit'), speedVal=$('speedVal'), speedUnit=$('speedUnit'),
+      rbBanner=$('rbBanner'), rbNum=$('rbNum'), rbSym=$('rbSym'), rbNote=$('rbNote'), rbDist=$('rbDist');
 
 function updateStateText(){
   if(running){ wordState.textContent=t('running'); wordState.className='run'; }
@@ -615,12 +895,15 @@ function applyMode(){
   document.body.dataset.mode = cfg.mode;
   partialLbl.dataset.t = cfg.mode === 'nav' ? 'navPartialLabel' : 'partialLabel';
   applyUnits();
-  $('modePilot').classList.toggle('sel', cfg.mode === 'pilot');
-  $('modeNav').classList.toggle('sel', cfg.mode === 'nav');
+  $('drvPilot').classList.toggle('active', cfg.mode === 'pilot');
+  $('drvNav').classList.toggle('active', cfg.mode === 'nav');
+  $('actPilot').classList.toggle('active', cfg.mode === 'pilot');
+  $('actNav').classList.toggle('active', cfg.mode === 'nav');
   if(cfg.mode === 'nav'){
     zonePartial.classList.remove('stopped');
-  } else if(!running){
-    zonePartial.classList.add('stopped');
+  } else {
+    rbBanner.classList.remove('open');
+    if(!running) zonePartial.classList.add('stopped');
   }
   applyLang();
 }
@@ -632,18 +915,6 @@ function applyUnits(){
 function partialActive(){ return running || cfg.mode === 'nav'; }
 
 /* ================= GPS ================= */
-/*
-  ANTI-DERIVA (in casa / da fermo):
-  - i fix con precisione peggiore della soglia vengono SCARTATI del tutto,
-    a meno che la velocità non sia alta (>3 m/s ≈ 11 km/h): il rumore da
-    fermo non produce mai velocità simili, un'auto in marcia sì.
-  - sotto 0,7 m/s la velocità è considerata zero.
-
-  GALLERIE:
-  - il conteggio avviene in modo continuo (nel ciclo di rendering) usando
-    l'ultima velocità valida; se il segnale sparisce e la "Modalità galleria"
-    è attiva, si continua a contare con quella velocità per max 60 s.
-*/
 function haversine(lat1, lon1, lat2, lon2){
   const R = 6371000, rad = Math.PI/180;
   const dLat = (lat2-lat1)*rad, dLon = (lon2-lon1)*rad;
@@ -661,16 +932,13 @@ function onFix(pos){
   const hasSpeed = (c.speed !== null && !isNaN(c.speed));
   const v = hasSpeed ? (c.speed < 0.7 ? 0 : c.speed) : null;
 
-  // scarta fix imprecisi (casa, garage, uscita galleria)…
-  // …tranne quando la velocità è chiaramente da veicolo in marcia
-  if(acc > cfg.accLimit && !(v !== null && v > 3)) return;
+  if(acc > ACC_LIMIT && !(v !== null && v > 3)) return;
 
   if(v !== null){
     curSpeed = v;
     lastGoodFix = performance.now();
     lastPos = c;
   } else {
-    // fallback: distanza tra posizioni (se il dato velocità manca)
     if(lastPos){
       const d = haversine(lastPos.latitude, lastPos.longitude, c.latitude, c.longitude);
       const noiseFloor = Math.max(2, acc * 0.5);
@@ -703,6 +971,33 @@ function activeWord(p){
   return null;
 }
 
+/* ================= RADAR ================= */
+function parseKm(s){
+  if(typeof s === 'number') return s;
+  return parseFloat(String(s).replace(',', '.'));
+}
+function rbCheck(){
+  if(cfg.mode !== 'nav' || !cfg.rb.length){ rbBanner.classList.remove('open'); return; }
+  for(let i = 0; i < cfg.rb.length; i++){
+    const r = cfg.rb[i];
+    const dM = parseKm(r.km) * 1000;   // km → metri
+    if(isNaN(dM)) continue;
+    if(total < dM + 30){
+      if(total >= dM - 50){
+        rbNum.textContent = (i+1);
+        rbSym.textContent = r.s || '⚠️';
+        rbNote.textContent = r.n || '';
+        rbDist.textContent = Math.max(0, Math.round(dM - total)) + ' m';
+        rbBanner.classList.add('open');
+      } else {
+        rbBanner.classList.remove('open');
+      }
+      return;
+    }
+  }
+  rbBanner.classList.remove('open');
+}
+
 /* ================= CONTEGGIO CONTINUO + RENDER ================= */
 const loc = () => LOCALES[cfg.lang] || 'en-US';
 function fmtDist(m){
@@ -717,15 +1012,18 @@ function frame(){
   const dtF = (now - lastFrame) / 1000;
   lastFrame = now;
 
-  // orologio
   const d0 = new Date();
-  clock.textContent = pad(d0.getHours())+':'+pad(d0.getMinutes())+':'+pad(d0.getSeconds());
+  let hh = d0.getHours(), suffix = '';
+  if(!cfg.h24){
+    suffix = hh >= 12 ? ' PM' : ' AM';
+    hh = hh % 12 || 12;
+  }
+  clock.textContent = pad(hh)+':'+pad(d0.getMinutes())+':'+pad(d0.getSeconds())+suffix;
 
-  // conteggio continuo alla velocità corrente
   const sinceFix = (now - lastGoodFix) / 1000;
-  const maxGap = cfg.tunnel ? 60 : 3;   // modalità galleria: fino a 60 s senza segnale
+  const maxGap = cfg.tunnel ? 60 : 3;
   const counting = curSpeed > 0 && lastGoodFix > 0 && sinceFix < maxGap;
-  if(counting && dtF > 0 && dtF < 1){   // dtF>1 = app era in pausa: non contare
+  if(counting && dtF > 0 && dtF < 1){
     const d = curSpeed * dtF;
     total += d;
     if(partialActive()) partial += d;
@@ -734,14 +1032,13 @@ function frame(){
   totalVal.textContent = fmtDist(total);
   partialVal.textContent = cfg.mode === 'nav' ? fmtDist(partial) : fmtM(partial);
 
-  // velocità in tempo reale (modalità navigatore)
   if(cfg.mode === 'nav'){
     const v = counting ? curSpeed : 0;
     const s = isImp() ? v*2.236936 : v*3.6;
     speedVal.textContent = s.toLocaleString(loc(), {minimumFractionDigits:1, maximumFractionDigits:1});
+    rbCheck();
   }
 
-  // zona sinistra (solo modalità pilota)
   if(cfg.mode === 'pilot'){
     if(running){
       const w = activeWord(partial);
@@ -766,7 +1063,12 @@ function frame(){
   requestAnimationFrame(frame);
 }
 
-/* ================= AZIONE PRINCIPALE (tocco / tasto BT) ================= */
+/* ================= AZIONE PRINCIPALE ================= */
+function anyOverlayOpen(){
+  return ['intro','pilotMenu','navMenu','genMenu'].some(id => $(id).classList.contains('open'))
+    || $('drawer').classList.contains('open');
+}
+
 function mainAction(){
   if(cfg.mode === 'nav'){
     partial = 0;
@@ -794,8 +1096,8 @@ zoneWord.addEventListener('click', mainAction);
 zonePartial.addEventListener('click', ()=>{ if(cfg.mode === 'nav') mainAction(); });
 
 window.addEventListener('keydown', e => {
-  if($('settings').classList.contains('open') || $('intro').classList.contains('open')) return;
-  if(e.target.tagName === 'INPUT') return;
+  if(anyOverlayOpen()) return;
+  if(e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
   e.preventDefault();
   mainAction();
 });
@@ -825,13 +1127,44 @@ $('closeIntro').addEventListener('click', ()=>{
   $('intro').classList.remove('open');
 });
 
-/* ================= MENU ================= */
-const settings = $('settings'), tblBody = $('tblBody');
+/* ================= DRAWER ================= */
+function openDrawer(){
+  $('drawer').classList.add('open');
+  $('drawerBg').classList.add('open');
+}
+function closeDrawer(){
+  $('drawer').classList.remove('open');
+  $('drawerBg').classList.remove('open');
+}
+$('btnMenu').addEventListener('click', e=>{ e.stopPropagation(); openDrawer(); });
+$('drawerBg').addEventListener('click', closeDrawer);
 
-$('modePilot').addEventListener('click', ()=>{ cfg.mode='pilot'; applyMode(); });
-$('modeNav').addEventListener('click', ()=>{ cfg.mode='nav'; applyMode(); });
+$('drvPilot').addEventListener('click', ()=>{
+  closeDrawer();
+  buildWordTable();
+  $('speakToggle').checked = cfg.speak;
+  $('pilotMenu').classList.add('open');
+});
+$('drvNav').addEventListener('click', ()=>{
+  closeDrawer();
+  buildRbTable();
+  $('rbImportMsg').textContent = '';
+  $('navMenu').classList.add('open');
+});
+$('drvSet').addEventListener('click', ()=>{
+  closeDrawer();
+  $('langSel').value = cfg.lang;
+  $('unitSel').value = cfg.units;
+  $('timeSel').value = cfg.h24 ? '24' : '12';
+  $('themeSel').value = cfg.theme;
+  $('tunnelToggle').checked = cfg.tunnel;
+  $('genMenu').classList.add('open');
+});
 
-function buildTable(){
+/* ================= MENU PILOTA ================= */
+const tblBody = $('tblBody');
+
+function buildWordTable(){
   tblBody.innerHTML = '';
   cfg.rows.forEach((r,i)=>{
     const tr = document.createElement('tr');
@@ -843,26 +1176,96 @@ function buildTable(){
     tblBody.appendChild(tr);
   });
 }
-
 tblBody.addEventListener('input', e=>{
   const i = e.target.dataset.i, f = e.target.dataset.f;
   if(i !== undefined && f) cfg.rows[i][f] = e.target.value;
 });
 tblBody.addEventListener('click', e=>{
   const del = e.target.dataset.del;
-  if(del !== undefined){ cfg.rows.splice(del,1); buildTable(); }
+  if(del !== undefined){ cfg.rows.splice(del,1); buildWordTable(); }
 });
-$('addRow').addEventListener('click', ()=>{ cfg.rows.push({from:'',to:'',w:''}); buildTable(); });
+$('addRow').addEventListener('click', ()=>{ cfg.rows.push({from:'',to:'',w:''}); buildWordTable(); });
 
-$('btnSettings').addEventListener('click', e=>{
-  e.stopPropagation();
-  $('accLimit').value = cfg.accLimit;
-  $('speakToggle').checked = cfg.speak;
-  $('langSel').value = cfg.lang;
-  $('unitSel').value = cfg.units;
-  $('tunnelToggle').checked = cfg.tunnel;
-  buildTable();
-  settings.classList.add('open');
+$('actPilot').addEventListener('click', ()=>{ cfg.mode='pilot'; applyMode(); });
+
+$('closePilot').addEventListener('click', ()=>{
+  cfg.speak = $('speakToggle').checked;
+  cfg.rows = cfg.rows.filter(r => r.from !== '' && r.w !== '');
+  cfg.rows.sort((a,b)=>parseFloat(a.from)-parseFloat(b.from));
+  saveCfg();
+  $('pilotMenu').classList.remove('open');
+});
+
+/* ================= MENU NAVIGATORE (RADAR) ================= */
+const rbBody = $('rbBody');
+
+function symOptions(sel){
+  return SYMS.map(s => '<option value="'+s+'"'+(s===sel?' selected':'')+'>'+s+'</option>').join('');
+}
+function buildRbTable(){
+  rbBody.innerHTML = '';
+  cfg.rb.forEach((r,i)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><input type="text" inputmode="decimal" value="'+ (r.km ?? '') +'" data-i="'+i+'" data-f="km" placeholder="0,00"></td>' +
+      '<td><select data-i="'+i+'" data-f="s">'+ symOptions(r.s || SYMS[0]) +'</select></td>' +
+      '<td><input type="text" value="'+ (r.n ? String(r.n).replace(/"/g,'&quot;') : '') +'" data-i="'+i+'" data-f="n"></td>' +
+      '<td><button data-del="'+i+'">✕</button></td>';
+    rbBody.appendChild(tr);
+  });
+}
+rbBody.addEventListener('input', e=>{
+  const i = e.target.dataset.i, f = e.target.dataset.f;
+  if(i !== undefined && f) cfg.rb[i][f] = e.target.value;
+});
+rbBody.addEventListener('change', e=>{
+  const i = e.target.dataset.i, f = e.target.dataset.f;
+  if(i !== undefined && f) cfg.rb[i][f] = e.target.value;
+});
+rbBody.addEventListener('click', e=>{
+  const del = e.target.dataset.del;
+  if(del !== undefined){ cfg.rb.splice(del,1); buildRbTable(); }
+});
+$('rbAddRow').addEventListener('click', ()=>{ cfg.rb.push({km:'',s:SYMS[0],n:''}); buildRbTable(); });
+$('rbClear').addEventListener('click', ()=>{ cfg.rb = []; buildRbTable(); });
+
+/* import dal testo trascritto dall'AI */
+$('rbImportBtn').addEventListener('click', ()=>{
+  const lines = $('rbImport').value.split('\n');
+  let added = 0;
+  for(const line of lines){
+    const parts = line.split(';').map(s => s.trim());
+    if(parts.length < 2) continue;
+    const km = parseKm(parts[0]);
+    if(isNaN(km)) continue;
+    const sym = wordToSym(parts[1] || '');
+    const note = (parts[2] || parts[1] || '').trim();
+    cfg.rb.push({km: parts[0].replace('.', ','), s: sym, n: note});
+    added++;
+  }
+  if(added > 0){
+    cfg.rb.sort((a,b)=>parseKm(a.km)-parseKm(b.km));
+    buildRbTable();
+    $('rbImport').value = '';
+    $('rbImportMsg').textContent = added + ' ' + t('rbImpOk');
+  } else {
+    $('rbImportMsg').textContent = t('rbImpErr');
+  }
+});
+
+$('actNav').addEventListener('click', ()=>{ cfg.mode='nav'; applyMode(); });
+
+$('closeNav').addEventListener('click', ()=>{
+  cfg.rb = cfg.rb.filter(r => r.km !== '');
+  cfg.rb.sort((a,b)=>parseKm(a.km)-parseKm(b.km));
+  saveCfg();
+  $('navMenu').classList.remove('open');
+});
+
+/* ================= IMPOSTAZIONI GENERALI ================= */
+$('themeSel').addEventListener('change', ()=>{
+  cfg.theme = $('themeSel').value;
+  applyTheme();
 });
 $('langSel').addEventListener('change', ()=>{
   cfg.lang = $('langSel').value;
@@ -872,18 +1275,17 @@ $('unitSel').addEventListener('change', ()=>{
   cfg.units = $('unitSel').value;
   applyUnits();
 });
-$('closeSettings').addEventListener('click', ()=>{
-  cfg.accLimit = Math.max(5, parseFloat($('accLimit').value) || 20);
-  cfg.speak = $('speakToggle').checked;
+$('closeGen').addEventListener('click', ()=>{
   cfg.lang = $('langSel').value;
   cfg.units = $('unitSel').value;
+  cfg.h24 = $('timeSel').value === '24';
+  cfg.theme = $('themeSel').value;
   cfg.tunnel = $('tunnelToggle').checked;
-  cfg.rows = cfg.rows.filter(r => r.from !== '' && r.w !== '');
-  cfg.rows.sort((a,b)=>parseFloat(a.from)-parseFloat(b.from));
   saveCfg();
   applyLang();
   applyUnits();
-  settings.classList.remove('open');
+  applyTheme();
+  $('genMenu').classList.remove('open');
 });
 
 /* ================= SCHERMO SEMPRE ACCESO ================= */
@@ -905,6 +1307,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
 
+applyTheme();
 applyMode();
 requestAnimationFrame(frame);
 })();
