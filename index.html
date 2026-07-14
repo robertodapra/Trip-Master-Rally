@@ -230,7 +230,7 @@
     font-variant-numeric:tabular-nums;margin-top:4px;
   }
 
-  /* ====== DRAWER (menu laterale) ====== */
+  /* ====== DRAWER ====== */
   #drawerBg{
     position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:11;
     display:none;
@@ -315,6 +315,30 @@
     margin-bottom:6px;
   }
   #rbImportMsg{font-size:13px;color:var(--green);margin-bottom:8px;min-height:18px}
+
+  /* libreria prove speciali */
+  #ssBar{display:flex;gap:8px;margin-bottom:8px}
+  #ssName{
+    flex:1;padding:12px;background:var(--inputbg);border:1px solid var(--line);
+    border-radius:8px;color:var(--text);font-size:15px;
+  }
+  #ssSave{
+    padding:12px 14px;border-radius:8px;background:var(--btnbg);
+    border:2px solid var(--amber);color:var(--amber);font-weight:700;font-size:14px;
+  }
+  #ssMsg{font-size:13px;color:var(--green);min-height:18px;margin-bottom:6px}
+  .ss-row{
+    display:flex;align-items:center;gap:8px;
+    background:var(--btnbg);border:1px solid var(--line);border-radius:10px;
+    padding:10px 12px;margin-bottom:8px;
+  }
+  .ss-row .ss-name{flex:1;font-size:15px;font-weight:600;word-break:break-word}
+  .ss-row button{
+    background:none;border:1px solid var(--line);color:var(--text);
+    border-radius:8px;padding:8px 12px;font-size:13px;
+  }
+  .ss-row button.del{color:var(--red);border:none;font-size:18px;padding:6px}
+  #ssEmpty{font-size:13px;color:var(--muted);margin-bottom:8px}
 
   #flash{
     position:fixed;inset:0;background:rgba(255,180,0,.18);z-index:5;
@@ -421,9 +445,18 @@
   <h2 data-t="nmTitle"></h2>
   <button class="actbtn" id="actNav" data-t="actNav"></button>
 
+  <h3 data-t="ssTitle"></h3>
+  <div id="ssBar">
+    <input type="text" id="ssName">
+    <button id="ssSave" data-t="ssSave"></button>
+  </div>
+  <div id="ssMsg"></div>
+  <div id="ssList"></div>
+  <div id="ssEmpty" data-t="ssEmpty"></div>
+
   <h3 data-t="rbImpTitle"></h3>
   <p class="small" data-t="rbImpDesc"></p>
-  <textarea id="rbImport" placeholder="0,00 ; partenza ; T.C. 0&#10;0,22 ; rotonda diritto ; Via Campo Sportivo&#10;0,52 ; rotonda sinistra ; Autostrada Montecatini"></textarea>
+  <textarea id="rbImport" placeholder="0,00 ; controllo ; T.C. 0&#10;0,22 ; rotonda terza uscita ; Via Campo Sportivo&#10;0,52 ; incrocio sinistra ; Autostrada Montecatini"></textarea>
   <button id="rbImportBtn" data-t="rbImpBtn"></button>
   <div id="rbImportMsg"></div>
 
@@ -436,6 +469,11 @@
   <div class="rowbtns">
     <button id="rbAddRow" data-t="addRow"></button>
     <button id="rbClear" data-t="rbClear" style="color:var(--red)"></button>
+  </div>
+
+  <div class="setting-row">
+    <span><span data-t="autoResetLabel"></span><br><small style="color:var(--muted)" data-t="autoResetSmall"></small></span>
+    <input type="checkbox" id="autoResetToggle">
   </div>
 
   <button class="okbtn" id="closeNav" data-t="close"></button>
@@ -513,8 +551,13 @@ it:{introTitle:"Come funziona",
   thFrom:"Da (m)",thTo:"A (m)",thWord:"Parola",addRow:"+ Aggiungi riga",
   speakLabel:"Leggi la parola a voce",
   nmTitle:"Navigatore",actNav:"Usa modalità Navigatore",
+  ssTitle:"Prove speciali salvate",
+  ssNamePh:"Nome prova (es. PS1 Larciano)",
+  ssSave:"Salva",ssLoad:"Carica",
+  ssEmpty:"Nessuna prova salvata",
+  ssSavedMsg:"Prova salvata",ssLoadedMsg:"Prova caricata",ssNoName:"Scrivi un nome per la prova",
   rbImpTitle:"Importa radar",
-  rbImpDesc:"Fotografa la pagina del radar e falla trascrivere a un'AI (es. Claude) con questo formato, una riga per riferimento: km_totali ; tipo ; nota. Poi incolla qui il testo e premi Importa.",
+  rbImpDesc:"Fotografa la pagina del radar e falla trascrivere a un'AI (es. Claude) nel formato: km_totali ; tipo ; nota (una riga per riferimento). Incolla qui il testo e premi Importa.",
   rbImpBtn:"Importa",
   rbImpOk:"riferimenti importati",
   rbImpErr:"Nessuna riga valida trovata",
@@ -522,6 +565,8 @@ it:{introTitle:"Come funziona",
   rbDesc:"Km totali come stampati sul radar (es. 0,52). Azzera il TOTALE alla partenza del percorso: 50 m prima di ogni riferimento apparirà l'avviso a schermo.",
   thDist:"Km totali",thSym:"Simbolo",thNote:"Nota",
   rbClear:"Svuota tutto",
+  autoResetLabel:"Azzeramento automatico del parziale",
+  autoResetSmall:"Superato ogni riferimento del radar, il parziale riparte da zero (come la colonna parziali)",
   gsTitle:"Impostazioni generali",
   langLabel:"Lingua",unitLabel:"Unità di misura",
   timeLabel:"Formato orario",time24:"24 ore",time12:"12 ore",
@@ -549,8 +594,13 @@ en:{introTitle:"How it works",
   thFrom:"From (m)",thTo:"To (m)",thWord:"Word",addRow:"+ Add row",
   speakLabel:"Speak the word aloud",
   nmTitle:"Co-driver",actNav:"Use Co-driver mode",
+  ssTitle:"Saved special stages",
+  ssNamePh:"Stage name (e.g. SS1)",
+  ssSave:"Save",ssLoad:"Load",
+  ssEmpty:"No saved stages",
+  ssSavedMsg:"Stage saved",ssLoadedMsg:"Stage loaded",ssNoName:"Type a name for the stage",
   rbImpTitle:"Import road book",
-  rbImpDesc:"Photograph the road book page and have an AI (e.g. Claude) transcribe it in this format, one line per reference: total_km ; type ; note. Then paste the text here and press Import.",
+  rbImpDesc:"Photograph the road book page and have an AI (e.g. Claude) transcribe it in the format: total_km ; type ; note (one line per reference). Paste the text here and press Import.",
   rbImpBtn:"Import",
   rbImpOk:"references imported",
   rbImpErr:"No valid lines found",
@@ -558,6 +608,8 @@ en:{introTitle:"How it works",
   rbDesc:"Total km as printed on the road book (e.g. 0.52). Reset the TOTAL at the route start: 50 m before each reference the alert will appear.",
   thDist:"Total km",thSym:"Symbol",thNote:"Note",
   rbClear:"Clear all",
+  autoResetLabel:"Automatic partial reset",
+  autoResetSmall:"After each road book reference the partial restarts from zero (matches the partial column)",
   gsTitle:"General settings",
   langLabel:"Language",unitLabel:"Units",
   timeLabel:"Time format",time24:"24-hour",time12:"12-hour",
@@ -585,8 +637,13 @@ fr:{introTitle:"Comment ça marche",
   thFrom:"De (m)",thTo:"À (m)",thWord:"Mot",addRow:"+ Ajouter une ligne",
   speakLabel:"Lire le mot à voix haute",
   nmTitle:"Copilote",actNav:"Utiliser le mode Copilote",
+  ssTitle:"Spéciales enregistrées",
+  ssNamePh:"Nom (ex. ES1)",
+  ssSave:"Enregistrer",ssLoad:"Charger",
+  ssEmpty:"Aucune spéciale enregistrée",
+  ssSavedMsg:"Spéciale enregistrée",ssLoadedMsg:"Spéciale chargée",ssNoName:"Saisissez un nom",
   rbImpTitle:"Importer le road book",
-  rbImpDesc:"Photographiez la page du road book et faites-la transcrire par une IA (ex. Claude) dans ce format, une ligne par repère : km_totaux ; type ; note. Collez le texte ici et appuyez sur Importer.",
+  rbImpDesc:"Photographiez la page du road book et faites-la transcrire par une IA (ex. Claude) au format : km_totaux ; type ; note (une ligne par repère). Collez le texte ici et appuyez sur Importer.",
   rbImpBtn:"Importer",
   rbImpOk:"repères importés",
   rbImpErr:"Aucune ligne valide trouvée",
@@ -594,6 +651,8 @@ fr:{introTitle:"Comment ça marche",
   rbDesc:"Km totaux comme imprimés sur le road book (ex. 0,52). Remettez le TOTAL à zéro au départ : 50 m avant chaque repère, l'alerte apparaîtra.",
   thDist:"Km totaux",thSym:"Symbole",thNote:"Note",
   rbClear:"Tout effacer",
+  autoResetLabel:"Remise à zéro auto du partiel",
+  autoResetSmall:"Après chaque repère du road book, le partiel repart de zéro (colonne des partiels)",
   gsTitle:"Réglages généraux",
   langLabel:"Langue",unitLabel:"Unités",
   timeLabel:"Format horaire",time24:"24 heures",time12:"12 heures",
@@ -621,8 +680,13 @@ es:{introTitle:"Cómo funciona",
   thFrom:"Desde (m)",thTo:"Hasta (m)",thWord:"Palabra",addRow:"+ Añadir fila",
   speakLabel:"Leer la palabra en voz alta",
   nmTitle:"Copiloto",actNav:"Usar modo Copiloto",
+  ssTitle:"Tramos guardados",
+  ssNamePh:"Nombre (ej. TC1)",
+  ssSave:"Guardar",ssLoad:"Cargar",
+  ssEmpty:"Ningún tramo guardado",
+  ssSavedMsg:"Tramo guardado",ssLoadedMsg:"Tramo cargado",ssNoName:"Escribe un nombre",
   rbImpTitle:"Importar road book",
-  rbImpDesc:"Fotografía la página del road book y haz que una IA (ej. Claude) la transcriba en este formato, una línea por referencia: km_totales ; tipo ; nota. Pega el texto aquí y pulsa Importar.",
+  rbImpDesc:"Fotografía la página del road book y haz que una IA (ej. Claude) la transcriba en el formato: km_totales ; tipo ; nota (una línea por referencia). Pega el texto aquí y pulsa Importar.",
   rbImpBtn:"Importar",
   rbImpOk:"referencias importadas",
   rbImpErr:"No se encontraron líneas válidas",
@@ -630,6 +694,8 @@ es:{introTitle:"Cómo funciona",
   rbDesc:"Km totales como impresos en el road book (ej. 0,52). Pon el TOTAL a cero en la salida: 50 m antes de cada referencia aparecerá el aviso.",
   thDist:"Km totales",thSym:"Símbolo",thNote:"Nota",
   rbClear:"Vaciar todo",
+  autoResetLabel:"Puesta a cero automática del parcial",
+  autoResetSmall:"Tras cada referencia del road book, el parcial reinicia desde cero (columna de parciales)",
   gsTitle:"Ajustes generales",
   langLabel:"Idioma",unitLabel:"Unidades",
   timeLabel:"Formato de hora",time24:"24 horas",time12:"12 horas",
@@ -657,8 +723,13 @@ de:{introTitle:"So funktioniert es",
   thFrom:"Von (m)",thTo:"Bis (m)",thWord:"Wort",addRow:"+ Zeile hinzufügen",
   speakLabel:"Wort vorlesen",
   nmTitle:"Beifahrer",actNav:"Beifahrer-Modus verwenden",
+  ssTitle:"Gespeicherte Wertungsprüfungen",
+  ssNamePh:"Name (z. B. WP1)",
+  ssSave:"Speichern",ssLoad:"Laden",
+  ssEmpty:"Keine gespeicherten WPs",
+  ssSavedMsg:"WP gespeichert",ssLoadedMsg:"WP geladen",ssNoName:"Gib einen Namen ein",
   rbImpTitle:"Roadbook importieren",
-  rbImpDesc:"Fotografiere die Roadbook-Seite und lass sie von einer KI (z. B. Claude) in diesem Format transkribieren, eine Zeile pro Bezugspunkt: gesamt_km ; typ ; notiz. Füge den Text hier ein und drücke Importieren.",
+  rbImpDesc:"Fotografiere die Roadbook-Seite und lass sie von einer KI (z. B. Claude) im Format transkribieren: gesamt_km ; typ ; notiz (eine Zeile pro Bezugspunkt). Füge den Text hier ein und drücke Importieren.",
   rbImpBtn:"Importieren",
   rbImpOk:"Bezugspunkte importiert",
   rbImpErr:"Keine gültigen Zeilen gefunden",
@@ -666,6 +737,8 @@ de:{introTitle:"So funktioniert es",
   rbDesc:"Gesamt-km wie im Roadbook gedruckt (z. B. 0,52). Stelle die GESAMTdistanz am Start auf null: 50 m vor jedem Bezugspunkt erscheint der Hinweis.",
   thDist:"Gesamt-km",thSym:"Symbol",thNote:"Notiz",
   rbClear:"Alles löschen",
+  autoResetLabel:"Automatischer Teilstrecken-Reset",
+  autoResetSmall:"Nach jedem Roadbook-Bezugspunkt startet die Teildistanz bei null (Teilspalte)",
   gsTitle:"Allgemeine Einstellungen",
   langLabel:"Sprache",unitLabel:"Einheiten",
   timeLabel:"Zeitformat",time24:"24 Stunden",time12:"12 Stunden",
@@ -693,8 +766,13 @@ pt:{introTitle:"Como funciona",
   thFrom:"De (m)",thTo:"Até (m)",thWord:"Palavra",addRow:"+ Adicionar linha",
   speakLabel:"Ler a palavra em voz alta",
   nmTitle:"Navegador",actNav:"Usar modo Navegador",
+  ssTitle:"Provas especiais guardadas",
+  ssNamePh:"Nome (ex. PE1)",
+  ssSave:"Guardar",ssLoad:"Carregar",
+  ssEmpty:"Nenhuma prova guardada",
+  ssSavedMsg:"Prova guardada",ssLoadedMsg:"Prova carregada",ssNoName:"Escreva um nome",
   rbImpTitle:"Importar road book",
-  rbImpDesc:"Fotografe a página do road book e peça a uma IA (ex. Claude) para transcrever neste formato, uma linha por referência: km_totais ; tipo ; nota. Cole o texto aqui e pressione Importar.",
+  rbImpDesc:"Fotografe a página do road book e peça a uma IA (ex. Claude) para transcrever no formato: km_totais ; tipo ; nota (uma linha por referência). Cole o texto aqui e pressione Importar.",
   rbImpBtn:"Importar",
   rbImpOk:"referências importadas",
   rbImpErr:"Nenhuma linha válida encontrada",
@@ -702,6 +780,8 @@ pt:{introTitle:"Como funciona",
   rbDesc:"Km totais como impressos no road book (ex. 0,52). Zere o TOTAL na partida: 50 m antes de cada referência aparecerá o aviso.",
   thDist:"Km totais",thSym:"Símbolo",thNote:"Nota",
   rbClear:"Limpar tudo",
+  autoResetLabel:"Zeragem automática do parcial",
+  autoResetSmall:"Após cada referência do road book, o parcial recomeça do zero (coluna de parciais)",
   gsTitle:"Definições gerais",
   langLabel:"Idioma",unitLabel:"Unidades",
   timeLabel:"Formato da hora",time24:"24 horas",time12:"12 horas",
@@ -729,8 +809,13 @@ ja:{introTitle:"使い方",
   thFrom:"から(m)",thTo:"まで(m)",thWord:"言葉",addRow:"+ 行を追加",
   speakLabel:"言葉を読み上げる",
   nmTitle:"ナビゲーター",actNav:"ナビゲーターモードを使う",
+  ssTitle:"保存したSS",
+  ssNamePh:"名前(例:SS1)",
+  ssSave:"保存",ssLoad:"読み込む",
+  ssEmpty:"保存されたSSはありません",
+  ssSavedMsg:"SSを保存しました",ssLoadedMsg:"SSを読み込みました",ssNoName:"名前を入力してください",
   rbImpTitle:"ロードブックを取り込む",
-  rbImpDesc:"ロードブックのページを撮影し、AI(例:Claude)に次の形式で転記してもらいます。1行=1基準点: 合計km ; 種類 ; メモ。テキストをここに貼り付けて「取り込む」を押します。",
+  rbImpDesc:"ロードブックのページを撮影し、AI(例:Claude)に次の形式で転記してもらいます: 合計km ; 種類 ; メモ(1行=1基準点)。テキストを貼り付けて「取り込む」を押します。",
   rbImpBtn:"取り込む",
   rbImpOk:"件の基準点を取り込みました",
   rbImpErr:"有効な行が見つかりません",
@@ -738,6 +823,8 @@ ja:{introTitle:"使い方",
   rbDesc:"ロードブックに印刷された合計km(例:0.52)。スタート時に合計をリセット:各基準点の50m手前で警告が表示されます。",
   thDist:"合計km",thSym:"記号",thNote:"メモ",
   rbClear:"すべて消去",
+  autoResetLabel:"区間の自動リセット",
+  autoResetSmall:"各基準点を通過すると区間距離がゼロから再開(区間列に一致)",
   gsTitle:"一般設定",
   langLabel:"言語",unitLabel:"単位",
   timeLabel:"時刻表示",time24:"24時間",time12:"12時間",
@@ -765,8 +852,13 @@ cs:{introTitle:"Jak to funguje",
   thFrom:"Od (m)",thTo:"Do (m)",thWord:"Slovo",addRow:"+ Přidat řádek",
   speakLabel:"Přečíst slovo nahlas",
   nmTitle:"Navigátor",actNav:"Použít režim Navigátor",
+  ssTitle:"Uložené rychlostní zkoušky",
+  ssNamePh:"Název (např. RZ1)",
+  ssSave:"Uložit",ssLoad:"Načíst",
+  ssEmpty:"Žádné uložené RZ",
+  ssSavedMsg:"RZ uložena",ssLoadedMsg:"RZ načtena",ssNoName:"Zadejte název",
   rbImpTitle:"Import roadbooku",
-  rbImpDesc:"Vyfoťte stránku roadbooku a nechte ji AI (např. Claude) přepsat v tomto formátu, jeden řádek na bod: celkem_km ; typ ; poznámka. Vložte text sem a stiskněte Importovat.",
+  rbImpDesc:"Vyfoťte stránku roadbooku a nechte ji AI (např. Claude) přepsat ve formátu: celkem_km ; typ ; poznámka (jeden řádek na bod). Vložte text sem a stiskněte Importovat.",
   rbImpBtn:"Importovat",
   rbImpOk:"bodů importováno",
   rbImpErr:"Nenalezeny žádné platné řádky",
@@ -774,6 +866,8 @@ cs:{introTitle:"Jak to funguje",
   rbDesc:"Celkové km jak jsou vytištěny v roadbooku (např. 0,52). Na startu vynulujte CELKOVOU vzdálenost: 50 m před každým bodem se zobrazí upozornění.",
   thDist:"Celkem km",thSym:"Symbol",thNote:"Poznámka",
   rbClear:"Vymazat vše",
+  autoResetLabel:"Automatické nulování dílčí",
+  autoResetSmall:"Po každém bodu roadbooku začne dílčí vzdálenost od nuly (sloupec dílčích)",
   gsTitle:"Obecná nastavení",
   langLabel:"Jazyk",unitLabel:"Jednotky",
   timeLabel:"Formát času",time24:"24 hodin",time12:"12 hodin",
@@ -784,10 +878,8 @@ cs:{introTitle:"Jak to funguje",
 };
 const LOCALES = {it:'it-IT',en:'en-US',fr:'fr-FR',es:'es-ES',de:'de-DE',pt:'pt-PT',ja:'ja-JP',cs:'cs-CZ'};
 
-/* simboli radar disponibili */
-const SYMS = ['⬅️','➡️','⬆','↩️','↪️','➕','🔄','⛪','🏰','🌉','🛤️','🛑','⚠️','⛽','🏠','🌳','🚩','🏁','🕐'];
+const SYMS = ['⬅️','➡️','⬆️','↩️','↪️','➕','🔄','⛪','🏰','🌉','🛤️','🛑','⚠️','⛽','🏠','🌳','🚩','🏁','🕐'];
 
-/* parole chiave → simbolo (per l'import) */
 const SYM_WORDS = [
   [/rotond|roundabout|rond/i, '🔄'],
   [/incrocio|crossroad|junction|bivio|fork/i, '➕'],
@@ -804,9 +896,13 @@ const SYM_WORDS = [
   [/arrivo|finish|fine/i, '🏁']
 ];
 function wordToSym(s){
-  // combinazioni: "rotonda sinistra" → priorità alla direzione dentro la rotonda? No: mostra rotonda
   for(const [re, sym] of SYM_WORDS){ if(re.test(s)) return sym; }
   return '⚠️';
+}
+/* estrae "terza uscita", "3 uscita", ecc. dal tipo */
+function extractExit(s){
+  const m = String(s).match(/((?:prima|seconda|terza|quarta|quinta|sesta|1|2|3|4|5|6)\s*[ªa°]?\s*uscita|uscita\s*(?:n\.?\s*)?\d)/i);
+  return m ? m[1].toUpperCase() : null;
 }
 
 /* ================= STATO ================= */
@@ -819,9 +915,12 @@ let lastGoodFix = 0;
 let lastFrame = performance.now();
 let currentWord = null;
 let lastSpoken = null;
+let rbPassedIdx = null;   // ultimo riferimento superato (null = da inizializzare)
 let cfg = {
   rows: [ {from:15, to:20, w:"ESEMPIO"} ],
   rb: [],
+  ssLib: [],
+  autoReset: false,
   speak: false,
   lang: null,
   hideIntro: false,
@@ -838,7 +937,7 @@ try{
     cfg = Object.assign(cfg, saved);
     cfg.rows = (cfg.rows||[]).map(r => r.m !== undefined ? {from:r.m, to:'', w:r.w} : r);
     if(!Array.isArray(cfg.rb)) cfg.rb = [];
-    // migrazione: righe radar vecchie in metri {d} → km {km}
+    if(!Array.isArray(cfg.ssLib)) cfg.ssLib = [];
     cfg.rb = cfg.rb.map(r => r.d !== undefined && r.km === undefined ? {km:(parseFloat(r.d)/1000)||'', s:r.s, n:r.n} : r);
   }
 }catch(e){}
@@ -851,6 +950,7 @@ if(cfg.units !== 'metric' && cfg.units !== 'imperial') cfg.units = 'metric';
 if(cfg.theme !== 'dark' && cfg.theme !== 'light') cfg.theme = 'dark';
 if(typeof cfg.tunnel !== 'boolean') cfg.tunnel = true;
 if(typeof cfg.h24 !== 'boolean') cfg.h24 = true;
+if(typeof cfg.autoReset !== 'boolean') cfg.autoReset = false;
 function saveCfg(){ localStorage.setItem('rallytrip_cfg', JSON.stringify(cfg)); }
 
 /* ================= LINGUA / TEMA ================= */
@@ -860,6 +960,7 @@ function applyLang(){
   document.querySelectorAll('[data-t]').forEach(el=>{
     el.textContent = t(el.dataset.t);
   });
+  document.getElementById('ssName').placeholder = t('ssNamePh');
   updateStateText();
 }
 function applyTheme(){
@@ -976,11 +1077,35 @@ function parseKm(s){
   if(typeof s === 'number') return s;
   return parseFloat(String(s).replace(',', '.'));
 }
+
+/* azzeramento automatico del parziale ai riferimenti */
+function rbAutoReset(){
+  if(!cfg.rb.length){ rbPassedIdx = null; return; }
+  // indice dell'ultimo riferimento con km <= totale (lista ordinata)
+  let idx = -1;
+  for(let i = 0; i < cfg.rb.length; i++){
+    const dM = parseKm(cfg.rb[i].km) * 1000;
+    if(isNaN(dM)) continue;
+    if(total >= dM) idx = i;
+    else break;
+  }
+  if(rbPassedIdx === null){
+    rbPassedIdx = idx;   // inizializza senza azzerare (es. app appena aperta)
+    return;
+  }
+  if(idx > rbPassedIdx && cfg.autoReset){
+    // appena superato un riferimento: parziale riparte esattamente dal suo km
+    const dM = parseKm(cfg.rb[idx].km) * 1000;
+    partial = Math.max(0, total - dM);
+  }
+  rbPassedIdx = idx;
+}
+
 function rbCheck(){
   if(cfg.mode !== 'nav' || !cfg.rb.length){ rbBanner.classList.remove('open'); return; }
   for(let i = 0; i < cfg.rb.length; i++){
     const r = cfg.rb[i];
-    const dM = parseKm(r.km) * 1000;   // km → metri
+    const dM = parseKm(r.km) * 1000;
     if(isNaN(dM)) continue;
     if(total < dM + 30){
       if(total >= dM - 50){
@@ -1036,6 +1161,7 @@ function frame(){
     const v = counting ? curSpeed : 0;
     const s = isImp() ? v*2.236936 : v*3.6;
     speedVal.textContent = s.toLocaleString(loc(), {minimumFractionDigits:1, maximumFractionDigits:1});
+    rbAutoReset();
     rbCheck();
   }
 
@@ -1105,6 +1231,7 @@ window.addEventListener('keydown', e => {
 /* ================= TOTALE: reset ================= */
 $('zoneTotal').addEventListener('click', ()=>{
   total = 0;
+  rbPassedIdx = null;   // ricalcola i riferimenti dal via
   if(navigator.vibrate) navigator.vibrate([40,40,40]);
 });
 
@@ -1148,7 +1275,10 @@ $('drvPilot').addEventListener('click', ()=>{
 $('drvNav').addEventListener('click', ()=>{
   closeDrawer();
   buildRbTable();
+  buildSsList();
+  $('autoResetToggle').checked = cfg.autoReset;
   $('rbImportMsg').textContent = '';
+  $('ssMsg').textContent = '';
   $('navMenu').classList.add('open');
 });
 $('drvSet').addEventListener('click', ()=>{
@@ -1196,6 +1326,54 @@ $('closePilot').addEventListener('click', ()=>{
   $('pilotMenu').classList.remove('open');
 });
 
+/* ================= LIBRERIA PROVE SPECIALI ================= */
+function buildSsList(){
+  const list = $('ssList');
+  list.innerHTML = '';
+  $('ssEmpty').style.display = cfg.ssLib.length ? 'none' : 'block';
+  cfg.ssLib.forEach((ss,i)=>{
+    const row = document.createElement('div');
+    row.className = 'ss-row';
+    const name = document.createElement('span');
+    name.className = 'ss-name';
+    name.textContent = ss.name;
+    const loadBtn = document.createElement('button');
+    loadBtn.textContent = t('ssLoad');
+    loadBtn.addEventListener('click', ()=>{
+      cfg.rb = JSON.parse(JSON.stringify(ss.rb));
+      rbPassedIdx = null;
+      $('ssName').value = ss.name;
+      buildRbTable();
+      saveCfg();
+      $('ssMsg').textContent = '“' + ss.name + '” — ' + t('ssLoadedMsg');
+    });
+    const delBtn = document.createElement('button');
+    delBtn.className = 'del';
+    delBtn.textContent = '✕';
+    delBtn.addEventListener('click', ()=>{
+      cfg.ssLib.splice(i,1);
+      saveCfg();
+      buildSsList();
+    });
+    row.appendChild(name);
+    row.appendChild(loadBtn);
+    row.appendChild(delBtn);
+    list.appendChild(row);
+  });
+}
+
+$('ssSave').addEventListener('click', ()=>{
+  const name = $('ssName').value.trim();
+  if(!name){ $('ssMsg').textContent = t('ssNoName'); return; }
+  const data = JSON.parse(JSON.stringify(cfg.rb.filter(r => r.km !== '')));
+  const existing = cfg.ssLib.find(s => s.name === name);
+  if(existing){ existing.rb = data; }
+  else { cfg.ssLib.push({name: name, rb: data}); }
+  saveCfg();
+  buildSsList();
+  $('ssMsg').textContent = '“' + name + '” — ' + t('ssSavedMsg');
+});
+
 /* ================= MENU NAVIGATORE (RADAR) ================= */
 const rbBody = $('rbBody');
 
@@ -1227,7 +1405,7 @@ rbBody.addEventListener('click', e=>{
   if(del !== undefined){ cfg.rb.splice(del,1); buildRbTable(); }
 });
 $('rbAddRow').addEventListener('click', ()=>{ cfg.rb.push({km:'',s:SYMS[0],n:''}); buildRbTable(); });
-$('rbClear').addEventListener('click', ()=>{ cfg.rb = []; buildRbTable(); });
+$('rbClear').addEventListener('click', ()=>{ cfg.rb = []; rbPassedIdx = null; buildRbTable(); });
 
 /* import dal testo trascritto dall'AI */
 $('rbImportBtn').addEventListener('click', ()=>{
@@ -1239,12 +1417,16 @@ $('rbImportBtn').addEventListener('click', ()=>{
     const km = parseKm(parts[0]);
     if(isNaN(km)) continue;
     const sym = wordToSym(parts[1] || '');
-    const note = (parts[2] || parts[1] || '').trim();
+    let note = (parts[2] || '').trim();
+    const exit = extractExit(parts[1] || '');
+    if(exit){ note = exit + (note ? ' · ' + note : ''); }
+    if(!note) note = (parts[1] || '').trim();
     cfg.rb.push({km: parts[0].replace('.', ','), s: sym, n: note});
     added++;
   }
   if(added > 0){
     cfg.rb.sort((a,b)=>parseKm(a.km)-parseKm(b.km));
+    rbPassedIdx = null;
     buildRbTable();
     $('rbImport').value = '';
     $('rbImportMsg').textContent = added + ' ' + t('rbImpOk');
@@ -1258,6 +1440,8 @@ $('actNav').addEventListener('click', ()=>{ cfg.mode='nav'; applyMode(); });
 $('closeNav').addEventListener('click', ()=>{
   cfg.rb = cfg.rb.filter(r => r.km !== '');
   cfg.rb.sort((a,b)=>parseKm(a.km)-parseKm(b.km));
+  cfg.autoReset = $('autoResetToggle').checked;
+  rbPassedIdx = null;
   saveCfg();
   $('navMenu').classList.remove('open');
 });
