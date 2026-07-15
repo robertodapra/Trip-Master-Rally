@@ -139,6 +139,15 @@
     font-size:11px;
     color:var(--text);
   }
+  #ssBadge{
+    display:none;
+    position:absolute;top:10px;right:12px;
+    background:var(--green);color:#000;
+    border-radius:8px;padding:5px 10px;
+    font-size:12px;font-weight:800;letter-spacing:.05em;
+    max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  body[data-mode="nav"] #ssBadge.show{display:block}
 
   .zone{
     display:flex;flex-direction:column;justify-content:center;align-items:center;
@@ -156,6 +165,7 @@
   .unit{font-size:14px;color:var(--muted);margin-top:2px;letter-spacing:.1em}
 
   #zoneTotal{grid-area:total;cursor:pointer}
+  #zoneTotal.holding{border-color:var(--red)}
   #totalVal{
     font-family:ui-monospace,Menlo,Consolas,monospace;
     font-size:clamp(36px,8vw,84px);font-weight:700;
@@ -258,6 +268,14 @@
     display:none;
   }
   .drawer-item.active .di-tag{display:inline-block}
+  #navSub{display:none;margin:-4px 0 10px 18px}
+  #navSub.open{display:block}
+  .drawer-sub{
+    display:flex;align-items:center;gap:10px;
+    background:none;border:1px solid var(--line);color:var(--text);
+    border-radius:10px;padding:13px 14px;font-size:15px;font-weight:600;
+    margin-bottom:8px;text-align:left;width:100%;
+  }
 
   /* ====== OVERLAY ====== */
   .overlay{
@@ -316,7 +334,6 @@
   }
   #rbImportMsg{font-size:13px;color:var(--green);margin-bottom:8px;min-height:18px}
 
-  /* libreria prove speciali */
   #ssBar{display:flex;gap:8px;margin-bottom:8px}
   #ssName{
     flex:1;padding:12px;background:var(--inputbg);border:1px solid var(--line);
@@ -376,6 +393,7 @@
 
   <div class="zone stopped" id="zonePartial">
     <span class="zlabel" id="partialLbl" data-t="partialLabel"></span>
+    <span id="ssBadge"></span>
     <div id="partialVal">0</div>
     <div class="unit" id="partialUnit">m</div>
   </div>
@@ -403,6 +421,10 @@
   <h2 data-t="drawerTitle"></h2>
   <button class="drawer-item" id="drvPilot"><span class="di-icon">🏎</span><span data-t="drvPilot"></span><span class="di-tag" data-t="activeTag"></span></button>
   <button class="drawer-item" id="drvNav"><span class="di-icon">🧭</span><span data-t="drvNav"></span><span class="di-tag" data-t="activeTag"></span></button>
+  <div id="navSub">
+    <button class="drawer-sub" id="navTrip"><span>⏱</span><span data-t="navTrip"></span></button>
+    <button class="drawer-sub" id="navRadar"><span>🗺</span><span data-t="navRadar"></span></button>
+  </div>
   <button class="drawer-item" id="drvSet"><span class="di-icon">⚙️</span><span data-t="drvSet"></span></button>
 </div>
 
@@ -440,10 +462,9 @@
   <button class="okbtn" id="closePilot" data-t="close"></button>
 </div>
 
-<!-- ============ MENU NAVIGATORE ============ -->
+<!-- ============ MENU RADAR ============ -->
 <div class="overlay" id="navMenu">
   <h2 data-t="nmTitle"></h2>
-  <button class="actbtn" id="actNav" data-t="actNav"></button>
 
   <h3 data-t="ssTitle"></h3>
   <div id="ssBar">
@@ -532,25 +553,26 @@
 /* ================= TRADUZIONI ================= */
 const T = {
 it:{introTitle:"Come funziona",
-  intro1:"In alto c'è l'orologio e la distanza TOTALE: toccala per azzerarla.",
+  intro1:"In alto c'è l'orologio e la distanza TOTALE: tienila premuta 2 secondi per azzerarla.",
   intro2:"MODALITÀ PILOTA: parziale in metri con start-stop (tocca la zona grande o premi il tasto Bluetooth). Nella tabella puoi impostare parole che appaiono in certi intervalli di metri.",
   intro5:"MODALITÀ NAVIGATORE: il parziale conta sempre — ogni tocco lo azzera. In più puoi caricare il radar: 50 m prima di ogni riferimento appare il simbolo con la nota.",
-  intro3:"Apri il menu (☰) per entrare nelle sezioni Pilota, Navigatore e Impostazioni generali.",
+  intro3:"Apri il menu (☰): dentro Navigatore trovi Trip (il display) e Inserisci radar (prove salvate e import).",
   intro4:"Puntino GPS: verde = ottimo (<6 m) · blu = buono (6–10 m) · rosso = debole (>10 m).",
   dontShow:"Non mostrare più",start:"Inizia",
-  totalLabel:"Totale · tocca per azzerare",partialLabel:"Parziale",
+  totalLabel:"Totale · tieni premuto 2s per azzerare",partialLabel:"Parziale",
   navPartialLabel:"Parziale · tocca per azzerare",
   wordLabel:"Parola / Parziale · tocca per start-stop",
   speedLabel:"Velocità",
   ready:"Pronto",running:"In misurazione…",stopped:"Fermo — premi per ripartire da 0",
   drawerTitle:"Menu",drvPilot:"Pilota",drvNav:"Navigatore",drvSet:"Impostazioni generali",
   activeTag:"Attiva",
+  navTrip:"Trip",navRadar:"Inserisci radar",
   pmTitle:"Pilota",actPilot:"Usa modalità Pilota",
   wordsTitle:"Tabella parole",
   setDesc:"La parola appare quando il parziale è tra i due valori (Da incluso, A escluso). Lascia vuoto \"A\" per non avere limite.",
   thFrom:"Da (m)",thTo:"A (m)",thWord:"Parola",addRow:"+ Aggiungi riga",
   speakLabel:"Leggi la parola a voce",
-  nmTitle:"Navigatore",actNav:"Usa modalità Navigatore",
+  nmTitle:"Radar",
   ssTitle:"Prove speciali salvate",
   ssNamePh:"Nome prova (es. PS1 Larciano)",
   ssSave:"Salva",ssLoad:"Carica",
@@ -575,25 +597,26 @@ it:{introTitle:"Come funziona",
   close:"Chiudi e salva",
   legTitle:"Segnale GPS",legGreen:"Verde: ottimo (meno di 6 m)",legBlue:"Blu: buono (6–10 m)",legRed:"Rosso: debole (oltre 10 m)"},
 en:{introTitle:"How it works",
-  intro1:"At the top: the clock and the TOTAL distance — tap it to reset.",
+  intro1:"At the top: the clock and the TOTAL distance — hold it for 2 seconds to reset.",
   intro2:"DRIVER MODE: partial in metres with start-stop (tap the big area or press your Bluetooth button). In the table you can set words that appear within metre ranges.",
   intro5:"CO-DRIVER MODE: the partial always counts — each tap resets it. You can also load the road book: 50 m before each reference the symbol and note appear.",
-  intro3:"Open the menu (☰) to enter the Driver, Co-driver and General settings sections.",
+  intro3:"Open the menu (☰): inside Co-driver you'll find Trip (the display) and Enter road book (saved stages and import).",
   intro4:"GPS dot: green = excellent (<6 m) · blue = good (6–10 m) · red = weak (>10 m).",
   dontShow:"Don't show again",start:"Start",
-  totalLabel:"Total · tap to reset",partialLabel:"Partial",
+  totalLabel:"Total · hold 2s to reset",partialLabel:"Partial",
   navPartialLabel:"Partial · tap to reset",
   wordLabel:"Word / Partial · tap to start-stop",
   speedLabel:"Speed",
   ready:"Ready",running:"Measuring…",stopped:"Stopped — press to restart from 0",
   drawerTitle:"Menu",drvPilot:"Driver",drvNav:"Co-driver",drvSet:"General settings",
   activeTag:"Active",
+  navTrip:"Trip",navRadar:"Enter road book",
   pmTitle:"Driver",actPilot:"Use Driver mode",
   wordsTitle:"Word table",
   setDesc:"The word shows when the partial is between the two values (From included, To excluded). Leave \"To\" empty for no limit.",
   thFrom:"From (m)",thTo:"To (m)",thWord:"Word",addRow:"+ Add row",
   speakLabel:"Speak the word aloud",
-  nmTitle:"Co-driver",actNav:"Use Co-driver mode",
+  nmTitle:"Road book",
   ssTitle:"Saved special stages",
   ssNamePh:"Stage name (e.g. SS1)",
   ssSave:"Save",ssLoad:"Load",
@@ -618,25 +641,26 @@ en:{introTitle:"How it works",
   close:"Save and close",
   legTitle:"GPS signal",legGreen:"Green: excellent (under 6 m)",legBlue:"Blue: good (6–10 m)",legRed:"Red: weak (over 10 m)"},
 fr:{introTitle:"Comment ça marche",
-  intro1:"En haut : l'horloge et la distance TOTALE — touchez pour remettre à zéro.",
+  intro1:"En haut : l'horloge et la distance TOTALE — maintenez 2 secondes pour remettre à zéro.",
   intro2:"MODE PILOTE : partiel en mètres avec start-stop (touchez la grande zone ou le bouton Bluetooth). Dans le tableau, définissez des mots qui apparaissent dans certains intervalles.",
   intro5:"MODE COPILOTE : le partiel compte toujours — chaque touche le remet à zéro. Vous pouvez aussi charger le road book : 50 m avant chaque repère, le symbole et la note s'affichent.",
-  intro3:"Ouvrez le menu (☰) pour accéder aux sections Pilote, Copilote et Réglages généraux.",
+  intro3:"Ouvrez le menu (☰) : dans Copilote vous trouvez Trip (l'affichage) et Saisir le road book (spéciales enregistrées et import).",
   intro4:"Point GPS : vert = excellent (<6 m) · bleu = bon (6–10 m) · rouge = faible (>10 m).",
   dontShow:"Ne plus afficher",start:"Commencer",
-  totalLabel:"Total · toucher pour remettre à zéro",partialLabel:"Partiel",
+  totalLabel:"Total · maintenir 2s pour remettre à zéro",partialLabel:"Partiel",
   navPartialLabel:"Partiel · toucher pour remettre à zéro",
   wordLabel:"Mot / Partiel · toucher pour start-stop",
   speedLabel:"Vitesse",
   ready:"Prêt",running:"Mesure en cours…",stopped:"Arrêté — appuyez pour repartir de 0",
   drawerTitle:"Menu",drvPilot:"Pilote",drvNav:"Copilote",drvSet:"Réglages généraux",
   activeTag:"Actif",
+  navTrip:"Trip",navRadar:"Saisir le road book",
   pmTitle:"Pilote",actPilot:"Utiliser le mode Pilote",
   wordsTitle:"Tableau des mots",
   setDesc:"Le mot s'affiche quand le partiel est entre les deux valeurs (De inclus, À exclu). Laissez \"À\" vide pour aucune limite.",
   thFrom:"De (m)",thTo:"À (m)",thWord:"Mot",addRow:"+ Ajouter une ligne",
   speakLabel:"Lire le mot à voix haute",
-  nmTitle:"Copilote",actNav:"Utiliser le mode Copilote",
+  nmTitle:"Road book",
   ssTitle:"Spéciales enregistrées",
   ssNamePh:"Nom (ex. ES1)",
   ssSave:"Enregistrer",ssLoad:"Charger",
@@ -661,25 +685,26 @@ fr:{introTitle:"Comment ça marche",
   close:"Enregistrer et fermer",
   legTitle:"Signal GPS",legGreen:"Vert : excellent (moins de 6 m)",legBlue:"Bleu : bon (6–10 m)",legRed:"Rouge : faible (plus de 10 m)"},
 es:{introTitle:"Cómo funciona",
-  intro1:"Arriba: el reloj y la distancia TOTAL — tócala para ponerla a cero.",
+  intro1:"Arriba: el reloj y la distancia TOTAL — mantén pulsado 2 segundos para poner a cero.",
   intro2:"MODO PILOTO: parcial en metros con start-stop (toca la zona grande o el botón Bluetooth). En la tabla puedes definir palabras que aparecen en ciertos intervalos.",
   intro5:"MODO COPILOTO: el parcial cuenta siempre — cada toque lo pone a cero. Además puedes cargar el road book: 50 m antes de cada referencia aparece el símbolo con la nota.",
-  intro3:"Abre el menú (☰) para entrar en las secciones Piloto, Copiloto y Ajustes generales.",
+  intro3:"Abre el menú (☰): dentro de Copiloto encontrarás Trip (la pantalla) e Introducir road book (tramos guardados e importación).",
   intro4:"Punto GPS: verde = excelente (<6 m) · azul = bueno (6–10 m) · rojo = débil (>10 m).",
   dontShow:"No mostrar más",start:"Empezar",
-  totalLabel:"Total · toca para poner a cero",partialLabel:"Parcial",
+  totalLabel:"Total · mantén 2s para poner a cero",partialLabel:"Parcial",
   navPartialLabel:"Parcial · toca para poner a cero",
   wordLabel:"Palabra / Parcial · toca para start-stop",
   speedLabel:"Velocidad",
   ready:"Listo",running:"Midiendo…",stopped:"Parado — pulsa para reiniciar desde 0",
   drawerTitle:"Menú",drvPilot:"Piloto",drvNav:"Copiloto",drvSet:"Ajustes generales",
   activeTag:"Activo",
+  navTrip:"Trip",navRadar:"Introducir road book",
   pmTitle:"Piloto",actPilot:"Usar modo Piloto",
   wordsTitle:"Tabla de palabras",
   setDesc:"La palabra aparece cuando el parcial está entre los dos valores (Desde incluido, Hasta excluido). Deja \"Hasta\" vacío para sin límite.",
   thFrom:"Desde (m)",thTo:"Hasta (m)",thWord:"Palabra",addRow:"+ Añadir fila",
   speakLabel:"Leer la palabra en voz alta",
-  nmTitle:"Copiloto",actNav:"Usar modo Copiloto",
+  nmTitle:"Road book",
   ssTitle:"Tramos guardados",
   ssNamePh:"Nombre (ej. TC1)",
   ssSave:"Guardar",ssLoad:"Cargar",
@@ -704,25 +729,26 @@ es:{introTitle:"Cómo funciona",
   close:"Guardar y cerrar",
   legTitle:"Señal GPS",legGreen:"Verde: excelente (menos de 6 m)",legBlue:"Azul: buena (6–10 m)",legRed:"Rojo: débil (más de 10 m)"},
 de:{introTitle:"So funktioniert es",
-  intro1:"Oben: die Uhr und die GESAMTdistanz — zum Nullstellen antippen.",
+  intro1:"Oben: die Uhr und die GESAMTdistanz — 2 Sekunden gedrückt halten zum Nullstellen.",
   intro2:"FAHRER-MODUS: Teildistanz in Metern mit Start-Stopp (großen Bereich antippen oder Bluetooth-Taste). In der Tabelle kannst du Wörter für Meterbereiche festlegen.",
   intro5:"BEIFAHRER-MODUS: die Teildistanz zählt immer — Antippen stellt sie auf null. Zudem kannst du das Roadbook laden: 50 m vor jedem Bezugspunkt erscheint das Symbol mit der Notiz.",
-  intro3:"Öffne das Menü (☰) für die Bereiche Fahrer, Beifahrer und Allgemeine Einstellungen.",
+  intro3:"Öffne das Menü (☰): unter Beifahrer findest du Trip (die Anzeige) und Roadbook eingeben (gespeicherte WPs und Import).",
   intro4:"GPS-Punkt: grün = ausgezeichnet (<6 m) · blau = gut (6–10 m) · rot = schwach (>10 m).",
   dontShow:"Nicht mehr anzeigen",start:"Los geht's",
-  totalLabel:"Gesamt · zum Nullstellen tippen",partialLabel:"Teilstrecke",
+  totalLabel:"Gesamt · 2s halten zum Nullstellen",partialLabel:"Teilstrecke",
   navPartialLabel:"Teilstrecke · tippen zum Nullstellen",
   wordLabel:"Wort / Teilstrecke · tippen für Start-Stopp",
   speedLabel:"Geschwindigkeit",
   ready:"Bereit",running:"Messung läuft…",stopped:"Gestoppt — drücken für Neustart ab 0",
   drawerTitle:"Menü",drvPilot:"Fahrer",drvNav:"Beifahrer",drvSet:"Allgemeine Einstellungen",
   activeTag:"Aktiv",
+  navTrip:"Trip",navRadar:"Roadbook eingeben",
   pmTitle:"Fahrer",actPilot:"Fahrer-Modus verwenden",
   wordsTitle:"Worttabelle",
   setDesc:"Das Wort erscheint, wenn die Teildistanz zwischen den Werten liegt (Von inklusive, Bis exklusive). \"Bis\" leer lassen für kein Limit.",
   thFrom:"Von (m)",thTo:"Bis (m)",thWord:"Wort",addRow:"+ Zeile hinzufügen",
   speakLabel:"Wort vorlesen",
-  nmTitle:"Beifahrer",actNav:"Beifahrer-Modus verwenden",
+  nmTitle:"Roadbook",
   ssTitle:"Gespeicherte Wertungsprüfungen",
   ssNamePh:"Name (z. B. WP1)",
   ssSave:"Speichern",ssLoad:"Laden",
@@ -747,25 +773,26 @@ de:{introTitle:"So funktioniert es",
   close:"Speichern und schließen",
   legTitle:"GPS-Signal",legGreen:"Grün: ausgezeichnet (unter 6 m)",legBlue:"Blau: gut (6–10 m)",legRed:"Rot: schwach (über 10 m)"},
 pt:{introTitle:"Como funciona",
-  intro1:"No topo: o relógio e a distância TOTAL — toque para zerar.",
+  intro1:"No topo: o relógio e a distância TOTAL — mantenha premido 2 segundos para zerar.",
   intro2:"MODO PILOTO: parcial em metros com start-stop (toque na área grande ou no botão Bluetooth). Na tabela pode definir palavras que aparecem em certos intervalos.",
   intro5:"MODO NAVEGADOR: o parcial conta sempre — cada toque zera. Além disso pode carregar o road book: 50 m antes de cada referência aparece o símbolo com a nota.",
-  intro3:"Abra o menu (☰) para entrar nas secções Piloto, Navegador e Definições gerais.",
+  intro3:"Abra o menu (☰): dentro de Navegador encontra Trip (o ecrã) e Introduzir road book (provas guardadas e importação).",
   intro4:"Ponto GPS: verde = excelente (<6 m) · azul = bom (6–10 m) · vermelho = fraco (>10 m).",
   dontShow:"Não mostrar novamente",start:"Começar",
-  totalLabel:"Total · toque para zerar",partialLabel:"Parcial",
+  totalLabel:"Total · manter 2s para zerar",partialLabel:"Parcial",
   navPartialLabel:"Parcial · toque para zerar",
   wordLabel:"Palavra / Parcial · toque para start-stop",
   speedLabel:"Velocidade",
   ready:"Pronto",running:"A medir…",stopped:"Parado — pressione para recomeçar do 0",
   drawerTitle:"Menu",drvPilot:"Piloto",drvNav:"Navegador",drvSet:"Definições gerais",
   activeTag:"Ativo",
+  navTrip:"Trip",navRadar:"Introduzir road book",
   pmTitle:"Piloto",actPilot:"Usar modo Piloto",
   wordsTitle:"Tabela de palavras",
   setDesc:"A palavra aparece quando o parcial está entre os dois valores (De incluído, Até excluído). Deixe \"Até\" vazio para sem limite.",
   thFrom:"De (m)",thTo:"Até (m)",thWord:"Palavra",addRow:"+ Adicionar linha",
   speakLabel:"Ler a palavra em voz alta",
-  nmTitle:"Navegador",actNav:"Usar modo Navegador",
+  nmTitle:"Road book",
   ssTitle:"Provas especiais guardadas",
   ssNamePh:"Nome (ex. PE1)",
   ssSave:"Guardar",ssLoad:"Carregar",
@@ -790,25 +817,26 @@ pt:{introTitle:"Como funciona",
   close:"Guardar e fechar",
   legTitle:"Sinal GPS",legGreen:"Verde: excelente (menos de 6 m)",legBlue:"Azul: bom (6–10 m)",legRed:"Vermelho: fraco (mais de 10 m)"},
 ja:{introTitle:"使い方",
-  intro1:"上部:時計と合計距離 — タップでリセット。",
+  intro1:"上部:時計と合計距離 — 2秒長押しでリセット。",
   intro2:"ドライバーモード:メートル単位の区間距離をスタート・ストップ(大きなエリアをタップ、またはBluetoothボタン)。テーブルで範囲ごとの言葉を設定できます。",
   intro5:"ナビゲーターモード:区間距離は常にカウント — タップでゼロに。ロードブックも登録可能:各基準点の50m手前で記号とメモが表示されます。",
-  intro3:"メニュー(☰)からドライバー、ナビゲーター、一般設定の各セクションに入れます。",
+  intro3:"メニュー(☰)のナビゲーター内に、トリップ(表示画面)とロードブック入力(保存したSSと取り込み)があります。",
   intro4:"GPSドット:緑=非常に良い(<6m) · 青=良い(6–10m) · 赤=弱い(>10m)。",
   dontShow:"次回から表示しない",start:"スタート",
-  totalLabel:"合計 · タップでリセット",partialLabel:"区間",
+  totalLabel:"合計 · 2秒長押しでリセット",partialLabel:"区間",
   navPartialLabel:"区間 · タップでリセット",
   wordLabel:"言葉 / 区間 · タップで開始・停止",
   speedLabel:"速度",
   ready:"準備完了",running:"計測中…",stopped:"停止 — 押すと0から再開",
   drawerTitle:"メニュー",drvPilot:"ドライバー",drvNav:"ナビゲーター",drvSet:"一般設定",
   activeTag:"使用中",
+  navTrip:"トリップ",navRadar:"ロードブック入力",
   pmTitle:"ドライバー",actPilot:"ドライバーモードを使う",
   wordsTitle:"言葉テーブル",
   setDesc:"区間距離が2つの値の間にあるとき言葉が表示されます(「から」含む、「まで」含まない)。「まで」を空欄にすると上限なし。",
   thFrom:"から(m)",thTo:"まで(m)",thWord:"言葉",addRow:"+ 行を追加",
   speakLabel:"言葉を読み上げる",
-  nmTitle:"ナビゲーター",actNav:"ナビゲーターモードを使う",
+  nmTitle:"ロードブック",
   ssTitle:"保存したSS",
   ssNamePh:"名前(例:SS1)",
   ssSave:"保存",ssLoad:"読み込む",
@@ -833,25 +861,26 @@ ja:{introTitle:"使い方",
   close:"保存して閉じる",
   legTitle:"GPS信号",legGreen:"緑:非常に良い(6m未満)",legBlue:"青:良い(6–10m)",legRed:"赤:弱い(10m超)"},
 cs:{introTitle:"Jak to funguje",
-  intro1:"Nahoře: hodiny a CELKOVÁ vzdálenost — klepnutím vynulujete.",
+  intro1:"Nahoře: hodiny a CELKOVÁ vzdálenost — podržte 2 sekundy pro vynulování.",
   intro2:"REŽIM ŘIDIČ: dílčí vzdálenost v metrech se start-stop (klepněte na velkou oblast nebo Bluetooth tlačítko). V tabulce můžete nastavit slova pro rozsahy metrů.",
   intro5:"REŽIM NAVIGÁTOR: dílčí vzdálenost počítá stále — klepnutí ji vynuluje. Navíc můžete nahrát roadbook: 50 m před každým bodem se zobrazí symbol s poznámkou.",
-  intro3:"Otevřete menu (☰) pro sekce Řidič, Navigátor a Obecná nastavení.",
+  intro3:"Otevřete menu (☰): v Navigátoru najdete Trip (displej) a Zadat roadbook (uložené RZ a import).",
   intro4:"GPS tečka: zelená = výborný (<6 m) · modrá = dobrý (6–10 m) · červená = slabý (>10 m).",
   dontShow:"Příště nezobrazovat",start:"Začít",
-  totalLabel:"Celkem · klepnutím vynulovat",partialLabel:"Dílčí",
+  totalLabel:"Celkem · podržte 2s pro vynulování",partialLabel:"Dílčí",
   navPartialLabel:"Dílčí · klepnutím vynulovat",
   wordLabel:"Slovo / Dílčí · klepnutím start-stop",
   speedLabel:"Rychlost",
   ready:"Připraveno",running:"Měření…",stopped:"Zastaveno — stiskněte pro restart od 0",
   drawerTitle:"Menu",drvPilot:"Řidič",drvNav:"Navigátor",drvSet:"Obecná nastavení",
   activeTag:"Aktivní",
+  navTrip:"Trip",navRadar:"Zadat roadbook",
   pmTitle:"Řidič",actPilot:"Použít režim Řidič",
   wordsTitle:"Tabulka slov",
   setDesc:"Slovo se zobrazí, když je dílčí vzdálenost mezi hodnotami (Od včetně, Do vyjma). Nechte \"Do\" prázdné pro bez limitu.",
   thFrom:"Od (m)",thTo:"Do (m)",thWord:"Slovo",addRow:"+ Přidat řádek",
   speakLabel:"Přečíst slovo nahlas",
-  nmTitle:"Navigátor",actNav:"Použít režim Navigátor",
+  nmTitle:"Roadbook",
   ssTitle:"Uložené rychlostní zkoušky",
   ssNamePh:"Název (např. RZ1)",
   ssSave:"Uložit",ssLoad:"Načíst",
@@ -878,7 +907,7 @@ cs:{introTitle:"Jak to funguje",
 };
 const LOCALES = {it:'it-IT',en:'en-US',fr:'fr-FR',es:'es-ES',de:'de-DE',pt:'pt-PT',ja:'ja-JP',cs:'cs-CZ'};
 
-const SYMS = ['⬅️','➡️','⬆️','↩️','↪️','➕','🔄','⛪','🏰','🌉','🛤️','🛑','⚠️','⛽','🏠','🌳','🚩','🏁','🕐'];
+const SYMS = ['⬅️','➡️','⬆️','↩️','↪️','➕','🔄','⛪','🏰','🌉','🛤','🛑','⚠️','⛽','🏠','🌳','🚩','🏁','🕐'];
 
 const SYM_WORDS = [
   [/rotond|roundabout|rond/i, '🔄'],
@@ -899,7 +928,6 @@ function wordToSym(s){
   for(const [re, sym] of SYM_WORDS){ if(re.test(s)) return sym; }
   return '⚠️';
 }
-/* estrae "terza uscita", "3 uscita", ecc. dal tipo */
 function extractExit(s){
   const m = String(s).match(/((?:prima|seconda|terza|quarta|quinta|sesta|1|2|3|4|5|6)\s*[ªa°]?\s*uscita|uscita\s*(?:n\.?\s*)?\d)/i);
   return m ? m[1].toUpperCase() : null;
@@ -915,11 +943,12 @@ let lastGoodFix = 0;
 let lastFrame = performance.now();
 let currentWord = null;
 let lastSpoken = null;
-let rbPassedIdx = null;   // ultimo riferimento superato (null = da inizializzare)
+let rbPassedIdx = null;
 let cfg = {
   rows: [ {from:15, to:20, w:"ESEMPIO"} ],
   rb: [],
   ssLib: [],
+  ssActive: '',
   autoReset: false,
   speak: false,
   lang: null,
@@ -951,6 +980,7 @@ if(cfg.theme !== 'dark' && cfg.theme !== 'light') cfg.theme = 'dark';
 if(typeof cfg.tunnel !== 'boolean') cfg.tunnel = true;
 if(typeof cfg.h24 !== 'boolean') cfg.h24 = true;
 if(typeof cfg.autoReset !== 'boolean') cfg.autoReset = false;
+if(typeof cfg.ssActive !== 'string') cfg.ssActive = '';
 function saveCfg(){ localStorage.setItem('rallytrip_cfg', JSON.stringify(cfg)); }
 
 /* ================= LINGUA / TEMA ================= */
@@ -973,16 +1003,21 @@ function applyTheme(){
 const $ = id => document.getElementById(id);
 const totalVal=$('totalVal'), partialVal=$('partialVal'),
       wordVal=$('wordVal'), wordState=$('wordState'),
-      zoneWord=$('zoneWord'), zonePartial=$('zonePartial'),
+      zoneWord=$('zoneWord'), zonePartial=$('zonePartial'), zoneTotal=$('zoneTotal'),
       gpsdot=$('gpsdot'), flash=$('flash'), clock=$('clock'),
       partialLbl=$('partialLbl'), partialUnit=$('partialUnit'),
       totalUnit=$('totalUnit'), speedVal=$('speedVal'), speedUnit=$('speedUnit'),
-      rbBanner=$('rbBanner'), rbNum=$('rbNum'), rbSym=$('rbSym'), rbNote=$('rbNote'), rbDist=$('rbDist');
+      rbBanner=$('rbBanner'), rbNum=$('rbNum'), rbSym=$('rbSym'), rbNote=$('rbNote'), rbDist=$('rbDist'),
+      ssBadge=$('ssBadge');
 
 function updateStateText(){
   if(running){ wordState.textContent=t('running'); wordState.className='run'; }
   else if(partial>0){ wordState.textContent=t('stopped'); wordState.className=''; }
   else { wordState.textContent=t('ready'); wordState.className=''; }
+}
+function updateSsBadge(){
+  ssBadge.textContent = cfg.ssActive;
+  ssBadge.classList.toggle('show', !!cfg.ssActive);
 }
 
 /* ================= UNITÀ ================= */
@@ -999,13 +1034,13 @@ function applyMode(){
   $('drvPilot').classList.toggle('active', cfg.mode === 'pilot');
   $('drvNav').classList.toggle('active', cfg.mode === 'nav');
   $('actPilot').classList.toggle('active', cfg.mode === 'pilot');
-  $('actNav').classList.toggle('active', cfg.mode === 'nav');
   if(cfg.mode === 'nav'){
     zonePartial.classList.remove('stopped');
   } else {
     rbBanner.classList.remove('open');
     if(!running) zonePartial.classList.add('stopped');
   }
+  updateSsBadge();
   applyLang();
 }
 function applyUnits(){
@@ -1078,10 +1113,8 @@ function parseKm(s){
   return parseFloat(String(s).replace(',', '.'));
 }
 
-/* azzeramento automatico del parziale ai riferimenti */
 function rbAutoReset(){
   if(!cfg.rb.length){ rbPassedIdx = null; return; }
-  // indice dell'ultimo riferimento con km <= totale (lista ordinata)
   let idx = -1;
   for(let i = 0; i < cfg.rb.length; i++){
     const dM = parseKm(cfg.rb[i].km) * 1000;
@@ -1090,11 +1123,10 @@ function rbAutoReset(){
     else break;
   }
   if(rbPassedIdx === null){
-    rbPassedIdx = idx;   // inizializza senza azzerare (es. app appena aperta)
+    rbPassedIdx = idx;
     return;
   }
   if(idx > rbPassedIdx && cfg.autoReset){
-    // appena superato un riferimento: parziale riparte esattamente dal suo km
     const dM = parseKm(cfg.rb[idx].km) * 1000;
     partial = Math.max(0, total - dM);
   }
@@ -1228,12 +1260,29 @@ window.addEventListener('keydown', e => {
   mainAction();
 });
 
-/* ================= TOTALE: reset ================= */
-$('zoneTotal').addEventListener('click', ()=>{
-  total = 0;
-  rbPassedIdx = null;   // ricalcola i riferimenti dal via
-  if(navigator.vibrate) navigator.vibrate([40,40,40]);
-});
+/* ================= TOTALE: reset con pressione lunga (2 s) ================= */
+let holdTimer = null;
+function startHold(e){
+  zoneTotal.classList.add('holding');
+  holdTimer = setTimeout(()=>{
+    total = 0;
+    rbPassedIdx = null;
+    zoneTotal.classList.remove('holding');
+    flash.style.opacity = 1;
+    setTimeout(()=>flash.style.opacity=0, 200);
+    if(navigator.vibrate) navigator.vibrate([40,40,40]);
+    holdTimer = null;
+  }, 2000);
+}
+function cancelHold(){
+  zoneTotal.classList.remove('holding');
+  if(holdTimer){ clearTimeout(holdTimer); holdTimer = null; }
+}
+zoneTotal.addEventListener('pointerdown', startHold);
+zoneTotal.addEventListener('pointerup', cancelHold);
+zoneTotal.addEventListener('pointercancel', cancelHold);
+zoneTotal.addEventListener('pointerleave', cancelHold);
+zoneTotal.addEventListener('contextmenu', e => e.preventDefault());
 
 /* ================= LEGENDA GPS ================= */
 $('btnInfo').addEventListener('click', e=>{
@@ -1262,6 +1311,7 @@ function openDrawer(){
 function closeDrawer(){
   $('drawer').classList.remove('open');
   $('drawerBg').classList.remove('open');
+  $('navSub').classList.remove('open');
 }
 $('btnMenu').addEventListener('click', e=>{ e.stopPropagation(); openDrawer(); });
 $('drawerBg').addEventListener('click', closeDrawer);
@@ -1273,12 +1323,22 @@ $('drvPilot').addEventListener('click', ()=>{
   $('pilotMenu').classList.add('open');
 });
 $('drvNav').addEventListener('click', ()=>{
+  $('navSub').classList.toggle('open');
+});
+$('navTrip').addEventListener('click', ()=>{
+  cfg.mode = 'nav';
+  applyMode();
+  saveCfg();
+  closeDrawer();
+});
+$('navRadar').addEventListener('click', ()=>{
   closeDrawer();
   buildRbTable();
   buildSsList();
   $('autoResetToggle').checked = cfg.autoReset;
   $('rbImportMsg').textContent = '';
   $('ssMsg').textContent = '';
+  $('ssName').value = cfg.ssActive;
   $('navMenu').classList.add('open');
 });
 $('drvSet').addEventListener('click', ()=>{
@@ -1316,7 +1376,7 @@ tblBody.addEventListener('click', e=>{
 });
 $('addRow').addEventListener('click', ()=>{ cfg.rows.push({from:'',to:'',w:''}); buildWordTable(); });
 
-$('actPilot').addEventListener('click', ()=>{ cfg.mode='pilot'; applyMode(); });
+$('actPilot').addEventListener('click', ()=>{ cfg.mode='pilot'; applyMode(); saveCfg(); });
 
 $('closePilot').addEventListener('click', ()=>{
   cfg.speak = $('speakToggle').checked;
@@ -1341,9 +1401,11 @@ function buildSsList(){
     loadBtn.textContent = t('ssLoad');
     loadBtn.addEventListener('click', ()=>{
       cfg.rb = JSON.parse(JSON.stringify(ss.rb));
+      cfg.ssActive = ss.name;
       rbPassedIdx = null;
       $('ssName').value = ss.name;
       buildRbTable();
+      updateSsBadge();
       saveCfg();
       $('ssMsg').textContent = '“' + ss.name + '” — ' + t('ssLoadedMsg');
     });
@@ -1351,6 +1413,7 @@ function buildSsList(){
     delBtn.className = 'del';
     delBtn.textContent = '✕';
     delBtn.addEventListener('click', ()=>{
+      if(cfg.ssActive === cfg.ssLib[i].name){ cfg.ssActive = ''; updateSsBadge(); }
       cfg.ssLib.splice(i,1);
       saveCfg();
       buildSsList();
@@ -1369,12 +1432,14 @@ $('ssSave').addEventListener('click', ()=>{
   const existing = cfg.ssLib.find(s => s.name === name);
   if(existing){ existing.rb = data; }
   else { cfg.ssLib.push({name: name, rb: data}); }
+  cfg.ssActive = name;
+  updateSsBadge();
   saveCfg();
   buildSsList();
   $('ssMsg').textContent = '“' + name + '” — ' + t('ssSavedMsg');
 });
 
-/* ================= MENU NAVIGATORE (RADAR) ================= */
+/* ================= MENU RADAR ================= */
 const rbBody = $('rbBody');
 
 function symOptions(sel){
@@ -1407,7 +1472,6 @@ rbBody.addEventListener('click', e=>{
 $('rbAddRow').addEventListener('click', ()=>{ cfg.rb.push({km:'',s:SYMS[0],n:''}); buildRbTable(); });
 $('rbClear').addEventListener('click', ()=>{ cfg.rb = []; rbPassedIdx = null; buildRbTable(); });
 
-/* import dal testo trascritto dall'AI */
 $('rbImportBtn').addEventListener('click', ()=>{
   const lines = $('rbImport').value.split('\n');
   let added = 0;
@@ -1434,8 +1498,6 @@ $('rbImportBtn').addEventListener('click', ()=>{
     $('rbImportMsg').textContent = t('rbImpErr');
   }
 });
-
-$('actNav').addEventListener('click', ()=>{ cfg.mode='nav'; applyMode(); });
 
 $('closeNav').addEventListener('click', ()=>{
   cfg.rb = cfg.rb.filter(r => r.km !== '');
