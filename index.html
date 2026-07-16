@@ -101,8 +101,9 @@
     }
   }
   #zoneSpeed{display:none}
+  #zoneRadar{display:none}
 
-  /* ====== LAYOUT NAVIGATORE ====== */
+  /* ====== LAYOUT NAVIGATORE / TRIP ====== */
   body[data-mode="nav"] #app{
     grid-template-columns:1.3fr 1fr;
     grid-template-rows:1fr 1fr;
@@ -130,7 +131,38 @@
   body[data-mode="nav"] #totalVal{
     font-size:clamp(44px,10vw,110px);
   }
-  body[data-mode="nav"] .zlabel{
+
+  /* ====== LAYOUT RADAR ====== */
+  body[data-mode="radar"] #app{
+    grid-template-columns:1.4fr 1fr;
+    grid-template-rows:1fr 1fr;
+    grid-template-areas:
+      "radar total"
+      "radar partial";
+  }
+  @media (orientation:portrait){
+    body[data-mode="radar"] #app{
+      grid-template-columns:1fr;
+      grid-template-rows:1.9fr 0.9fr 1fr;
+      grid-template-areas:
+        "radar"
+        "total"
+        "partial";
+    }
+  }
+  body[data-mode="radar"] #zoneWord{display:none}
+  body[data-mode="radar"] #zoneRadar{display:flex}
+  body[data-mode="radar"] #zonePartial{cursor:pointer}
+  body[data-mode="radar"] #partialVal{
+    font-size:clamp(56px,12vw,140px);
+    color:var(--text);
+  }
+  body[data-mode="radar"] #totalVal{
+    font-size:clamp(40px,9vw,100px);
+  }
+
+  body[data-mode="nav"] .zlabel,
+  body[data-mode="radar"] .zlabel{
     left:12px;right:auto;top:10px;
     background:var(--btnbg);
     border:1px solid var(--line);
@@ -144,10 +176,14 @@
     position:absolute;top:10px;right:12px;
     background:var(--green);color:#000;
     border-radius:8px;padding:5px 10px;
-    font-size:12px;font-weight:800;letter-spacing:.05em;
-    max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    font-size:12px;font-weight:800;letter-spacing:.03em;
+    max-width:58%;
+    text-align:right;line-height:1.25;word-break:break-word;
+    overflow:hidden;
+    -webkit-line-clamp:2;-webkit-box-orient:vertical;
   }
-  body[data-mode="nav"] #ssBadge.show{display:block}
+  body[data-mode="nav"] #ssBadge.show,
+  body[data-mode="radar"] #ssBadge.show{display:-webkit-box}
 
   .zone{
     display:flex;flex-direction:column;justify-content:center;align-items:center;
@@ -180,7 +216,8 @@
     color:var(--amber);
   }
   #zonePartial.stopped #partialVal{color:var(--amber-dim)}
-  body[data-mode="nav"] #zonePartial.stopped #partialVal{color:var(--text)}
+  body[data-mode="nav"] #zonePartial.stopped #partialVal,
+  body[data-mode="radar"] #zonePartial.stopped #partialVal{color:var(--text)}
 
   #zoneSpeed{grid-area:speed}
   #speedVal{
@@ -189,6 +226,33 @@
     font-variant-numeric:tabular-nums;line-height:1;
     color:var(--blue);
   }
+
+  /* zona radar: solo testo, senza bordo né pannello */
+  #zoneRadar{
+    grid-area:radar;
+    flex-direction:column;justify-content:center;align-items:center;
+    border:none;background:none;
+    text-align:center;gap:6px;padding:0 10px;
+  }
+  #radNum{
+    display:inline-block;
+    background:var(--green);color:#000;
+    border-radius:8px;padding:2px 12px;
+    font-size:clamp(15px,3.5vw,24px);font-weight:800;
+    font-family:ui-monospace,Menlo,Consolas,monospace;
+  }
+  #radSym{font-size:clamp(70px,18vw,180px);line-height:1.05}
+  #radNote{
+    font-size:clamp(18px,4.5vw,36px);font-weight:800;
+    text-transform:uppercase;word-break:break-word;
+    max-height:4.2em;overflow:hidden;
+  }
+  #radDist{
+    font-family:ui-monospace,Menlo,Consolas,monospace;
+    font-size:clamp(38px,10vw,80px);font-weight:800;color:var(--green);
+    font-variant-numeric:tabular-nums;
+  }
+  #radDist.near{color:var(--red)}
 
   #zoneWord{grid-area:word;cursor:pointer}
   #wordVal{
@@ -212,7 +276,7 @@
   }
   #wordState.run{color:var(--green)}
 
-  /* ====== BANNER RADAR ====== */
+  /* ====== BANNER RADAR (solo modalità Trip) ====== */
   #rbBanner{
     position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
     z-index:6;display:none;
@@ -250,32 +314,25 @@
     position:fixed;top:0;right:0;bottom:0;width:min(300px,85vw);z-index:12;
     background:var(--panel);border-left:1px solid var(--line);
     transform:translateX(105%);transition:transform .25s ease;
-    display:flex;flex-direction:column;padding:18px;
-    padding-top:max(18px, env(safe-area-inset-top));
+    display:flex;flex-direction:column;padding:22px 20px;
+    padding-top:max(22px, env(safe-area-inset-top));
   }
   #drawer.open{transform:translateX(0)}
-  #drawer h2{font-size:15px;letter-spacing:.15em;text-transform:uppercase;color:var(--amber);margin-bottom:16px}
+  #drawer h2{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-weight:600}
   .drawer-item{
-    display:flex;align-items:center;gap:12px;
-    background:var(--btnbg);border:1px solid var(--line);color:var(--text);
-    border-radius:12px;padding:16px;font-size:16px;font-weight:600;
-    margin-bottom:10px;text-align:left;width:100%;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    background:none;border:none;border-bottom:1px solid var(--line);
+    color:var(--text);
+    padding:17px 2px;font-size:16px;font-weight:600;letter-spacing:.02em;
+    text-align:left;width:100%;
   }
-  .drawer-item .di-icon{font-size:22px}
   .drawer-item .di-tag{
-    margin-left:auto;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
-    color:var(--green);border:1px solid var(--green);border-radius:6px;padding:2px 7px;
-    display:none;
+    font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--green);display:none;flex-shrink:0;
   }
-  .drawer-item.active .di-tag{display:inline-block}
-  #navSub{display:none;margin:-4px 0 10px 18px}
-  #navSub.open{display:block}
-  .drawer-sub{
-    display:flex;align-items:center;gap:10px;
-    background:none;border:1px solid var(--line);color:var(--text);
-    border-radius:10px;padding:13px 14px;font-size:15px;font-weight:600;
-    margin-bottom:8px;text-align:left;width:100%;
-  }
+  .drawer-item.active{color:var(--amber)}
+  .drawer-item.active .di-tag{display:inline}
+  .dsep{height:26px;flex-shrink:0}
 
   /* ====== OVERLAY ====== */
   .overlay{
@@ -293,12 +350,6 @@
     padding:15px;border-radius:10px;font-size:16px;font-weight:700;margin-top:auto;
   }
   body[data-theme="dark"] .okbtn{color:#000}
-  .actbtn{
-    background:var(--btnbg);border:2px solid var(--amber);color:var(--amber);
-    width:100%;padding:14px;border-radius:10px;font-size:15px;font-weight:700;margin-bottom:6px;
-  }
-  .actbtn.active{background:var(--amber);color:#000}
-  body[data-theme="light"] .actbtn.active{color:#fff}
   .chk{display:flex;align-items:center;gap:10px;font-size:14px;margin:14px 0}
   .chk input{width:22px;height:22px}
 
@@ -385,6 +436,13 @@
     <div id="wordState"></div>
   </div>
 
+  <div class="zone" id="zoneRadar">
+    <span id="radNum"></span>
+    <div id="radSym">—</div>
+    <div id="radNote"></div>
+    <div id="radDist"></div>
+  </div>
+
   <div class="zone" id="zoneTotal">
     <span class="zlabel" data-t="totalLabel"></span>
     <div id="totalVal">0,00</div>
@@ -405,7 +463,7 @@
   </div>
 </div>
 
-<!-- avviso radar -->
+<!-- avviso radar (modalità Trip) -->
 <div id="rbBanner">
   <span id="rbNum"></span>
   <div id="rbSym"></div>
@@ -419,13 +477,13 @@
 <div id="drawerBg"></div>
 <div id="drawer">
   <h2 data-t="drawerTitle"></h2>
-  <button class="drawer-item" id="drvPilot"><span class="di-icon">🏎</span><span data-t="drvPilot"></span><span class="di-tag" data-t="activeTag"></span></button>
-  <button class="drawer-item" id="drvNav"><span class="di-icon">🧭</span><span data-t="drvNav"></span><span class="di-tag" data-t="activeTag"></span></button>
-  <div id="navSub">
-    <button class="drawer-sub" id="navTrip"><span>⏱</span><span data-t="navTrip"></span></button>
-    <button class="drawer-sub" id="navRadar"><span>🗺</span><span data-t="navRadar"></span></button>
-  </div>
-  <button class="drawer-item" id="drvSet"><span class="di-icon">⚙️</span><span data-t="drvSet"></span></button>
+  <button class="drawer-item" id="drvPilot"><span data-t="drvPilot"></span><span class="di-tag" data-t="activeTag"></span></button>
+  <button class="drawer-item" id="drvTrip"><span data-t="navTrip"></span><span class="di-tag" data-t="activeTag"></span></button>
+  <button class="drawer-item" id="drvRadar"><span>Radar</span><span class="di-tag" data-t="activeTag"></span></button>
+  <div class="dsep"></div>
+  <button class="drawer-item" id="drvWords"><span data-t="wordsTitle"></span></button>
+  <button class="drawer-item" id="drvRb"><span data-t="navRadar"></span></button>
+  <button class="drawer-item" id="drvSet"><span data-t="drvSet"></span></button>
 </div>
 
 <!-- ============ INTRODUZIONE ============ -->
@@ -440,10 +498,9 @@
   <button class="okbtn" id="closeIntro" data-t="start"></button>
 </div>
 
-<!-- ============ MENU PILOTA ============ -->
+<!-- ============ MENU PILOTA (tabella parole) ============ -->
 <div class="overlay" id="pilotMenu">
   <h2 data-t="pmTitle"></h2>
-  <button class="actbtn" id="actPilot" data-t="actPilot"></button>
 
   <h3 data-t="wordsTitle"></h3>
   <p class="small" data-t="setDesc"></p>
@@ -462,7 +519,7 @@
   <button class="okbtn" id="closePilot" data-t="close"></button>
 </div>
 
-<!-- ============ MENU RADAR ============ -->
+<!-- ============ MENU RADAR (editor road book) ============ -->
 <div class="overlay" id="navMenu">
   <h2 data-t="nmTitle"></h2>
 
@@ -490,11 +547,6 @@
   <div class="rowbtns">
     <button id="rbAddRow" data-t="addRow"></button>
     <button id="rbClear" data-t="rbClear" style="color:var(--red)"></button>
-  </div>
-
-  <div class="setting-row">
-    <span><span data-t="autoResetLabel"></span><br><small style="color:var(--muted)" data-t="autoResetSmall"></small></span>
-    <input type="checkbox" id="autoResetToggle">
   </div>
 
   <button class="okbtn" id="closeNav" data-t="close"></button>
@@ -556,7 +608,7 @@ it:{introTitle:"Come funziona",
   intro1:"In alto c'è l'orologio e la distanza TOTALE: tienila premuta 2 secondi per azzerarla.",
   intro2:"MODALITÀ PILOTA: parziale in metri con start-stop (tocca la zona grande o premi il tasto Bluetooth). Nella tabella puoi impostare parole che appaiono in certi intervalli di metri.",
   intro5:"MODALITÀ NAVIGATORE: il parziale conta sempre — ogni tocco lo azzera. In più puoi caricare il radar: 50 m prima di ogni riferimento appare il simbolo con la nota.",
-  intro3:"Apri il menu (☰): dentro Navigatore trovi Trip (il display) e Inserisci radar (prove salvate e import).",
+  intro3:"Apri il menu (☰): scegli la modalità (Pilota, Trip, Radar) e sotto trovi tabella parole, radar e impostazioni.",
   intro4:"Puntino GPS: verde = ottimo (<6 m) · blu = buono (6–10 m) · rosso = debole (>10 m).",
   dontShow:"Non mostrare più",start:"Inizia",
   totalLabel:"Totale · tieni premuto 2s per azzerare",partialLabel:"Parziale",
@@ -600,7 +652,7 @@ en:{introTitle:"How it works",
   intro1:"At the top: the clock and the TOTAL distance — hold it for 2 seconds to reset.",
   intro2:"DRIVER MODE: partial in metres with start-stop (tap the big area or press your Bluetooth button). In the table you can set words that appear within metre ranges.",
   intro5:"CO-DRIVER MODE: the partial always counts — each tap resets it. You can also load the road book: 50 m before each reference the symbol and note appear.",
-  intro3:"Open the menu (☰): inside Co-driver you'll find Trip (the display) and Enter road book (saved stages and import).",
+  intro3:"Open the menu (☰): pick the mode (Driver, Trip, Radar) and below you'll find the word table, road book and settings.",
   intro4:"GPS dot: green = excellent (<6 m) · blue = good (6–10 m) · red = weak (>10 m).",
   dontShow:"Don't show again",start:"Start",
   totalLabel:"Total · hold 2s to reset",partialLabel:"Partial",
@@ -644,7 +696,7 @@ fr:{introTitle:"Comment ça marche",
   intro1:"En haut : l'horloge et la distance TOTALE — maintenez 2 secondes pour remettre à zéro.",
   intro2:"MODE PILOTE : partiel en mètres avec start-stop (touchez la grande zone ou le bouton Bluetooth). Dans le tableau, définissez des mots qui apparaissent dans certains intervalles.",
   intro5:"MODE COPILOTE : le partiel compte toujours — chaque touche le remet à zéro. Vous pouvez aussi charger le road book : 50 m avant chaque repère, le symbole et la note s'affichent.",
-  intro3:"Ouvrez le menu (☰) : dans Copilote vous trouvez Trip (l'affichage) et Saisir le road book (spéciales enregistrées et import).",
+  intro3:"Ouvrez le menu (☰) : choisissez le mode (Pilote, Trip, Radar) et dessous vous trouvez le tableau des mots, le road book et les réglages.",
   intro4:"Point GPS : vert = excellent (<6 m) · bleu = bon (6–10 m) · rouge = faible (>10 m).",
   dontShow:"Ne plus afficher",start:"Commencer",
   totalLabel:"Total · maintenir 2s pour remettre à zéro",partialLabel:"Partiel",
@@ -688,7 +740,7 @@ es:{introTitle:"Cómo funciona",
   intro1:"Arriba: el reloj y la distancia TOTAL — mantén pulsado 2 segundos para poner a cero.",
   intro2:"MODO PILOTO: parcial en metros con start-stop (toca la zona grande o el botón Bluetooth). En la tabla puedes definir palabras que aparecen en ciertos intervalos.",
   intro5:"MODO COPILOTO: el parcial cuenta siempre — cada toque lo pone a cero. Además puedes cargar el road book: 50 m antes de cada referencia aparece el símbolo con la nota.",
-  intro3:"Abre el menú (☰): dentro de Copiloto encontrarás Trip (la pantalla) e Introducir road book (tramos guardados e importación).",
+  intro3:"Abre el menú (☰): elige el modo (Piloto, Trip, Radar) y debajo encontrarás la tabla de palabras, el road book y los ajustes.",
   intro4:"Punto GPS: verde = excelente (<6 m) · azul = bueno (6–10 m) · rojo = débil (>10 m).",
   dontShow:"No mostrar más",start:"Empezar",
   totalLabel:"Total · mantén 2s para poner a cero",partialLabel:"Parcial",
@@ -732,7 +784,7 @@ de:{introTitle:"So funktioniert es",
   intro1:"Oben: die Uhr und die GESAMTdistanz — 2 Sekunden gedrückt halten zum Nullstellen.",
   intro2:"FAHRER-MODUS: Teildistanz in Metern mit Start-Stopp (großen Bereich antippen oder Bluetooth-Taste). In der Tabelle kannst du Wörter für Meterbereiche festlegen.",
   intro5:"BEIFAHRER-MODUS: die Teildistanz zählt immer — Antippen stellt sie auf null. Zudem kannst du das Roadbook laden: 50 m vor jedem Bezugspunkt erscheint das Symbol mit der Notiz.",
-  intro3:"Öffne das Menü (☰): unter Beifahrer findest du Trip (die Anzeige) und Roadbook eingeben (gespeicherte WPs und Import).",
+  intro3:"Öffne das Menü (☰): wähle den Modus (Fahrer, Trip, Radar); darunter findest du Worttabelle, Roadbook und Einstellungen.",
   intro4:"GPS-Punkt: grün = ausgezeichnet (<6 m) · blau = gut (6–10 m) · rot = schwach (>10 m).",
   dontShow:"Nicht mehr anzeigen",start:"Los geht's",
   totalLabel:"Gesamt · 2s halten zum Nullstellen",partialLabel:"Teilstrecke",
@@ -776,7 +828,7 @@ pt:{introTitle:"Como funciona",
   intro1:"No topo: o relógio e a distância TOTAL — mantenha premido 2 segundos para zerar.",
   intro2:"MODO PILOTO: parcial em metros com start-stop (toque na área grande ou no botão Bluetooth). Na tabela pode definir palavras que aparecem em certos intervalos.",
   intro5:"MODO NAVEGADOR: o parcial conta sempre — cada toque zera. Além disso pode carregar o road book: 50 m antes de cada referência aparece o símbolo com a nota.",
-  intro3:"Abra o menu (☰): dentro de Navegador encontra Trip (o ecrã) e Introduzir road book (provas guardadas e importação).",
+  intro3:"Abra o menu (☰): escolha o modo (Piloto, Trip, Radar) e por baixo encontra a tabela de palavras, o road book e as definições.",
   intro4:"Ponto GPS: verde = excelente (<6 m) · azul = bom (6–10 m) · vermelho = fraco (>10 m).",
   dontShow:"Não mostrar novamente",start:"Começar",
   totalLabel:"Total · manter 2s para zerar",partialLabel:"Parcial",
@@ -820,7 +872,7 @@ ja:{introTitle:"使い方",
   intro1:"上部:時計と合計距離 — 2秒長押しでリセット。",
   intro2:"ドライバーモード:メートル単位の区間距離をスタート・ストップ(大きなエリアをタップ、またはBluetoothボタン)。テーブルで範囲ごとの言葉を設定できます。",
   intro5:"ナビゲーターモード:区間距離は常にカウント — タップでゼロに。ロードブックも登録可能:各基準点の50m手前で記号とメモが表示されます。",
-  intro3:"メニュー(☰)のナビゲーター内に、トリップ(表示画面)とロードブック入力(保存したSSと取り込み)があります。",
+  intro3:"メニュー(☰)でモード(ドライバー、トリップ、レーダー)を選択。その下に言葉テーブル、ロードブック、設定があります。",
   intro4:"GPSドット:緑=非常に良い(<6m) · 青=良い(6–10m) · 赤=弱い(>10m)。",
   dontShow:"次回から表示しない",start:"スタート",
   totalLabel:"合計 · 2秒長押しでリセット",partialLabel:"区間",
@@ -864,7 +916,7 @@ cs:{introTitle:"Jak to funguje",
   intro1:"Nahoře: hodiny a CELKOVÁ vzdálenost — podržte 2 sekundy pro vynulování.",
   intro2:"REŽIM ŘIDIČ: dílčí vzdálenost v metrech se start-stop (klepněte na velkou oblast nebo Bluetooth tlačítko). V tabulce můžete nastavit slova pro rozsahy metrů.",
   intro5:"REŽIM NAVIGÁTOR: dílčí vzdálenost počítá stále — klepnutí ji vynuluje. Navíc můžete nahrát roadbook: 50 m před každým bodem se zobrazí symbol s poznámkou.",
-  intro3:"Otevřete menu (☰): v Navigátoru najdete Trip (displej) a Zadat roadbook (uložené RZ a import).",
+  intro3:"Otevřete menu (☰): zvolte režim (Řidič, Trip, Radar); níže najdete tabulku slov, roadbook a nastavení.",
   intro4:"GPS tečka: zelená = výborný (<6 m) · modrá = dobrý (6–10 m) · červená = slabý (>10 m).",
   dontShow:"Příště nezobrazovat",start:"Začít",
   totalLabel:"Celkem · podržte 2s pro vynulování",partialLabel:"Dílčí",
@@ -907,7 +959,7 @@ cs:{introTitle:"Jak to funguje",
 };
 const LOCALES = {it:'it-IT',en:'en-US',fr:'fr-FR',es:'es-ES',de:'de-DE',pt:'pt-PT',ja:'ja-JP',cs:'cs-CZ'};
 
-const SYMS = ['⬅️','➡️','⬆️','↩️','↪️','➕','🔄','⛪','🏰','🌉','🛤','🛑','⚠️','⛽','🏠','🌳','🚩','🏁','🕐'];
+const SYMS = ['⬅️','➡️','⬆️','↩️','↪️','➕','🔄','⛪','🏰','🌉','🛤️','🛑','⚠️','⛽','🏠','🌳','🚩','🏁','🕐'];
 
 const SYM_WORDS = [
   [/rotond|roundabout|rond/i, '🔄'],
@@ -949,7 +1001,6 @@ let cfg = {
   rb: [],
   ssLib: [],
   ssActive: '',
-  autoReset: false,
   speak: false,
   lang: null,
   hideIntro: false,
@@ -974,12 +1025,11 @@ if(!cfg.lang){
   const nav = (navigator.language||'en').slice(0,2).toLowerCase();
   cfg.lang = T[nav] ? nav : 'en';
 }
-if(cfg.mode !== 'pilot' && cfg.mode !== 'nav') cfg.mode = 'pilot';
+if(cfg.mode !== 'pilot' && cfg.mode !== 'nav' && cfg.mode !== 'radar') cfg.mode = 'pilot';
 if(cfg.units !== 'metric' && cfg.units !== 'imperial') cfg.units = 'metric';
 if(cfg.theme !== 'dark' && cfg.theme !== 'light') cfg.theme = 'dark';
 if(typeof cfg.tunnel !== 'boolean') cfg.tunnel = true;
 if(typeof cfg.h24 !== 'boolean') cfg.h24 = true;
-if(typeof cfg.autoReset !== 'boolean') cfg.autoReset = false;
 if(typeof cfg.ssActive !== 'string') cfg.ssActive = '';
 function saveCfg(){ localStorage.setItem('rallytrip_cfg', JSON.stringify(cfg)); }
 
@@ -1008,6 +1058,7 @@ const totalVal=$('totalVal'), partialVal=$('partialVal'),
       partialLbl=$('partialLbl'), partialUnit=$('partialUnit'),
       totalUnit=$('totalUnit'), speedVal=$('speedVal'), speedUnit=$('speedUnit'),
       rbBanner=$('rbBanner'), rbNum=$('rbNum'), rbSym=$('rbSym'), rbNote=$('rbNote'), rbDist=$('rbDist'),
+      radNum=$('radNum'), radSym=$('radSym'), radNote=$('radNote'), radDist=$('radDist'),
       ssBadge=$('ssBadge');
 
 function updateStateText(){
@@ -1027,28 +1078,30 @@ function distUnit(){ return isImp() ? 'mi' : 'km'; }
 function speedUnitStr(){ return isImp() ? 'mph' : 'km/h'; }
 
 /* ================= MODALITÀ ================= */
+/* pilot = pilota · nav = trip navigatore · radar = display radar */
 function applyMode(){
   document.body.dataset.mode = cfg.mode;
-  partialLbl.dataset.t = cfg.mode === 'nav' ? 'navPartialLabel' : 'partialLabel';
+  partialLbl.dataset.t = cfg.mode === 'pilot' ? 'partialLabel' : 'navPartialLabel';
   applyUnits();
   $('drvPilot').classList.toggle('active', cfg.mode === 'pilot');
-  $('drvNav').classList.toggle('active', cfg.mode === 'nav');
-  $('actPilot').classList.toggle('active', cfg.mode === 'pilot');
-  if(cfg.mode === 'nav'){
-    zonePartial.classList.remove('stopped');
-  } else {
+  $('drvTrip').classList.toggle('active', cfg.mode === 'nav');
+  $('drvRadar').classList.toggle('active', cfg.mode === 'radar');
+  if(cfg.mode === 'pilot'){
     rbBanner.classList.remove('open');
     if(!running) zonePartial.classList.add('stopped');
+  } else {
+    zonePartial.classList.remove('stopped');
+    if(cfg.mode !== 'nav') rbBanner.classList.remove('open');
   }
   updateSsBadge();
   applyLang();
 }
 function applyUnits(){
   totalUnit.textContent = distUnit();
-  partialUnit.textContent = cfg.mode === 'nav' ? distUnit() : 'm';
+  partialUnit.textContent = cfg.mode === 'pilot' ? 'm' : distUnit();
   speedUnit.textContent = speedUnitStr();
 }
-function partialActive(){ return running || cfg.mode === 'nav'; }
+function partialActive(){ return running || cfg.mode !== 'pilot'; }
 
 /* ================= GPS ================= */
 function haversine(lat1, lon1, lat2, lon2){
@@ -1113,6 +1166,7 @@ function parseKm(s){
   return parseFloat(String(s).replace(',', '.'));
 }
 
+/* azzeramento automatico del parziale a ogni riferimento superato (modalità Radar) */
 function rbAutoReset(){
   if(!cfg.rb.length){ rbPassedIdx = null; return; }
   let idx = -1;
@@ -1126,13 +1180,14 @@ function rbAutoReset(){
     rbPassedIdx = idx;
     return;
   }
-  if(idx > rbPassedIdx && cfg.autoReset){
+  if(idx > rbPassedIdx){
     const dM = parseKm(cfg.rb[idx].km) * 1000;
     partial = Math.max(0, total - dM);
   }
   rbPassedIdx = idx;
 }
 
+/* banner popup — solo modalità Trip */
 function rbCheck(){
   if(cfg.mode !== 'nav' || !cfg.rb.length){ rbBanner.classList.remove('open'); return; }
   for(let i = 0; i < cfg.rb.length; i++){
@@ -1153,6 +1208,51 @@ function rbCheck(){
     }
   }
   rbBanner.classList.remove('open');
+}
+
+/* zona radar — mostra sempre il prossimo riferimento con countdown in metri */
+let radShownIdx = -2;
+function radarRender(){
+  if(!cfg.rb.length){
+    if(radShownIdx !== -2){
+      radNum.textContent = '';
+      radSym.textContent = '—';
+      radNote.textContent = '';
+      radDist.textContent = '';
+      radShownIdx = -2;
+    }
+    return;
+  }
+  let next = -1, dM = 0;
+  for(let i = 0; i < cfg.rb.length; i++){
+    const d = parseKm(cfg.rb[i].km) * 1000;
+    if(isNaN(d)) continue;
+    if(total < d){ next = i; dM = d; break; }
+  }
+  if(next === -1){
+    /* superati tutti i riferimenti: resta l'ultimo, countdown a 0 */
+    const li = cfg.rb.length - 1;
+    if(radShownIdx !== li){
+      const last = cfg.rb[li];
+      radNum.textContent = cfg.rb.length;
+      radSym.textContent = last.s || '🏁';
+      radNote.textContent = last.n || '';
+      radShownIdx = li;
+    }
+    radDist.textContent = '0 m';
+    radDist.classList.remove('near');
+    return;
+  }
+  if(radShownIdx !== next){
+    const r = cfg.rb[next];
+    radNum.textContent = next + 1;
+    radSym.textContent = r.s || '⚠️';
+    radNote.textContent = r.n || '';
+    radShownIdx = next;
+  }
+  const rem = Math.max(0, Math.round(dM - total));
+  radDist.textContent = rem.toLocaleString(loc()) + ' m';
+  radDist.classList.toggle('near', rem <= 100);
 }
 
 /* ================= CONTEGGIO CONTINUO + RENDER ================= */
@@ -1187,14 +1287,18 @@ function frame(){
   }
 
   totalVal.textContent = fmtDist(total);
-  partialVal.textContent = cfg.mode === 'nav' ? fmtDist(partial) : fmtM(partial);
+  partialVal.textContent = cfg.mode === 'pilot' ? fmtM(partial) : fmtDist(partial);
 
   if(cfg.mode === 'nav'){
     const v = counting ? curSpeed : 0;
     const s = isImp() ? v*2.236936 : v*3.6;
     speedVal.textContent = s.toLocaleString(loc(), {minimumFractionDigits:1, maximumFractionDigits:1});
-    rbAutoReset();
     rbCheck();
+  }
+
+  if(cfg.mode === 'radar'){
+    rbAutoReset();
+    radarRender();
   }
 
   if(cfg.mode === 'pilot'){
@@ -1228,7 +1332,7 @@ function anyOverlayOpen(){
 }
 
 function mainAction(){
-  if(cfg.mode === 'nav'){
+  if(cfg.mode !== 'pilot'){
     partial = 0;
   } else {
     if(running){
@@ -1251,7 +1355,7 @@ function mainAction(){
 }
 
 zoneWord.addEventListener('click', mainAction);
-zonePartial.addEventListener('click', ()=>{ if(cfg.mode === 'nav') mainAction(); });
+zonePartial.addEventListener('click', ()=>{ if(cfg.mode !== 'pilot') mainAction(); });
 
 window.addEventListener('keydown', e => {
   if(anyOverlayOpen()) return;
@@ -1267,6 +1371,7 @@ function startHold(e){
   holdTimer = setTimeout(()=>{
     total = 0;
     rbPassedIdx = null;
+    radShownIdx = -2;
     zoneTotal.classList.remove('holding');
     flash.style.opacity = 1;
     setTimeout(()=>flash.style.opacity=0, 200);
@@ -1311,31 +1416,33 @@ function openDrawer(){
 function closeDrawer(){
   $('drawer').classList.remove('open');
   $('drawerBg').classList.remove('open');
-  $('navSub').classList.remove('open');
 }
 $('btnMenu').addEventListener('click', e=>{ e.stopPropagation(); openDrawer(); });
 $('drawerBg').addEventListener('click', closeDrawer);
 
-$('drvPilot').addEventListener('click', ()=>{
+/* modalità: si attivano subito al tocco */
+function setMode(m){
+  cfg.mode = m;
+  radShownIdx = -2;
+  applyMode();
+  saveCfg();
+  closeDrawer();
+}
+$('drvPilot').addEventListener('click', ()=> setMode('pilot'));
+$('drvTrip').addEventListener('click', ()=> setMode('nav'));
+$('drvRadar').addEventListener('click', ()=> setMode('radar'));
+
+/* configurazione */
+$('drvWords').addEventListener('click', ()=>{
   closeDrawer();
   buildWordTable();
   $('speakToggle').checked = cfg.speak;
   $('pilotMenu').classList.add('open');
 });
-$('drvNav').addEventListener('click', ()=>{
-  $('navSub').classList.toggle('open');
-});
-$('navTrip').addEventListener('click', ()=>{
-  cfg.mode = 'nav';
-  applyMode();
-  saveCfg();
-  closeDrawer();
-});
-$('navRadar').addEventListener('click', ()=>{
+$('drvRb').addEventListener('click', ()=>{
   closeDrawer();
   buildRbTable();
   buildSsList();
-  $('autoResetToggle').checked = cfg.autoReset;
   $('rbImportMsg').textContent = '';
   $('ssMsg').textContent = '';
   $('ssName').value = cfg.ssActive;
@@ -1376,8 +1483,6 @@ tblBody.addEventListener('click', e=>{
 });
 $('addRow').addEventListener('click', ()=>{ cfg.rows.push({from:'',to:'',w:''}); buildWordTable(); });
 
-$('actPilot').addEventListener('click', ()=>{ cfg.mode='pilot'; applyMode(); saveCfg(); });
-
 $('closePilot').addEventListener('click', ()=>{
   cfg.speak = $('speakToggle').checked;
   cfg.rows = cfg.rows.filter(r => r.from !== '' && r.w !== '');
@@ -1403,6 +1508,7 @@ function buildSsList(){
       cfg.rb = JSON.parse(JSON.stringify(ss.rb));
       cfg.ssActive = ss.name;
       rbPassedIdx = null;
+      radShownIdx = -2;
       $('ssName').value = ss.name;
       buildRbTable();
       updateSsBadge();
@@ -1439,7 +1545,7 @@ $('ssSave').addEventListener('click', ()=>{
   $('ssMsg').textContent = '“' + name + '” — ' + t('ssSavedMsg');
 });
 
-/* ================= MENU RADAR ================= */
+/* ================= MENU RADAR (editor) ================= */
 const rbBody = $('rbBody');
 
 function symOptions(sel){
@@ -1470,7 +1576,7 @@ rbBody.addEventListener('click', e=>{
   if(del !== undefined){ cfg.rb.splice(del,1); buildRbTable(); }
 });
 $('rbAddRow').addEventListener('click', ()=>{ cfg.rb.push({km:'',s:SYMS[0],n:''}); buildRbTable(); });
-$('rbClear').addEventListener('click', ()=>{ cfg.rb = []; rbPassedIdx = null; buildRbTable(); });
+$('rbClear').addEventListener('click', ()=>{ cfg.rb = []; rbPassedIdx = null; radShownIdx = -2; buildRbTable(); });
 
 $('rbImportBtn').addEventListener('click', ()=>{
   const lines = $('rbImport').value.split('\n');
@@ -1491,6 +1597,7 @@ $('rbImportBtn').addEventListener('click', ()=>{
   if(added > 0){
     cfg.rb.sort((a,b)=>parseKm(a.km)-parseKm(b.km));
     rbPassedIdx = null;
+    radShownIdx = -2;
     buildRbTable();
     $('rbImport').value = '';
     $('rbImportMsg').textContent = added + ' ' + t('rbImpOk');
@@ -1502,8 +1609,8 @@ $('rbImportBtn').addEventListener('click', ()=>{
 $('closeNav').addEventListener('click', ()=>{
   cfg.rb = cfg.rb.filter(r => r.km !== '');
   cfg.rb.sort((a,b)=>parseKm(a.km)-parseKm(b.km));
-  cfg.autoReset = $('autoResetToggle').checked;
   rbPassedIdx = null;
+  radShownIdx = -2;
   saveCfg();
   $('navMenu').classList.remove('open');
 });
