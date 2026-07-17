@@ -69,6 +69,12 @@
     border-radius:50%;width:22px;height:22px;font-size:12px;margin-left:8px;vertical-align:middle;
   }
   #btnMenu{background:var(--btnbg);border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:4px 12px;font-size:16px}
+  #btnSize{
+    display:none;
+    background:var(--btnbg);border:1px solid var(--line);color:var(--muted);
+    border-radius:6px;padding:4px 10px;font-size:16px;margin-right:8px;
+  }
+  body[data-mode="radar"] #btnSize{display:inline-block}
 
   #legend{
     position:fixed;top:56px;left:10px;z-index:9;
@@ -106,18 +112,16 @@
   /* ====== LAYOUT NAVIGATORE / TRIP ====== */
   body[data-mode="nav"] #app{
     grid-template-columns:1.3fr 1fr;
-    grid-template-rows:auto 1fr 1fr;
+    grid-template-rows:1fr 1fr;
     grid-template-areas:
-      "badge badge"
       "partial total"
       "partial speed";
   }
   @media (orientation:portrait){
     body[data-mode="nav"] #app{
       grid-template-columns:1fr;
-      grid-template-rows:auto 1fr 1.7fr 0.8fr;
+      grid-template-rows:1fr 1.7fr 0.8fr;
       grid-template-areas:
-        "badge"
         "total"
         "partial"
         "speed";
@@ -135,13 +139,20 @@
   }
 
   /* ====== LAYOUT RADAR ====== */
+  /* orizzontale: radar a sinistra, totale+parziale a destra */
   body[data-mode="radar"] #app{
-    grid-template-columns:1fr 1fr;
-    grid-template-rows:1fr auto 1fr;
+    grid-template-columns:1.8fr 1fr;
+    grid-template-rows:auto 1fr 1fr;
     grid-template-areas:
-      "radar radar"
-      "badge badge"
-      "total partial";
+      "radar badge"
+      "radar total"
+      "radar partial";
+  }
+  body[data-mode="radar"][data-big="1"] #app{
+    grid-template-columns:1fr 1fr;
+  }
+  body[data-mode="radar"] #zoneRadar{
+    flex-direction:column;flex-wrap:nowrap;gap:12px;
   }
   @media (orientation:portrait){
     body[data-mode="radar"] #app{
@@ -153,13 +164,20 @@
         "total"
         "partial";
     }
+    body[data-mode="radar"] #zoneRadar{
+      flex-direction:row;flex-wrap:wrap;gap:6px 16px;
+    }
   }
   body[data-mode="radar"] #zoneWord{display:none}
   body[data-mode="radar"] #zoneRadar{display:flex}
   body[data-mode="radar"] #zonePartial{cursor:pointer}
   body[data-mode="radar"] #partialVal,
   body[data-mode="radar"] #totalVal{
-    font-size:clamp(40px,10vw,96px);
+    font-size:clamp(32px,7vw,72px);
+  }
+  body[data-mode="radar"][data-big="1"] #partialVal,
+  body[data-mode="radar"][data-big="1"] #totalVal{
+    font-size:clamp(46px,12vw,120px);
   }
   body[data-mode="radar"] #partialVal{color:var(--text)}
 
@@ -184,7 +202,6 @@
     max-width:80%;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   }
-  body[data-mode="nav"] #ssBadge.show,
   body[data-mode="radar"] #ssBadge.show{display:block}
 
   .zone{
@@ -299,34 +316,6 @@
     font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);
   }
   #wordState.run{color:var(--green)}
-
-  /* ====== BANNER RADAR (solo modalità Trip) ====== */
-  #rbBanner{
-    position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
-    z-index:6;display:none;
-    background:var(--panel);
-    border:3px solid var(--green);
-    border-radius:22px;
-    padding:16px 26px;
-    text-align:center;
-    box-shadow:0 8px 40px rgba(0,0,0,.5);
-    min-width:60vw;max-width:92vw;
-  }
-  #rbBanner.open{display:block}
-  #rbNum{
-    display:inline-block;
-    background:var(--green);color:#000;
-    border-radius:8px;padding:2px 12px;
-    font-size:clamp(16px,4vw,26px);font-weight:800;
-    font-family:ui-monospace,Menlo,Consolas,monospace;
-  }
-  #rbSym{font-size:clamp(64px,16vw,140px);line-height:1.1}
-  #rbNote{font-size:clamp(18px,4.5vw,34px);font-weight:800;text-transform:uppercase;margin-top:4px;word-break:break-word}
-  #rbDist{
-    font-family:ui-monospace,Menlo,Consolas,monospace;
-    font-size:clamp(30px,8vw,60px);font-weight:800;color:var(--green);
-    font-variant-numeric:tabular-nums;margin-top:4px;
-  }
 
   /* ====== DRAWER ====== */
   #drawerBg{
@@ -443,7 +432,7 @@
 <div id="statusbar">
   <span><span id="gpsdot" class="r"></span><button id="btnInfo">i</button></span>
   <span id="clock">--:--:--</span>
-  <button id="btnMenu">☰</button>
+  <span><button id="btnSize">⤢</button><button id="btnMenu">☰</button></span>
 </div>
 
 <div id="legend">
@@ -487,14 +476,6 @@
     <div id="speedVal">0</div>
     <div class="unit" id="speedUnit">km/h</div>
   </div>
-</div>
-
-<!-- avviso radar (modalità Trip) -->
-<div id="rbBanner">
-  <span id="rbNum"></span>
-  <div id="rbSym"></div>
-  <div id="rbNote"></div>
-  <div id="rbDist"></div>
 </div>
 
 <div id="flash"></div>
@@ -1075,6 +1056,7 @@ if(cfg.theme !== 'dark' && cfg.theme !== 'light') cfg.theme = 'dark';
 if(typeof cfg.tunnel !== 'boolean') cfg.tunnel = true;
 if(typeof cfg.h24 !== 'boolean') cfg.h24 = true;
 if(typeof cfg.ssActive !== 'string') cfg.ssActive = '';
+if(typeof cfg.bigStats !== 'boolean') cfg.bigStats = false;
 function saveCfg(){ localStorage.setItem('rallytrip_cfg', JSON.stringify(cfg)); }
 
 /* ================= LINGUA / TEMA ================= */
@@ -1101,7 +1083,6 @@ const totalVal=$('totalVal'), partialVal=$('partialVal'),
       gpsdot=$('gpsdot'), flash=$('flash'), clock=$('clock'),
       partialLbl=$('partialLbl'), partialUnit=$('partialUnit'),
       totalUnit=$('totalUnit'), speedVal=$('speedVal'), speedUnit=$('speedUnit'),
-      rbBanner=$('rbBanner'), rbNum=$('rbNum'), rbSym=$('rbSym'), rbNote=$('rbNote'), rbDist=$('rbDist'),
       radNum=$('radNum'), radSym=$('radSym'), radNote=$('radNote'), radDist=$('radDist'),
       holdBar=$('holdBar'), toast=$('toast'),
       ssBadge=$('ssBadge');
@@ -1134,17 +1115,16 @@ function speedUnitStr(){ return isImp() ? 'mph' : 'km/h'; }
 /* pilot = pilota · nav = trip navigatore · radar = display radar */
 function applyMode(){
   document.body.dataset.mode = cfg.mode;
+  document.body.dataset.big = cfg.bigStats ? '1' : '0';
   partialLbl.dataset.t = 'partialLabel';
   applyUnits();
   $('drvPilot').classList.toggle('active', cfg.mode === 'pilot');
   $('drvTrip').classList.toggle('active', cfg.mode === 'nav');
   $('drvRadar').classList.toggle('active', cfg.mode === 'radar');
   if(cfg.mode === 'pilot'){
-    rbBanner.classList.remove('open');
     if(!running) zonePartial.classList.add('stopped');
   } else {
     zonePartial.classList.remove('stopped');
-    if(cfg.mode !== 'nav') rbBanner.classList.remove('open');
   }
   updateSsBadge();
   applyLang();
@@ -1240,29 +1220,6 @@ function rbAutoReset(){
   rbPassedIdx = idx;
 }
 
-/* banner popup — solo modalità Trip */
-function rbCheck(){
-  if(cfg.mode !== 'nav' || !cfg.rb.length){ rbBanner.classList.remove('open'); return; }
-  for(let i = 0; i < cfg.rb.length; i++){
-    const r = cfg.rb[i];
-    const dM = parseKm(r.km) * 1000;
-    if(isNaN(dM)) continue;
-    if(total < dM + 30){
-      if(total >= dM - 50){
-        rbNum.textContent = (i+1);
-        rbSym.textContent = r.s || '⚠️';
-        rbNote.textContent = r.n || '';
-        rbDist.textContent = Math.max(0, Math.round(dM - total)) + ' m';
-        rbBanner.classList.add('open');
-      } else {
-        rbBanner.classList.remove('open');
-      }
-      return;
-    }
-  }
-  rbBanner.classList.remove('open');
-}
-
 /* zona radar — mostra il riferimento in arrivo con countdown in metri */
 let radShownIdx = -2;
 function radarRender(){
@@ -1346,7 +1303,6 @@ function frame(){
     const v = counting ? curSpeed : 0;
     const s = isImp() ? v*2.236936 : v*3.6;
     speedVal.textContent = s.toLocaleString(loc(), {minimumFractionDigits:1, maximumFractionDigits:1});
-    rbCheck();
   }
 
   if(cfg.mode === 'radar'){
@@ -1478,6 +1434,12 @@ function closeDrawer(){
   $('drawerBg').classList.remove('open');
 }
 $('btnMenu').addEventListener('click', e=>{ e.stopPropagation(); openDrawer(); });
+$('btnSize').addEventListener('click', e=>{
+  e.stopPropagation();
+  cfg.bigStats = !cfg.bigStats;
+  document.body.dataset.big = cfg.bigStats ? '1' : '0';
+  saveCfg();
+});
 $('drawerBg').addEventListener('click', closeDrawer);
 
 /* modalità: si attivano subito al tocco */
