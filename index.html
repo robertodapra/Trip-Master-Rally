@@ -161,6 +161,65 @@
   }
   body[data-mode="radar"] #partialVal{color:var(--text)}
 
+  /* disposizioni alternative in orizzontale */
+  @media (orientation:landscape){
+    body[data-mode="radar"][data-arr="left"] #app{
+      grid-template-columns:1.5fr 1fr;
+      grid-template-rows:auto minmax(0,1fr) minmax(0,1fr);
+      grid-template-areas:
+        "radar badge"
+        "radar total"
+        "radar partial";
+    }
+    body[data-mode="radar"][data-arr="right"] #app{
+      grid-template-columns:1fr 1.5fr;
+      grid-template-rows:auto minmax(0,1fr) minmax(0,1fr);
+      grid-template-areas:
+        "badge radar"
+        "total radar"
+        "partial radar";
+    }
+    body[data-mode="radar"][data-arr="left"] #zoneRadar,
+    body[data-mode="radar"][data-arr="right"] #zoneRadar{
+      flex-direction:column;flex-wrap:nowrap;gap:12px;
+    }
+  }
+
+  /* grandezze personalizzabili (0 piccolo · 1 normale · 2 grande) */
+  body[data-mode="radar"][data-szt="0"] #totalVal{font-size:clamp(26px,6vw,56px)}
+  body[data-mode="radar"][data-szt="2"] #totalVal{font-size:clamp(52px,14vw,140px)}
+  body[data-mode="radar"][data-szp="0"] #partialVal{font-size:clamp(26px,6vw,56px)}
+  body[data-mode="radar"][data-szp="2"] #partialVal{font-size:clamp(52px,14vw,140px)}
+  body[data-szr="0"] #radSym{font-size:clamp(40px,9vw,84px)}
+  body[data-szr="0"] #radNote{font-size:clamp(15px,3.6vw,26px)}
+  body[data-szr="0"] #radDist{font-size:clamp(32px,8vw,64px)}
+  body[data-szr="2"] #radSym{font-size:clamp(72px,18vw,170px)}
+  body[data-szr="2"] #radNote{font-size:clamp(24px,6.5vw,50px)}
+  body[data-szr="2"] #radDist{font-size:clamp(56px,15vw,130px)}
+
+  /* modalità modifica layout */
+  body.editing #zoneTotal,
+  body.editing #zonePartial,
+  body.editing #zoneRadar{
+    outline:2px dashed var(--amber);outline-offset:-5px;border-radius:18px;
+  }
+  #editBar{
+    position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));
+    transform:translateX(-50%);
+    display:none;flex-direction:column;gap:8px;align-items:center;
+    background:var(--panel);border:1px solid var(--amber);border-radius:16px;
+    padding:10px 14px;z-index:10;max-width:92vw;
+  }
+  body.editing #editBar{display:flex}
+  #editHint{font-size:12px;color:var(--muted);text-align:center;line-height:1.4}
+  .ebrow{display:flex;gap:8px}
+  .ebrow button{
+    background:var(--btnbg);border:1px solid var(--line);color:var(--text);
+    border-radius:10px;padding:10px 16px;font-size:14px;font-weight:700;
+  }
+  #editDoneBtn{background:var(--amber);color:#000;border-color:var(--amber)}
+  body[data-theme="light"] #editDoneBtn{color:#fff}
+
   body[data-mode="nav"] .zlabel,
   body[data-mode="radar"] .zlabel{
     left:12px;right:auto;top:10px;
@@ -309,6 +368,7 @@
     transform:translateX(105%);transition:transform .25s ease;
     display:flex;flex-direction:column;padding:22px 20px;
     padding-top:max(22px, env(safe-area-inset-top));
+    overflow-y:auto;-webkit-overflow-scrolling:touch;
   }
   #drawer.open{transform:translateX(0)}
   #drawer h2{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-weight:600}
@@ -461,6 +521,15 @@
 <div id="flash"></div>
 <div id="toast"></div>
 
+<div id="editBar">
+  <div id="editHint" data-t="editHint"></div>
+  <div class="ebrow">
+    <button id="editArrBtn" data-t="editArr"></button>
+    <button id="editResetBtn" data-t="editReset"></button>
+    <button id="editDoneBtn" data-t="editDone"></button>
+  </div>
+</div>
+
 <!-- ============ MENU LATERALE ============ -->
 <div id="drawerBg"></div>
 <div id="drawer">
@@ -471,6 +540,7 @@
   <div class="dsep"></div>
   <button class="drawer-item" id="drvWords"><span data-t="wordsTitle"></span></button>
   <button class="drawer-item" id="drvRb"><span data-t="navRadar"></span></button>
+  <button class="drawer-item" id="drvEdit"><span data-t="editLayout"></span></button>
   <button class="drawer-item" id="drvSet"><span data-t="drvSet"></span></button>
   <button class="drawer-item" id="drvInfo"><span data-t="introTitle"></span></button>
 </div>
@@ -602,6 +672,8 @@ it:{introTitle:"Come funziona",
   dontShow:"Non mostrare più",start:"Inizia",
   totalShort:"Totale",wordShort:"Parola / Parziale",
   totalResetMsg:"Totale azzerato",partialResetMsg:"Parziale azzerato",
+  editLayout:"Modifica layout",editArr:"Disposizione",editReset:"Ripristina",editDone:"Fine",
+  editHint:"Tocca un riquadro per cambiarne la grandezza · Disposizione cambia lo schema in orizzontale",
   totalLabel:"Totale · tieni premuto 2s per azzerare",partialLabel:"Parziale",
   navPartialLabel:"Parziale · tocca per azzerare",
   wordLabel:"Parola / Parziale · tocca per start-stop",
@@ -648,6 +720,8 @@ en:{introTitle:"How it works",
   dontShow:"Don't show again",start:"Start",
   totalShort:"Total",wordShort:"Word / Partial",
   totalResetMsg:"Total reset",partialResetMsg:"Partial reset",
+  editLayout:"Edit layout",editArr:"Arrangement",editReset:"Reset",editDone:"Done",
+  editHint:"Tap a box to change its size · Arrangement changes the landscape scheme",
   totalLabel:"Total · hold 2s to reset",partialLabel:"Partial",
   navPartialLabel:"Partial · tap to reset",
   wordLabel:"Word / Partial · tap to start-stop",
@@ -694,6 +768,8 @@ fr:{introTitle:"Comment ça marche",
   dontShow:"Ne plus afficher",start:"Commencer",
   totalShort:"Total",wordShort:"Mot / Partiel",
   totalResetMsg:"Total remis à zéro",partialResetMsg:"Partiel remis à zéro",
+  editLayout:"Modifier la disposition",editArr:"Schéma",editReset:"Réinitialiser",editDone:"Terminé",
+  editHint:"Touchez une zone pour changer sa taille · Schéma change la disposition en paysage",
   totalLabel:"Total · maintenir 2s pour remettre à zéro",partialLabel:"Partiel",
   navPartialLabel:"Partiel · toucher pour remettre à zéro",
   wordLabel:"Mot / Partiel · toucher pour start-stop",
@@ -740,6 +816,8 @@ es:{introTitle:"Cómo funciona",
   dontShow:"No mostrar más",start:"Empezar",
   totalShort:"Total",wordShort:"Palabra / Parcial",
   totalResetMsg:"Total a cero",partialResetMsg:"Parcial a cero",
+  editLayout:"Editar diseño",editArr:"Esquema",editReset:"Restablecer",editDone:"Hecho",
+  editHint:"Toca un recuadro para cambiar su tamaño · Esquema cambia la disposición horizontal",
   totalLabel:"Total · mantén 2s para poner a cero",partialLabel:"Parcial",
   navPartialLabel:"Parcial · toca para poner a cero",
   wordLabel:"Palabra / Parcial · toca para start-stop",
@@ -786,6 +864,8 @@ de:{introTitle:"So funktioniert es",
   dontShow:"Nicht mehr anzeigen",start:"Los geht's",
   totalShort:"Gesamt",wordShort:"Wort / Teilstrecke",
   totalResetMsg:"Gesamt zurückgesetzt",partialResetMsg:"Teilstrecke zurückgesetzt",
+  editLayout:"Layout bearbeiten",editArr:"Anordnung",editReset:"Zurücksetzen",editDone:"Fertig",
+  editHint:"Tippe auf ein Feld, um die Größe zu ändern · Anordnung ändert das Querformat-Schema",
   totalLabel:"Gesamt · 2s halten zum Nullstellen",partialLabel:"Teilstrecke",
   navPartialLabel:"Teilstrecke · tippen zum Nullstellen",
   wordLabel:"Wort / Teilstrecke · tippen für Start-Stopp",
@@ -832,6 +912,8 @@ pt:{introTitle:"Como funciona",
   dontShow:"Não mostrar novamente",start:"Começar",
   totalShort:"Total",wordShort:"Palavra / Parcial",
   totalResetMsg:"Total zerado",partialResetMsg:"Parcial zerado",
+  editLayout:"Editar layout",editArr:"Disposição",editReset:"Repor",editDone:"Concluir",
+  editHint:"Toque numa caixa para mudar o tamanho · Disposição muda o esquema horizontal",
   totalLabel:"Total · manter 2s para zerar",partialLabel:"Parcial",
   navPartialLabel:"Parcial · toque para zerar",
   wordLabel:"Palavra / Parcial · toque para start-stop",
@@ -878,6 +960,8 @@ ja:{introTitle:"使い方",
   dontShow:"次回から表示しない",start:"スタート",
   totalShort:"合計",wordShort:"言葉 / 区間",
   totalResetMsg:"合計をリセットしました",partialResetMsg:"区間をリセットしました",
+  editLayout:"レイアウト編集",editArr:"配置",editReset:"リセット",editDone:"完了",
+  editHint:"ボックスをタップでサイズ変更 · 配置は横向きのレイアウトを変更します",
   totalLabel:"合計 · 2秒長押しでリセット",partialLabel:"区間",
   navPartialLabel:"区間 · タップでリセット",
   wordLabel:"言葉 / 区間 · タップで開始・停止",
@@ -924,6 +1008,8 @@ cs:{introTitle:"Jak to funguje",
   dontShow:"Příště nezobrazovat",start:"Začít",
   totalShort:"Celkem",wordShort:"Slovo / Dílčí",
   totalResetMsg:"Celkem vynulováno",partialResetMsg:"Dílčí vynulováno",
+  editLayout:"Upravit rozložení",editArr:"Uspořádání",editReset:"Obnovit",editDone:"Hotovo",
+  editHint:"Klepnutím na pole změníte velikost · Uspořádání mění schéma na šířku",
   totalLabel:"Celkem · podržte 2s pro vynulování",partialLabel:"Dílčí",
   navPartialLabel:"Dílčí · klepnutím vynulovat",
   wordLabel:"Slovo / Dílčí · klepnutím start-stop",
@@ -1036,6 +1122,9 @@ if(cfg.theme !== 'dark' && cfg.theme !== 'light') cfg.theme = 'dark';
 if(typeof cfg.tunnel !== 'boolean') cfg.tunnel = true;
 if(typeof cfg.h24 !== 'boolean') cfg.h24 = true;
 if(typeof cfg.ssActive !== 'string') cfg.ssActive = '';
+if(!cfg.lay || typeof cfg.lay !== 'object') cfg.lay = {arr:'top', t:1, p:1, r:1};
+if(!['top','left','right'].includes(cfg.lay.arr)) cfg.lay.arr = 'top';
+['t','p','r'].forEach(k=>{ if(![0,1,2].includes(cfg.lay[k])) cfg.lay[k] = 1; });
 function saveCfg(){ localStorage.setItem('rallytrip_cfg', JSON.stringify(cfg)); }
 
 /* ================= LINGUA / TEMA ================= */
@@ -1312,6 +1401,20 @@ function frame(){
   requestAnimationFrame(frame);
 }
 
+/* ================= LAYOUT PERSONALIZZATO / MODALITÀ MODIFICA ================= */
+let editing = false;
+function applyLayout(){
+  document.body.dataset.arr = cfg.lay.arr;
+  document.body.dataset.szt = cfg.lay.t;
+  document.body.dataset.szp = cfg.lay.p;
+  document.body.dataset.szr = cfg.lay.r;
+}
+function setEditing(on){
+  editing = on;
+  document.body.classList.toggle('editing', on);
+  if(!on) saveCfg();
+}
+
 /* ================= AZIONE PRINCIPALE ================= */
 function anyOverlayOpen(){
   return ['intro','pilotMenu','navMenu','genMenu'].some(id => $(id).classList.contains('open'))
@@ -1342,11 +1445,20 @@ function mainAction(){
   if(navigator.vibrate) navigator.vibrate(60);
 }
 
-zoneWord.addEventListener('click', mainAction);
-zonePartial.addEventListener('click', ()=>{ if(cfg.mode !== 'pilot') mainAction(); });
+zoneWord.addEventListener('click', ()=>{ if(!editing) mainAction(); });
+zonePartial.addEventListener('click', ()=>{
+  if(editing){ cfg.lay.p = (cfg.lay.p + 1) % 3; applyLayout(); return; }
+  if(cfg.mode !== 'pilot') mainAction();
+});
+zoneTotal.addEventListener('click', ()=>{
+  if(editing){ cfg.lay.t = (cfg.lay.t + 1) % 3; applyLayout(); }
+});
+$('zoneRadar').addEventListener('click', ()=>{
+  if(editing){ cfg.lay.r = (cfg.lay.r + 1) % 3; applyLayout(); }
+});
 
 window.addEventListener('keydown', e => {
-  if(anyOverlayOpen()) return;
+  if(editing || anyOverlayOpen()) return;
   if(e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
   e.preventDefault();
   mainAction();
@@ -1359,6 +1471,7 @@ function resetHoldBar(){
   holdBar.style.width = '0';
 }
 function startHold(e){
+  if(editing) return;
   holdBar.style.transition = 'width 2s linear';
   holdBar.style.width = '100%';
   holdTimer = setTimeout(()=>{
@@ -1456,6 +1569,26 @@ $('drvInfo').addEventListener('click', ()=>{
   $('hideIntro').checked = cfg.hideIntro;
   $('intro').classList.add('open');
 });
+$('drvEdit').addEventListener('click', ()=>{
+  closeDrawer();
+  if(cfg.mode !== 'radar'){
+    cfg.mode = 'radar';
+    radShownIdx = -2;
+    applyMode();
+    saveCfg();
+  }
+  setEditing(true);
+});
+$('editArrBtn').addEventListener('click', ()=>{
+  const order = ['top','left','right'];
+  cfg.lay.arr = order[(order.indexOf(cfg.lay.arr) + 1) % 3];
+  applyLayout();
+});
+$('editResetBtn').addEventListener('click', ()=>{
+  cfg.lay = {arr:'top', t:1, p:1, r:1};
+  applyLayout();
+});
+$('editDoneBtn').addEventListener('click', ()=>{ setEditing(false); });
 
 /* ================= MENU PILOTA ================= */
 const tblBody = $('tblBody');
@@ -1662,6 +1795,7 @@ if('serviceWorker' in navigator){
 
 applyTheme();
 applyMode();
+applyLayout();
 requestAnimationFrame(frame);
 })();
 </script>
