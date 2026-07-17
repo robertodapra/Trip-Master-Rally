@@ -69,12 +69,6 @@
     border-radius:50%;width:22px;height:22px;font-size:12px;margin-left:8px;vertical-align:middle;
   }
   #btnMenu{background:var(--btnbg);border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:4px 12px;font-size:16px}
-  #btnSize{
-    display:none;
-    background:var(--btnbg);border:1px solid var(--line);color:var(--muted);
-    border-radius:6px;padding:4px 10px;font-size:16px;margin-right:8px;
-  }
-  body[data-mode="radar"] #btnSize{display:inline-block}
 
   #legend{
     position:fixed;top:56px;left:10px;z-index:9;
@@ -139,33 +133,23 @@
   }
 
   /* ====== LAYOUT RADAR ====== */
-  /* orizzontale: radar a sinistra, totale+parziale a destra */
   body[data-mode="radar"] #app{
-    grid-template-columns:1.8fr 1fr;
-    grid-template-rows:auto 1fr 1fr;
-    grid-template-areas:
-      "radar badge"
-      "radar total"
-      "radar partial";
-  }
-  body[data-mode="radar"][data-big="1"] #app{
     grid-template-columns:1fr 1fr;
-  }
-  body[data-mode="radar"] #zoneRadar{
-    flex-direction:column;flex-wrap:nowrap;gap:12px;
+    grid-template-rows:minmax(0,1fr) auto minmax(0,1fr);
+    grid-template-areas:
+      "radar radar"
+      "badge badge"
+      "total partial";
   }
   @media (orientation:portrait){
     body[data-mode="radar"] #app{
       grid-template-columns:1fr;
-      grid-template-rows:1.3fr auto 0.65fr 0.65fr;
+      grid-template-rows:minmax(0,1.3fr) auto minmax(0,0.65fr) minmax(0,0.65fr);
       grid-template-areas:
         "radar"
         "badge"
         "total"
         "partial";
-    }
-    body[data-mode="radar"] #zoneRadar{
-      flex-direction:row;flex-wrap:wrap;gap:6px 16px;
     }
   }
   body[data-mode="radar"] #zoneWord{display:none}
@@ -173,11 +157,7 @@
   body[data-mode="radar"] #zonePartial{cursor:pointer}
   body[data-mode="radar"] #partialVal,
   body[data-mode="radar"] #totalVal{
-    font-size:clamp(32px,7vw,72px);
-  }
-  body[data-mode="radar"][data-big="1"] #partialVal,
-  body[data-mode="radar"][data-big="1"] #totalVal{
-    font-size:clamp(46px,12vw,120px);
+    font-size:clamp(40px,10vw,96px);
   }
   body[data-mode="radar"] #partialVal{color:var(--text)}
 
@@ -432,7 +412,7 @@
 <div id="statusbar">
   <span><span id="gpsdot" class="r"></span><button id="btnInfo">i</button></span>
   <span id="clock">--:--:--</span>
-  <span><button id="btnSize">⤢</button><button id="btnMenu">☰</button></span>
+  <button id="btnMenu">☰</button>
 </div>
 
 <div id="legend">
@@ -1056,7 +1036,6 @@ if(cfg.theme !== 'dark' && cfg.theme !== 'light') cfg.theme = 'dark';
 if(typeof cfg.tunnel !== 'boolean') cfg.tunnel = true;
 if(typeof cfg.h24 !== 'boolean') cfg.h24 = true;
 if(typeof cfg.ssActive !== 'string') cfg.ssActive = '';
-if(typeof cfg.bigStats !== 'boolean') cfg.bigStats = false;
 function saveCfg(){ localStorage.setItem('rallytrip_cfg', JSON.stringify(cfg)); }
 
 /* ================= LINGUA / TEMA ================= */
@@ -1115,7 +1094,6 @@ function speedUnitStr(){ return isImp() ? 'mph' : 'km/h'; }
 /* pilot = pilota · nav = trip navigatore · radar = display radar */
 function applyMode(){
   document.body.dataset.mode = cfg.mode;
-  document.body.dataset.big = cfg.bigStats ? '1' : '0';
   partialLbl.dataset.t = 'partialLabel';
   applyUnits();
   $('drvPilot').classList.toggle('active', cfg.mode === 'pilot');
@@ -1434,12 +1412,6 @@ function closeDrawer(){
   $('drawerBg').classList.remove('open');
 }
 $('btnMenu').addEventListener('click', e=>{ e.stopPropagation(); openDrawer(); });
-$('btnSize').addEventListener('click', e=>{
-  e.stopPropagation();
-  cfg.bigStats = !cfg.bigStats;
-  document.body.dataset.big = cfg.bigStats ? '1' : '0';
-  saveCfg();
-});
 $('drawerBg').addEventListener('click', closeDrawer);
 
 /* modalità: si attivano subito al tocco */
