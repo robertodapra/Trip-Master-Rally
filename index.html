@@ -45,6 +45,9 @@
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%}
+  body{--numscale:1}
+  body[data-numsize="0"]{--numscale:.85}
+  body[data-numsize="2"]{--numscale:1.2}
   body{
     background:var(--bg);
     color:var(--text);
@@ -126,10 +129,10 @@
   @media (orientation:portrait){
     body[data-mode="nav"] #app{
       grid-template-columns:1fr;
-      grid-template-rows:1fr 1.7fr 0.8fr;
+      grid-template-rows:1.7fr 1fr 0.8fr;
       grid-template-areas:
-        "total"
         "partial"
+        "total"
         "speed";
     }
   }
@@ -137,11 +140,11 @@
   body[data-mode="nav"] #zoneSpeed{display:flex}
   body[data-mode="nav"] #zonePartial{cursor:pointer}
   body[data-mode="nav"] #partialVal{
-    font-size:clamp(70px,16vw,190px);
+    font-size:calc(clamp(76px,17vw,200px) * var(--numscale));
     color:var(--text);
   }
   body[data-mode="nav"] #totalVal{
-    font-size:clamp(44px,10vw,110px);
+    font-size:calc(clamp(48px,11vw,120px) * var(--numscale));
   }
 
   /* ====== LAYOUT RADAR ====== */
@@ -151,7 +154,7 @@
     grid-template-areas:
       "radar radar"
       "badge badge"
-      "total partial";
+      "partial total";
   }
   @media (orientation:portrait){
     body[data-mode="radar"] #app{
@@ -160,8 +163,8 @@
       grid-template-areas:
         "radar"
         "badge"
-        "total"
-        "partial";
+        "partial"
+        "total";
     }
   }
   body[data-mode="radar"] #zoneWord{display:none}
@@ -169,7 +172,7 @@
   body[data-mode="radar"] #zonePartial{cursor:pointer}
   body[data-mode="radar"] #partialVal,
   body[data-mode="radar"] #totalVal{
-    font-size:clamp(36px,9vw,84px);
+    font-size:calc(clamp(40px,10vw,92px) * var(--numscale));
   }
   body[data-mode="radar"] #partialVal{color:var(--text)}
 
@@ -180,16 +183,16 @@
       grid-template-rows:auto minmax(0,1fr) minmax(0,1fr);
       grid-template-areas:
         "radar badge"
-        "radar total"
-        "radar partial";
+        "radar partial"
+        "radar total";
     }
     body[data-mode="radar"][data-arr="right"] #app{
       grid-template-columns:1fr 1.5fr;
       grid-template-rows:auto minmax(0,1fr) minmax(0,1fr);
       grid-template-areas:
         "badge radar"
-        "total radar"
-        "partial radar";
+        "partial radar"
+        "total radar";
     }
     body[data-mode="radar"][data-arr="left"] #zoneRadar,
     body[data-mode="radar"][data-arr="right"] #zoneRadar{
@@ -253,14 +256,14 @@
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   #totalVal{
     font-family:var(--mono);
-    font-size:clamp(36px,8vw,84px);font-weight:700;
+    font-size:calc(clamp(40px,9vw,92px) * var(--numscale));font-weight:700;
     font-variant-numeric:tabular-nums;line-height:1;
   }
 
   #zonePartial{grid-area:partial}
   #partialVal{
     font-family:var(--mono);
-    font-size:clamp(40px,9vw,90px);font-weight:800;
+    font-size:calc(clamp(44px,10vw,100px) * var(--numscale));font-weight:800;
     font-variant-numeric:tabular-nums;line-height:1;
     color:var(--amber);
   }
@@ -271,7 +274,7 @@
   #zoneSpeed{grid-area:speed}
   #speedVal{
     font-family:var(--mono);
-    font-size:clamp(44px,10vw,110px);font-weight:800;
+    font-size:calc(clamp(48px,11vw,120px) * var(--numscale));font-weight:800;
     font-variant-numeric:tabular-nums;line-height:1;
     color:var(--blue);
   }
@@ -305,7 +308,7 @@
   }
   #radDist{
     font-family:var(--mono);
-    font-size:clamp(44px,11vw,90px);font-weight:800;color:var(--green);
+    font-size:calc(clamp(48px,12vw,100px) * var(--numscale));font-weight:800;color:var(--green);
     font-variant-numeric:tabular-nums;
     flex-shrink:0;
   }
@@ -313,7 +316,7 @@
 
   #zoneWord{grid-area:word;cursor:pointer}
   #wordVal{
-    font-size:clamp(60px,14vw,160px);
+    font-size:calc(clamp(64px,15vw,170px) * var(--numscale));
     font-weight:900;line-height:1;
     text-align:center;
     color:var(--green);
@@ -614,6 +617,14 @@
     </select>
   </div>
   <div class="setting-row">
+    <span data-t="numLabel"></span>
+    <select id="numSel">
+      <option value="0" data-t="numSmall"></option>
+      <option value="1" data-t="numNormal"></option>
+      <option value="2" data-t="numLarge"></option>
+    </select>
+  </div>
+  <div class="setting-row">
     <span data-t="timeLabel"></span>
     <select id="timeSel">
       <option value="24" data-t="time24"></option>
@@ -647,7 +658,7 @@ it:{introTitle:"Come funziona",
   guideMenu:"Guida",gOk:"Ho capito",
   gTotal:"Distanza totale della prova. Tieni premuto 2 secondi sul riquadro per azzerare (la barra rossa indica l'avanzamento della pressione).",
   gPartial:"Distanza dall'ultima nota. Tocca una volta il riquadro per azzerare. In modalità Radar si azzera da solo a ogni nota superata.",
-  gNote:"In modalità Radar: numero della nota, simbolo, testo e metri mancanti alla prossima nota del roadbook.",
+  gNote:"In modalità Radar: numero della nota, simbolo, testo e km mancanti alla prossima nota del roadbook.",
   gRb:"Da menu → Inserisci radar aggiungi le note a mano (km totali, simbolo, nota) oppure incolla il testo nel formato km_totali ; tipo ; nota e premi Importa: simboli e note vengono riconosciuti da soli. Salva ogni prova con un nome per ricaricarla al volo.",
   gTunnel:"Sempre attiva: senza segnale GPS (gallerie) l'app continua a contare con l'ultima velocità nota per massimo 60 secondi, poi si ferma.",
   gMenu:"Dal menu scegli la modalità: Pilota (start-stop con parole), Trip (contachilometri e velocità) o Radar (note del roadbook). Da lì riapri anche questa guida.",
@@ -687,6 +698,7 @@ it:{introTitle:"Come funziona",
   autoResetSmall:"Superato ogni riferimento del radar, il parziale riparte da zero (come la colonna parziali)",
   gsTitle:"Impostazioni generali",
   langLabel:"Lingua",unitLabel:"Unità di misura",
+  numLabel:"Grandezza numeri",numSmall:"Piccoli",numNormal:"Normali",numLarge:"Grandi",
   timeLabel:"Formato orario",time24:"24 ore",time12:"12 ore",
   themeLabel:"Tema",themeDark:"Scuro",themeLight:"Chiaro",
   tunnelLabel:"Modalità galleria",tunnelSmall:"Senza segnale GPS continua a contare con l'ultima velocità (max 60 s)",
@@ -702,7 +714,7 @@ en:{introTitle:"How it works",
   guideMenu:"Guide",gOk:"Got it",
   gTotal:"Total stage distance. Hold the box for 2 seconds to reset (the red bar shows the press progress).",
   gPartial:"Distance from the last note. Tap the box once to reset. In Radar mode it resets automatically at every note you pass.",
-  gNote:"In Radar mode: note number, symbol, text and metres left to the next road book note.",
+  gNote:"In Radar mode: note number, symbol, text and km left to the next road book note.",
   gRb:"From menu → Enter road book add notes by hand (total km, symbol, note) or paste text in the format total_km ; type ; note and press Import: symbols and notes are recognised automatically. Save each stage with a name to reload it instantly.",
   gTunnel:"Always on: without GPS signal (tunnels) the app keeps counting at the last known speed for up to 60 seconds, then stops.",
   gMenu:"From the menu pick the mode: Driver (start-stop with words), Trip (odometer and speed) or Radar (road book notes). You can also reopen this guide from there.",
@@ -742,6 +754,7 @@ en:{introTitle:"How it works",
   autoResetSmall:"After each road book reference the partial restarts from zero (matches the partial column)",
   gsTitle:"General settings",
   langLabel:"Language",unitLabel:"Units",
+  numLabel:"Number size",numSmall:"Small",numNormal:"Normal",numLarge:"Large",
   timeLabel:"Time format",time24:"24-hour",time12:"12-hour",
   themeLabel:"Theme",themeDark:"Dark",themeLight:"Light",
   tunnelLabel:"Tunnel mode",tunnelSmall:"Without GPS signal keeps counting at the last speed (max 60 s)",
@@ -757,7 +770,7 @@ fr:{introTitle:"Comment ça marche",
   guideMenu:"Guide",gOk:"Compris",
   gTotal:"Distance totale de la spéciale. Maintenez la zone 2 secondes pour remettre à zéro (la barre rouge montre la progression).",
   gPartial:"Distance depuis le dernier repère. Touchez la zone une fois pour remettre à zéro. En mode Radar, elle se remet à zéro à chaque repère franchi.",
-  gNote:"En mode Radar : numéro du repère, symbole, texte et mètres restants jusqu'au prochain repère du road book.",
+  gNote:"En mode Radar : numéro du repère, symbole, texte et km restants jusqu'au prochain repère du road book.",
   gRb:"Depuis menu → Saisir le road book, ajoutez les repères à la main (km totaux, symbole, note) ou collez le texte au format km_totaux ; type ; note puis Importer : symboles et notes sont reconnus automatiquement. Enregistrez chaque spéciale sous un nom pour la recharger.",
   gTunnel:"Toujours actif : sans signal GPS (tunnels) l'app continue de compter à la dernière vitesse connue pendant 60 s max, puis s'arrête.",
   gMenu:"Depuis le menu, choisissez le mode : Pilote (start-stop avec mots), Trip (odomètre et vitesse) ou Radar (repères du road book). Vous pouvez aussi rouvrir ce guide.",
@@ -797,6 +810,7 @@ fr:{introTitle:"Comment ça marche",
   autoResetSmall:"Après chaque repère du road book, le partiel repart de zéro (colonne des partiels)",
   gsTitle:"Réglages généraux",
   langLabel:"Langue",unitLabel:"Unités",
+  numLabel:"Taille des chiffres",numSmall:"Petits",numNormal:"Normaux",numLarge:"Grands",
   timeLabel:"Format horaire",time24:"24 heures",time12:"12 heures",
   themeLabel:"Thème",themeDark:"Sombre",themeLight:"Clair",
   tunnelLabel:"Mode tunnel",tunnelSmall:"Sans signal GPS continue à compter à la dernière vitesse (max 60 s)",
@@ -812,7 +826,7 @@ es:{introTitle:"Cómo funciona",
   guideMenu:"Guía",gOk:"Entendido",
   gTotal:"Distancia total del tramo. Mantén pulsado el recuadro 2 segundos para poner a cero (la barra roja muestra el progreso).",
   gPartial:"Distancia desde la última referencia. Toca el recuadro una vez para poner a cero. En modo Radar se pone a cero sola al pasar cada referencia.",
-  gNote:"En modo Radar: número de la referencia, símbolo, texto y metros restantes hasta la próxima referencia del road book.",
+  gNote:"En modo Radar: número de la referencia, símbolo, texto y km restantes hasta la próxima referencia del road book.",
   gRb:"En menú → Introducir road book añade referencias a mano (km totales, símbolo, nota) o pega el texto en formato km_totales ; tipo ; nota y pulsa Importar: símbolos y notas se reconocen solos. Guarda cada tramo con un nombre para recargarlo al instante.",
   gTunnel:"Siempre activo: sin señal GPS (túneles) la app sigue contando con la última velocidad conocida hasta 60 segundos y luego se detiene.",
   gMenu:"Desde el menú elige el modo: Piloto (start-stop con palabras), Trip (cuentakilómetros y velocidad) o Radar (referencias del road book). Desde ahí también reabres esta guía.",
@@ -852,6 +866,7 @@ es:{introTitle:"Cómo funciona",
   autoResetSmall:"Tras cada referencia del road book, el parcial reinicia desde cero (columna de parciales)",
   gsTitle:"Ajustes generales",
   langLabel:"Idioma",unitLabel:"Unidades",
+  numLabel:"Tamaño de los números",numSmall:"Pequeños",numNormal:"Normales",numLarge:"Grandes",
   timeLabel:"Formato de hora",time24:"24 horas",time12:"12 horas",
   themeLabel:"Tema",themeDark:"Oscuro",themeLight:"Claro",
   tunnelLabel:"Modo túnel",tunnelSmall:"Sin señal GPS sigue contando con la última velocidad (máx 60 s)",
@@ -867,7 +882,7 @@ de:{introTitle:"So funktioniert es",
   guideMenu:"Anleitung",gOk:"Verstanden",
   gTotal:"Gesamtdistanz der Prüfung. Halte das Feld 2 Sekunden gedrückt zum Nullstellen (der rote Balken zeigt den Fortschritt).",
   gPartial:"Distanz seit dem letzten Bezugspunkt. Einmal tippen zum Nullstellen. Im Radar-Modus stellt sie sich bei jedem Bezugspunkt automatisch auf null.",
-  gNote:"Im Radar-Modus: Nummer, Symbol, Notiz und verbleibende Meter bis zum nächsten Roadbook-Punkt.",
+  gNote:"Im Radar-Modus: Nummer, Symbol, Notiz und verbleibende km bis zum nächsten Roadbook-Punkt.",
   gRb:"Über Menü → Roadbook eingeben Punkte von Hand hinzufügen (Gesamt-km, Symbol, Notiz) oder Text im Format gesamt_km ; typ ; notiz einfügen und Importieren drücken: Symbole und Notizen werden automatisch erkannt. Speichere jede WP unter einem Namen.",
   gTunnel:"Immer aktiv: ohne GPS-Signal (Tunnel) zählt die App bis zu 60 Sekunden mit der letzten bekannten Geschwindigkeit weiter, dann stoppt sie.",
   gMenu:"Im Menü wählst du den Modus: Fahrer (Start-Stopp mit Wörtern), Trip (Kilometerzähler und Tempo) oder Radar (Roadbook-Punkte). Dort öffnest du auch diese Anleitung.",
@@ -907,6 +922,7 @@ de:{introTitle:"So funktioniert es",
   autoResetSmall:"Nach jedem Roadbook-Bezugspunkt startet die Teildistanz bei null (Teilspalte)",
   gsTitle:"Allgemeine Einstellungen",
   langLabel:"Sprache",unitLabel:"Einheiten",
+  numLabel:"Zahlengröße",numSmall:"Klein",numNormal:"Normal",numLarge:"Groß",
   timeLabel:"Zeitformat",time24:"24 Stunden",time12:"12 Stunden",
   themeLabel:"Design",themeDark:"Dunkel",themeLight:"Hell",
   tunnelLabel:"Tunnelmodus",tunnelSmall:"Ohne GPS-Signal zählt mit der letzten Geschwindigkeit weiter (max. 60 s)",
@@ -922,7 +938,7 @@ pt:{introTitle:"Como funciona",
   guideMenu:"Guia",gOk:"Entendi",
   gTotal:"Distância total da prova. Mantenha premido 2 segundos na caixa para zerar (a barra vermelha mostra o progresso).",
   gPartial:"Distância desde a última referência. Toque uma vez na caixa para zerar. No modo Radar zera sozinha a cada referência passada.",
-  gNote:"No modo Radar: número da referência, símbolo, texto e metros restantes até à próxima referência do road book.",
+  gNote:"No modo Radar: número da referência, símbolo, texto e km restantes até à próxima referência do road book.",
   gRb:"Em menu → Introduzir road book adicione referências à mão (km totais, símbolo, nota) ou cole o texto no formato km_totais ; tipo ; nota e prima Importar: símbolos e notas são reconhecidos automaticamente. Guarde cada prova com um nome.",
   gTunnel:"Sempre ativo: sem sinal GPS (túneis) a app continua a contar com a última velocidade conhecida até 60 segundos e depois para.",
   gMenu:"No menu escolha o modo: Piloto (start-stop com palavras), Trip (conta-quilómetros e velocidade) ou Radar (referências do road book). Daí também reabre este guia.",
@@ -962,6 +978,7 @@ pt:{introTitle:"Como funciona",
   autoResetSmall:"Após cada referência do road book, o parcial recomeça do zero (coluna de parciais)",
   gsTitle:"Definições gerais",
   langLabel:"Idioma",unitLabel:"Unidades",
+  numLabel:"Tamanho dos números",numSmall:"Pequenos",numNormal:"Normais",numLarge:"Grandes",
   timeLabel:"Formato da hora",time24:"24 horas",time12:"12 horas",
   themeLabel:"Tema",themeDark:"Escuro",themeLight:"Claro",
   tunnelLabel:"Modo túnel",tunnelSmall:"Sem sinal GPS continua a contar com a última velocidade (máx 60 s)",
@@ -977,7 +994,7 @@ ja:{introTitle:"使い方",
   guideMenu:"ガイド",gOk:"わかりました",
   gTotal:"SSの合計距離。ボックスを2秒長押しでリセット(赤いバーが進行を表示)。",
   gPartial:"直前の基準点からの距離。ボックスを1回タップでリセット。レーダーモードでは基準点を通過するたび自動でゼロに。",
-  gNote:"レーダーモード:基準点の番号、記号、メモ、次の基準点までの残りメートル。",
+  gNote:"レーダーモード:基準点の番号、記号、メモ、次の基準点までの残りkm。",
   gRb:"メニュー → ロードブック入力 から手動で追加(合計km・記号・メモ)、または 合計km ; 種類 ; メモ の形式で貼り付けて取り込み:記号とメモは自動認識。SSごとに名前を付けて保存できます。",
   gTunnel:"常時オン:GPSが届かない場所(トンネル)では最後の速度で最大60秒カウントを継続し、その後停止します。",
   gMenu:"メニューからモードを選択:ドライバー(言葉付きスタート・ストップ)、トリップ(距離計と速度)、レーダー(ロードブック)。このガイドもそこから再表示できます。",
@@ -1017,6 +1034,7 @@ ja:{introTitle:"使い方",
   autoResetSmall:"各基準点を通過すると区間距離がゼロから再開(区間列に一致)",
   gsTitle:"一般設定",
   langLabel:"言語",unitLabel:"単位",
+  numLabel:"数字の大きさ",numSmall:"小",numNormal:"標準",numLarge:"大",
   timeLabel:"時刻表示",time24:"24時間",time12:"12時間",
   themeLabel:"テーマ",themeDark:"ダーク",themeLight:"ライト",
   tunnelLabel:"トンネルモード",tunnelSmall:"GPSなしで直前の速度のまま計測を継続(最大60秒)",
@@ -1032,7 +1050,7 @@ cs:{introTitle:"Jak to funguje",
   guideMenu:"Průvodce",gOk:"Rozumím",
   gTotal:"Celková vzdálenost zkoušky. Podržte pole 2 sekundy pro vynulování (červený pruh ukazuje průběh).",
   gPartial:"Vzdálenost od posledního bodu. Jedním klepnutím vynulujete. V režimu Radar se nuluje automaticky při každém bodu.",
-  gNote:"V režimu Radar: číslo bodu, symbol, poznámka a zbývající metry k dalšímu bodu roadbooku.",
+  gNote:"V režimu Radar: číslo bodu, symbol, poznámka a zbývající km k dalšímu bodu roadbooku.",
   gRb:"Přes menu → Zadat roadbook přidejte body ručně (celkem km, symbol, poznámka) nebo vložte text ve formátu celkem_km ; typ ; poznámka a stiskněte Importovat: symboly a poznámky se rozpoznají samy. Každou RZ uložte pod názvem.",
   gTunnel:"Vždy zapnuto: bez GPS signálu (tunely) aplikace počítá poslední známou rychlostí až 60 sekund, pak se zastaví.",
   gMenu:"V menu zvolte režim: Řidič (start-stop se slovy), Trip (počítadlo a rychlost) nebo Radar (body roadbooku). Odtud znovu otevřete i tohoto průvodce.",
@@ -1072,6 +1090,7 @@ cs:{introTitle:"Jak to funguje",
   autoResetSmall:"Po každém bodu roadbooku začne dílčí vzdálenost od nuly (sloupec dílčích)",
   gsTitle:"Obecná nastavení",
   langLabel:"Jazyk",unitLabel:"Jednotky",
+  numLabel:"Velikost čísel",numSmall:"Malá",numNormal:"Normální",numLarge:"Velká",
   timeLabel:"Formát času",time24:"24 hodin",time12:"12 hodin",
   themeLabel:"Vzhled",themeDark:"Tmavý",themeLight:"Světlý",
   tunnelLabel:"Režim tunelu",tunnelSmall:"Bez GPS signálu počítá dál poslední rychlostí (max 60 s)",
@@ -1155,6 +1174,7 @@ if(typeof cfg.h24 !== 'boolean') cfg.h24 = true;
 if(typeof cfg.ssActive !== 'string') cfg.ssActive = '';
 if(!cfg.lay || typeof cfg.lay !== 'object') cfg.lay = {arr:'top'};
 if(!['top','left','right'].includes(cfg.lay.arr)) cfg.lay.arr = 'top';
+if(![0,1,2].includes(cfg.numSize)) cfg.numSize = 1;
 function saveCfg(){ localStorage.setItem('rallytrip_cfg', JSON.stringify(cfg)); }
 
 /* ================= LINGUA / TEMA ================= */
@@ -1346,7 +1366,7 @@ function radarRender(){
       radNote.textContent = last.n || '';
       radShownIdx = li + 10000;
     }
-    radDist.textContent = '0 m';
+    radDist.textContent = fmtDist(0) + ' ' + distUnit();
     radDist.classList.remove('near');
     return;
   }
@@ -1357,8 +1377,8 @@ function radarRender(){
     radNote.textContent = r.n || '';
     radShownIdx = next;
   }
-  const rem = Math.max(0, Math.round(dM - total));
-  radDist.textContent = rem.toLocaleString(loc()) + ' m';
+  const rem = Math.max(0, dM - total);
+  radDist.textContent = fmtDist(rem) + ' ' + distUnit();
   radDist.classList.toggle('near', rem <= 100);
 }
 
@@ -1433,9 +1453,10 @@ function frame(){
   requestAnimationFrame(frame);
 }
 
-/* ================= DISPOSIZIONE RADAR ================= */
+/* ================= DISPOSIZIONE RADAR / SCALA NUMERI ================= */
 function applyLayout(){
   document.body.dataset.arr = cfg.lay.arr;
+  document.body.dataset.numsize = cfg.numSize;
 }
 
 /* ================= AZIONE PRINCIPALE ================= */
@@ -1579,6 +1600,7 @@ $('drvSet').addEventListener('click', ()=>{
   closeDrawer();
   $('langSel').value = cfg.lang;
   $('unitSel').value = cfg.units;
+  $('numSel').value = String(cfg.numSize);
   $('timeSel').value = cfg.h24 ? '24' : '12';
   $('themeSel').value = cfg.theme;
   $('genMenu').classList.add('open');
@@ -1759,9 +1781,14 @@ $('unitSel').addEventListener('change', ()=>{
   cfg.units = $('unitSel').value;
   applyUnits();
 });
+$('numSel').addEventListener('change', ()=>{
+  cfg.numSize = parseInt($('numSel').value, 10);
+  applyLayout();
+});
 $('closeGen').addEventListener('click', ()=>{
   cfg.lang = $('langSel').value;
   cfg.units = $('unitSel').value;
+  cfg.numSize = parseInt($('numSel').value, 10);
   cfg.h24 = $('timeSel').value === '24';
   cfg.theme = $('themeSel').value;
   radShownIdx = -2;
