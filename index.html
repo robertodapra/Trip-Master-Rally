@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Orbitron:wght@600;800&family=Share+Tech+Mono&display=swap">
 <title>Rally Trip</title>
 <style>
   :root{
@@ -48,6 +48,9 @@
   body{--numscale:1}
   body[data-numsize="0"]{--numscale:.85}
   body[data-numsize="2"]{--numscale:1.2}
+  body[data-numfont="share"]{--mono:'Share Tech Mono',ui-monospace,Menlo,Consolas,monospace}
+  body[data-numfont="orbitron"]{--mono:'Orbitron',ui-monospace,Menlo,Consolas,monospace}
+  body[data-numfont="system"]{--mono:ui-monospace,Menlo,Consolas,monospace}
   body{
     background:var(--bg);
     color:var(--text);
@@ -196,7 +199,21 @@
     }
     body[data-mode="radar"][data-arr="left"] #zoneRadar,
     body[data-mode="radar"][data-arr="right"] #zoneRadar{
-      flex-direction:column;flex-wrap:nowrap;gap:12px;
+      flex-direction:column;flex-wrap:nowrap;gap:8px;
+    }
+    /* nelle disposizioni laterali dimensiona sull'altezza per non tagliare nulla */
+    body[data-mode="radar"][data-arr="left"] #radSym,
+    body[data-mode="radar"][data-arr="right"] #radSym{
+      font-size:clamp(40px,18vh,96px);
+    }
+    body[data-mode="radar"][data-arr="left"] #radNote,
+    body[data-mode="radar"][data-arr="right"] #radNote{
+      font-size:clamp(14px,4.6vh,26px);
+      max-height:3.2em;
+    }
+    body[data-mode="radar"][data-arr="left"] #radDist,
+    body[data-mode="radar"][data-arr="right"] #radDist{
+      font-size:calc(clamp(34px,12vh,78px) * var(--numscale));
     }
   }
 
@@ -625,6 +642,15 @@
     </select>
   </div>
   <div class="setting-row">
+    <span data-t="fontLabel"></span>
+    <select id="fontSel">
+      <option value="jb">JetBrains Mono</option>
+      <option value="share">Share Tech Mono</option>
+      <option value="orbitron">Orbitron</option>
+      <option value="system">System</option>
+    </select>
+  </div>
+  <div class="setting-row">
     <span data-t="timeLabel"></span>
     <select id="timeSel">
       <option value="24" data-t="time24"></option>
@@ -698,7 +724,7 @@ it:{introTitle:"Come funziona",
   autoResetSmall:"Superato ogni riferimento del radar, il parziale riparte da zero (come la colonna parziali)",
   gsTitle:"Impostazioni generali",
   langLabel:"Lingua",unitLabel:"Unità di misura",
-  numLabel:"Grandezza numeri",numSmall:"Piccoli",numNormal:"Normali",numLarge:"Grandi",
+  fontLabel:"Stile numeri",numLabel:"Grandezza numeri",numSmall:"Piccoli",numNormal:"Normali",numLarge:"Grandi",
   timeLabel:"Formato orario",time24:"24 ore",time12:"12 ore",
   themeLabel:"Tema",themeDark:"Scuro",themeLight:"Chiaro",
   tunnelLabel:"Modalità galleria",tunnelSmall:"Senza segnale GPS continua a contare con l'ultima velocità (max 60 s)",
@@ -754,7 +780,7 @@ en:{introTitle:"How it works",
   autoResetSmall:"After each road book reference the partial restarts from zero (matches the partial column)",
   gsTitle:"General settings",
   langLabel:"Language",unitLabel:"Units",
-  numLabel:"Number size",numSmall:"Small",numNormal:"Normal",numLarge:"Large",
+  fontLabel:"Number style",numLabel:"Number size",numSmall:"Small",numNormal:"Normal",numLarge:"Large",
   timeLabel:"Time format",time24:"24-hour",time12:"12-hour",
   themeLabel:"Theme",themeDark:"Dark",themeLight:"Light",
   tunnelLabel:"Tunnel mode",tunnelSmall:"Without GPS signal keeps counting at the last speed (max 60 s)",
@@ -810,7 +836,7 @@ fr:{introTitle:"Comment ça marche",
   autoResetSmall:"Après chaque repère du road book, le partiel repart de zéro (colonne des partiels)",
   gsTitle:"Réglages généraux",
   langLabel:"Langue",unitLabel:"Unités",
-  numLabel:"Taille des chiffres",numSmall:"Petits",numNormal:"Normaux",numLarge:"Grands",
+  fontLabel:"Style des chiffres",numLabel:"Taille des chiffres",numSmall:"Petits",numNormal:"Normaux",numLarge:"Grands",
   timeLabel:"Format horaire",time24:"24 heures",time12:"12 heures",
   themeLabel:"Thème",themeDark:"Sombre",themeLight:"Clair",
   tunnelLabel:"Mode tunnel",tunnelSmall:"Sans signal GPS continue à compter à la dernière vitesse (max 60 s)",
@@ -866,7 +892,7 @@ es:{introTitle:"Cómo funciona",
   autoResetSmall:"Tras cada referencia del road book, el parcial reinicia desde cero (columna de parciales)",
   gsTitle:"Ajustes generales",
   langLabel:"Idioma",unitLabel:"Unidades",
-  numLabel:"Tamaño de los números",numSmall:"Pequeños",numNormal:"Normales",numLarge:"Grandes",
+  fontLabel:"Estilo de números",numLabel:"Tamaño de los números",numSmall:"Pequeños",numNormal:"Normales",numLarge:"Grandes",
   timeLabel:"Formato de hora",time24:"24 horas",time12:"12 horas",
   themeLabel:"Tema",themeDark:"Oscuro",themeLight:"Claro",
   tunnelLabel:"Modo túnel",tunnelSmall:"Sin señal GPS sigue contando con la última velocidad (máx 60 s)",
@@ -922,7 +948,7 @@ de:{introTitle:"So funktioniert es",
   autoResetSmall:"Nach jedem Roadbook-Bezugspunkt startet die Teildistanz bei null (Teilspalte)",
   gsTitle:"Allgemeine Einstellungen",
   langLabel:"Sprache",unitLabel:"Einheiten",
-  numLabel:"Zahlengröße",numSmall:"Klein",numNormal:"Normal",numLarge:"Groß",
+  fontLabel:"Zahlenstil",numLabel:"Zahlengröße",numSmall:"Klein",numNormal:"Normal",numLarge:"Groß",
   timeLabel:"Zeitformat",time24:"24 Stunden",time12:"12 Stunden",
   themeLabel:"Design",themeDark:"Dunkel",themeLight:"Hell",
   tunnelLabel:"Tunnelmodus",tunnelSmall:"Ohne GPS-Signal zählt mit der letzten Geschwindigkeit weiter (max. 60 s)",
@@ -978,7 +1004,7 @@ pt:{introTitle:"Como funciona",
   autoResetSmall:"Após cada referência do road book, o parcial recomeça do zero (coluna de parciais)",
   gsTitle:"Definições gerais",
   langLabel:"Idioma",unitLabel:"Unidades",
-  numLabel:"Tamanho dos números",numSmall:"Pequenos",numNormal:"Normais",numLarge:"Grandes",
+  fontLabel:"Estilo dos números",numLabel:"Tamanho dos números",numSmall:"Pequenos",numNormal:"Normais",numLarge:"Grandes",
   timeLabel:"Formato da hora",time24:"24 horas",time12:"12 horas",
   themeLabel:"Tema",themeDark:"Escuro",themeLight:"Claro",
   tunnelLabel:"Modo túnel",tunnelSmall:"Sem sinal GPS continua a contar com a última velocidade (máx 60 s)",
@@ -1034,7 +1060,7 @@ ja:{introTitle:"使い方",
   autoResetSmall:"各基準点を通過すると区間距離がゼロから再開(区間列に一致)",
   gsTitle:"一般設定",
   langLabel:"言語",unitLabel:"単位",
-  numLabel:"数字の大きさ",numSmall:"小",numNormal:"標準",numLarge:"大",
+  fontLabel:"数字のスタイル",numLabel:"数字の大きさ",numSmall:"小",numNormal:"標準",numLarge:"大",
   timeLabel:"時刻表示",time24:"24時間",time12:"12時間",
   themeLabel:"テーマ",themeDark:"ダーク",themeLight:"ライト",
   tunnelLabel:"トンネルモード",tunnelSmall:"GPSなしで直前の速度のまま計測を継続(最大60秒)",
@@ -1090,7 +1116,7 @@ cs:{introTitle:"Jak to funguje",
   autoResetSmall:"Po každém bodu roadbooku začne dílčí vzdálenost od nuly (sloupec dílčích)",
   gsTitle:"Obecná nastavení",
   langLabel:"Jazyk",unitLabel:"Jednotky",
-  numLabel:"Velikost čísel",numSmall:"Malá",numNormal:"Normální",numLarge:"Velká",
+  fontLabel:"Styl čísel",numLabel:"Velikost čísel",numSmall:"Malá",numNormal:"Normální",numLarge:"Velká",
   timeLabel:"Formát času",time24:"24 hodin",time12:"12 hodin",
   themeLabel:"Vzhled",themeDark:"Tmavý",themeLight:"Světlý",
   tunnelLabel:"Režim tunelu",tunnelSmall:"Bez GPS signálu počítá dál poslední rychlostí (max 60 s)",
@@ -1175,6 +1201,7 @@ if(typeof cfg.ssActive !== 'string') cfg.ssActive = '';
 if(!cfg.lay || typeof cfg.lay !== 'object') cfg.lay = {arr:'top'};
 if(!['top','left','right'].includes(cfg.lay.arr)) cfg.lay.arr = 'top';
 if(![0,1,2].includes(cfg.numSize)) cfg.numSize = 1;
+if(!['jb','share','orbitron','system'].includes(cfg.numFont)) cfg.numFont = 'jb';
 function saveCfg(){ localStorage.setItem('rallytrip_cfg', JSON.stringify(cfg)); }
 
 /* ================= LINGUA / TEMA ================= */
@@ -1457,6 +1484,7 @@ function frame(){
 function applyLayout(){
   document.body.dataset.arr = cfg.lay.arr;
   document.body.dataset.numsize = cfg.numSize;
+  document.body.dataset.numfont = cfg.numFont;
 }
 
 /* ================= AZIONE PRINCIPALE ================= */
@@ -1601,6 +1629,7 @@ $('drvSet').addEventListener('click', ()=>{
   $('langSel').value = cfg.lang;
   $('unitSel').value = cfg.units;
   $('numSel').value = String(cfg.numSize);
+  $('fontSel').value = cfg.numFont;
   $('timeSel').value = cfg.h24 ? '24' : '12';
   $('themeSel').value = cfg.theme;
   $('genMenu').classList.add('open');
@@ -1785,10 +1814,15 @@ $('numSel').addEventListener('change', ()=>{
   cfg.numSize = parseInt($('numSel').value, 10);
   applyLayout();
 });
+$('fontSel').addEventListener('change', ()=>{
+  cfg.numFont = $('fontSel').value;
+  applyLayout();
+});
 $('closeGen').addEventListener('click', ()=>{
   cfg.lang = $('langSel').value;
   cfg.units = $('unitSel').value;
   cfg.numSize = parseInt($('numSel').value, 10);
+  cfg.numFont = $('fontSel').value;
   cfg.h24 = $('timeSel').value === '24';
   cfg.theme = $('themeSel').value;
   radShownIdx = -2;
