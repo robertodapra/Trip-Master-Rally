@@ -51,5 +51,11 @@
 	<string>Rally Trip usa il GPS per misurare le distanze durante le prove.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+<key>NSCameraUsageDescription</key>
+<string>Rally Trip usa la fotocamera per scansionare le pagine del radar.</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>Rally Trip accede alle foto per importare le pagine del radar.</string>
+<key>NSPhotoLibraryAddUsageDescription</key>
+<string>Rally Trip salva le pagine del radar scansionate.</string>
 </dict>
 </plist>
