@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#000000">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -45,7 +45,7 @@
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%}
-  body{--numscale:1}
+  body{--numscale:.95}
   body[data-numsize="0"]{--numscale:.85}
   body[data-numsize="2"]{--numscale:1.2}
   body[data-numfont="share"]{--mono:'Share Tech Mono',ui-monospace,Menlo,Consolas,monospace}
@@ -60,10 +60,10 @@
   }
 
   #statusbar{
-    position:fixed;top:0;left:0;right:0;z-index:3;
+    position:fixed;top:0;left:0;right:0;z-index:6;
     display:flex;justify-content:space-between;align-items:center;
-    padding:6px 12px;font-size:12px;color:var(--muted);
-    padding-top:max(6px, env(safe-area-inset-top));
+    padding:4px 12px;min-height:38px;font-size:12px;color:var(--muted);
+    padding-top:calc(env(safe-area-inset-top) + 4px);
   }
   #clock{
     font-family:var(--mono);
@@ -78,7 +78,7 @@
     background:var(--btnbg);border:1px solid var(--line);color:var(--muted);
     border-radius:50%;width:22px;height:22px;font-size:12px;margin-left:8px;vertical-align:middle;
   }
-  #btnMenu{background:var(--btnbg);border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:4px 12px;font-size:16px}
+  #btnMenu{background:var(--btnbg);border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:7px 14px;font-size:18px}
   #btnArr{
     display:none;
     background:var(--btnbg);border:1px solid var(--line);color:var(--muted);
@@ -101,7 +101,8 @@
   #app{
     display:grid;
     height:100dvh;
-    padding-top:calc(34px + env(safe-area-inset-top));
+    padding-top:calc(42px + env(safe-area-inset-top));
+    padding-bottom:calc(env(safe-area-inset-bottom) + 2px);
     grid-template-columns:1.2fr 1fr;
     grid-template-rows:1fr 1fr;
     grid-template-areas:
@@ -330,6 +331,35 @@
     flex-shrink:0;
   }
   #radDist.near{color:var(--red)}
+  #radHead{display:flex;align-items:center;gap:10px;flex-shrink:0}
+  #radHead button{
+    background:var(--btnbg);border:1px solid var(--line);color:var(--text);
+    border-radius:10px;width:46px;height:46px;font-size:20px;line-height:1;
+  }
+  #radHead button:active{background:var(--amber);color:#000}
+  #radImg{
+    display:none;max-width:100%;max-height:100%;height:auto;
+    object-fit:contain;border-radius:10px;background:#fff;
+  }
+  @media (orientation:portrait){
+    body[data-mode="radar"] #radImg{max-height:34vh}
+  }
+  @media (orientation:landscape){
+    body[data-mode="radar"][data-arr="top"] #radImg{max-height:34vh}
+    body[data-mode="radar"][data-arr="left"] #radImg,
+    body[data-mode="radar"][data-arr="right"] #radImg{max-height:54vh}
+  }
+  #scanCv{width:100%;border:1px solid var(--line);border-radius:10px;margin-bottom:10px;background:var(--panel)}
+  .scanrow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;font-size:14px}
+  .scanrow input[type=range]{flex:1;max-width:55%}
+  .scanrow input[type=number]{width:84px;padding:8px;background:var(--inputbg);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:16px}
+  #scanPick,#openScan{
+    width:100%;padding:13px;border-radius:10px;font-size:15px;font-weight:700;
+    background:var(--btnbg);border:2px solid var(--green);color:var(--green);margin-bottom:10px;
+  }
+  #scanMsg{font-size:13px;color:var(--green);min-height:18px;margin-bottom:6px}
+  .rb-thumb{width:100%;border-radius:6px;border:1px solid var(--line);display:block;background:#fff}
+  .rb-imgdel{background:none;border:none;color:var(--red);font-size:11px;padding:4px 0;width:100%}
 
   #zoneWord{grid-area:word;cursor:pointer}
   #wordVal{
@@ -496,8 +526,13 @@
   </div>
 
   <div class="zone" id="zoneRadar">
-    <span id="radNum"></span>
-    <div id="radSym">—</div>
+    <div id="radHead">
+      <button id="radPrev">&#9664;</button>
+      <span id="radNum"></span>
+      <button id="radNext">&#9654;</button>
+    </div>
+    <img id="radImg" alt="">
+    <div id="radSym">&mdash;</div>
     <div id="radNote"></div>
     <div id="radDist"></div>
   </div>
@@ -589,6 +624,10 @@
   <div id="ssList"></div>
   <div id="ssEmpty" data-t="ssEmpty"></div>
 
+  <h3 data-t="scanTitle"></h3>
+  <p class="small" data-t="scanDesc"></p>
+  <button id="openScan" data-t="scanBtn"></button>
+
   <h3 data-t="rbImpTitle"></h3>
   <p class="small" data-t="rbImpDesc"></p>
   <textarea id="rbImport" placeholder="0,00 ; controllo ; T.C. 0&#10;0,22 ; rotonda terza uscita ; Via Campo Sportivo&#10;0,52 ; incrocio sinistra ; Autostrada Montecatini"></textarea>
@@ -607,6 +646,26 @@
   </div>
 
   <button class="okbtn" id="closeNav" data-t="close"></button>
+</div>
+
+<!-- ============ SCANNER RADAR ============ -->
+<div class="overlay" id="scanMenu">
+  <h2 data-t="scanTitle"></h2>
+  <p class="small" data-t="scanDesc"></p>
+  <input type="file" id="scanFile" accept="image/*" capture="environment" style="display:none">
+  <button id="scanPick" data-t="scanPick"></button>
+  <canvas id="scanCv"></canvas>
+  <div class="scanrow"><span data-t="scanRows"></span><input type="number" id="scRows" min="1" max="30" value="6"></div>
+  <div class="scanrow"><span data-t="scanTop"></span><input type="range" id="scTop" min="0" max="60" value="3"></div>
+  <div class="scanrow"><span data-t="scanBottom"></span><input type="range" id="scBottom" min="40" max="100" value="97"></div>
+  <div class="scanrow"><span data-t="scanLeft"></span><input type="range" id="scLeft" min="0" max="80" value="0"></div>
+  <div class="scanrow"><span data-t="scanRight"></span><input type="range" id="scRight" min="20" max="100" value="100"></div>
+  <div id="scanMsg"></div>
+  <div class="rowbtns">
+    <button id="scanAssign" data-t="scanAssign"></button>
+    <button id="scanNew" data-t="scanNew"></button>
+  </div>
+  <button class="okbtn" id="closeScan" data-t="close"></button>
 </div>
 
 <!-- ============ IMPOSTAZIONI GENERALI ============ -->
@@ -665,6 +724,12 @@
     </select>
   </div>
 
+  <div class="setting-row">
+    <span data-t="autoResetLabel"></span>
+    <input type="checkbox" id="autoResetToggle">
+  </div>
+  <p class="small" data-t="autoResetSmall"></p>
+
   <button class="okbtn" id="closeGen" data-t="close"></button>
 </div>
 
@@ -716,6 +781,17 @@ it:{introTitle:"Come funziona",
   rbImpBtn:"Importa",
   rbImpOk:"riferimenti importati",
   rbImpErr:"Nessuna riga valida trovata",
+  scanTitle:"Scanner radar",
+  scanBtn:"📷 Scansiona la pagina del radar",
+  scanDesc:"Fotografa la pagina del radar (meglio solo la colonna dei disegni). Regola la cornice e indica quanti riferimenti ci sono nella pagina: l'app taglia la foto in strisce e le usa come simbolo al posto delle emoji.",
+  scanRows:"Riferimenti nella pagina",
+  scanTop:"Bordo alto",scanBottom:"Bordo basso",scanLeft:"Bordo sinistro",scanRight:"Bordo destro",
+  scanPick:"📷 Scatta o scegli la foto",
+  scanNew:"Crea nuovi riferimenti",
+  scanAssign:"Assegna a quelli esistenti",
+  scanNoImg:"Prima scatta o scegli una foto",
+  scanDoneMsg:"immagini pronte \u2014 controlla i km in tabella",
+  storeFull:"Memoria piena: elimina qualche prova salvata",
   rbTitle:"Radar (road book)",
   rbDesc:"Km totali come stampati sul radar (es. 0,52). Azzera il TOTALE alla partenza del percorso: 50 m prima di ogni riferimento apparirà l'avviso a schermo.",
   thDist:"Km totali",thSym:"Simbolo",thNote:"Nota",
@@ -772,6 +848,17 @@ en:{introTitle:"How it works",
   rbImpBtn:"Import",
   rbImpOk:"references imported",
   rbImpErr:"No valid lines found",
+  scanTitle:"Road book scanner",
+  scanBtn:"📷 Scan the road book page",
+  scanDesc:"Photograph the road book page (ideally just the tulip column). Adjust the frame and set how many references are on the page: the app slices the photo and uses each slice as the symbol instead of emoji.",
+  scanRows:"References on the page",
+  scanTop:"Top edge",scanBottom:"Bottom edge",scanLeft:"Left edge",scanRight:"Right edge",
+  scanPick:"📷 Take or pick a photo",
+  scanNew:"Create new references",
+  scanAssign:"Assign to existing ones",
+  scanNoImg:"Take or pick a photo first",
+  scanDoneMsg:"images ready \u2014 check the km in the table",
+  storeFull:"Storage full: delete some saved stages",
   rbTitle:"Road book",
   rbDesc:"Total km as printed on the road book (e.g. 0.52). Reset the TOTAL at the route start: 50 m before each reference the alert will appear.",
   thDist:"Total km",thSym:"Symbol",thNote:"Note",
@@ -1169,6 +1256,7 @@ let cfg = {
   ssLib: [],
   ssActive: '',
   speak: false,
+  autoReset: true,
   lang: null,
   hideIntro: false,
   mode: 'pilot',
@@ -1196,13 +1284,17 @@ if(cfg.mode !== 'pilot' && cfg.mode !== 'nav' && cfg.mode !== 'radar') cfg.mode 
 if(cfg.units !== 'metric' && cfg.units !== 'imperial') cfg.units = 'metric';
 if(cfg.theme !== 'dark' && cfg.theme !== 'light') cfg.theme = 'dark';
 if(typeof cfg.tunnel !== 'boolean') cfg.tunnel = true;
+if(typeof cfg.autoReset !== 'boolean') cfg.autoReset = true;
 if(typeof cfg.h24 !== 'boolean') cfg.h24 = true;
 if(typeof cfg.ssActive !== 'string') cfg.ssActive = '';
 if(!cfg.lay || typeof cfg.lay !== 'object') cfg.lay = {arr:'top'};
 if(!['top','left','right'].includes(cfg.lay.arr)) cfg.lay.arr = 'top';
 if(![0,1,2].includes(cfg.numSize)) cfg.numSize = 1;
 if(!['jb','share','orbitron','system'].includes(cfg.numFont)) cfg.numFont = 'jb';
-function saveCfg(){ localStorage.setItem('rallytrip_cfg', JSON.stringify(cfg)); }
+function saveCfg(){
+  try{ localStorage.setItem('rallytrip_cfg', JSON.stringify(cfg)); return true; }
+  catch(e){ return false; }
+}
 
 /* ================= LINGUA / TEMA ================= */
 function t(k){ return (T[cfg.lang]||T.en)[k] || T.en[k] || k; }
@@ -1229,6 +1321,7 @@ const totalVal=$('totalVal'), partialVal=$('partialVal'),
       partialLbl=$('partialLbl'), partialUnit=$('partialUnit'),
       totalUnit=$('totalUnit'), speedVal=$('speedVal'), speedUnit=$('speedUnit'),
       radNum=$('radNum'), radSym=$('radSym'), radNote=$('radNote'), radDist=$('radDist'),
+      radImg=$('radImg'),
       holdBar=$('holdBar'), toast=$('toast'),
       ssBadge=$('ssBadge');
 
@@ -1342,24 +1435,35 @@ function parseKm(s){
   if(typeof s === 'number') return s;
   return parseFloat(String(s).replace(',', '.'));
 }
+/* righe senza km (es. appena scansionate) restano in fondo */
+function rbSortKey(r){
+  const v = parseKm(r.km);
+  return isNaN(v) ? 1e9 : v;
+}
+
+/* offset manuale: permette di riancorare il radar al riferimento scelto con le frecce */
+let rbOffset = 0;
+let radNextIdx = -1;
+function radT(){ return total + rbOffset; }
 
 /* azzeramento automatico del parziale a ogni riferimento superato (modalità Radar) */
 function rbAutoReset(){
   if(!cfg.rb.length){ rbPassedIdx = null; return; }
+  const tR = radT();
   let idx = -1;
   for(let i = 0; i < cfg.rb.length; i++){
     const dM = parseKm(cfg.rb[i].km) * 1000;
     if(isNaN(dM)) continue;
-    if(total >= dM) idx = i;
+    if(tR >= dM) idx = i;
     else break;
   }
   if(rbPassedIdx === null){
     rbPassedIdx = idx;
     return;
   }
-  if(idx > rbPassedIdx){
+  if(idx > rbPassedIdx && cfg.autoReset){
     const dM = parseKm(cfg.rb[idx].km) * 1000;
-    partial = Math.max(0, total - dM);
+    partial = Math.max(0, tR - dM);
   }
   rbPassedIdx = idx;
 }
@@ -1370,43 +1474,58 @@ function radarRender(){
   if(!cfg.rb.length){
     if(radShownIdx !== -2){
       radNum.textContent = '';
-      radSym.textContent = '—';
-      radNote.textContent = '';
+      radSym.textContent = '\u2014'; radSym.style.display = '';
+      radNote.textContent = ''; radNote.style.display = '';
       radDist.textContent = '';
+      radImg.style.display = 'none'; radImg.removeAttribute('src');
       radShownIdx = -2;
     }
+    radNextIdx = -1;
     return;
   }
+  const tR = radT();
   let next = -1, dM = 0;
   for(let i = 0; i < cfg.rb.length; i++){
     const d = parseKm(cfg.rb[i].km) * 1000;
     if(isNaN(d)) continue;
-    if(total < d){ next = i; dM = d; break; }
+    if(tR < d){ next = i; dM = d; break; }
   }
-  if(next === -1){
-    /* superati tutti i riferimenti: resta l'ultimo, countdown a 0 */
-    const li = cfg.rb.length - 1;
-    if(radShownIdx !== li + 10000){
-      const last = cfg.rb[li];
-      radNum.textContent = cfg.rb.length;
-      radSym.textContent = last.s || '🏁';
-      radNote.textContent = last.n || '';
-      radShownIdx = li + 10000;
+  const idx = next === -1 ? cfg.rb.length - 1 : next;
+  radNextIdx = next === -1 ? cfg.rb.length : next;
+  const key = next === -1 ? idx + 10000 : next;
+  if(radShownIdx !== key){
+    const r = cfg.rb[idx];
+    radNum.textContent = idx + 1;
+    if(r.img){
+      radImg.src = r.img;
+      radImg.style.display = 'block';
+      radSym.style.display = 'none';
+      radNote.style.display = 'none';
+    } else {
+      radImg.style.display = 'none'; radImg.removeAttribute('src');
+      radSym.style.display = ''; radNote.style.display = '';
+      radSym.textContent = r.s || (next === -1 ? '🏁' : '⚠️');
+      radNote.textContent = r.n || '';
     }
-    radDist.textContent = fmtDist(0) + ' ' + distUnit();
-    radDist.classList.remove('near');
-    return;
+    radShownIdx = key;
   }
-  if(radShownIdx !== next){
-    const r = cfg.rb[next];
-    radNum.textContent = next + 1;
-    radSym.textContent = r.s || '⚠️';
-    radNote.textContent = r.n || '';
-    radShownIdx = next;
-  }
-  const rem = Math.max(0, dM - total);
+  const rem = next === -1 ? 0 : Math.max(0, dM - tR);
   radDist.textContent = fmtDist(rem) + ' ' + distUnit();
-  radDist.classList.toggle('near', rem <= 100);
+  radDist.classList.toggle('near', next !== -1 && rem <= 100);
+}
+
+/* frecce: riancora il radar al riferimento scelto e azzera il parziale */
+function rbJump(dir){
+  if(!cfg.rb.length) return;
+  const cur = radNextIdx < 0 ? 0 : Math.min(radNextIdx, cfg.rb.length - 1);
+  const n = Math.max(0, Math.min(cfg.rb.length - 1, cur + dir));
+  const prevKm = n > 0 ? ((parseKm(cfg.rb[n-1].km) * 1000) || 0) : 0;
+  rbOffset = prevKm - total;
+  partial = 0;
+  rbPassedIdx = n - 1;
+  radNextIdx = n;
+  radShownIdx = -2;
+  if(navigator.vibrate) navigator.vibrate(40);
 }
 
 /* ================= CONTEGGIO CONTINUO + RENDER ================= */
@@ -1489,7 +1608,7 @@ function applyLayout(){
 
 /* ================= AZIONE PRINCIPALE ================= */
 function anyOverlayOpen(){
-  return ['intro','pilotMenu','navMenu','genMenu'].some(id => $(id).classList.contains('open'))
+  return ['intro','pilotMenu','navMenu','genMenu','scanMenu'].some(id => $(id).classList.contains('open'))
     || $('drawer').classList.contains('open');
 }
 
@@ -1538,6 +1657,7 @@ function startHold(e){
   holdBar.style.width = '100%';
   holdTimer = setTimeout(()=>{
     total = 0;
+    rbOffset = 0;
     rbPassedIdx = null;
     radShownIdx = -2;
     resetHoldBar();
@@ -1632,6 +1752,7 @@ $('drvSet').addEventListener('click', ()=>{
   $('fontSel').value = cfg.numFont;
   $('timeSel').value = cfg.h24 ? '24' : '12';
   $('themeSel').value = cfg.theme;
+  $('autoResetToggle').checked = cfg.autoReset;
   $('genMenu').classList.add('open');
 });
 $('drvInfo').addEventListener('click', ()=>{
@@ -1737,11 +1858,14 @@ function buildRbTable(){
   rbBody.innerHTML = '';
   cfg.rb.forEach((r,i)=>{
     const tr = document.createElement('tr');
+    const symCell = r.img
+      ? '<img class="rb-thumb" src="'+r.img+'"><button class="rb-imgdel" data-imgdel="'+i+'">\u2715 foto</button>'
+      : '<select data-i="'+i+'" data-f="s">'+ symOptions(r.s || SYMS[0]) +'</select>';
     tr.innerHTML =
       '<td><input type="text" inputmode="decimal" value="'+ (r.km ?? '') +'" data-i="'+i+'" data-f="km" placeholder="0,00"></td>' +
-      '<td><select data-i="'+i+'" data-f="s">'+ symOptions(r.s || SYMS[0]) +'</select></td>' +
+      '<td>'+ symCell +'</td>' +
       '<td><input type="text" value="'+ (r.n ? String(r.n).replace(/"/g,'&quot;') : '') +'" data-i="'+i+'" data-f="n"></td>' +
-      '<td><button data-del="'+i+'">✕</button></td>';
+      '<td><button data-del="'+i+'">\u2715</button></td>';
     rbBody.appendChild(tr);
   });
 }
@@ -1755,7 +1879,9 @@ rbBody.addEventListener('change', e=>{
 });
 rbBody.addEventListener('click', e=>{
   const del = e.target.dataset.del;
-  if(del !== undefined){ cfg.rb.splice(del,1); buildRbTable(); }
+  if(del !== undefined){ cfg.rb.splice(del,1); rbPassedIdx = null; radShownIdx = -2; buildRbTable(); return; }
+  const di = e.target.dataset.imgdel;
+  if(di !== undefined){ delete cfg.rb[di].img; radShownIdx = -2; buildRbTable(); }
 });
 $('rbAddRow').addEventListener('click', ()=>{ cfg.rb.push({km:'',s:SYMS[0],n:''}); buildRbTable(); });
 $('rbClear').addEventListener('click', ()=>{ cfg.rb = []; rbPassedIdx = null; radShownIdx = -2; buildRbTable(); });
@@ -1789,8 +1915,8 @@ $('rbImportBtn').addEventListener('click', ()=>{
 });
 
 $('closeNav').addEventListener('click', ()=>{
-  cfg.rb = cfg.rb.filter(r => r.km !== '');
-  cfg.rb.sort((a,b)=>parseKm(a.km)-parseKm(b.km));
+  cfg.rb = cfg.rb.filter(r => r.km !== '' || r.img);
+  cfg.rb.sort((a,b)=>rbSortKey(a)-rbSortKey(b));
   rbPassedIdx = null;
   radShownIdx = -2;
   saveCfg();
@@ -1825,6 +1951,7 @@ $('closeGen').addEventListener('click', ()=>{
   cfg.numFont = $('fontSel').value;
   cfg.h24 = $('timeSel').value === '24';
   cfg.theme = $('themeSel').value;
+  cfg.autoReset = $('autoResetToggle').checked;
   radShownIdx = -2;
   saveCfg();
   applyLang();
@@ -1832,6 +1959,104 @@ $('closeGen').addEventListener('click', ()=>{
   applyTheme();
   $('genMenu').classList.remove('open');
 });
+
+/* ================= FRECCE RADAR ================= */
+$('radPrev').addEventListener('click', e=>{ e.stopPropagation(); rbJump(-1); });
+$('radNext').addEventListener('click', e=>{ e.stopPropagation(); rbJump(1); });
+
+/* ================= SCANNER RADAR ================= */
+let scanImgEl = null;
+const scanCfg = {rows:6, top:3, bottom:97, left:0, right:100};
+
+function scanRead(){
+  scanCfg.rows = Math.max(1, parseInt($('scRows').value,10) || 1);
+  scanCfg.top = +$('scTop').value;
+  scanCfg.bottom = +$('scBottom').value;
+  scanCfg.left = +$('scLeft').value;
+  scanCfg.right = +$('scRight').value;
+  if(scanCfg.bottom <= scanCfg.top + 5) scanCfg.bottom = scanCfg.top + 5;
+  if(scanCfg.right <= scanCfg.left + 5) scanCfg.right = scanCfg.left + 5;
+}
+function scanDraw(){
+  const cv = $('scanCv');
+  if(!scanImgEl){ cv.width = 10; cv.height = 10; return; }
+  scanRead();
+  const maxW = Math.min(window.innerWidth - 40, 720);
+  const sc = maxW / scanImgEl.width;
+  cv.width = Math.round(maxW);
+  cv.height = Math.round(scanImgEl.height * sc);
+  const g = cv.getContext('2d');
+  g.drawImage(scanImgEl, 0, 0, cv.width, cv.height);
+  const y0 = cv.height*scanCfg.top/100, y1 = cv.height*scanCfg.bottom/100;
+  const x0 = cv.width*scanCfg.left/100, x1 = cv.width*scanCfg.right/100;
+  g.strokeStyle = '#39d353'; g.lineWidth = 3;
+  g.strokeRect(x0, y0, x1-x0, y1-y0);
+  g.strokeStyle = 'rgba(255,180,0,.95)'; g.lineWidth = 2;
+  for(let i=1;i<scanCfg.rows;i++){
+    const y = y0 + (y1-y0)*i/scanCfg.rows;
+    g.beginPath(); g.moveTo(x0,y); g.lineTo(x1,y); g.stroke();
+  }
+}
+function scanSlices(){
+  scanRead();
+  const y0 = scanImgEl.height*scanCfg.top/100, y1 = scanImgEl.height*scanCfg.bottom/100;
+  const x0 = scanImgEl.width*scanCfg.left/100, x1 = scanImgEl.width*scanCfg.right/100;
+  const h = (y1-y0)/scanCfg.rows, w = x1-x0;
+  const OUT_W = 360, out = [];
+  for(let i=0;i<scanCfg.rows;i++){
+    const c = document.createElement('canvas');
+    const s = Math.min(1, OUT_W/w);
+    c.width = Math.max(1, Math.round(w*s));
+    c.height = Math.max(1, Math.round(h*s));
+    const g = c.getContext('2d');
+    g.fillStyle = '#fff'; g.fillRect(0,0,c.width,c.height);
+    g.drawImage(scanImgEl, x0, y0+h*i, w, h, 0, 0, c.width, c.height);
+    out.push(c.toDataURL('image/jpeg', 0.65));
+  }
+  return out;
+}
+function scanApply(mode){
+  if(!scanImgEl){ $('scanMsg').textContent = t('scanNoImg'); return; }
+  const slices = scanSlices();
+  if(mode === 'new'){
+    slices.forEach(src => cfg.rb.push({km:'', s:'', n:'', img:src}));
+  } else {
+    let j = 0;
+    for(let i=0;i<cfg.rb.length && j<slices.length;i++) cfg.rb[i].img = slices[j++];
+  }
+  const ok = saveCfg();
+  rbPassedIdx = null;
+  radShownIdx = -2;
+  buildRbTable();
+  $('scanMsg').textContent = ok ? slices.length + ' ' + t('scanDoneMsg') : t('storeFull');
+}
+$('openScan').addEventListener('click', ()=>{
+  $('scanMsg').textContent = '';
+  $('scanMenu').classList.add('open');
+  scanDraw();
+});
+$('scanPick').addEventListener('click', ()=> $('scanFile').click());
+$('scanFile').addEventListener('change', e=>{
+  const f = e.target.files && e.target.files[0];
+  if(!f) return;
+  const fr = new FileReader();
+  fr.onload = ()=>{
+    const im = new Image();
+    im.onload = ()=>{ scanImgEl = im; scanDraw(); };
+    im.src = fr.result;
+  };
+  fr.readAsDataURL(f);
+});
+['scRows','scTop','scBottom','scLeft','scRight'].forEach(id=>{
+  $(id).addEventListener('input', scanDraw);
+});
+$('scanNew').addEventListener('click', ()=> scanApply('new'));
+$('scanAssign').addEventListener('click', ()=> scanApply('assign'));
+$('closeScan').addEventListener('click', ()=>{
+  saveCfg();
+  $('scanMenu').classList.remove('open');
+});
+window.addEventListener('orientationchange', ()=> setTimeout(scanDraw, 300));
 
 /* ================= SCHERMO SEMPRE ACCESO ================= */
 let wakeLock = null;
