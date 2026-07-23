@@ -1,0 +1,1862 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rally Trip">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Orbitron:wght@600;800&family=Share+Tech+Mono&display=swap">
+<title>Rally Trip</title>
+<style>
+  :root{
+    --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+    --bg:#000;
+    --panel:#111417;
+    --line:#2a2f36;
+    --amber:#ffb400;
+    --amber-dim:#8a6200;
+    --green:#39d353;
+    --blue:#3b9dff;
+    --red:#ff4d4d;
+    --text:#f2f4f7;
+    --muted:#8b949e;
+    --btnbg:rgba(255,255,255,.06);
+    --inputbg:#1a1f25;
+  }
+  body[data-theme="light"]{
+    --bg:#f4f5f7;
+    --panel:#ffffff;
+    --line:#c9ced6;
+    --amber:#b36b00;
+    --amber-dim:#d8b26e;
+    --green:#178c3b;
+    --blue:#0b6bd6;
+    --red:#d62828;
+    --text:#14171c;
+    --muted:#5c6670;
+    --btnbg:rgba(0,0,0,.05);
+    --inputbg:#eef0f3;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{--numscale:1}
+  body[data-numsize="0"]{--numscale:.85}
+  body[data-numsize="2"]{--numscale:1.2}
+  body[data-numfont="share"]{--mono:'Share Tech Mono',ui-monospace,Menlo,Consolas,monospace}
+  body[data-numfont="orbitron"]{--mono:'Orbitron',ui-monospace,Menlo,Consolas,monospace}
+  body[data-numfont="system"]{--mono:ui-monospace,Menlo,Consolas,monospace}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:system-ui,-apple-system,sans-serif;
+    overflow:hidden;
+    user-select:none;-webkit-user-select:none;
+  }
+
+  #statusbar{
+    position:fixed;top:0;left:0;right:0;z-index:3;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:6px 12px;font-size:12px;color:var(--muted);
+    padding-top:max(6px, env(safe-area-inset-top));
+  }
+  #clock{
+    font-family:var(--mono);
+    font-size:18px;font-weight:700;color:var(--text);
+    font-variant-numeric:tabular-nums;letter-spacing:.05em;
+  }
+  #gpsdot{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--red);vertical-align:middle}
+  #gpsdot.g{background:var(--green)}
+  #gpsdot.b{background:var(--blue)}
+  #gpsdot.r{background:var(--red)}
+  #btnInfo{
+    background:var(--btnbg);border:1px solid var(--line);color:var(--muted);
+    border-radius:50%;width:22px;height:22px;font-size:12px;margin-left:8px;vertical-align:middle;
+  }
+  #btnMenu{background:var(--btnbg);border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:4px 12px;font-size:16px}
+  #btnArr{
+    display:none;
+    background:var(--btnbg);border:1px solid var(--line);color:var(--muted);
+    border-radius:6px;padding:4px 10px;font-size:16px;margin-right:8px;
+  }
+  @media (orientation:landscape){
+    body[data-mode="radar"] #btnArr{display:inline-block}
+  }
+
+  #legend{
+    position:fixed;top:56px;left:10px;z-index:9;
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:12px 16px;font-size:13px;display:none;max-width:280px;line-height:1.6;
+  }
+  #legend.open{display:block}
+  #legend b{display:block;margin-bottom:4px;color:var(--text)}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+
+  /* ====== LAYOUT PILOTA ====== */
+  #app{
+    display:grid;
+    height:100dvh;
+    padding-top:calc(34px + env(safe-area-inset-top));
+    grid-template-columns:1.2fr 1fr;
+    grid-template-rows:1fr 1fr;
+    grid-template-areas:
+      "word total"
+      "word partial";
+  }
+  @media (orientation:portrait){
+    #app{
+      grid-template-columns:1fr;
+      grid-template-rows:1fr 1fr 2fr;
+      grid-template-areas:
+        "total"
+        "partial"
+        "word";
+    }
+  }
+  #zoneSpeed{display:none}
+  #zoneRadar{display:none}
+
+  /* ====== LAYOUT NAVIGATORE / TRIP ====== */
+  body[data-mode="nav"] #app{
+    grid-template-columns:1.3fr 1fr;
+    grid-template-rows:1fr 1fr;
+    grid-template-areas:
+      "partial total"
+      "partial speed";
+  }
+  @media (orientation:portrait){
+    body[data-mode="nav"] #app{
+      grid-template-columns:1fr;
+      grid-template-rows:1.7fr 1fr 0.8fr;
+      grid-template-areas:
+        "partial"
+        "total"
+        "speed";
+    }
+  }
+  body[data-mode="nav"] #zoneWord{display:none}
+  body[data-mode="nav"] #zoneSpeed{display:flex}
+  body[data-mode="nav"] #zonePartial{cursor:pointer}
+  body[data-mode="nav"] #partialVal{
+    font-size:calc(clamp(76px,17vw,200px) * var(--numscale));
+    color:var(--text);
+  }
+  body[data-mode="nav"] #totalVal{
+    font-size:calc(clamp(48px,11vw,120px) * var(--numscale));
+  }
+
+  /* ====== LAYOUT RADAR ====== */
+  body[data-mode="radar"] #app{
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:minmax(0,1fr) auto minmax(0,1fr);
+    grid-template-areas:
+      "radar radar"
+      "badge badge"
+      "partial total";
+  }
+  @media (orientation:portrait){
+    body[data-mode="radar"] #app{
+      grid-template-columns:1fr;
+      grid-template-rows:minmax(0,1.3fr) auto minmax(0,0.65fr) minmax(0,0.65fr);
+      grid-template-areas:
+        "radar"
+        "badge"
+        "partial"
+        "total";
+    }
+  }
+  body[data-mode="radar"] #zoneWord{display:none}
+  body[data-mode="radar"] #zoneRadar{display:flex}
+  body[data-mode="radar"] #zonePartial{cursor:pointer}
+  body[data-mode="radar"] #partialVal,
+  body[data-mode="radar"] #totalVal{
+    font-size:calc(clamp(40px,10vw,92px) * var(--numscale));
+  }
+  body[data-mode="radar"] #partialVal{color:var(--text)}
+
+  /* disposizioni alternative in orizzontale */
+  @media (orientation:landscape){
+    body[data-mode="radar"][data-arr="left"] #app{
+      grid-template-columns:1.5fr 1fr;
+      grid-template-rows:auto minmax(0,1fr) minmax(0,1fr);
+      grid-template-areas:
+        "radar badge"
+        "radar partial"
+        "radar total";
+    }
+    body[data-mode="radar"][data-arr="right"] #app{
+      grid-template-columns:1fr 1.5fr;
+      grid-template-rows:auto minmax(0,1fr) minmax(0,1fr);
+      grid-template-areas:
+        "badge radar"
+        "partial radar"
+        "total radar";
+    }
+    body[data-mode="radar"][data-arr="left"] #zoneRadar,
+    body[data-mode="radar"][data-arr="right"] #zoneRadar{
+      flex-direction:column;flex-wrap:nowrap;gap:8px;
+    }
+    /* nelle disposizioni laterali dimensiona sull'altezza per non tagliare nulla */
+    body[data-mode="radar"][data-arr="left"] #radSym,
+    body[data-mode="radar"][data-arr="right"] #radSym{
+      font-size:clamp(40px,18vh,96px);
+    }
+    body[data-mode="radar"][data-arr="left"] #radNote,
+    body[data-mode="radar"][data-arr="right"] #radNote{
+      font-size:clamp(14px,4.6vh,26px);
+      max-height:3.2em;
+    }
+    body[data-mode="radar"][data-arr="left"] #radDist,
+    body[data-mode="radar"][data-arr="right"] #radDist{
+      font-size:calc(clamp(34px,12vh,78px) * var(--numscale));
+    }
+  }
+
+  body[data-mode="nav"] .zlabel,
+  body[data-mode="radar"] .zlabel{
+    left:12px;right:auto;top:10px;
+    background:var(--btnbg);
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:5px 10px;
+    font-size:11px;
+    color:var(--text);
+  }
+  #ssBadge{
+    grid-area:badge;
+    display:none;
+    justify-self:end;
+    margin:2px 14px 0;
+    background:var(--green);color:#000;
+    border-radius:8px;padding:5px 12px;
+    font-size:12px;font-weight:800;letter-spacing:.03em;
+    max-width:80%;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  body[data-mode="radar"] #ssBadge.show{display:block}
+
+  .zone{
+    display:flex;flex-direction:column;justify-content:center;align-items:center;
+    border:1px solid var(--line);
+    border-radius:18px;
+    margin:8px;
+    background:var(--panel);
+    position:relative;
+    overflow:hidden;
+  }
+  .zlabel{
+    position:absolute;top:10px;left:14px;right:14px;
+    font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);
+  }
+  .unit{font-size:14px;color:var(--muted);margin-top:2px;letter-spacing:.1em}
+
+  #zoneTotal{grid-area:total;cursor:pointer}
+  #holdBar{
+    position:absolute;left:0;bottom:0;height:6px;width:0;
+    background:var(--red);border-radius:0 3px 3px 0;
+  }
+  #toast{
+    position:fixed;left:50%;bottom:calc(26px + env(safe-area-inset-bottom));
+    transform:translateX(-50%) translateY(16px);
+    background:var(--green);color:#000;
+    border-radius:999px;padding:8px 18px;
+    font-size:14px;font-weight:800;z-index:8;
+    opacity:0;pointer-events:none;
+    transition:opacity .25s, transform .25s;
+    max-width:86vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  #totalVal{
+    font-family:var(--mono);
+    font-size:calc(clamp(40px,9vw,92px) * var(--numscale));font-weight:700;
+    font-variant-numeric:tabular-nums;line-height:1;
+  }
+
+  #zonePartial{grid-area:partial}
+  #partialVal{
+    font-family:var(--mono);
+    font-size:calc(clamp(44px,10vw,100px) * var(--numscale));font-weight:800;
+    font-variant-numeric:tabular-nums;line-height:1;
+    color:var(--amber);
+  }
+  #zonePartial.stopped #partialVal{color:var(--amber-dim)}
+  body[data-mode="nav"] #zonePartial.stopped #partialVal,
+  body[data-mode="radar"] #zonePartial.stopped #partialVal{color:var(--text)}
+
+  #zoneSpeed{grid-area:speed}
+  #speedVal{
+    font-family:var(--mono);
+    font-size:calc(clamp(48px,11vw,120px) * var(--numscale));font-weight:800;
+    font-variant-numeric:tabular-nums;line-height:1;
+    color:var(--blue);
+  }
+
+  /* zona radar: riga orizzontale, solo testo, senza bordo né pannello */
+  #zoneRadar{
+    grid-area:radar;
+    flex-direction:row;flex-wrap:wrap;
+    justify-content:center;align-items:center;
+    gap:6px 16px;
+    border:none;background:none;
+    text-align:center;padding:0 14px;
+  }
+  #radNum{
+    display:inline-block;
+    background:var(--green);color:#000;
+    border-radius:8px;padding:2px 12px;
+    font-size:clamp(16px,4vw,26px);font-weight:800;
+    font-family:var(--mono);
+    flex-shrink:0;
+  }
+  #radSym{
+    font-size:clamp(54px,13vw,120px);line-height:1;
+    flex-shrink:0;
+  }
+  #radNote{
+    color:var(--text);
+    font-size:clamp(20px,5vw,40px);font-weight:800;
+    text-transform:uppercase;word-break:break-word;
+    max-width:100%;
+  }
+  #radDist{
+    font-family:var(--mono);
+    font-size:calc(clamp(48px,12vw,100px) * var(--numscale));font-weight:800;color:var(--green);
+    font-variant-numeric:tabular-nums;
+    flex-shrink:0;
+  }
+  #radDist.near{color:var(--red)}
+
+  #zoneWord{grid-area:word;cursor:pointer}
+  #wordVal{
+    font-size:calc(clamp(64px,15vw,170px) * var(--numscale));
+    font-weight:900;line-height:1;
+    text-align:center;
+    color:var(--green);
+    text-transform:uppercase;
+    word-break:break-word;
+    padding:0 10px;
+  }
+  #wordVal.numeric{
+    font-family:var(--mono);
+    color:var(--amber);
+    font-variant-numeric:tabular-nums;
+  }
+  #zoneWord.stopped #wordVal.numeric{color:var(--amber-dim)}
+  #wordState{
+    position:absolute;bottom:12px;
+    font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);
+  }
+  #wordState.run{color:var(--green)}
+
+  /* ====== DRAWER ====== */
+  #drawerBg{
+    position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:11;
+    display:none;
+  }
+  #drawerBg.open{display:block}
+  #drawer{
+    position:fixed;top:0;right:0;bottom:0;width:min(300px,85vw);z-index:12;
+    background:var(--panel);border-left:1px solid var(--line);
+    transform:translateX(105%);transition:transform .25s ease;
+    display:flex;flex-direction:column;padding:22px 20px;
+    padding-top:max(22px, env(safe-area-inset-top));
+    overflow-y:auto;-webkit-overflow-scrolling:touch;
+  }
+  #drawer.open{transform:translateX(0)}
+  #drawer h2{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-weight:600}
+  .drawer-item{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    background:none;border:none;border-bottom:1px solid var(--line);
+    color:var(--text);
+    padding:17px 2px;font-size:16px;font-weight:600;letter-spacing:.02em;
+    text-align:left;width:100%;
+  }
+  .drawer-item .di-tag{
+    font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--green);display:none;flex-shrink:0;
+  }
+  .drawer-item.active{color:var(--amber)}
+  .drawer-item.active .di-tag{display:inline}
+  .dsep{height:26px;flex-shrink:0}
+
+  /* ====== OVERLAY ====== */
+  .overlay{
+    position:fixed;inset:0;background:var(--bg);z-index:13;
+    display:none;flex-direction:column;padding:18px;overflow-y:auto;
+    padding-top:max(18px, env(safe-area-inset-top));
+  }
+  .overlay.open{display:flex}
+  .overlay h2{font-size:17px;letter-spacing:.15em;text-transform:uppercase;color:var(--amber);margin-bottom:10px}
+  .overlay h3{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:18px 0 8px}
+  .overlay p{font-size:14px;color:var(--text);margin-bottom:10px;line-height:1.5}
+  .overlay p.small{font-size:13px;color:var(--muted)}
+  .okbtn{
+    background:var(--amber);color:#fff;border:none;width:100%;
+    padding:15px;border-radius:10px;font-size:16px;font-weight:700;margin-top:auto;
+  }
+  body[data-theme="dark"] .okbtn{color:#000}
+  .chk{display:flex;align-items:center;gap:10px;font-size:14px;margin:14px 0}
+  .chk input{width:22px;height:22px}
+  .grow{display:flex;gap:12px;align-items:flex-start;margin-bottom:16px}
+  .gbadge{
+    flex-shrink:0;min-width:92px;text-align:center;
+    background:var(--inputbg);border:1px solid var(--line);color:var(--green);
+    border-radius:8px;padding:7px 10px;
+    font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+    font-family:var(--mono);
+  }
+  .grow p{margin:0;font-size:14px;line-height:1.55}
+
+  table{width:100%;border-collapse:collapse;margin-bottom:14px}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);text-align:left;padding:6px 3px}
+  td{padding:3px}
+  td input, td select{
+    width:100%;padding:10px 8px;background:var(--inputbg);border:1px solid var(--line);
+    border-radius:8px;color:var(--text);font-size:16px;
+  }
+  td select{font-size:20px;padding:8px 4px}
+  td button{background:none;border:none;color:var(--red);font-size:20px;padding:6px}
+  .rowbtns{display:flex;gap:10px;margin-bottom:8px}
+  .rowbtns button{
+    flex:1;padding:14px;border-radius:10px;font-size:15px;font-weight:600;
+    background:var(--panel);border:1px solid var(--line);color:var(--text);
+  }
+  .setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;font-size:14px}
+  .setting-row select{padding:10px;background:var(--inputbg);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:15px}
+  .setting-row input[type=checkbox]{width:24px;height:24px}
+
+  #rbImport{
+    width:100%;min-height:110px;
+    background:var(--inputbg);border:1px solid var(--line);border-radius:10px;
+    color:var(--text);font-size:14px;padding:10px;
+    font-family:var(--mono);
+    margin-bottom:8px;
+  }
+  #rbImportBtn{
+    width:100%;padding:13px;border-radius:10px;font-size:15px;font-weight:700;
+    background:var(--btnbg);border:2px solid var(--green);color:var(--green);
+    margin-bottom:6px;
+  }
+  #rbImportMsg{font-size:13px;color:var(--green);margin-bottom:8px;min-height:18px}
+
+  #ssBar{display:flex;gap:8px;margin-bottom:8px}
+  #ssName{
+    flex:1;padding:12px;background:var(--inputbg);border:1px solid var(--line);
+    border-radius:8px;color:var(--text);font-size:15px;
+  }
+  #ssSave{
+    padding:12px 14px;border-radius:8px;background:var(--btnbg);
+    border:2px solid var(--amber);color:var(--amber);font-weight:700;font-size:14px;
+  }
+  #ssMsg{font-size:13px;color:var(--green);min-height:18px;margin-bottom:6px}
+  .ss-row{
+    display:flex;align-items:center;gap:8px;
+    background:var(--btnbg);border:1px solid var(--line);border-radius:10px;
+    padding:10px 12px;margin-bottom:8px;
+  }
+  .ss-row .ss-name{flex:1;font-size:15px;font-weight:600;word-break:break-word}
+  .ss-row button{
+    background:none;border:1px solid var(--line);color:var(--text);
+    border-radius:8px;padding:8px 12px;font-size:13px;
+  }
+  .ss-row button.del{color:var(--red);border:none;font-size:18px;padding:6px}
+  #ssEmpty{font-size:13px;color:var(--muted);margin-bottom:8px}
+
+  #flash{
+    position:fixed;inset:0;background:rgba(255,180,0,.18);z-index:5;
+    opacity:0;pointer-events:none;transition:opacity .3s;
+  }
+</style>
+</head>
+<body data-mode="pilot" data-theme="dark">
+
+<div id="statusbar">
+  <span><span id="gpsdot" class="r"></span><button id="btnInfo">i</button></span>
+  <span id="clock">--:--:--</span>
+  <span><button id="btnArr">⇄</button><button id="btnMenu">☰</button></span>
+</div>
+
+<div id="legend">
+  <b data-t="legTitle"></b>
+  <span class="dot" style="background:var(--green)"></span><span data-t="legGreen"></span><br>
+  <span class="dot" style="background:var(--blue)"></span><span data-t="legBlue"></span><br>
+  <span class="dot" style="background:var(--red)"></span><span data-t="legRed"></span>
+</div>
+
+<div id="app">
+  <div class="zone" id="zoneWord">
+    <span class="zlabel" data-t="wordShort"></span>
+    <div id="wordVal" class="numeric">0</div>
+    <div id="wordState"></div>
+  </div>
+
+  <div class="zone" id="zoneRadar">
+    <span id="radNum"></span>
+    <div id="radSym">—</div>
+    <div id="radNote"></div>
+    <div id="radDist"></div>
+  </div>
+
+  <span id="ssBadge"></span>
+
+  <div class="zone" id="zoneTotal">
+    <span class="zlabel" data-t="totalShort"></span>
+    <div id="totalVal">0,00</div>
+    <div class="unit" id="totalUnit">km</div>
+    <div id="holdBar"></div>
+  </div>
+
+  <div class="zone stopped" id="zonePartial">
+    <span class="zlabel" id="partialLbl" data-t="partialLabel"></span>
+    <div id="partialVal">0</div>
+    <div class="unit" id="partialUnit">m</div>
+  </div>
+
+  <div class="zone" id="zoneSpeed">
+    <span class="zlabel" data-t="speedLabel"></span>
+    <div id="speedVal">0</div>
+    <div class="unit" id="speedUnit">km/h</div>
+  </div>
+</div>
+
+<div id="flash"></div>
+<div id="toast"></div>
+
+<!-- ============ MENU LATERALE ============ -->
+<div id="drawerBg"></div>
+<div id="drawer">
+  <h2 data-t="drawerTitle"></h2>
+  <button class="drawer-item" id="drvPilot"><span data-t="drvPilot"></span><span class="di-tag" data-t="activeTag"></span></button>
+  <button class="drawer-item" id="drvTrip"><span data-t="navTrip"></span><span class="di-tag" data-t="activeTag"></span></button>
+  <button class="drawer-item" id="drvRadar"><span>Radar</span><span class="di-tag" data-t="activeTag"></span></button>
+  <div class="dsep"></div>
+  <button class="drawer-item" id="drvWords"><span data-t="wordsTitle"></span></button>
+  <button class="drawer-item" id="drvRb"><span data-t="navRadar"></span></button>
+  <button class="drawer-item" id="drvSet"><span data-t="drvSet"></span></button>
+  <button class="drawer-item" id="drvInfo"><span data-t="guideMenu"></span></button>
+</div>
+
+<!-- ============ GUIDA ============ -->
+<div class="overlay" id="intro">
+  <h2 data-t="introTitle"></h2>
+  <div class="grow"><span class="gbadge" data-t="totalShort"></span><p data-t="gTotal"></p></div>
+  <div class="grow"><span class="gbadge" data-t="partialLabel"></span><p data-t="gPartial"></p></div>
+  <div class="grow"><span class="gbadge">➡️ <span data-t="thNote"></span></span><p data-t="gNote"></p></div>
+  <div class="grow"><span class="gbadge">Radar</span><p data-t="gRb"></p></div>
+  <div class="grow"><span class="gbadge" data-t="tunnelLabel"></span><p data-t="gTunnel"></p></div>
+  <div class="grow"><span class="gbadge">GPS</span><p data-t="intro4"></p></div>
+  <div class="grow"><span class="gbadge">☰ <span data-t="drawerTitle"></span></span><p data-t="gMenu"></p></div>
+  <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
+  <button class="okbtn" id="closeIntro" data-t="gOk"></button>
+</div>
+
+<!-- ============ MENU PILOTA (tabella parole) ============ -->
+<div class="overlay" id="pilotMenu">
+  <h2 data-t="pmTitle"></h2>
+
+  <h3 data-t="wordsTitle"></h3>
+  <p class="small" data-t="setDesc"></p>
+  <table>
+    <thead><tr><th style="width:26%" data-t="thFrom"></th><th style="width:26%" data-t="thTo"></th><th data-t="thWord"></th><th></th></tr></thead>
+    <tbody id="tblBody"></tbody>
+  </table>
+  <div class="rowbtns">
+    <button id="addRow" data-t="addRow"></button>
+  </div>
+  <div class="setting-row">
+    <span data-t="speakLabel"></span>
+    <input type="checkbox" id="speakToggle">
+  </div>
+
+  <button class="okbtn" id="closePilot" data-t="close"></button>
+</div>
+
+<!-- ============ MENU RADAR (editor road book) ============ -->
+<div class="overlay" id="navMenu">
+  <h2 data-t="nmTitle"></h2>
+
+  <h3 data-t="ssTitle"></h3>
+  <div id="ssBar">
+    <input type="text" id="ssName">
+    <button id="ssSave" data-t="ssSave"></button>
+  </div>
+  <div id="ssMsg"></div>
+  <div id="ssList"></div>
+  <div id="ssEmpty" data-t="ssEmpty"></div>
+
+  <h3 data-t="rbImpTitle"></h3>
+  <p class="small" data-t="rbImpDesc"></p>
+  <textarea id="rbImport" placeholder="0,00 ; controllo ; T.C. 0&#10;0,22 ; rotonda terza uscita ; Via Campo Sportivo&#10;0,52 ; incrocio sinistra ; Autostrada Montecatini"></textarea>
+  <button id="rbImportBtn" data-t="rbImpBtn"></button>
+  <div id="rbImportMsg"></div>
+
+  <h3 data-t="rbTitle"></h3>
+  <p class="small" data-t="rbDesc"></p>
+  <table>
+    <thead><tr><th style="width:26%" data-t="thDist"></th><th style="width:22%" data-t="thSym"></th><th data-t="thNote"></th><th></th></tr></thead>
+    <tbody id="rbBody"></tbody>
+  </table>
+  <div class="rowbtns">
+    <button id="rbAddRow" data-t="addRow"></button>
+    <button id="rbClear" data-t="rbClear" style="color:var(--red)"></button>
+  </div>
+
+  <button class="okbtn" id="closeNav" data-t="close"></button>
+</div>
+
+<!-- ============ IMPOSTAZIONI GENERALI ============ -->
+<div class="overlay" id="genMenu">
+  <h2 data-t="gsTitle"></h2>
+
+  <div class="setting-row">
+    <span data-t="langLabel"></span>
+    <select id="langSel">
+      <option value="it">Italiano</option>
+      <option value="en">English</option>
+      <option value="fr">Français</option>
+      <option value="es">Español</option>
+      <option value="de">Deutsch</option>
+      <option value="pt">Português</option>
+      <option value="ja">日本語</option>
+      <option value="cs">Čeština</option>
+    </select>
+  </div>
+  <div class="setting-row">
+    <span data-t="unitLabel"></span>
+    <select id="unitSel">
+      <option value="metric">km · km/h</option>
+      <option value="imperial">mi · mph</option>
+    </select>
+  </div>
+  <div class="setting-row">
+    <span data-t="numLabel"></span>
+    <select id="numSel">
+      <option value="0" data-t="numSmall"></option>
+      <option value="1" data-t="numNormal"></option>
+      <option value="2" data-t="numLarge"></option>
+    </select>
+  </div>
+  <div class="setting-row">
+    <span data-t="fontLabel"></span>
+    <select id="fontSel">
+      <option value="jb">JetBrains Mono</option>
+      <option value="share">Share Tech Mono</option>
+      <option value="orbitron">Orbitron</option>
+      <option value="system">System</option>
+    </select>
+  </div>
+  <div class="setting-row">
+    <span data-t="timeLabel"></span>
+    <select id="timeSel">
+      <option value="24" data-t="time24"></option>
+      <option value="12" data-t="time12"></option>
+    </select>
+  </div>
+  <div class="setting-row">
+    <span data-t="themeLabel"></span>
+    <select id="themeSel">
+      <option value="dark" data-t="themeDark"></option>
+      <option value="light" data-t="themeLight"></option>
+    </select>
+  </div>
+
+  <button class="okbtn" id="closeGen" data-t="close"></button>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ================= TRADUZIONI ================= */
+const T = {
+it:{introTitle:"Come funziona",
+  intro1:"In alto c'è l'orologio e la distanza TOTALE: tienila premuta 2 secondi per azzerarla.",
+  intro2:"MODALITÀ PILOTA: parziale in metri con start-stop (tocca la zona grande o premi il tasto Bluetooth). Nella tabella puoi impostare parole che appaiono in certi intervalli di metri.",
+  intro5:"MODALITÀ NAVIGATORE: il parziale conta sempre — ogni tocco lo azzera. In più puoi caricare il radar: 50 m prima di ogni riferimento appare il simbolo con la nota.",
+  intro3:"Apri il menu (☰): scegli la modalità (Pilota, Trip, Radar) e sotto trovi tabella parole, radar e impostazioni.",
+  intro4:"Puntino GPS: verde = ottimo (<6 m) · blu = buono (6–10 m) · rosso = debole (>10 m).",
+  dontShow:"Non mostrare più all'avvio",start:"Inizia",
+  guideMenu:"Guida",gOk:"Ho capito",
+  gTotal:"Distanza totale della prova. Tieni premuto 2 secondi sul riquadro per azzerare (la barra rossa indica l'avanzamento della pressione).",
+  gPartial:"Distanza dall'ultima nota. Tocca una volta il riquadro per azzerare. In modalità Radar si azzera da solo a ogni nota superata.",
+  gNote:"In modalità Radar: numero della nota, simbolo, testo e km mancanti alla prossima nota del roadbook.",
+  gRb:"Da menu → Inserisci radar aggiungi le note a mano (km totali, simbolo, nota) oppure incolla il testo nel formato km_totali ; tipo ; nota e premi Importa: simboli e note vengono riconosciuti da soli. Salva ogni prova con un nome per ricaricarla al volo.",
+  gTunnel:"Sempre attiva: senza segnale GPS (gallerie) l'app continua a contare con l'ultima velocità nota per massimo 60 secondi, poi si ferma.",
+  gMenu:"Dal menu scegli la modalità: Pilota (start-stop con parole), Trip (contachilometri e velocità) o Radar (note del roadbook). Da lì riapri anche questa guida.",
+  totalShort:"Totale",wordShort:"Parola / Parziale",
+  totalResetMsg:"Totale azzerato",partialResetMsg:"Parziale azzerato",
+  editLayout:"Modifica layout",editArr:"Disposizione",editReset:"Ripristina",editDone:"Fine",
+  editHint:"Tocca un riquadro per cambiarne la grandezza · Disposizione cambia lo schema in orizzontale",
+  totalLabel:"Totale · tieni premuto 2s per azzerare",partialLabel:"Parziale",
+  navPartialLabel:"Parziale · tocca per azzerare",
+  wordLabel:"Parola / Parziale · tocca per start-stop",
+  speedLabel:"Velocità",
+  ready:"Pronto",running:"In misurazione…",stopped:"Fermo — premi per ripartire da 0",
+  drawerTitle:"Menu",drvPilot:"Pilota",drvNav:"Navigatore",drvSet:"Impostazioni generali",
+  activeTag:"Attiva",
+  navTrip:"Trip",navRadar:"Inserisci radar",
+  pmTitle:"Pilota",actPilot:"Usa modalità Pilota",
+  wordsTitle:"Tabella parole",
+  setDesc:"La parola appare quando il parziale è tra i due valori (Da incluso, A escluso). Lascia vuoto \"A\" per non avere limite.",
+  thFrom:"Da (m)",thTo:"A (m)",thWord:"Parola",addRow:"+ Aggiungi riga",
+  speakLabel:"Leggi la parola a voce",
+  nmTitle:"Radar",
+  ssTitle:"Prove speciali salvate",
+  ssNamePh:"Nome prova (es. PS1 Larciano)",
+  ssSave:"Salva",ssLoad:"Carica",
+  ssEmpty:"Nessuna prova salvata",
+  ssSavedMsg:"Prova salvata",ssLoadedMsg:"Prova caricata",ssNoName:"Scrivi un nome per la prova",
+  rbImpTitle:"Importa radar",
+  rbImpDesc:"Fotografa la pagina del radar e falla trascrivere a un'AI (es. Claude) nel formato: km_totali ; tipo ; nota (una riga per riferimento). Incolla qui il testo e premi Importa.",
+  rbImpBtn:"Importa",
+  rbImpOk:"riferimenti importati",
+  rbImpErr:"Nessuna riga valida trovata",
+  rbTitle:"Radar (road book)",
+  rbDesc:"Km totali come stampati sul radar (es. 0,52). Azzera il TOTALE alla partenza del percorso: 50 m prima di ogni riferimento apparirà l'avviso a schermo.",
+  thDist:"Km totali",thSym:"Simbolo",thNote:"Nota",
+  rbClear:"Svuota tutto",
+  autoResetLabel:"Azzeramento automatico del parziale",
+  autoResetSmall:"Superato ogni riferimento del radar, il parziale riparte da zero (come la colonna parziali)",
+  gsTitle:"Impostazioni generali",
+  langLabel:"Lingua",unitLabel:"Unità di misura",
+  fontLabel:"Stile numeri",numLabel:"Grandezza numeri",numSmall:"Piccoli",numNormal:"Normali",numLarge:"Grandi",
+  timeLabel:"Formato orario",time24:"24 ore",time12:"12 ore",
+  themeLabel:"Tema",themeDark:"Scuro",themeLight:"Chiaro",
+  tunnelLabel:"Modalità galleria",tunnelSmall:"Senza segnale GPS continua a contare con l'ultima velocità (max 60 s)",
+  close:"Chiudi e salva",
+  legTitle:"Segnale GPS",legGreen:"Verde: ottimo (meno di 6 m)",legBlue:"Blu: buono (6–10 m)",legRed:"Rosso: debole (oltre 10 m)"},
+en:{introTitle:"How it works",
+  intro1:"At the top: the clock and the TOTAL distance — hold it for 2 seconds to reset.",
+  intro2:"DRIVER MODE: partial in metres with start-stop (tap the big area or press your Bluetooth button). In the table you can set words that appear within metre ranges.",
+  intro5:"CO-DRIVER MODE: the partial always counts — each tap resets it. You can also load the road book: 50 m before each reference the symbol and note appear.",
+  intro3:"Open the menu (☰): pick the mode (Driver, Trip, Radar) and below you'll find the word table, road book and settings.",
+  intro4:"GPS dot: green = excellent (<6 m) · blue = good (6–10 m) · red = weak (>10 m).",
+  dontShow:"Don't show again at startup",start:"Start",
+  guideMenu:"Guide",gOk:"Got it",
+  gTotal:"Total stage distance. Hold the box for 2 seconds to reset (the red bar shows the press progress).",
+  gPartial:"Distance from the last note. Tap the box once to reset. In Radar mode it resets automatically at every note you pass.",
+  gNote:"In Radar mode: note number, symbol, text and km left to the next road book note.",
+  gRb:"From menu → Enter road book add notes by hand (total km, symbol, note) or paste text in the format total_km ; type ; note and press Import: symbols and notes are recognised automatically. Save each stage with a name to reload it instantly.",
+  gTunnel:"Always on: without GPS signal (tunnels) the app keeps counting at the last known speed for up to 60 seconds, then stops.",
+  gMenu:"From the menu pick the mode: Driver (start-stop with words), Trip (odometer and speed) or Radar (road book notes). You can also reopen this guide from there.",
+  totalShort:"Total",wordShort:"Word / Partial",
+  totalResetMsg:"Total reset",partialResetMsg:"Partial reset",
+  editLayout:"Edit layout",editArr:"Arrangement",editReset:"Reset",editDone:"Done",
+  editHint:"Tap a box to change its size · Arrangement changes the landscape scheme",
+  totalLabel:"Total · hold 2s to reset",partialLabel:"Partial",
+  navPartialLabel:"Partial · tap to reset",
+  wordLabel:"Word / Partial · tap to start-stop",
+  speedLabel:"Speed",
+  ready:"Ready",running:"Measuring…",stopped:"Stopped — press to restart from 0",
+  drawerTitle:"Menu",drvPilot:"Driver",drvNav:"Co-driver",drvSet:"General settings",
+  activeTag:"Active",
+  navTrip:"Trip",navRadar:"Enter road book",
+  pmTitle:"Driver",actPilot:"Use Driver mode",
+  wordsTitle:"Word table",
+  setDesc:"The word shows when the partial is between the two values (From included, To excluded). Leave \"To\" empty for no limit.",
+  thFrom:"From (m)",thTo:"To (m)",thWord:"Word",addRow:"+ Add row",
+  speakLabel:"Speak the word aloud",
+  nmTitle:"Road book",
+  ssTitle:"Saved special stages",
+  ssNamePh:"Stage name (e.g. SS1)",
+  ssSave:"Save",ssLoad:"Load",
+  ssEmpty:"No saved stages",
+  ssSavedMsg:"Stage saved",ssLoadedMsg:"Stage loaded",ssNoName:"Type a name for the stage",
+  rbImpTitle:"Import road book",
+  rbImpDesc:"Photograph the road book page and have an AI (e.g. Claude) transcribe it in the format: total_km ; type ; note (one line per reference). Paste the text here and press Import.",
+  rbImpBtn:"Import",
+  rbImpOk:"references imported",
+  rbImpErr:"No valid lines found",
+  rbTitle:"Road book",
+  rbDesc:"Total km as printed on the road book (e.g. 0.52). Reset the TOTAL at the route start: 50 m before each reference the alert will appear.",
+  thDist:"Total km",thSym:"Symbol",thNote:"Note",
+  rbClear:"Clear all",
+  autoResetLabel:"Automatic partial reset",
+  autoResetSmall:"After each road book reference the partial restarts from zero (matches the partial column)",
+  gsTitle:"General settings",
+  langLabel:"Language",unitLabel:"Units",
+  fontLabel:"Number style",numLabel:"Number size",numSmall:"Small",numNormal:"Normal",numLarge:"Large",
+  timeLabel:"Time format",time24:"24-hour",time12:"12-hour",
+  themeLabel:"Theme",themeDark:"Dark",themeLight:"Light",
+  tunnelLabel:"Tunnel mode",tunnelSmall:"Without GPS signal keeps counting at the last speed (max 60 s)",
+  close:"Save and close",
+  legTitle:"GPS signal",legGreen:"Green: excellent (under 6 m)",legBlue:"Blue: good (6–10 m)",legRed:"Red: weak (over 10 m)"},
+fr:{introTitle:"Comment ça marche",
+  intro1:"En haut : l'horloge et la distance TOTALE — maintenez 2 secondes pour remettre à zéro.",
+  intro2:"MODE PILOTE : partiel en mètres avec start-stop (touchez la grande zone ou le bouton Bluetooth). Dans le tableau, définissez des mots qui apparaissent dans certains intervalles.",
+  intro5:"MODE COPILOTE : le partiel compte toujours — chaque touche le remet à zéro. Vous pouvez aussi charger le road book : 50 m avant chaque repère, le symbole et la note s'affichent.",
+  intro3:"Ouvrez le menu (☰) : choisissez le mode (Pilote, Trip, Radar) et dessous vous trouvez le tableau des mots, le road book et les réglages.",
+  intro4:"Point GPS : vert = excellent (<6 m) · bleu = bon (6–10 m) · rouge = faible (>10 m).",
+  dontShow:"Ne plus afficher au démarrage",start:"Commencer",
+  guideMenu:"Guide",gOk:"Compris",
+  gTotal:"Distance totale de la spéciale. Maintenez la zone 2 secondes pour remettre à zéro (la barre rouge montre la progression).",
+  gPartial:"Distance depuis le dernier repère. Touchez la zone une fois pour remettre à zéro. En mode Radar, elle se remet à zéro à chaque repère franchi.",
+  gNote:"En mode Radar : numéro du repère, symbole, texte et km restants jusqu'au prochain repère du road book.",
+  gRb:"Depuis menu → Saisir le road book, ajoutez les repères à la main (km totaux, symbole, note) ou collez le texte au format km_totaux ; type ; note puis Importer : symboles et notes sont reconnus automatiquement. Enregistrez chaque spéciale sous un nom pour la recharger.",
+  gTunnel:"Toujours actif : sans signal GPS (tunnels) l'app continue de compter à la dernière vitesse connue pendant 60 s max, puis s'arrête.",
+  gMenu:"Depuis le menu, choisissez le mode : Pilote (start-stop avec mots), Trip (odomètre et vitesse) ou Radar (repères du road book). Vous pouvez aussi rouvrir ce guide.",
+  totalShort:"Total",wordShort:"Mot / Partiel",
+  totalResetMsg:"Total remis à zéro",partialResetMsg:"Partiel remis à zéro",
+  editLayout:"Modifier la disposition",editArr:"Schéma",editReset:"Réinitialiser",editDone:"Terminé",
+  editHint:"Touchez une zone pour changer sa taille · Schéma change la disposition en paysage",
+  totalLabel:"Total · maintenir 2s pour remettre à zéro",partialLabel:"Partiel",
+  navPartialLabel:"Partiel · toucher pour remettre à zéro",
+  wordLabel:"Mot / Partiel · toucher pour start-stop",
+  speedLabel:"Vitesse",
+  ready:"Prêt",running:"Mesure en cours…",stopped:"Arrêté — appuyez pour repartir de 0",
+  drawerTitle:"Menu",drvPilot:"Pilote",drvNav:"Copilote",drvSet:"Réglages généraux",
+  activeTag:"Actif",
+  navTrip:"Trip",navRadar:"Saisir le road book",
+  pmTitle:"Pilote",actPilot:"Utiliser le mode Pilote",
+  wordsTitle:"Tableau des mots",
+  setDesc:"Le mot s'affiche quand le partiel est entre les deux valeurs (De inclus, À exclu). Laissez \"À\" vide pour aucune limite.",
+  thFrom:"De (m)",thTo:"À (m)",thWord:"Mot",addRow:"+ Ajouter une ligne",
+  speakLabel:"Lire le mot à voix haute",
+  nmTitle:"Road book",
+  ssTitle:"Spéciales enregistrées",
+  ssNamePh:"Nom (ex. ES1)",
+  ssSave:"Enregistrer",ssLoad:"Charger",
+  ssEmpty:"Aucune spéciale enregistrée",
+  ssSavedMsg:"Spéciale enregistrée",ssLoadedMsg:"Spéciale chargée",ssNoName:"Saisissez un nom",
+  rbImpTitle:"Importer le road book",
+  rbImpDesc:"Photographiez la page du road book et faites-la transcrire par une IA (ex. Claude) au format : km_totaux ; type ; note (une ligne par repère). Collez le texte ici et appuyez sur Importer.",
+  rbImpBtn:"Importer",
+  rbImpOk:"repères importés",
+  rbImpErr:"Aucune ligne valide trouvée",
+  rbTitle:"Road book",
+  rbDesc:"Km totaux comme imprimés sur le road book (ex. 0,52). Remettez le TOTAL à zéro au départ : 50 m avant chaque repère, l'alerte apparaîtra.",
+  thDist:"Km totaux",thSym:"Symbole",thNote:"Note",
+  rbClear:"Tout effacer",
+  autoResetLabel:"Remise à zéro auto du partiel",
+  autoResetSmall:"Après chaque repère du road book, le partiel repart de zéro (colonne des partiels)",
+  gsTitle:"Réglages généraux",
+  langLabel:"Langue",unitLabel:"Unités",
+  fontLabel:"Style des chiffres",numLabel:"Taille des chiffres",numSmall:"Petits",numNormal:"Normaux",numLarge:"Grands",
+  timeLabel:"Format horaire",time24:"24 heures",time12:"12 heures",
+  themeLabel:"Thème",themeDark:"Sombre",themeLight:"Clair",
+  tunnelLabel:"Mode tunnel",tunnelSmall:"Sans signal GPS continue à compter à la dernière vitesse (max 60 s)",
+  close:"Enregistrer et fermer",
+  legTitle:"Signal GPS",legGreen:"Vert : excellent (moins de 6 m)",legBlue:"Bleu : bon (6–10 m)",legRed:"Rouge : faible (plus de 10 m)"},
+es:{introTitle:"Cómo funciona",
+  intro1:"Arriba: el reloj y la distancia TOTAL — mantén pulsado 2 segundos para poner a cero.",
+  intro2:"MODO PILOTO: parcial en metros con start-stop (toca la zona grande o el botón Bluetooth). En la tabla puedes definir palabras que aparecen en ciertos intervalos.",
+  intro5:"MODO COPILOTO: el parcial cuenta siempre — cada toque lo pone a cero. Además puedes cargar el road book: 50 m antes de cada referencia aparece el símbolo con la nota.",
+  intro3:"Abre el menú (☰): elige el modo (Piloto, Trip, Radar) y debajo encontrarás la tabla de palabras, el road book y los ajustes.",
+  intro4:"Punto GPS: verde = excelente (<6 m) · azul = bueno (6–10 m) · rojo = débil (>10 m).",
+  dontShow:"No mostrar más al inicio",start:"Empezar",
+  guideMenu:"Guía",gOk:"Entendido",
+  gTotal:"Distancia total del tramo. Mantén pulsado el recuadro 2 segundos para poner a cero (la barra roja muestra el progreso).",
+  gPartial:"Distancia desde la última referencia. Toca el recuadro una vez para poner a cero. En modo Radar se pone a cero sola al pasar cada referencia.",
+  gNote:"En modo Radar: número de la referencia, símbolo, texto y km restantes hasta la próxima referencia del road book.",
+  gRb:"En menú → Introducir road book añade referencias a mano (km totales, símbolo, nota) o pega el texto en formato km_totales ; tipo ; nota y pulsa Importar: símbolos y notas se reconocen solos. Guarda cada tramo con un nombre para recargarlo al instante.",
+  gTunnel:"Siempre activo: sin señal GPS (túneles) la app sigue contando con la última velocidad conocida hasta 60 segundos y luego se detiene.",
+  gMenu:"Desde el menú elige el modo: Piloto (start-stop con palabras), Trip (cuentakilómetros y velocidad) o Radar (referencias del road book). Desde ahí también reabres esta guía.",
+  totalShort:"Total",wordShort:"Palabra / Parcial",
+  totalResetMsg:"Total a cero",partialResetMsg:"Parcial a cero",
+  editLayout:"Editar diseño",editArr:"Esquema",editReset:"Restablecer",editDone:"Hecho",
+  editHint:"Toca un recuadro para cambiar su tamaño · Esquema cambia la disposición horizontal",
+  totalLabel:"Total · mantén 2s para poner a cero",partialLabel:"Parcial",
+  navPartialLabel:"Parcial · toca para poner a cero",
+  wordLabel:"Palabra / Parcial · toca para start-stop",
+  speedLabel:"Velocidad",
+  ready:"Listo",running:"Midiendo…",stopped:"Parado — pulsa para reiniciar desde 0",
+  drawerTitle:"Menú",drvPilot:"Piloto",drvNav:"Copiloto",drvSet:"Ajustes generales",
+  activeTag:"Activo",
+  navTrip:"Trip",navRadar:"Introducir road book",
+  pmTitle:"Piloto",actPilot:"Usar modo Piloto",
+  wordsTitle:"Tabla de palabras",
+  setDesc:"La palabra aparece cuando el parcial está entre los dos valores (Desde incluido, Hasta excluido). Deja \"Hasta\" vacío para sin límite.",
+  thFrom:"Desde (m)",thTo:"Hasta (m)",thWord:"Palabra",addRow:"+ Añadir fila",
+  speakLabel:"Leer la palabra en voz alta",
+  nmTitle:"Road book",
+  ssTitle:"Tramos guardados",
+  ssNamePh:"Nombre (ej. TC1)",
+  ssSave:"Guardar",ssLoad:"Cargar",
+  ssEmpty:"Ningún tramo guardado",
+  ssSavedMsg:"Tramo guardado",ssLoadedMsg:"Tramo cargado",ssNoName:"Escribe un nombre",
+  rbImpTitle:"Importar road book",
+  rbImpDesc:"Fotografía la página del road book y haz que una IA (ej. Claude) la transcriba en el formato: km_totales ; tipo ; nota (una línea por referencia). Pega el texto aquí y pulsa Importar.",
+  rbImpBtn:"Importar",
+  rbImpOk:"referencias importadas",
+  rbImpErr:"No se encontraron líneas válidas",
+  rbTitle:"Road book",
+  rbDesc:"Km totales como impresos en el road book (ej. 0,52). Pon el TOTAL a cero en la salida: 50 m antes de cada referencia aparecerá el aviso.",
+  thDist:"Km totales",thSym:"Símbolo",thNote:"Nota",
+  rbClear:"Vaciar todo",
+  autoResetLabel:"Puesta a cero automática del parcial",
+  autoResetSmall:"Tras cada referencia del road book, el parcial reinicia desde cero (columna de parciales)",
+  gsTitle:"Ajustes generales",
+  langLabel:"Idioma",unitLabel:"Unidades",
+  fontLabel:"Estilo de números",numLabel:"Tamaño de los números",numSmall:"Pequeños",numNormal:"Normales",numLarge:"Grandes",
+  timeLabel:"Formato de hora",time24:"24 horas",time12:"12 horas",
+  themeLabel:"Tema",themeDark:"Oscuro",themeLight:"Claro",
+  tunnelLabel:"Modo túnel",tunnelSmall:"Sin señal GPS sigue contando con la última velocidad (máx 60 s)",
+  close:"Guardar y cerrar",
+  legTitle:"Señal GPS",legGreen:"Verde: excelente (menos de 6 m)",legBlue:"Azul: buena (6–10 m)",legRed:"Rojo: débil (más de 10 m)"},
+de:{introTitle:"So funktioniert es",
+  intro1:"Oben: die Uhr und die GESAMTdistanz — 2 Sekunden gedrückt halten zum Nullstellen.",
+  intro2:"FAHRER-MODUS: Teildistanz in Metern mit Start-Stopp (großen Bereich antippen oder Bluetooth-Taste). In der Tabelle kannst du Wörter für Meterbereiche festlegen.",
+  intro5:"BEIFAHRER-MODUS: die Teildistanz zählt immer — Antippen stellt sie auf null. Zudem kannst du das Roadbook laden: 50 m vor jedem Bezugspunkt erscheint das Symbol mit der Notiz.",
+  intro3:"Öffne das Menü (☰): wähle den Modus (Fahrer, Trip, Radar); darunter findest du Worttabelle, Roadbook und Einstellungen.",
+  intro4:"GPS-Punkt: grün = ausgezeichnet (<6 m) · blau = gut (6–10 m) · rot = schwach (>10 m).",
+  dontShow:"Beim Start nicht mehr anzeigen",start:"Los geht's",
+  guideMenu:"Anleitung",gOk:"Verstanden",
+  gTotal:"Gesamtdistanz der Prüfung. Halte das Feld 2 Sekunden gedrückt zum Nullstellen (der rote Balken zeigt den Fortschritt).",
+  gPartial:"Distanz seit dem letzten Bezugspunkt. Einmal tippen zum Nullstellen. Im Radar-Modus stellt sie sich bei jedem Bezugspunkt automatisch auf null.",
+  gNote:"Im Radar-Modus: Nummer, Symbol, Notiz und verbleibende km bis zum nächsten Roadbook-Punkt.",
+  gRb:"Über Menü → Roadbook eingeben Punkte von Hand hinzufügen (Gesamt-km, Symbol, Notiz) oder Text im Format gesamt_km ; typ ; notiz einfügen und Importieren drücken: Symbole und Notizen werden automatisch erkannt. Speichere jede WP unter einem Namen.",
+  gTunnel:"Immer aktiv: ohne GPS-Signal (Tunnel) zählt die App bis zu 60 Sekunden mit der letzten bekannten Geschwindigkeit weiter, dann stoppt sie.",
+  gMenu:"Im Menü wählst du den Modus: Fahrer (Start-Stopp mit Wörtern), Trip (Kilometerzähler und Tempo) oder Radar (Roadbook-Punkte). Dort öffnest du auch diese Anleitung.",
+  totalShort:"Gesamt",wordShort:"Wort / Teilstrecke",
+  totalResetMsg:"Gesamt zurückgesetzt",partialResetMsg:"Teilstrecke zurückgesetzt",
+  editLayout:"Layout bearbeiten",editArr:"Anordnung",editReset:"Zurücksetzen",editDone:"Fertig",
+  editHint:"Tippe auf ein Feld, um die Größe zu ändern · Anordnung ändert das Querformat-Schema",
+  totalLabel:"Gesamt · 2s halten zum Nullstellen",partialLabel:"Teilstrecke",
+  navPartialLabel:"Teilstrecke · tippen zum Nullstellen",
+  wordLabel:"Wort / Teilstrecke · tippen für Start-Stopp",
+  speedLabel:"Geschwindigkeit",
+  ready:"Bereit",running:"Messung läuft…",stopped:"Gestoppt — drücken für Neustart ab 0",
+  drawerTitle:"Menü",drvPilot:"Fahrer",drvNav:"Beifahrer",drvSet:"Allgemeine Einstellungen",
+  activeTag:"Aktiv",
+  navTrip:"Trip",navRadar:"Roadbook eingeben",
+  pmTitle:"Fahrer",actPilot:"Fahrer-Modus verwenden",
+  wordsTitle:"Worttabelle",
+  setDesc:"Das Wort erscheint, wenn die Teildistanz zwischen den Werten liegt (Von inklusive, Bis exklusive). \"Bis\" leer lassen für kein Limit.",
+  thFrom:"Von (m)",thTo:"Bis (m)",thWord:"Wort",addRow:"+ Zeile hinzufügen",
+  speakLabel:"Wort vorlesen",
+  nmTitle:"Roadbook",
+  ssTitle:"Gespeicherte Wertungsprüfungen",
+  ssNamePh:"Name (z. B. WP1)",
+  ssSave:"Speichern",ssLoad:"Laden",
+  ssEmpty:"Keine gespeicherten WPs",
+  ssSavedMsg:"WP gespeichert",ssLoadedMsg:"WP geladen",ssNoName:"Gib einen Namen ein",
+  rbImpTitle:"Roadbook importieren",
+  rbImpDesc:"Fotografiere die Roadbook-Seite und lass sie von einer KI (z. B. Claude) im Format transkribieren: gesamt_km ; typ ; notiz (eine Zeile pro Bezugspunkt). Füge den Text hier ein und drücke Importieren.",
+  rbImpBtn:"Importieren",
+  rbImpOk:"Bezugspunkte importiert",
+  rbImpErr:"Keine gültigen Zeilen gefunden",
+  rbTitle:"Roadbook",
+  rbDesc:"Gesamt-km wie im Roadbook gedruckt (z. B. 0,52). Stelle die GESAMTdistanz am Start auf null: 50 m vor jedem Bezugspunkt erscheint der Hinweis.",
+  thDist:"Gesamt-km",thSym:"Symbol",thNote:"Notiz",
+  rbClear:"Alles löschen",
+  autoResetLabel:"Automatischer Teilstrecken-Reset",
+  autoResetSmall:"Nach jedem Roadbook-Bezugspunkt startet die Teildistanz bei null (Teilspalte)",
+  gsTitle:"Allgemeine Einstellungen",
+  langLabel:"Sprache",unitLabel:"Einheiten",
+  fontLabel:"Zahlenstil",numLabel:"Zahlengröße",numSmall:"Klein",numNormal:"Normal",numLarge:"Groß",
+  timeLabel:"Zeitformat",time24:"24 Stunden",time12:"12 Stunden",
+  themeLabel:"Design",themeDark:"Dunkel",themeLight:"Hell",
+  tunnelLabel:"Tunnelmodus",tunnelSmall:"Ohne GPS-Signal zählt mit der letzten Geschwindigkeit weiter (max. 60 s)",
+  close:"Speichern und schließen",
+  legTitle:"GPS-Signal",legGreen:"Grün: ausgezeichnet (unter 6 m)",legBlue:"Blau: gut (6–10 m)",legRed:"Rot: schwach (über 10 m)"},
+pt:{introTitle:"Como funciona",
+  intro1:"No topo: o relógio e a distância TOTAL — mantenha premido 2 segundos para zerar.",
+  intro2:"MODO PILOTO: parcial em metros com start-stop (toque na área grande ou no botão Bluetooth). Na tabela pode definir palavras que aparecem em certos intervalos.",
+  intro5:"MODO NAVEGADOR: o parcial conta sempre — cada toque zera. Além disso pode carregar o road book: 50 m antes de cada referência aparece o símbolo com a nota.",
+  intro3:"Abra o menu (☰): escolha o modo (Piloto, Trip, Radar) e por baixo encontra a tabela de palavras, o road book e as definições.",
+  intro4:"Ponto GPS: verde = excelente (<6 m) · azul = bom (6–10 m) · vermelho = fraco (>10 m).",
+  dontShow:"Não mostrar novamente no arranque",start:"Começar",
+  guideMenu:"Guia",gOk:"Entendi",
+  gTotal:"Distância total da prova. Mantenha premido 2 segundos na caixa para zerar (a barra vermelha mostra o progresso).",
+  gPartial:"Distância desde a última referência. Toque uma vez na caixa para zerar. No modo Radar zera sozinha a cada referência passada.",
+  gNote:"No modo Radar: número da referência, símbolo, texto e km restantes até à próxima referência do road book.",
+  gRb:"Em menu → Introduzir road book adicione referências à mão (km totais, símbolo, nota) ou cole o texto no formato km_totais ; tipo ; nota e prima Importar: símbolos e notas são reconhecidos automaticamente. Guarde cada prova com um nome.",
+  gTunnel:"Sempre ativo: sem sinal GPS (túneis) a app continua a contar com a última velocidade conhecida até 60 segundos e depois para.",
+  gMenu:"No menu escolha o modo: Piloto (start-stop com palavras), Trip (conta-quilómetros e velocidade) ou Radar (referências do road book). Daí também reabre este guia.",
+  totalShort:"Total",wordShort:"Palavra / Parcial",
+  totalResetMsg:"Total zerado",partialResetMsg:"Parcial zerado",
+  editLayout:"Editar layout",editArr:"Disposição",editReset:"Repor",editDone:"Concluir",
+  editHint:"Toque numa caixa para mudar o tamanho · Disposição muda o esquema horizontal",
+  totalLabel:"Total · manter 2s para zerar",partialLabel:"Parcial",
+  navPartialLabel:"Parcial · toque para zerar",
+  wordLabel:"Palavra / Parcial · toque para start-stop",
+  speedLabel:"Velocidade",
+  ready:"Pronto",running:"A medir…",stopped:"Parado — pressione para recomeçar do 0",
+  drawerTitle:"Menu",drvPilot:"Piloto",drvNav:"Navegador",drvSet:"Definições gerais",
+  activeTag:"Ativo",
+  navTrip:"Trip",navRadar:"Introduzir road book",
+  pmTitle:"Piloto",actPilot:"Usar modo Piloto",
+  wordsTitle:"Tabela de palavras",
+  setDesc:"A palavra aparece quando o parcial está entre os dois valores (De incluído, Até excluído). Deixe \"Até\" vazio para sem limite.",
+  thFrom:"De (m)",thTo:"Até (m)",thWord:"Palavra",addRow:"+ Adicionar linha",
+  speakLabel:"Ler a palavra em voz alta",
+  nmTitle:"Road book",
+  ssTitle:"Provas especiais guardadas",
+  ssNamePh:"Nome (ex. PE1)",
+  ssSave:"Guardar",ssLoad:"Carregar",
+  ssEmpty:"Nenhuma prova guardada",
+  ssSavedMsg:"Prova guardada",ssLoadedMsg:"Prova carregada",ssNoName:"Escreva um nome",
+  rbImpTitle:"Importar road book",
+  rbImpDesc:"Fotografe a página do road book e peça a uma IA (ex. Claude) para transcrever no formato: km_totais ; tipo ; nota (uma linha por referência). Cole o texto aqui e pressione Importar.",
+  rbImpBtn:"Importar",
+  rbImpOk:"referências importadas",
+  rbImpErr:"Nenhuma linha válida encontrada",
+  rbTitle:"Road book",
+  rbDesc:"Km totais como impressos no road book (ex. 0,52). Zere o TOTAL na partida: 50 m antes de cada referência aparecerá o aviso.",
+  thDist:"Km totais",thSym:"Símbolo",thNote:"Nota",
+  rbClear:"Limpar tudo",
+  autoResetLabel:"Zeragem automática do parcial",
+  autoResetSmall:"Após cada referência do road book, o parcial recomeça do zero (coluna de parciais)",
+  gsTitle:"Definições gerais",
+  langLabel:"Idioma",unitLabel:"Unidades",
+  fontLabel:"Estilo dos números",numLabel:"Tamanho dos números",numSmall:"Pequenos",numNormal:"Normais",numLarge:"Grandes",
+  timeLabel:"Formato da hora",time24:"24 horas",time12:"12 horas",
+  themeLabel:"Tema",themeDark:"Escuro",themeLight:"Claro",
+  tunnelLabel:"Modo túnel",tunnelSmall:"Sem sinal GPS continua a contar com a última velocidade (máx 60 s)",
+  close:"Guardar e fechar",
+  legTitle:"Sinal GPS",legGreen:"Verde: excelente (menos de 6 m)",legBlue:"Azul: bom (6–10 m)",legRed:"Vermelho: fraco (mais de 10 m)"},
+ja:{introTitle:"使い方",
+  intro1:"上部:時計と合計距離 — 2秒長押しでリセット。",
+  intro2:"ドライバーモード:メートル単位の区間距離をスタート・ストップ(大きなエリアをタップ、またはBluetoothボタン)。テーブルで範囲ごとの言葉を設定できます。",
+  intro5:"ナビゲーターモード:区間距離は常にカウント — タップでゼロに。ロードブックも登録可能:各基準点の50m手前で記号とメモが表示されます。",
+  intro3:"メニュー(☰)でモード(ドライバー、トリップ、レーダー)を選択。その下に言葉テーブル、ロードブック、設定があります。",
+  intro4:"GPSドット:緑=非常に良い(<6m) · 青=良い(6–10m) · 赤=弱い(>10m)。",
+  dontShow:"起動時に表示しない",start:"スタート",
+  guideMenu:"ガイド",gOk:"わかりました",
+  gTotal:"SSの合計距離。ボックスを2秒長押しでリセット(赤いバーが進行を表示)。",
+  gPartial:"直前の基準点からの距離。ボックスを1回タップでリセット。レーダーモードでは基準点を通過するたび自動でゼロに。",
+  gNote:"レーダーモード:基準点の番号、記号、メモ、次の基準点までの残りkm。",
+  gRb:"メニュー → ロードブック入力 から手動で追加(合計km・記号・メモ)、または 合計km ; 種類 ; メモ の形式で貼り付けて取り込み:記号とメモは自動認識。SSごとに名前を付けて保存できます。",
+  gTunnel:"常時オン:GPSが届かない場所(トンネル)では最後の速度で最大60秒カウントを継続し、その後停止します。",
+  gMenu:"メニューからモードを選択:ドライバー(言葉付きスタート・ストップ)、トリップ(距離計と速度)、レーダー(ロードブック)。このガイドもそこから再表示できます。",
+  totalShort:"合計",wordShort:"言葉 / 区間",
+  totalResetMsg:"合計をリセットしました",partialResetMsg:"区間をリセットしました",
+  editLayout:"レイアウト編集",editArr:"配置",editReset:"リセット",editDone:"完了",
+  editHint:"ボックスをタップでサイズ変更 · 配置は横向きのレイアウトを変更します",
+  totalLabel:"合計 · 2秒長押しでリセット",partialLabel:"区間",
+  navPartialLabel:"区間 · タップでリセット",
+  wordLabel:"言葉 / 区間 · タップで開始・停止",
+  speedLabel:"速度",
+  ready:"準備完了",running:"計測中…",stopped:"停止 — 押すと0から再開",
+  drawerTitle:"メニュー",drvPilot:"ドライバー",drvNav:"ナビゲーター",drvSet:"一般設定",
+  activeTag:"使用中",
+  navTrip:"トリップ",navRadar:"ロードブック入力",
+  pmTitle:"ドライバー",actPilot:"ドライバーモードを使う",
+  wordsTitle:"言葉テーブル",
+  setDesc:"区間距離が2つの値の間にあるとき言葉が表示されます(「から」含む、「まで」含まない)。「まで」を空欄にすると上限なし。",
+  thFrom:"から(m)",thTo:"まで(m)",thWord:"言葉",addRow:"+ 行を追加",
+  speakLabel:"言葉を読み上げる",
+  nmTitle:"ロードブック",
+  ssTitle:"保存したSS",
+  ssNamePh:"名前(例:SS1)",
+  ssSave:"保存",ssLoad:"読み込む",
+  ssEmpty:"保存されたSSはありません",
+  ssSavedMsg:"SSを保存しました",ssLoadedMsg:"SSを読み込みました",ssNoName:"名前を入力してください",
+  rbImpTitle:"ロードブックを取り込む",
+  rbImpDesc:"ロードブックのページを撮影し、AI(例:Claude)に次の形式で転記してもらいます: 合計km ; 種類 ; メモ(1行=1基準点)。テキストを貼り付けて「取り込む」を押します。",
+  rbImpBtn:"取り込む",
+  rbImpOk:"件の基準点を取り込みました",
+  rbImpErr:"有効な行が見つかりません",
+  rbTitle:"ロードブック",
+  rbDesc:"ロードブックに印刷された合計km(例:0.52)。スタート時に合計をリセット:各基準点の50m手前で警告が表示されます。",
+  thDist:"合計km",thSym:"記号",thNote:"メモ",
+  rbClear:"すべて消去",
+  autoResetLabel:"区間の自動リセット",
+  autoResetSmall:"各基準点を通過すると区間距離がゼロから再開(区間列に一致)",
+  gsTitle:"一般設定",
+  langLabel:"言語",unitLabel:"単位",
+  fontLabel:"数字のスタイル",numLabel:"数字の大きさ",numSmall:"小",numNormal:"標準",numLarge:"大",
+  timeLabel:"時刻表示",time24:"24時間",time12:"12時間",
+  themeLabel:"テーマ",themeDark:"ダーク",themeLight:"ライト",
+  tunnelLabel:"トンネルモード",tunnelSmall:"GPSなしで直前の速度のまま計測を継続(最大60秒)",
+  close:"保存して閉じる",
+  legTitle:"GPS信号",legGreen:"緑:非常に良い(6m未満)",legBlue:"青:良い(6–10m)",legRed:"赤:弱い(10m超)"},
+cs:{introTitle:"Jak to funguje",
+  intro1:"Nahoře: hodiny a CELKOVÁ vzdálenost — podržte 2 sekundy pro vynulování.",
+  intro2:"REŽIM ŘIDIČ: dílčí vzdálenost v metrech se start-stop (klepněte na velkou oblast nebo Bluetooth tlačítko). V tabulce můžete nastavit slova pro rozsahy metrů.",
+  intro5:"REŽIM NAVIGÁTOR: dílčí vzdálenost počítá stále — klepnutí ji vynuluje. Navíc můžete nahrát roadbook: 50 m před každým bodem se zobrazí symbol s poznámkou.",
+  intro3:"Otevřete menu (☰): zvolte režim (Řidič, Trip, Radar); níže najdete tabulku slov, roadbook a nastavení.",
+  intro4:"GPS tečka: zelená = výborný (<6 m) · modrá = dobrý (6–10 m) · červená = slabý (>10 m).",
+  dontShow:"Při spuštění už nezobrazovat",start:"Začít",
+  guideMenu:"Průvodce",gOk:"Rozumím",
+  gTotal:"Celková vzdálenost zkoušky. Podržte pole 2 sekundy pro vynulování (červený pruh ukazuje průběh).",
+  gPartial:"Vzdálenost od posledního bodu. Jedním klepnutím vynulujete. V režimu Radar se nuluje automaticky při každém bodu.",
+  gNote:"V režimu Radar: číslo bodu, symbol, poznámka a zbývající km k dalšímu bodu roadbooku.",
+  gRb:"Přes menu → Zadat roadbook přidejte body ručně (celkem km, symbol, poznámka) nebo vložte text ve formátu celkem_km ; typ ; poznámka a stiskněte Importovat: symboly a poznámky se rozpoznají samy. Každou RZ uložte pod názvem.",
+  gTunnel:"Vždy zapnuto: bez GPS signálu (tunely) aplikace počítá poslední známou rychlostí až 60 sekund, pak se zastaví.",
+  gMenu:"V menu zvolte režim: Řidič (start-stop se slovy), Trip (počítadlo a rychlost) nebo Radar (body roadbooku). Odtud znovu otevřete i tohoto průvodce.",
+  totalShort:"Celkem",wordShort:"Slovo / Dílčí",
+  totalResetMsg:"Celkem vynulováno",partialResetMsg:"Dílčí vynulováno",
+  editLayout:"Upravit rozložení",editArr:"Uspořádání",editReset:"Obnovit",editDone:"Hotovo",
+  editHint:"Klepnutím na pole změníte velikost · Uspořádání mění schéma na šířku",
+  totalLabel:"Celkem · podržte 2s pro vynulování",partialLabel:"Dílčí",
+  navPartialLabel:"Dílčí · klepnutím vynulovat",
+  wordLabel:"Slovo / Dílčí · klepnutím start-stop",
+  speedLabel:"Rychlost",
+  ready:"Připraveno",running:"Měření…",stopped:"Zastaveno — stiskněte pro restart od 0",
+  drawerTitle:"Menu",drvPilot:"Řidič",drvNav:"Navigátor",drvSet:"Obecná nastavení",
+  activeTag:"Aktivní",
+  navTrip:"Trip",navRadar:"Zadat roadbook",
+  pmTitle:"Řidič",actPilot:"Použít režim Řidič",
+  wordsTitle:"Tabulka slov",
+  setDesc:"Slovo se zobrazí, když je dílčí vzdálenost mezi hodnotami (Od včetně, Do vyjma). Nechte \"Do\" prázdné pro bez limitu.",
+  thFrom:"Od (m)",thTo:"Do (m)",thWord:"Slovo",addRow:"+ Přidat řádek",
+  speakLabel:"Přečíst slovo nahlas",
+  nmTitle:"Roadbook",
+  ssTitle:"Uložené rychlostní zkoušky",
+  ssNamePh:"Název (např. RZ1)",
+  ssSave:"Uložit",ssLoad:"Načíst",
+  ssEmpty:"Žádné uložené RZ",
+  ssSavedMsg:"RZ uložena",ssLoadedMsg:"RZ načtena",ssNoName:"Zadejte název",
+  rbImpTitle:"Import roadbooku",
+  rbImpDesc:"Vyfoťte stránku roadbooku a nechte ji AI (např. Claude) přepsat ve formátu: celkem_km ; typ ; poznámka (jeden řádek na bod). Vložte text sem a stiskněte Importovat.",
+  rbImpBtn:"Importovat",
+  rbImpOk:"bodů importováno",
+  rbImpErr:"Nenalezeny žádné platné řádky",
+  rbTitle:"Roadbook",
+  rbDesc:"Celkové km jak jsou vytištěny v roadbooku (např. 0,52). Na startu vynulujte CELKOVOU vzdálenost: 50 m před každým bodem se zobrazí upozornění.",
+  thDist:"Celkem km",thSym:"Symbol",thNote:"Poznámka",
+  rbClear:"Vymazat vše",
+  autoResetLabel:"Automatické nulování dílčí",
+  autoResetSmall:"Po každém bodu roadbooku začne dílčí vzdálenost od nuly (sloupec dílčích)",
+  gsTitle:"Obecná nastavení",
+  langLabel:"Jazyk",unitLabel:"Jednotky",
+  fontLabel:"Styl čísel",numLabel:"Velikost čísel",numSmall:"Malá",numNormal:"Normální",numLarge:"Velká",
+  timeLabel:"Formát času",time24:"24 hodin",time12:"12 hodin",
+  themeLabel:"Vzhled",themeDark:"Tmavý",themeLight:"Světlý",
+  tunnelLabel:"Režim tunelu",tunnelSmall:"Bez GPS signálu počítá dál poslední rychlostí (max 60 s)",
+  close:"Uložit a zavřít",
+  legTitle:"GPS signál",legGreen:"Zelená: výborný (méně než 6 m)",legBlue:"Modrá: dobrý (6–10 m)",legRed:"Červená: slabý (více než 10 m)"}
+};
+const LOCALES = {it:'it-IT',en:'en-US',fr:'fr-FR',es:'es-ES',de:'de-DE',pt:'pt-PT',ja:'ja-JP',cs:'cs-CZ'};
+
+const SYMS = ['⬅️','➡️','⬆️','↩️','↪️','➕','🔄','⛪','🏰','🌉','🛤️','🛑','⚠️','⛽','🏠','🌳','🚩','🏁','🕐'];
+
+const SYM_WORDS = [
+  [/rotond|roundabout|rond/i, '🔄'],
+  [/incrocio|crossroad|junction|bivio|fork/i, '➕'],
+  [/sinistra|left|gauche/i, '⬅️'],
+  [/destra|right|droite/i, '➡️'],
+  [/diritto|dritto|straight|ahead/i, '⬆️'],
+  [/stop/i, '🛑'],
+  [/ponte|bridge/i, '🌉'],
+  [/ferrovia|railway|passaggio a livello|rail/i, '🛤️'],
+  [/chiesa|church/i, '⛪'],
+  [/benzina|carburante|fuel|refuel/i, '⛽'],
+  [/pericolo|attenzione|caution|danger|!!/i, '⚠️'],
+  [/partenza|start|t\.?c\.?|c\.?o\.?|controllo|timbro|orologio|clock/i, '🕐'],
+  [/arrivo|finish|fine/i, '🏁']
+];
+function wordToSym(s){
+  for(const [re, sym] of SYM_WORDS){ if(re.test(s)) return sym; }
+  return '⚠️';
+}
+function extractExit(s){
+  const m = String(s).match(/((?:prima|seconda|terza|quarta|quinta|sesta|1|2|3|4|5|6)\s*[ªa°]?\s*uscita|uscita\s*(?:n\.?\s*)?\d)/i);
+  return m ? m[1].toUpperCase() : null;
+}
+
+/* ================= STATO ================= */
+const ACC_LIMIT = 25;
+let total = 0, partial = 0;
+let running = false;
+let lastPos = null;
+let curSpeed = 0;
+let dispSpeed = 0;
+let lastGoodFix = 0;
+let lastFrame = performance.now();
+let currentWord = null;
+let lastSpoken = null;
+let rbPassedIdx = null;
+let cfg = {
+  rows: [ {from:15, to:20, w:"ESEMPIO"} ],
+  rb: [],
+  ssLib: [],
+  ssActive: '',
+  speak: false,
+  lang: null,
+  hideIntro: false,
+  mode: 'pilot',
+  units: 'metric',
+  tunnel: true,
+  theme: 'dark',
+  h24: true
+};
+
+try{
+  const saved = JSON.parse(localStorage.getItem('rallytrip_cfg'));
+  if(saved){
+    cfg = Object.assign(cfg, saved);
+    cfg.rows = (cfg.rows||[]).map(r => r.m !== undefined ? {from:r.m, to:'', w:r.w} : r);
+    if(!Array.isArray(cfg.rb)) cfg.rb = [];
+    if(!Array.isArray(cfg.ssLib)) cfg.ssLib = [];
+    cfg.rb = cfg.rb.map(r => r.d !== undefined && r.km === undefined ? {km:(parseFloat(r.d)/1000)||'', s:r.s, n:r.n} : r);
+  }
+}catch(e){}
+if(!cfg.lang){
+  const nav = (navigator.language||'en').slice(0,2).toLowerCase();
+  cfg.lang = T[nav] ? nav : 'en';
+}
+if(cfg.mode !== 'pilot' && cfg.mode !== 'nav' && cfg.mode !== 'radar') cfg.mode = 'pilot';
+if(cfg.units !== 'metric' && cfg.units !== 'imperial') cfg.units = 'metric';
+if(cfg.theme !== 'dark' && cfg.theme !== 'light') cfg.theme = 'dark';
+if(typeof cfg.tunnel !== 'boolean') cfg.tunnel = true;
+if(typeof cfg.h24 !== 'boolean') cfg.h24 = true;
+if(typeof cfg.ssActive !== 'string') cfg.ssActive = '';
+if(!cfg.lay || typeof cfg.lay !== 'object') cfg.lay = {arr:'top'};
+if(!['top','left','right'].includes(cfg.lay.arr)) cfg.lay.arr = 'top';
+if(![0,1,2].includes(cfg.numSize)) cfg.numSize = 1;
+if(!['jb','share','orbitron','system'].includes(cfg.numFont)) cfg.numFont = 'jb';
+function saveCfg(){ localStorage.setItem('rallytrip_cfg', JSON.stringify(cfg)); }
+
+/* ================= LINGUA / TEMA ================= */
+function t(k){ return (T[cfg.lang]||T.en)[k] || T.en[k] || k; }
+function applyLang(){
+  document.documentElement.lang = cfg.lang;
+  document.querySelectorAll('[data-t]').forEach(el=>{
+    el.textContent = t(el.dataset.t);
+  });
+  document.getElementById('ssName').placeholder = t('ssNamePh');
+  updateStateText();
+}
+function applyTheme(){
+  document.body.dataset.theme = cfg.theme;
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.content = cfg.theme === 'light' ? '#f4f5f7' : '#000000';
+}
+
+/* ================= ELEMENTI ================= */
+const $ = id => document.getElementById(id);
+const totalVal=$('totalVal'), partialVal=$('partialVal'),
+      wordVal=$('wordVal'), wordState=$('wordState'),
+      zoneWord=$('zoneWord'), zonePartial=$('zonePartial'), zoneTotal=$('zoneTotal'),
+      gpsdot=$('gpsdot'), flash=$('flash'), clock=$('clock'),
+      partialLbl=$('partialLbl'), partialUnit=$('partialUnit'),
+      totalUnit=$('totalUnit'), speedVal=$('speedVal'), speedUnit=$('speedUnit'),
+      radNum=$('radNum'), radSym=$('radSym'), radNote=$('radNote'), radDist=$('radDist'),
+      holdBar=$('holdBar'), toast=$('toast'),
+      ssBadge=$('ssBadge');
+
+let toastTimer = null;
+function showToast(msg){
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>toast.classList.remove('show'), 1600);
+}
+
+function updateStateText(){
+  if(running){ wordState.textContent=t('running'); wordState.className='run'; }
+  else if(partial>0){ wordState.textContent=t('stopped'); wordState.className=''; }
+  else { wordState.textContent=t('ready'); wordState.className=''; }
+}
+function updateSsBadge(){
+  ssBadge.textContent = cfg.ssActive;
+  ssBadge.classList.toggle('show', !!cfg.ssActive);
+}
+
+/* ================= UNITÀ ================= */
+const MI = 1609.344;
+function isImp(){ return cfg.units === 'imperial'; }
+function distUnit(){ return isImp() ? 'mi' : 'km'; }
+function speedUnitStr(){ return isImp() ? 'mph' : 'km/h'; }
+
+/* ================= MODALITÀ ================= */
+/* pilot = pilota · nav = trip navigatore · radar = display radar */
+function applyMode(){
+  document.body.dataset.mode = cfg.mode;
+  partialLbl.dataset.t = 'partialLabel';
+  applyUnits();
+  $('drvPilot').classList.toggle('active', cfg.mode === 'pilot');
+  $('drvTrip').classList.toggle('active', cfg.mode === 'nav');
+  $('drvRadar').classList.toggle('active', cfg.mode === 'radar');
+  if(cfg.mode === 'pilot'){
+    if(!running) zonePartial.classList.add('stopped');
+  } else {
+    zonePartial.classList.remove('stopped');
+  }
+  updateSsBadge();
+  applyLang();
+}
+function applyUnits(){
+  totalUnit.textContent = distUnit();
+  partialUnit.textContent = cfg.mode === 'pilot' ? 'm' : distUnit();
+  speedUnit.textContent = speedUnitStr();
+}
+function partialActive(){ return running || cfg.mode !== 'pilot'; }
+
+/* ================= GPS ================= */
+function haversine(lat1, lon1, lat2, lon2){
+  const R = 6371000, rad = Math.PI/180;
+  const dLat = (lat2-lat1)*rad, dLon = (lon2-lon1)*rad;
+  const a = Math.sin(dLat/2)**2 +
+            Math.cos(lat1*rad)*Math.cos(lat2*rad)*Math.sin(dLon/2)**2;
+  return 2*R*Math.asin(Math.sqrt(a));
+}
+
+function onFix(pos){
+  const c = pos.coords;
+  const acc = c.accuracy;
+
+  gpsdot.className = acc < 6 ? 'g' : (acc <= 10 ? 'b' : 'r');
+
+  const hasSpeed = (c.speed !== null && !isNaN(c.speed));
+  const v = hasSpeed ? (c.speed < 0.7 ? 0 : c.speed) : null;
+
+  if(acc > ACC_LIMIT && !(v !== null && v > 3)) return;
+
+  if(v !== null){
+    curSpeed = v;
+    lastGoodFix = performance.now();
+    lastPos = c;
+  } else {
+    if(lastPos){
+      const d = haversine(lastPos.latitude, lastPos.longitude, c.latitude, c.longitude);
+      const noiseFloor = Math.max(2, acc * 0.5);
+      if(d >= noiseFloor && d < 500){
+        total += d;
+        if(partialActive()) partial += d;
+      }
+    }
+    curSpeed = 0;
+    lastGoodFix = performance.now();
+    lastPos = c;
+  }
+}
+
+function onErr(err){ gpsdot.className='r'; }
+
+navigator.geolocation.watchPosition(onFix, onErr, {
+  enableHighAccuracy: true,
+  maximumAge: 0,
+  timeout: 15000
+});
+
+/* ================= PAROLE A INTERVALLI ================= */
+function activeWord(p){
+  for(const r of cfg.rows){
+    const a = parseFloat(r.from);
+    const b = (r.to === '' || r.to === null || r.to === undefined) ? Infinity : parseFloat(r.to);
+    if(!isNaN(a) && r.w && p >= a && p < (isNaN(b) ? Infinity : b)) return r.w;
+  }
+  return null;
+}
+
+/* ================= RADAR ================= */
+function parseKm(s){
+  if(typeof s === 'number') return s;
+  return parseFloat(String(s).replace(',', '.'));
+}
+
+/* azzeramento automatico del parziale a ogni riferimento superato (modalità Radar) */
+function rbAutoReset(){
+  if(!cfg.rb.length){ rbPassedIdx = null; return; }
+  let idx = -1;
+  for(let i = 0; i < cfg.rb.length; i++){
+    const dM = parseKm(cfg.rb[i].km) * 1000;
+    if(isNaN(dM)) continue;
+    if(total >= dM) idx = i;
+    else break;
+  }
+  if(rbPassedIdx === null){
+    rbPassedIdx = idx;
+    return;
+  }
+  if(idx > rbPassedIdx){
+    const dM = parseKm(cfg.rb[idx].km) * 1000;
+    partial = Math.max(0, total - dM);
+  }
+  rbPassedIdx = idx;
+}
+
+/* zona radar — mostra il riferimento in arrivo con countdown in metri */
+let radShownIdx = -2;
+function radarRender(){
+  if(!cfg.rb.length){
+    if(radShownIdx !== -2){
+      radNum.textContent = '';
+      radSym.textContent = '—';
+      radNote.textContent = '';
+      radDist.textContent = '';
+      radShownIdx = -2;
+    }
+    return;
+  }
+  let next = -1, dM = 0;
+  for(let i = 0; i < cfg.rb.length; i++){
+    const d = parseKm(cfg.rb[i].km) * 1000;
+    if(isNaN(d)) continue;
+    if(total < d){ next = i; dM = d; break; }
+  }
+  if(next === -1){
+    /* superati tutti i riferimenti: resta l'ultimo, countdown a 0 */
+    const li = cfg.rb.length - 1;
+    if(radShownIdx !== li + 10000){
+      const last = cfg.rb[li];
+      radNum.textContent = cfg.rb.length;
+      radSym.textContent = last.s || '🏁';
+      radNote.textContent = last.n || '';
+      radShownIdx = li + 10000;
+    }
+    radDist.textContent = fmtDist(0) + ' ' + distUnit();
+    radDist.classList.remove('near');
+    return;
+  }
+  if(radShownIdx !== next){
+    const r = cfg.rb[next];
+    radNum.textContent = next + 1;
+    radSym.textContent = r.s || '⚠️';
+    radNote.textContent = r.n || '';
+    radShownIdx = next;
+  }
+  const rem = Math.max(0, dM - total);
+  radDist.textContent = fmtDist(rem) + ' ' + distUnit();
+  radDist.classList.toggle('near', rem <= 100);
+}
+
+/* ================= CONTEGGIO CONTINUO + RENDER ================= */
+const loc = () => LOCALES[cfg.lang] || 'en-US';
+function fmtDist(m){
+  const v = isImp() ? m/MI : m/1000;
+  return v.toLocaleString(loc(), {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function fmtM(m){ return Math.round(m).toLocaleString(loc()); }
+function pad(n){ return n < 10 ? '0'+n : ''+n; }
+
+function frame(){
+  const now = performance.now();
+  const dtF = (now - lastFrame) / 1000;
+  lastFrame = now;
+
+  const d0 = new Date();
+  let hh = d0.getHours(), suffix = '';
+  if(!cfg.h24){
+    suffix = hh >= 12 ? ' PM' : ' AM';
+    hh = hh % 12 || 12;
+  }
+  clock.textContent = pad(hh)+':'+pad(d0.getMinutes())+':'+pad(d0.getSeconds())+suffix;
+
+  const sinceFix = (now - lastGoodFix) / 1000;
+  const maxGap = 60; /* modalità galleria sempre attiva */
+  const counting = curSpeed > 0 && lastGoodFix > 0 && sinceFix < maxGap;
+  if(counting && dtF > 0 && dtF < 1){
+    const d = curSpeed * dtF;
+    total += d;
+    if(partialActive()) partial += d;
+  }
+
+  totalVal.textContent = fmtDist(total);
+  partialVal.textContent = cfg.mode === 'pilot' ? fmtM(partial) : fmtDist(partial);
+
+  if(cfg.mode === 'nav'){
+    const target = counting ? curSpeed : 0;
+    dispSpeed += (target - dispSpeed) * Math.min(1, dtF * 3);
+    if(Math.abs(target - dispSpeed) < 0.05) dispSpeed = target;
+    const s = isImp() ? dispSpeed*2.236936 : dispSpeed*3.6;
+    speedVal.textContent = s.toLocaleString(loc(), {minimumFractionDigits:1, maximumFractionDigits:1});
+  }
+
+  if(cfg.mode === 'radar'){
+    rbAutoReset();
+    radarRender();
+  }
+
+  if(cfg.mode === 'pilot'){
+    if(running){
+      const w = activeWord(partial);
+      currentWord = w;
+      if(w && cfg.speak && w !== lastSpoken && 'speechSynthesis' in window){
+        lastSpoken = w;
+        const u = new SpeechSynthesisUtterance(w);
+        u.lang = loc();
+        speechSynthesis.cancel();
+        speechSynthesis.speak(u);
+      }
+      if(!w) lastSpoken = null;
+    }
+    if(currentWord){
+      if(wordVal.textContent !== currentWord){ wordVal.textContent = currentWord; }
+      wordVal.classList.remove('numeric');
+    } else {
+      wordVal.textContent = fmtM(partial);
+      wordVal.classList.add('numeric');
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ================= DISPOSIZIONE RADAR / SCALA NUMERI ================= */
+function applyLayout(){
+  document.body.dataset.arr = cfg.lay.arr;
+  document.body.dataset.numsize = cfg.numSize;
+  document.body.dataset.numfont = cfg.numFont;
+}
+
+/* ================= AZIONE PRINCIPALE ================= */
+function anyOverlayOpen(){
+  return ['intro','pilotMenu','navMenu','genMenu'].some(id => $(id).classList.contains('open'))
+    || $('drawer').classList.contains('open');
+}
+
+function mainAction(){
+  if(cfg.mode !== 'pilot'){
+    partial = 0;
+    showToast(t('partialResetMsg'));
+  } else {
+    if(running){
+      running = false;
+      zonePartial.classList.add('stopped');
+      zoneWord.classList.add('stopped');
+    } else {
+      partial = 0;
+      currentWord = null;
+      lastSpoken = null;
+      running = true;
+      zonePartial.classList.remove('stopped');
+      zoneWord.classList.remove('stopped');
+    }
+    updateStateText();
+  }
+  flash.style.opacity = 1;
+  setTimeout(()=>flash.style.opacity=0, 200);
+  if(navigator.vibrate) navigator.vibrate(60);
+}
+
+zoneWord.addEventListener('click', mainAction);
+zonePartial.addEventListener('click', ()=>{ if(cfg.mode !== 'pilot') mainAction(); });
+
+window.addEventListener('keydown', e => {
+  if(anyOverlayOpen()) return;
+  if(e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
+  e.preventDefault();
+  mainAction();
+});
+
+/* ================= TOTALE: reset con pressione lunga (2 s) ================= */
+let holdTimer = null;
+function resetHoldBar(){
+  holdBar.style.transition = 'none';
+  holdBar.style.width = '0';
+}
+function startHold(e){
+  holdBar.style.transition = 'width 2s linear';
+  holdBar.style.width = '100%';
+  holdTimer = setTimeout(()=>{
+    total = 0;
+    rbPassedIdx = null;
+    radShownIdx = -2;
+    resetHoldBar();
+    showToast(t('totalResetMsg'));
+    flash.style.opacity = 1;
+    setTimeout(()=>flash.style.opacity=0, 200);
+    if(navigator.vibrate) navigator.vibrate([40,40,40]);
+    holdTimer = null;
+  }, 2000);
+}
+function cancelHold(){
+  resetHoldBar();
+  if(holdTimer){ clearTimeout(holdTimer); holdTimer = null; }
+}
+zoneTotal.addEventListener('pointerdown', startHold);
+zoneTotal.addEventListener('pointerup', cancelHold);
+zoneTotal.addEventListener('pointercancel', cancelHold);
+zoneTotal.addEventListener('pointerleave', cancelHold);
+zoneTotal.addEventListener('contextmenu', e => e.preventDefault());
+
+/* ================= LEGENDA GPS ================= */
+$('btnInfo').addEventListener('click', e=>{
+  e.stopPropagation();
+  $('legend').classList.toggle('open');
+});
+document.addEventListener('click', e=>{
+  if(!$('legend').contains(e.target) && e.target.id!=='btnInfo'){
+    $('legend').classList.remove('open');
+  }
+}, true);
+
+/* ================= INTRODUZIONE ================= */
+if(!cfg.hideIntro) $('intro').classList.add('open');
+$('closeIntro').addEventListener('click', ()=>{
+  cfg.hideIntro = $('hideIntro').checked;
+  saveCfg();
+  $('intro').classList.remove('open');
+});
+
+/* ================= DRAWER ================= */
+function openDrawer(){
+  $('drawer').classList.add('open');
+  $('drawerBg').classList.add('open');
+}
+function closeDrawer(){
+  $('drawer').classList.remove('open');
+  $('drawerBg').classList.remove('open');
+}
+$('btnMenu').addEventListener('click', e=>{ e.stopPropagation(); openDrawer(); });
+$('btnArr').addEventListener('click', e=>{
+  e.stopPropagation();
+  const order = ['top','left','right'];
+  cfg.lay.arr = order[(order.indexOf(cfg.lay.arr) + 1) % 3];
+  applyLayout();
+  saveCfg();
+});
+$('drawerBg').addEventListener('click', closeDrawer);
+
+/* modalità: si attivano subito al tocco */
+function setMode(m){
+  cfg.mode = m;
+  radShownIdx = -2;
+  applyMode();
+  saveCfg();
+  closeDrawer();
+}
+$('drvPilot').addEventListener('click', ()=> setMode('pilot'));
+$('drvTrip').addEventListener('click', ()=> setMode('nav'));
+$('drvRadar').addEventListener('click', ()=> setMode('radar'));
+
+/* configurazione */
+$('drvWords').addEventListener('click', ()=>{
+  closeDrawer();
+  buildWordTable();
+  $('speakToggle').checked = cfg.speak;
+  $('pilotMenu').classList.add('open');
+});
+$('drvRb').addEventListener('click', ()=>{
+  closeDrawer();
+  buildRbTable();
+  buildSsList();
+  $('rbImportMsg').textContent = '';
+  $('ssMsg').textContent = '';
+  $('ssName').value = cfg.ssActive;
+  $('navMenu').classList.add('open');
+});
+$('drvSet').addEventListener('click', ()=>{
+  closeDrawer();
+  $('langSel').value = cfg.lang;
+  $('unitSel').value = cfg.units;
+  $('numSel').value = String(cfg.numSize);
+  $('fontSel').value = cfg.numFont;
+  $('timeSel').value = cfg.h24 ? '24' : '12';
+  $('themeSel').value = cfg.theme;
+  $('genMenu').classList.add('open');
+});
+$('drvInfo').addEventListener('click', ()=>{
+  closeDrawer();
+  $('hideIntro').checked = cfg.hideIntro;
+  $('intro').classList.add('open');
+});
+
+/* ================= MENU PILOTA ================= */
+const tblBody = $('tblBody');
+
+function buildWordTable(){
+  tblBody.innerHTML = '';
+  cfg.rows.forEach((r,i)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><input type="number" inputmode="decimal" value="'+ (r.from ?? '') +'" data-i="'+i+'" data-f="from"></td>' +
+      '<td><input type="number" inputmode="decimal" value="'+ (r.to ?? '') +'" data-i="'+i+'" data-f="to"></td>' +
+      '<td><input type="text" value="'+ (r.w ? String(r.w).replace(/"/g,'&quot;') : '') +'" data-i="'+i+'" data-f="w"></td>' +
+      '<td><button data-del="'+i+'">✕</button></td>';
+    tblBody.appendChild(tr);
+  });
+}
+tblBody.addEventListener('input', e=>{
+  const i = e.target.dataset.i, f = e.target.dataset.f;
+  if(i !== undefined && f) cfg.rows[i][f] = e.target.value;
+});
+tblBody.addEventListener('click', e=>{
+  const del = e.target.dataset.del;
+  if(del !== undefined){ cfg.rows.splice(del,1); buildWordTable(); }
+});
+$('addRow').addEventListener('click', ()=>{ cfg.rows.push({from:'',to:'',w:''}); buildWordTable(); });
+
+$('closePilot').addEventListener('click', ()=>{
+  cfg.speak = $('speakToggle').checked;
+  cfg.rows = cfg.rows.filter(r => r.from !== '' && r.w !== '');
+  cfg.rows.sort((a,b)=>parseFloat(a.from)-parseFloat(b.from));
+  saveCfg();
+  $('pilotMenu').classList.remove('open');
+});
+
+/* ================= LIBRERIA PROVE SPECIALI ================= */
+function buildSsList(){
+  const list = $('ssList');
+  list.innerHTML = '';
+  $('ssEmpty').style.display = cfg.ssLib.length ? 'none' : 'block';
+  cfg.ssLib.forEach((ss,i)=>{
+    const row = document.createElement('div');
+    row.className = 'ss-row';
+    const name = document.createElement('span');
+    name.className = 'ss-name';
+    name.textContent = ss.name;
+    const loadBtn = document.createElement('button');
+    loadBtn.textContent = t('ssLoad');
+    loadBtn.addEventListener('click', ()=>{
+      cfg.rb = JSON.parse(JSON.stringify(ss.rb));
+      cfg.ssActive = ss.name;
+      rbPassedIdx = null;
+      radShownIdx = -2;
+      $('ssName').value = ss.name;
+      buildRbTable();
+      updateSsBadge();
+      saveCfg();
+      $('ssMsg').textContent = '“' + ss.name + '” — ' + t('ssLoadedMsg');
+    });
+    const delBtn = document.createElement('button');
+    delBtn.className = 'del';
+    delBtn.textContent = '✕';
+    delBtn.addEventListener('click', ()=>{
+      if(cfg.ssActive === cfg.ssLib[i].name){ cfg.ssActive = ''; updateSsBadge(); }
+      cfg.ssLib.splice(i,1);
+      saveCfg();
+      buildSsList();
+    });
+    row.appendChild(name);
+    row.appendChild(loadBtn);
+    row.appendChild(delBtn);
+    list.appendChild(row);
+  });
+}
+
+$('ssSave').addEventListener('click', ()=>{
+  const name = $('ssName').value.trim();
+  if(!name){ $('ssMsg').textContent = t('ssNoName'); return; }
+  const data = JSON.parse(JSON.stringify(cfg.rb.filter(r => r.km !== '')));
+  const existing = cfg.ssLib.find(s => s.name === name);
+  if(existing){ existing.rb = data; }
+  else { cfg.ssLib.push({name: name, rb: data}); }
+  cfg.ssActive = name;
+  updateSsBadge();
+  saveCfg();
+  buildSsList();
+  $('ssMsg').textContent = '“' + name + '” — ' + t('ssSavedMsg');
+});
+
+/* ================= MENU RADAR (editor) ================= */
+const rbBody = $('rbBody');
+
+function symOptions(sel){
+  return SYMS.map(s => '<option value="'+s+'"'+(s===sel?' selected':'')+'>'+s+'</option>').join('');
+}
+function buildRbTable(){
+  rbBody.innerHTML = '';
+  cfg.rb.forEach((r,i)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td><input type="text" inputmode="decimal" value="'+ (r.km ?? '') +'" data-i="'+i+'" data-f="km" placeholder="0,00"></td>' +
+      '<td><select data-i="'+i+'" data-f="s">'+ symOptions(r.s || SYMS[0]) +'</select></td>' +
+      '<td><input type="text" value="'+ (r.n ? String(r.n).replace(/"/g,'&quot;') : '') +'" data-i="'+i+'" data-f="n"></td>' +
+      '<td><button data-del="'+i+'">✕</button></td>';
+    rbBody.appendChild(tr);
+  });
+}
+rbBody.addEventListener('input', e=>{
+  const i = e.target.dataset.i, f = e.target.dataset.f;
+  if(i !== undefined && f) cfg.rb[i][f] = e.target.value;
+});
+rbBody.addEventListener('change', e=>{
+  const i = e.target.dataset.i, f = e.target.dataset.f;
+  if(i !== undefined && f) cfg.rb[i][f] = e.target.value;
+});
+rbBody.addEventListener('click', e=>{
+  const del = e.target.dataset.del;
+  if(del !== undefined){ cfg.rb.splice(del,1); buildRbTable(); }
+});
+$('rbAddRow').addEventListener('click', ()=>{ cfg.rb.push({km:'',s:SYMS[0],n:''}); buildRbTable(); });
+$('rbClear').addEventListener('click', ()=>{ cfg.rb = []; rbPassedIdx = null; radShownIdx = -2; buildRbTable(); });
+
+$('rbImportBtn').addEventListener('click', ()=>{
+  const lines = $('rbImport').value.split('\n');
+  let added = 0;
+  for(const line of lines){
+    const parts = line.split(';').map(s => s.trim());
+    if(parts.length < 2) continue;
+    const km = parseKm(parts[0]);
+    if(isNaN(km)) continue;
+    const sym = wordToSym(parts[1] || '');
+    let note = (parts[2] || '').trim();
+    const exit = extractExit(parts[1] || '');
+    if(exit){ note = exit + (note ? ' · ' + note : ''); }
+    if(!note) note = (parts[1] || '').trim();
+    cfg.rb.push({km: parts[0].replace('.', ','), s: sym, n: note});
+    added++;
+  }
+  if(added > 0){
+    cfg.rb.sort((a,b)=>parseKm(a.km)-parseKm(b.km));
+    rbPassedIdx = null;
+    radShownIdx = -2;
+    buildRbTable();
+    $('rbImport').value = '';
+    $('rbImportMsg').textContent = added + ' ' + t('rbImpOk');
+  } else {
+    $('rbImportMsg').textContent = t('rbImpErr');
+  }
+});
+
+$('closeNav').addEventListener('click', ()=>{
+  cfg.rb = cfg.rb.filter(r => r.km !== '');
+  cfg.rb.sort((a,b)=>parseKm(a.km)-parseKm(b.km));
+  rbPassedIdx = null;
+  radShownIdx = -2;
+  saveCfg();
+  $('navMenu').classList.remove('open');
+});
+
+/* ================= IMPOSTAZIONI GENERALI ================= */
+$('themeSel').addEventListener('change', ()=>{
+  cfg.theme = $('themeSel').value;
+  applyTheme();
+});
+$('langSel').addEventListener('change', ()=>{
+  cfg.lang = $('langSel').value;
+  applyLang();
+});
+$('unitSel').addEventListener('change', ()=>{
+  cfg.units = $('unitSel').value;
+  applyUnits();
+});
+$('numSel').addEventListener('change', ()=>{
+  cfg.numSize = parseInt($('numSel').value, 10);
+  applyLayout();
+});
+$('fontSel').addEventListener('change', ()=>{
+  cfg.numFont = $('fontSel').value;
+  applyLayout();
+});
+$('closeGen').addEventListener('click', ()=>{
+  cfg.lang = $('langSel').value;
+  cfg.units = $('unitSel').value;
+  cfg.numSize = parseInt($('numSel').value, 10);
+  cfg.numFont = $('fontSel').value;
+  cfg.h24 = $('timeSel').value === '24';
+  cfg.theme = $('themeSel').value;
+  radShownIdx = -2;
+  saveCfg();
+  applyLang();
+  applyUnits();
+  applyTheme();
+  $('genMenu').classList.remove('open');
+});
+
+/* ================= SCHERMO SEMPRE ACCESO ================= */
+let wakeLock = null;
+async function keepAwake(){
+  try{
+    if('wakeLock' in navigator){
+      wakeLock = await navigator.wakeLock.request('screen');
+    }
+  }catch(e){}
+}
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState === 'visible') keepAwake();
+});
+keepAwake();
+
+/* ================= SERVICE WORKER (PWA) ================= */
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+
+applyTheme();
+applyMode();
+applyLayout();
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "name": "Rally Trip",
+  "short_name": "RallyTrip",
+  "description": "Tripmaster GPS per rally",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

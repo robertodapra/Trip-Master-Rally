@@ -1,0 +1,47 @@
+workflows:
+  ios-testflight:
+    name: iOS TestFlight
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: rallytrip
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.dapra.rallytrip
+      vars:
+        BUNDLE_ID: "com.dapra.rallytrip"
+        XCODE_WORKSPACE: "App.xcworkspace"
+        XCODE_SCHEME: "App"
+      node: 22
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Installa dipendenze npm
+        script: |
+          npm install
+      - name: Sincronizza Capacitor iOS
+        script: |
+          npx cap sync ios
+      - name: Installa CocoaPods
+        script: |
+          cd ios/App && pod install
+      - name: Prepara la firma
+        script: |
+          xcode-project use-profiles
+      - name: Numero build
+        script: |
+          cd "$CM_BUILD_DIR/ios/App"
+          agvtool new-version -all "$BUILD_NUMBER"
+      - name: Compila IPA
+        script: |
+          cd "$CM_BUILD_DIR/ios/App"
+          xcode-project build-ipa \
+            --workspace "App.xcworkspace" \
+            --scheme "App"
+    artifacts:
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true

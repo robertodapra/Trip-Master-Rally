@@ -1,0 +1,9 @@
+{
+  "appId": "com.dapra.rallytrip",
+  "appName": "Rally Trip",
+  "webDir": "www",
+  "server": {
+    "url": "https://robertodapra.github.io/Trip-Master-Rally/",
+    "cleartext": false
+  }
+}
