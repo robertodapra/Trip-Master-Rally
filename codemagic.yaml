@@ -7,8 +7,10 @@ workflows:
       app_store_connect: rallytrip
     environment:
       ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.dapra.rallytrip
+        provisioning_profiles:
+          - RallyTrip AppStore
+        certificates:
+          - rallytrip-dist
       vars:
         BUNDLE_ID: "com.dapra.rallytrip"
         XCODE_WORKSPACE: "App.xcworkspace"
