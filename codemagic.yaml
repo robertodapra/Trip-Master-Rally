@@ -13,11 +13,10 @@ workflows:
           - rallytrip-dist
       vars:
         BUNDLE_ID: "com.dapra.rallytrip"
-        XCODE_WORKSPACE: "App.xcworkspace"
+        XCODE_PROJECT: "App.xcodeproj"
         XCODE_SCHEME: "App"
       node: 22
       xcode: latest
-      cocoapods: default
     scripts:
       - name: Installa dipendenze npm
         script: |
@@ -25,9 +24,6 @@ workflows:
       - name: Sincronizza Capacitor iOS
         script: |
           npx cap sync ios
-      - name: Installa CocoaPods
-        script: |
-          cd ios/App && pod install
       - name: Prepara la firma
         script: |
           xcode-project use-profiles
@@ -39,7 +35,7 @@ workflows:
         script: |
           cd "$CM_BUILD_DIR/ios/App"
           xcode-project build-ipa \
-            --workspace "App.xcworkspace" \
+            --project "App.xcodeproj" \
             --scheme "App"
     artifacts:
       - build/ios/ipa/*.ipa
