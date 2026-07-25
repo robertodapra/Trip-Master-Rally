@@ -653,6 +653,7 @@
   <h2 data-t="scanTitle"></h2>
   <p class="small" data-t="scanDesc"></p>
   <input type="file" id="scanFile" accept="image/*" style="display:none">
+  <input type="file" id="aiFile" accept="image/*" style="display:none">
   <button id="scanPick" data-t="scanPick"></button>
   <button id="scanAI" style="width:100%;padding:14px;border-radius:10px;font-size:15px;font-weight:800;background:var(--btnbg);border:2px solid var(--amber);color:var(--amber);margin-bottom:10px">🤖 Scansione automatica (AI)</button>
   <canvas id="scanCv"></canvas>
@@ -2099,13 +2100,13 @@ function imgToB64(img, maxDim){
   g.drawImage(img, 0, 0, c.width, c.height);
   return c.toDataURL('image/jpeg', 0.72).split(',')[1];
 }
-async function scanAIRun(){
-  if(!scanImgEl){ $('scanMsg').textContent = t('scanNoImg'); return; }
+async function scanAIRun(img){
+  if(!img){ $('scanMsg').textContent = t('scanNoImg'); return; }
   const btn = $('scanAI');
   btn.disabled = true;
   $('scanMsg').textContent = '⏳ Lettura in corso…';
   try{
-    const b64 = imgToB64(scanImgEl, 1800);
+    const b64 = imgToB64(img, 1800);
     const res = await fetch(SCAN_API, {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
@@ -2134,7 +2135,18 @@ async function scanAIRun(){
   }
   btn.disabled = false;
 }
-$('scanAI').addEventListener('click', scanAIRun);
+$('scanAI').addEventListener('click', ()=> $('aiFile').click());
+$('aiFile').addEventListener('change', e=>{
+  const f = e.target.files && e.target.files[0];
+  if(!f) return;
+  $('scanMsg').textContent = '\u23F3 Lettura in corso\u2026';
+  const url = URL.createObjectURL(f);
+  const im = new Image();
+  im.onload = ()=>{ URL.revokeObjectURL(url); scanAIRun(im); };
+  im.onerror = ()=>{ URL.revokeObjectURL(url); $('scanMsg').textContent = '\u26A0\uFE0F Foto non leggibile'; };
+  im.src = url;
+  e.target.value = '';
+});
 
 /* ================= SCHERMO SEMPRE ACCESO ================= */
 let wakeLock = null;
