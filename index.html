@@ -2113,7 +2113,7 @@ async function scanAIRun(img){
       body: JSON.stringify({ image: b64 })
     });
     const data = await res.json();
-    if(data.error){ $('scanMsg').textContent = '⚠️ ' + data.error; btn.disabled = false; return; }
+    if(data.error){ $('scanMsg').textContent = '⚠️ ' + data.error + (data.raw ? ' — ' + String(data.raw).slice(0,300) : ''); btn.disabled = false; return; }
     const rows = Array.isArray(data.rows) ? data.rows : [];
     if(!rows.length){ $('scanMsg').textContent = '⚠️ Nessun riferimento letto'; btn.disabled = false; return; }
     let added = 0;
