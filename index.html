@@ -628,12 +628,6 @@
   <p class="small" data-t="scanDesc"></p>
   <button id="openScan" data-t="scanBtn"></button>
 
-  <h3 data-t="rbImpTitle"></h3>
-  <p class="small" data-t="rbImpDesc"></p>
-  <textarea id="rbImport" placeholder="0,00 ; controllo ; T.C. 0&#10;0,22 ; rotonda terza uscita ; Via Campo Sportivo&#10;0,52 ; incrocio sinistra ; Autostrada Montecatini"></textarea>
-  <button id="rbImportBtn" data-t="rbImpBtn"></button>
-  <div id="rbImportMsg"></div>
-
   <h3 data-t="rbTitle"></h3>
   <p class="small" data-t="rbDesc"></p>
   <table>
@@ -1739,7 +1733,6 @@ $('drvRb').addEventListener('click', ()=>{
   closeDrawer();
   buildRbTable();
   buildSsList();
-  $('rbImportMsg').textContent = '';
   $('ssMsg').textContent = '';
   $('ssName').value = cfg.ssActive;
   $('navMenu').classList.add('open');
@@ -1886,33 +1879,6 @@ rbBody.addEventListener('click', e=>{
 $('rbAddRow').addEventListener('click', ()=>{ cfg.rb.push({km:'',s:SYMS[0],n:''}); buildRbTable(); });
 $('rbClear').addEventListener('click', ()=>{ cfg.rb = []; rbPassedIdx = null; radShownIdx = -2; buildRbTable(); });
 
-$('rbImportBtn').addEventListener('click', ()=>{
-  const lines = $('rbImport').value.split('\n');
-  let added = 0;
-  for(const line of lines){
-    const parts = line.split(';').map(s => s.trim());
-    if(parts.length < 2) continue;
-    const km = parseKm(parts[0]);
-    if(isNaN(km)) continue;
-    const sym = wordToSym(parts[1] || '');
-    let note = (parts[2] || '').trim();
-    const exit = extractExit(parts[1] || '');
-    if(exit){ note = exit + (note ? ' · ' + note : ''); }
-    if(!note) note = (parts[1] || '').trim();
-    cfg.rb.push({km: parts[0].replace('.', ','), s: sym, n: note});
-    added++;
-  }
-  if(added > 0){
-    cfg.rb.sort((a,b)=>parseKm(a.km)-parseKm(b.km));
-    rbPassedIdx = null;
-    radShownIdx = -2;
-    buildRbTable();
-    $('rbImport').value = '';
-    $('rbImportMsg').textContent = added + ' ' + t('rbImpOk');
-  } else {
-    $('rbImportMsg').textContent = t('rbImpErr');
-  }
-});
 
 $('closeNav').addEventListener('click', ()=>{
   cfg.rb = cfg.rb.filter(r => r.km !== '' || r.img);
