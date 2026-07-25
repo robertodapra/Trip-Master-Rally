@@ -628,6 +628,12 @@
   <p class="small" data-t="scanDesc"></p>
   <button id="openScan" data-t="scanBtn"></button>
 
+  <h3 data-t="rbImpTitle"></h3>
+  <p class="small" data-t="rbImpDesc"></p>
+  <textarea id="rbImport" placeholder="0,00 ; controllo ; T.C. 0&#10;0,22 ; rotonda terza uscita ; Via Campo Sportivo&#10;0,52 ; incrocio sinistra ; Autostrada Montecatini"></textarea>
+  <button id="rbImportBtn" data-t="rbImpBtn"></button>
+  <div id="rbImportMsg"></div>
+
   <h3 data-t="rbTitle"></h3>
   <p class="small" data-t="rbDesc"></p>
   <table>
@@ -646,8 +652,9 @@
 <div class="overlay" id="scanMenu">
   <h2 data-t="scanTitle"></h2>
   <p class="small" data-t="scanDesc"></p>
-  <input type="file" id="scanFile" accept="image/*" capture="environment" style="display:none">
+  <input type="file" id="scanFile" accept="image/*" style="display:none">
   <button id="scanPick" data-t="scanPick"></button>
+  <button id="scanAI" style="width:100%;padding:14px;border-radius:10px;font-size:15px;font-weight:800;background:var(--btnbg);border:2px solid var(--amber);color:var(--amber);margin-bottom:10px">🤖 Scansione automatica (AI)</button>
   <canvas id="scanCv"></canvas>
   <div class="scanrow"><span data-t="scanRows"></span><input type="number" id="scRows" min="1" max="30" value="6"></div>
   <div class="scanrow"><span data-t="scanTop"></span><input type="range" id="scTop" min="0" max="60" value="3"></div>
@@ -784,6 +791,8 @@ it:{introTitle:"Come funziona",
   scanNew:"Crea nuovi riferimenti",
   scanAssign:"Assegna a quelli esistenti",
   scanNoImg:"Prima scatta o scegli una foto",
+  scanLoading:"Carico la foto…",
+  scanErr:"Foto non leggibile: riprova con una risoluzione più bassa",
   scanDoneMsg:"immagini pronte \u2014 controlla i km in tabella",
   storeFull:"Memoria piena: elimina qualche prova salvata",
   rbTitle:"Radar (road book)",
@@ -851,6 +860,8 @@ en:{introTitle:"How it works",
   scanNew:"Create new references",
   scanAssign:"Assign to existing ones",
   scanNoImg:"Take or pick a photo first",
+  scanLoading:"Loading photo…",
+  scanErr:"Photo could not be read: try a lower resolution",
   scanDoneMsg:"images ready \u2014 check the km in the table",
   storeFull:"Storage full: delete some saved stages",
   rbTitle:"Road book",
@@ -1733,6 +1744,7 @@ $('drvRb').addEventListener('click', ()=>{
   closeDrawer();
   buildRbTable();
   buildSsList();
+  $('rbImportMsg').textContent = '';
   $('ssMsg').textContent = '';
   $('ssName').value = cfg.ssActive;
   $('navMenu').classList.add('open');
@@ -1879,6 +1891,33 @@ rbBody.addEventListener('click', e=>{
 $('rbAddRow').addEventListener('click', ()=>{ cfg.rb.push({km:'',s:SYMS[0],n:''}); buildRbTable(); });
 $('rbClear').addEventListener('click', ()=>{ cfg.rb = []; rbPassedIdx = null; radShownIdx = -2; buildRbTable(); });
 
+$('rbImportBtn').addEventListener('click', ()=>{
+  const lines = $('rbImport').value.split('\n');
+  let added = 0;
+  for(const line of lines){
+    const parts = line.split(';').map(s => s.trim());
+    if(parts.length < 2) continue;
+    const km = parseKm(parts[0]);
+    if(isNaN(km)) continue;
+    const sym = wordToSym(parts[1] || '');
+    let note = (parts[2] || '').trim();
+    const exit = extractExit(parts[1] || '');
+    if(exit){ note = exit + (note ? ' · ' + note : ''); }
+    if(!note) note = (parts[1] || '').trim();
+    cfg.rb.push({km: parts[0].replace('.', ','), s: sym, n: note});
+    added++;
+  }
+  if(added > 0){
+    cfg.rb.sort((a,b)=>parseKm(a.km)-parseKm(b.km));
+    rbPassedIdx = null;
+    radShownIdx = -2;
+    buildRbTable();
+    $('rbImport').value = '';
+    $('rbImportMsg').textContent = added + ' ' + t('rbImpOk');
+  } else {
+    $('rbImportMsg').textContent = t('rbImpErr');
+  }
+});
 
 $('closeNav').addEventListener('click', ()=>{
   cfg.rb = cfg.rb.filter(r => r.km !== '' || r.img);
@@ -2005,13 +2044,37 @@ $('scanPick').addEventListener('click', ()=> $('scanFile').click());
 $('scanFile').addEventListener('change', e=>{
   const f = e.target.files && e.target.files[0];
   if(!f) return;
-  const fr = new FileReader();
-  fr.onload = ()=>{
-    const im = new Image();
-    im.onload = ()=>{ scanImgEl = im; scanDraw(); };
-    im.src = fr.result;
+  $('scanMsg').textContent = t('scanLoading');
+  /* objectURL invece di base64: la foto piena da 12 MP in stringa fa
+     esaurire la memoria della WebView e iOS chiude l'app */
+  const url = URL.createObjectURL(f);
+  const im = new Image();
+  im.onload = ()=>{
+    try{
+      /* riduco subito a max 1400 px e tengo in memoria solo la copia ridotta */
+      const MAX = 1400;
+      const sc = Math.min(1, MAX / Math.max(im.width, im.height));
+      const c = document.createElement('canvas');
+      c.width = Math.max(1, Math.round(im.width * sc));
+      c.height = Math.max(1, Math.round(im.height * sc));
+      c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+      scanImgEl = c;
+      $('scanMsg').textContent = '';
+      scanDraw();
+    }catch(err){
+      scanImgEl = null;
+      $('scanMsg').textContent = t('scanErr');
+    }
+    URL.revokeObjectURL(url);
+    im.src = '';
+    e.target.value = '';
   };
-  fr.readAsDataURL(f);
+  im.onerror = ()=>{
+    URL.revokeObjectURL(url);
+    e.target.value = '';
+    $('scanMsg').textContent = t('scanErr');
+  };
+  im.src = url;
 });
 ['scRows','scTop','scBottom','scLeft','scRight'].forEach(id=>{
   $(id).addEventListener('input', scanDraw);
@@ -2023,6 +2086,55 @@ $('closeScan').addEventListener('click', ()=>{
   $('scanMenu').classList.remove('open');
 });
 window.addEventListener('orientationchange', ()=> setTimeout(scanDraw, 300));
+
+/* ================= SCANNER AUTOMATICO (AI) ================= */
+const SCAN_API = 'https://rally-scan.roberto-dapra5858.workers.dev';
+function imgToB64(img, maxDim){
+  const s = Math.min(1, maxDim / Math.max(img.width, img.height));
+  const c = document.createElement('canvas');
+  c.width = Math.max(1, Math.round(img.width * s));
+  c.height = Math.max(1, Math.round(img.height * s));
+  const g = c.getContext('2d');
+  g.fillStyle = '#fff'; g.fillRect(0,0,c.width,c.height);
+  g.drawImage(img, 0, 0, c.width, c.height);
+  return c.toDataURL('image/jpeg', 0.72).split(',')[1];
+}
+async function scanAIRun(){
+  if(!scanImgEl){ $('scanMsg').textContent = t('scanNoImg'); return; }
+  const btn = $('scanAI');
+  btn.disabled = true;
+  $('scanMsg').textContent = '⏳ Lettura in corso…';
+  try{
+    const b64 = imgToB64(scanImgEl, 1800);
+    const res = await fetch(SCAN_API, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ image: b64 })
+    });
+    const data = await res.json();
+    if(data.error){ $('scanMsg').textContent = '⚠️ ' + data.error; btn.disabled = false; return; }
+    const rows = Array.isArray(data.rows) ? data.rows : [];
+    if(!rows.length){ $('scanMsg').textContent = '⚠️ Nessun riferimento letto'; btn.disabled = false; return; }
+    let added = 0;
+    for(const r of rows){
+      const km = (r.km == null ? '' : String(r.km)).replace('.', ',').trim();
+      const tipo = (r.tipo || '').trim();
+      let nota = (r.nota || '').trim();
+      const exit = extractExit(tipo + ' ' + nota);
+      if(exit && !nota.toUpperCase().includes(exit)) nota = exit + (nota ? ' · ' + nota : '');
+      cfg.rb.push({ km: km, s: wordToSym(tipo || nota), n: nota });
+      added++;
+    }
+    const ok = saveCfg();
+    rbPassedIdx = null; radShownIdx = -2;
+    buildRbTable();
+    $('scanMsg').textContent = ok ? ('✅ ' + added + ' riferimenti letti — controlla i km') : t('storeFull');
+  }catch(e){
+    $('scanMsg').textContent = '⚠️ Errore di connessione';
+  }
+  btn.disabled = false;
+}
+$('scanAI').addEventListener('click', scanAIRun);
 
 /* ================= SCHERMO SEMPRE ACCESO ================= */
 let wakeLock = null;
