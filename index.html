@@ -459,6 +459,11 @@
   .setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;font-size:14px}
   .setting-row select{padding:10px;background:var(--inputbg);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:15px}
   .setting-row input[type=checkbox]{width:24px;height:24px}
+  #fontPreview{
+    font-family:var(--mono);font-variant-numeric:tabular-nums;
+    font-weight:800;font-size:26px;color:var(--amber);line-height:1.15;text-align:right;
+  }
+  #fontPreview .pv-small{font-size:15px;color:var(--text);font-weight:700}
 
   #rbImport{
     width:100%;min-height:110px;
@@ -622,6 +627,13 @@
   <div id="ssList"></div>
   <div id="ssEmpty" data-t="ssEmpty"></div>
   <input type="file" id="aiFile" accept="image/*" style="display:none">
+  <div class="setting-row" style="border-top:1px solid var(--line);padding-top:14px;margin-top:10px">
+    <span style="display:flex;align-items:center;gap:8px">
+      <span data-t="autoResetLabel"></span>
+      <button id="autoResetInfo" style="background:var(--btnbg);border:1px solid var(--line);color:var(--muted);border-radius:50%;width:24px;height:24px;font-size:12px;font-weight:700;flex-shrink:0">i</button>
+    </span>
+    <input type="checkbox" id="autoResetToggle">
+  </div>
   <button class="okbtn" id="closeNav" data-t="close"></button>
 </div>
 
@@ -629,24 +641,12 @@
 <div class="overlay" id="genMenu">
   <h2 data-t="gsTitle"></h2>
 
+  <h3 data-t="secLook"></h3>
   <div class="setting-row">
-    <span data-t="langLabel"></span>
-    <select id="langSel">
-      <option value="it">Italiano</option>
-      <option value="en">English</option>
-      <option value="fr">Français</option>
-      <option value="es">Español</option>
-      <option value="de">Deutsch</option>
-      <option value="pt">Português</option>
-      <option value="ja">日本語</option>
-      <option value="cs">Čeština</option>
-    </select>
-  </div>
-  <div class="setting-row">
-    <span data-t="unitLabel"></span>
-    <select id="unitSel">
-      <option value="metric">km · km/h</option>
-      <option value="imperial">mi · mph</option>
+    <span data-t="themeLabel"></span>
+    <select id="themeSel">
+      <option value="dark" data-t="themeDark"></option>
+      <option value="light" data-t="themeLight"></option>
     </select>
   </div>
   <div class="setting-row">
@@ -667,6 +667,19 @@
     </select>
   </div>
   <div class="setting-row">
+    <span data-t="previewLabel"></span>
+    <div id="fontPreview">123,45<br><span class="pv-small">0 1 2 3 4 5 6 7 8 9</span></div>
+  </div>
+
+  <h3 data-t="secMeasure"></h3>
+  <div class="setting-row">
+    <span data-t="unitLabel"></span>
+    <select id="unitSel">
+      <option value="metric">km · km/h</option>
+      <option value="imperial">mi · mph</option>
+    </select>
+  </div>
+  <div class="setting-row">
     <span data-t="timeLabel"></span>
     <select id="timeSel">
       <option value="24" data-t="time24"></option>
@@ -674,18 +687,18 @@
     </select>
   </div>
   <div class="setting-row">
-    <span data-t="themeLabel"></span>
-    <select id="themeSel">
-      <option value="dark" data-t="themeDark"></option>
-      <option value="light" data-t="themeLight"></option>
+    <span data-t="langLabel"></span>
+    <select id="langSel">
+      <option value="it">Italiano</option>
+      <option value="en">English</option>
+      <option value="fr">Français</option>
+      <option value="es">Español</option>
+      <option value="de">Deutsch</option>
+      <option value="pt">Português</option>
+      <option value="ja">日本語</option>
+      <option value="cs">Čeština</option>
     </select>
   </div>
-
-  <div class="setting-row">
-    <span data-t="autoResetLabel"></span>
-    <input type="checkbox" id="autoResetToggle">
-  </div>
-  <p class="small" data-t="autoResetSmall"></p>
 
   <button class="okbtn" id="closeGen" data-t="close"></button>
 </div>
@@ -770,7 +783,7 @@ it:{introTitle:"Come funziona",
   autoResetSmall:"Acceso = il parziale si azzera da solo a ogni simbolo del radar. Spento = lo azzeri tu a mano (tocco sul parziale), e nemmeno le frecce lo toccano.",
   gsTitle:"Impostazioni generali",
   langLabel:"Lingua",unitLabel:"Unità di misura",
-  fontLabel:"Stile numeri",numLabel:"Grandezza numeri",numSmall:"Piccoli",numNormal:"Normali",numLarge:"Grandi",
+  fontLabel:"Carattere numeri",numLabel:"Dimensione numeri",secLook:"Aspetto",secMeasure:"Misure e lingua",previewLabel:"Anteprima",numSmall:"Piccoli",numNormal:"Normali",numLarge:"Grandi",
   timeLabel:"Formato orario",time24:"24 ore",time12:"12 ore",
   themeLabel:"Tema",themeDark:"Scuro",themeLight:"Chiaro",
   tunnelLabel:"Modalità galleria",tunnelSmall:"Senza segnale GPS continua a contare con l'ultima velocità (max 60 s)",
@@ -850,7 +863,7 @@ en:{introTitle:"How it works",
   autoResetSmall:"On = the partial resets by itself at each road book reference. Off = you reset it yourself (tap the partial), and the arrows do not touch it either.",
   gsTitle:"General settings",
   langLabel:"Language",unitLabel:"Units",
-  fontLabel:"Number style",numLabel:"Number size",numSmall:"Small",numNormal:"Normal",numLarge:"Large",
+  fontLabel:"Number font",numLabel:"Number size",secLook:"Appearance",secMeasure:"Units and language",previewLabel:"Preview",numSmall:"Small",numNormal:"Normal",numLarge:"Large",
   timeLabel:"Time format",time24:"24-hour",time12:"12-hour",
   themeLabel:"Theme",themeDark:"Dark",themeLight:"Light",
   tunnelLabel:"Tunnel mode",tunnelSmall:"Without GPS signal keeps counting at the last speed (max 60 s)",
@@ -906,7 +919,7 @@ fr:{introTitle:"Comment ça marche",
   autoResetSmall:"Après chaque repère du road book, le partiel repart de zéro (colonne des partiels)",
   gsTitle:"Réglages généraux",
   langLabel:"Langue",unitLabel:"Unités",
-  fontLabel:"Style des chiffres",numLabel:"Taille des chiffres",numSmall:"Petits",numNormal:"Normaux",numLarge:"Grands",
+  fontLabel:"Police des chiffres",numLabel:"Taille des chiffres",secLook:"Apparence",secMeasure:"Unités et langue",previewLabel:"Aperçu",numSmall:"Petits",numNormal:"Normaux",numLarge:"Grands",
   timeLabel:"Format horaire",time24:"24 heures",time12:"12 heures",
   themeLabel:"Thème",themeDark:"Sombre",themeLight:"Clair",
   tunnelLabel:"Mode tunnel",tunnelSmall:"Sans signal GPS continue à compter à la dernière vitesse (max 60 s)",
@@ -962,7 +975,7 @@ es:{introTitle:"Cómo funciona",
   autoResetSmall:"Tras cada referencia del road book, el parcial reinicia desde cero (columna de parciales)",
   gsTitle:"Ajustes generales",
   langLabel:"Idioma",unitLabel:"Unidades",
-  fontLabel:"Estilo de números",numLabel:"Tamaño de los números",numSmall:"Pequeños",numNormal:"Normales",numLarge:"Grandes",
+  fontLabel:"Fuente de los números",numLabel:"Tamaño de los números",secLook:"Aspecto",secMeasure:"Unidades e idioma",previewLabel:"Vista previa",numSmall:"Pequeños",numNormal:"Normales",numLarge:"Grandes",
   timeLabel:"Formato de hora",time24:"24 horas",time12:"12 horas",
   themeLabel:"Tema",themeDark:"Oscuro",themeLight:"Claro",
   tunnelLabel:"Modo túnel",tunnelSmall:"Sin señal GPS sigue contando con la última velocidad (máx 60 s)",
@@ -1018,7 +1031,7 @@ de:{introTitle:"So funktioniert es",
   autoResetSmall:"Nach jedem Roadbook-Bezugspunkt startet die Teildistanz bei null (Teilspalte)",
   gsTitle:"Allgemeine Einstellungen",
   langLabel:"Sprache",unitLabel:"Einheiten",
-  fontLabel:"Zahlenstil",numLabel:"Zahlengröße",numSmall:"Klein",numNormal:"Normal",numLarge:"Groß",
+  fontLabel:"Zahlen-Schriftart",numLabel:"Zahlengröße",secLook:"Darstellung",secMeasure:"Einheiten und Sprache",previewLabel:"Vorschau",numSmall:"Klein",numNormal:"Normal",numLarge:"Groß",
   timeLabel:"Zeitformat",time24:"24 Stunden",time12:"12 Stunden",
   themeLabel:"Design",themeDark:"Dunkel",themeLight:"Hell",
   tunnelLabel:"Tunnelmodus",tunnelSmall:"Ohne GPS-Signal zählt mit der letzten Geschwindigkeit weiter (max. 60 s)",
@@ -1074,7 +1087,7 @@ pt:{introTitle:"Como funciona",
   autoResetSmall:"Após cada referência do road book, o parcial recomeça do zero (coluna de parciais)",
   gsTitle:"Definições gerais",
   langLabel:"Idioma",unitLabel:"Unidades",
-  fontLabel:"Estilo dos números",numLabel:"Tamanho dos números",numSmall:"Pequenos",numNormal:"Normais",numLarge:"Grandes",
+  fontLabel:"Tipo de letra dos números",numLabel:"Tamanho dos números",secLook:"Aspeto",secMeasure:"Unidades e idioma",previewLabel:"Pré-visualização",numSmall:"Pequenos",numNormal:"Normais",numLarge:"Grandes",
   timeLabel:"Formato da hora",time24:"24 horas",time12:"12 horas",
   themeLabel:"Tema",themeDark:"Escuro",themeLight:"Claro",
   tunnelLabel:"Modo túnel",tunnelSmall:"Sem sinal GPS continua a contar com a última velocidade (máx 60 s)",
@@ -1130,7 +1143,7 @@ ja:{introTitle:"使い方",
   autoResetSmall:"各基準点を通過すると区間距離がゼロから再開(区間列に一致)",
   gsTitle:"一般設定",
   langLabel:"言語",unitLabel:"単位",
-  fontLabel:"数字のスタイル",numLabel:"数字の大きさ",numSmall:"小",numNormal:"標準",numLarge:"大",
+  fontLabel:"数字のフォント",numLabel:"数字の大きさ",secLook:"表示",secMeasure:"単位と言語",previewLabel:"プレビュー",numSmall:"小",numNormal:"標準",numLarge:"大",
   timeLabel:"時刻表示",time24:"24時間",time12:"12時間",
   themeLabel:"テーマ",themeDark:"ダーク",themeLight:"ライト",
   tunnelLabel:"トンネルモード",tunnelSmall:"GPSなしで直前の速度のまま計測を継続(最大60秒)",
@@ -1186,7 +1199,7 @@ cs:{introTitle:"Jak to funguje",
   autoResetSmall:"Po každém bodu roadbooku začne dílčí vzdálenost od nuly (sloupec dílčích)",
   gsTitle:"Obecná nastavení",
   langLabel:"Jazyk",unitLabel:"Jednotky",
-  fontLabel:"Styl čísel",numLabel:"Velikost čísel",numSmall:"Malá",numNormal:"Normální",numLarge:"Velká",
+  fontLabel:"Písmo čísel",numLabel:"Velikost čísel",secLook:"Vzhled",secMeasure:"Jednotky a jazyk",previewLabel:"Náhled",numSmall:"Malá",numNormal:"Normální",numLarge:"Velká",
   timeLabel:"Formát času",time24:"24 hodin",time12:"12 hodin",
   themeLabel:"Vzhled",themeDark:"Tmavý",themeLight:"Světlý",
   tunnelLabel:"Režim tunelu",tunnelSmall:"Bez GPS signálu počítá dál poslední rychlostí (max 60 s)",
@@ -1799,6 +1812,7 @@ $('drvWords').addEventListener('click', ()=>{
 $('drvRb').addEventListener('click', ()=>{
   closeDrawer();
   buildSsList();
+  $('autoResetToggle').checked = cfg.autoReset;
   $('navMenu').classList.add('open');
 });
 $('drvSet').addEventListener('click', ()=>{
@@ -1809,7 +1823,6 @@ $('drvSet').addEventListener('click', ()=>{
   $('fontSel').value = cfg.numFont;
   $('timeSel').value = cfg.h24 ? '24' : '12';
   $('themeSel').value = cfg.theme;
-  $('autoResetToggle').checked = cfg.autoReset;
   $('genMenu').classList.add('open');
 });
 
@@ -1967,6 +1980,7 @@ $('ssNew').addEventListener('click', ()=>{
 });
 
 $('rbInfo').addEventListener('click', ()=>{ showMsg(t('rbGuide')); });
+$('autoResetInfo').addEventListener('click', ()=>{ showMsg(t('autoResetSmall'), t('autoResetLabel')); });
 
 $('closeNav').addEventListener('click', ()=>{
   saveCfg();
