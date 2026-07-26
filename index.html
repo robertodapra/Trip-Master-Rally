@@ -766,7 +766,7 @@ it:{introTitle:"Come funziona",
   thDist:"Km totali",thSym:"Simbolo",thNote:"Nota",
   rbClear:"Svuota tutto",
   autoResetLabel:"Azzeramento automatico del parziale",
-  autoResetSmall:"Superato ogni riferimento del radar, il parziale riparte da zero (come la colonna parziali)",
+  autoResetSmall:"Acceso = il parziale si azzera da solo a ogni simbolo del radar. Spento = lo azzeri tu a mano (tocco sul parziale), e nemmeno le frecce lo toccano.",
   gsTitle:"Impostazioni generali",
   langLabel:"Lingua",unitLabel:"Unità di misura",
   fontLabel:"Stile numeri",numLabel:"Grandezza numeri",numSmall:"Piccoli",numNormal:"Normali",numLarge:"Grandi",
@@ -845,7 +845,7 @@ en:{introTitle:"How it works",
   thDist:"Total km",thSym:"Symbol",thNote:"Note",
   rbClear:"Clear all",
   autoResetLabel:"Automatic partial reset",
-  autoResetSmall:"After each road book reference the partial restarts from zero (matches the partial column)",
+  autoResetSmall:"On = the partial resets by itself at each road book reference. Off = you reset it yourself (tap the partial), and the arrows do not touch it either.",
   gsTitle:"General settings",
   langLabel:"Language",unitLabel:"Units",
   fontLabel:"Number style",numLabel:"Number size",numSmall:"Small",numNormal:"Normal",numLarge:"Large",
@@ -1502,7 +1502,7 @@ function rbJump(dir){
   const n = Math.max(0, Math.min(cfg.rb.length - 1, cur + dir));
   const prevKm = n > 0 ? ((parseKm(cfg.rb[n-1].km) * 1000) || 0) : 0;
   rbOffset = prevKm - total;
-  partial = 0;
+  if(cfg.autoReset) partial = 0;
   rbPassedIdx = n - 1;
   radNextIdx = n;
   radShownIdx = -2;
