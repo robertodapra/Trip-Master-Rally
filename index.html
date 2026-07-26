@@ -1279,6 +1279,84 @@ function saveCfg(){
   catch(e){ return false; }
 }
 
+/* ================= ARCHIVIO FOTO (IndexedDB) ================= */
+/* Le foto ritagliate del radar sono pesanti e non stanno nei ~5 MB di
+   localStorage. Le salviamo qui (spazio molto più ampio). In localStorage
+   resta solo un identificativo leggero (imgId) per ogni riferimento. */
+const IDB_NAME = 'rallytrip', IDB_STORE = 'photos';
+let _idb = null;
+function idbOpen(){
+  return new Promise((res, rej)=>{
+    if(_idb) return res(_idb);
+    let req;
+    try{ req = indexedDB.open(IDB_NAME, 1); }
+    catch(e){ return rej(e); }
+    req.onupgradeneeded = ()=>{
+      const db = req.result;
+      if(!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE);
+    };
+    req.onsuccess = ()=>{ _idb = req.result; res(_idb); };
+    req.onerror = ()=> rej(req.error);
+  });
+}
+function idbPut(key, val){
+  return idbOpen().then(db => new Promise((res, rej)=>{
+    const tx = db.transaction(IDB_STORE, 'readwrite');
+    tx.objectStore(IDB_STORE).put(val, key);
+    tx.oncomplete = ()=> res(); tx.onerror = ()=> rej(tx.error);
+  }));
+}
+function idbGet(key){
+  return idbOpen().then(db => new Promise((res, rej)=>{
+    const tx = db.transaction(IDB_STORE, 'readonly');
+    const r = tx.objectStore(IDB_STORE).get(key);
+    r.onsuccess = ()=> res(r.result); r.onerror = ()=> rej(r.error);
+  }));
+}
+function idbDel(key){
+  return idbOpen().then(db => new Promise((res)=>{
+    const tx = db.transaction(IDB_STORE, 'readwrite');
+    tx.objectStore(IDB_STORE).delete(key);
+    tx.oncomplete = ()=> res(); tx.onerror = ()=> res();
+  })).catch(()=>{});
+}
+
+/* cache in memoria: imgId -> dataURL (per disegnare subito senza rileggere l'IDB) */
+const imgCache = new Map();
+function newImgId(){ return 'i' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function imgOf(r){ return r && r.imgId ? (imgCache.get(r.imgId) || '') : (r && r.img ? r.img : ''); }
+
+/* carica in cache le foto di un elenco di riferimenti (se non già presenti) */
+async function hydrateRb(rb){
+  if(!Array.isArray(rb)) return;
+  for(const r of rb){
+    if(r && r.imgId && !imgCache.has(r.imgId)){
+      try{ const v = await idbGet(r.imgId); if(v) imgCache.set(r.imgId, v); }catch(e){}
+    }
+  }
+}
+
+/* migrazione una-tantum: sposta le vecchie foto base64 da localStorage a IndexedDB */
+async function migrateImages(){
+  let changed = false;
+  async function mv(r){
+    if(!r || !r.img) return;
+    if(!r.imgId){
+      const id = newImgId();
+      try{
+        await idbPut(id, r.img);
+        imgCache.set(id, r.img);
+        r.imgId = id; delete r.img; changed = true;
+      }catch(e){ /* IDB non disponibile: teniamo r.img come ripiego */ }
+    } else { delete r.img; changed = true; }
+  }
+  for(const st of (cfg.ssLib || [])){
+    for(const r of (st.rb || [])) await mv(r);
+  }
+  for(const r of (cfg.rb || [])) await mv(r);
+  if(changed) saveCfg();
+}
+
 /* ================= LINGUA / TEMA ================= */
 function t(k){ return (T[cfg.lang]||T.en)[k] || T.en[k] || k; }
 function applyLang(){
@@ -1478,8 +1556,9 @@ function radarRender(){
   if(radShownIdx !== key){
     const r = cfg.rb[idx];
     radNum.textContent = idx + 1;
-    if(r.img){
-      radImg.src = r.img;
+    const src = imgOf(r);
+    if(src){
+      radImg.src = src;
       radImg.style.display = 'block';
       radSym.style.display = 'none';
       radNote.style.display = 'none';
@@ -1811,8 +1890,9 @@ function askName(preset,onOk){
   setTimeout(()=>{ try{inp.focus();}catch(e){} },120);
 }
 
-function loadStage(i){
+async function loadStage(i){
   const ss=cfg.ssLib[i]; if(!ss) return;
+  await hydrateRb(ss.rb);
   cfg.rb=JSON.parse(JSON.stringify(ss.rb||[]));
   cfg.ssActive=ss.name;
   rbPassedIdx=null; radShownIdx=-2; rbOffset=0;
@@ -1820,8 +1900,9 @@ function loadStage(i){
   showToast('\u201C'+ss.name+'\u201D \u2014 '+t('ssLoadedMsg'));
 }
 
-function showStageDetail(i){
+async function showStageDetail(i){
   const ss=cfg.ssLib[i]; if(!ss) return;
+  await hydrateRb(ss.rb);
   const {ov,box}=uiBox();
   const h=document.createElement('div'); h.style.cssText='font-weight:800;color:var(--amber);font-size:16px;margin-bottom:2px'; h.textContent=ss.name; box.appendChild(h);
   const cnt=document.createElement('div'); cnt.style.cssText='font-size:12px;color:var(--muted,#888);margin-bottom:12px'; cnt.textContent=((ss.rb&&ss.rb.length)||0)+' riferimenti'; box.appendChild(cnt);
@@ -1830,7 +1911,7 @@ function showStageDetail(i){
     const nn=document.createElement('div'); nn.style.cssText='min-width:24px;font-weight:800;color:var(--amber)'; nn.textContent=(idx+1); rr.appendChild(nn);
     const km=document.createElement('div'); km.style.cssText='min-width:54px;font-weight:700'; km.textContent=r.km||'\u2014'; rr.appendChild(km);
     const th=document.createElement('div'); th.style.cssText='flex:0 0 auto';
-    if(r.img){ const im=document.createElement('img'); im.src=r.img; im.style.cssText='height:46px;border-radius:4px;background:#fff'; th.appendChild(im); }
+    const _src=imgOf(r); if(_src){ const im=document.createElement('img'); im.src=_src; im.style.cssText='height:46px;border-radius:4px;background:#fff'; th.appendChild(im); }
     else { th.textContent='(no foto)'; th.style.cssText='font-size:11px;color:var(--red,#e5484d)'; }
     rr.appendChild(th);
     const nt=document.createElement('div'); nt.style.cssText='flex:1;font-size:12px;color:var(--muted,#aaa)'; nt.textContent=r.n||''; rr.appendChild(nt);
@@ -1856,6 +1937,8 @@ function buildSsList(){
     const delBtn=document.createElement('button'); delBtn.className='del'; delBtn.textContent='\u2715';
     delBtn.addEventListener('click',()=>{
       showConfirm(t('ssDelAsk')+' \u201C'+ss.name+'\u201D?',()=>{
+        const st=cfg.ssLib[i];
+        if(st) (st.rb||[]).forEach(r=>{ if(r.imgId){ idbDel(r.imgId); imgCache.delete(r.imgId); } });
         if(cfg.ssActive===cfg.ssLib[i].name){ cfg.ssActive=''; cfg.rb=[]; updateSsBadge(); }
         cfg.ssLib.splice(i,1); saveCfg(); buildSsList();
       });
@@ -1930,11 +2013,18 @@ async function scanAIRun(img){
     for(const r of rows){
       const km = (r.km == null ? '' : String(r.km)).replace('.', ',').trim();
       const nota = (r.nota || '').trim();
-      let cropped = '';
+      let imgId = '';
       if(Array.isArray(r.box) && r.box.length === 4){
-        try{ cropped = aiCrop(img, r.box); }catch(e){}
+        try{
+          const cropped = aiCrop(img, r.box);
+          if(cropped){
+            imgId = newImgId();
+            await idbPut(imgId, cropped);
+            imgCache.set(imgId, cropped);
+          }
+        }catch(e){ imgId = ''; }
       }
-      newRb.push({ km: km, s: '', n: nota, img: cropped });
+      newRb.push({ km: km, s: '', n: nota, imgId: imgId });
     }
     let stage = cfg.ssLib.find(x => x.name === name);
     if(!stage){ stage = { name: name, rb: [] }; cfg.ssLib.push(stage); }
@@ -1986,6 +2076,15 @@ applyTheme();
 applyMode();
 applyLayout();
 requestAnimationFrame(frame);
+
+/* avvio archivio foto: migra le vecchie foto in IndexedDB e carica in cache la prova attiva */
+(async function initPhotos(){
+  try{
+    await migrateImages();
+    await hydrateRb(cfg.rb);
+    radShownIdx = -2;
+  }catch(e){}
+})();
 })();
 </script>
 </body>
