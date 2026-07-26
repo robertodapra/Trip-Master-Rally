@@ -742,6 +742,7 @@ it:{introTitle:"Come funziona",
   scanSaved:"riferimenti - prova salvata",
   scanConnErr:"Errore di connessione. Controlla la rete e riprova.",
   scanPhotoErr:"Foto non leggibile, riprova.",
+  rbAddScan:"Aggiungi scan",
   ssSavedMsg:"Prova salvata",ssLoadedMsg:"Prova caricata",ssNoName:"Scrivi un nome per la prova",
   rbImpTitle:"Importa radar",
   rbImpDesc:"Fotografa la pagina del radar e falla trascrivere a un'AI (es. Claude) nel formato: km_totali ; tipo ; nota (una riga per riferimento). Incolla qui il testo e premi Importa.",
@@ -821,6 +822,7 @@ en:{introTitle:"How it works",
   scanSaved:"references - stage saved",
   scanConnErr:"Connection error. Check the network and retry.",
   scanPhotoErr:"Photo not readable, try again.",
+  rbAddScan:"Add scan",
   ssSavedMsg:"Stage saved",ssLoadedMsg:"Stage loaded",ssNoName:"Type a name for the stage",
   rbImpTitle:"Import road book",
   rbImpDesc:"Photograph the road book page and have an AI (e.g. Claude) transcribe it in the format: total_km ; type ; note (one line per reference). Paste the text here and press Import.",
@@ -1284,7 +1286,6 @@ function applyLang(){
   document.querySelectorAll('[data-t]').forEach(el=>{
     el.textContent = t(el.dataset.t);
   });
-  document.getElementById('ssName').placeholder = t('ssNamePh');
   updateStateText();
 }
 function applyTheme(){
@@ -1772,102 +1773,111 @@ $('closePilot').addEventListener('click', ()=>{
 });
 
 /* ================= LIBRERIA PROVE SPECIALI ================= */
+/* ---- finestre interne (sostituiscono alert/prompt/confirm) ---- */
+function uiClose(el){ if(el && el.parentNode) el.parentNode.removeChild(el); }
+function uiBox(){
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:18px';
+  const box=document.createElement('div');
+  box.style.cssText='background:var(--card,#111);border:1px solid var(--line,#333);border-radius:14px;max-width:440px;width:100%;max-height:86vh;overflow:auto;padding:18px;color:var(--text,#eee)';
+  ov.appendChild(box); document.body.appendChild(ov);
+  return {ov,box};
+}
+function showMsg(text,title){
+  const {ov,box}=uiBox();
+  if(title){ const h=document.createElement('div'); h.style.cssText='font-weight:800;color:var(--amber);margin-bottom:8px'; h.textContent=title; box.appendChild(h); }
+  const pp=document.createElement('div'); pp.style.cssText='white-space:pre-wrap;font-size:14px;line-height:1.5;margin-bottom:14px'; pp.textContent=text; box.appendChild(pp);
+  const ok=document.createElement('button'); ok.textContent='OK'; ok.style.cssText='width:100%;padding:12px;border-radius:10px;font-weight:800;background:var(--amber);border:none;color:#000';
+  ok.addEventListener('click',()=>uiClose(ov)); box.appendChild(ok);
+}
+function showConfirm(text,onYes){
+  const {ov,box}=uiBox();
+  const pp=document.createElement('div'); pp.style.cssText='font-size:15px;line-height:1.5;margin-bottom:16px'; pp.textContent=text; box.appendChild(pp);
+  const rb=document.createElement('div'); rb.style.cssText='display:flex;gap:10px';
+  const no=document.createElement('button'); no.textContent='Annulla'; no.style.cssText='flex:1;padding:12px;border-radius:10px;background:var(--btnbg,#222);border:1px solid var(--line,#333);color:var(--text,#eee)'; no.addEventListener('click',()=>uiClose(ov));
+  const ye=document.createElement('button'); ye.textContent='Elimina'; ye.style.cssText='flex:1;padding:12px;border-radius:10px;background:var(--red,#e5484d);border:none;color:#fff;font-weight:800'; ye.addEventListener('click',()=>{uiClose(ov);onYes();});
+  rb.appendChild(no); rb.appendChild(ye); box.appendChild(rb);
+}
+function askName(preset,onOk){
+  const {ov,box}=uiBox();
+  const h=document.createElement('div'); h.style.cssText='font-weight:800;color:var(--amber);margin-bottom:10px'; h.textContent=t('ssAskName'); box.appendChild(h);
+  const inp=document.createElement('input'); inp.type='text'; inp.value=preset||''; inp.style.cssText='width:100%;padding:12px;border-radius:10px;border:1px solid var(--line,#333);background:var(--btnbg,#222);color:var(--text,#eee);font-size:16px;margin-bottom:14px'; box.appendChild(inp);
+  const rb=document.createElement('div'); rb.style.cssText='display:flex;gap:10px';
+  const no=document.createElement('button'); no.textContent='Annulla'; no.style.cssText='flex:1;padding:12px;border-radius:10px;background:var(--btnbg,#222);border:1px solid var(--line,#333);color:var(--text,#eee)'; no.addEventListener('click',()=>uiClose(ov));
+  const ye=document.createElement('button'); ye.textContent='OK'; ye.style.cssText='flex:1;padding:12px;border-radius:10px;background:var(--green,#39d353);border:none;color:#000;font-weight:800';
+  const go=()=>{ const v=inp.value.trim(); if(!v) return; uiClose(ov); onOk(v); };
+  ye.addEventListener('click',go); inp.addEventListener('keydown',e=>{ if(e.key==='Enter') go(); });
+  rb.appendChild(no); rb.appendChild(ye); box.appendChild(rb);
+  setTimeout(()=>{ try{inp.focus();}catch(e){} },120);
+}
+
+function loadStage(i){
+  const ss=cfg.ssLib[i]; if(!ss) return;
+  cfg.rb=JSON.parse(JSON.stringify(ss.rb||[]));
+  cfg.ssActive=ss.name;
+  rbPassedIdx=null; radShownIdx=-2; rbOffset=0;
+  updateSsBadge(); saveCfg(); buildSsList();
+  showToast('\u201C'+ss.name+'\u201D \u2014 '+t('ssLoadedMsg'));
+}
+
+function showStageDetail(i){
+  const ss=cfg.ssLib[i]; if(!ss) return;
+  const {ov,box}=uiBox();
+  const h=document.createElement('div'); h.style.cssText='font-weight:800;color:var(--amber);font-size:16px;margin-bottom:2px'; h.textContent=ss.name; box.appendChild(h);
+  const cnt=document.createElement('div'); cnt.style.cssText='font-size:12px;color:var(--muted,#888);margin-bottom:12px'; cnt.textContent=((ss.rb&&ss.rb.length)||0)+' riferimenti'; box.appendChild(cnt);
+  (ss.rb||[]).forEach((r,idx)=>{
+    const rr=document.createElement('div'); rr.style.cssText='display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--line,#333)';
+    const nn=document.createElement('div'); nn.style.cssText='min-width:24px;font-weight:800;color:var(--amber)'; nn.textContent=(idx+1); rr.appendChild(nn);
+    const km=document.createElement('div'); km.style.cssText='min-width:54px;font-weight:700'; km.textContent=r.km||'\u2014'; rr.appendChild(km);
+    const th=document.createElement('div'); th.style.cssText='flex:0 0 auto';
+    if(r.img){ const im=document.createElement('img'); im.src=r.img; im.style.cssText='height:46px;border-radius:4px;background:#fff'; th.appendChild(im); }
+    else { th.textContent='(no foto)'; th.style.cssText='font-size:11px;color:var(--red,#e5484d)'; }
+    rr.appendChild(th);
+    const nt=document.createElement('div'); nt.style.cssText='flex:1;font-size:12px;color:var(--muted,#aaa)'; nt.textContent=r.n||''; rr.appendChild(nt);
+    box.appendChild(rr);
+  });
+  const bw=document.createElement('div'); bw.style.cssText='display:flex;flex-direction:column;gap:8px;margin-top:14px';
+  const lo=document.createElement('button'); lo.textContent=t('ssLoad'); lo.style.cssText='padding:12px;border-radius:10px;background:var(--green,#39d353);border:none;color:#000;font-weight:800'; lo.addEventListener('click',()=>{ uiClose(ov); loadStage(i); });
+  const ad=document.createElement('button'); ad.textContent='+ '+t('rbAddScan'); ad.style.cssText='padding:12px;border-radius:10px;background:var(--btnbg,#222);border:2px solid var(--amber);color:var(--amber);font-weight:800'; ad.addEventListener('click',()=>{ uiClose(ov); pendingStageName=ss.name; pendingAppend=true; $('aiFile').click(); });
+  const cl=document.createElement('button'); cl.textContent=t('close'); cl.style.cssText='padding:12px;border-radius:10px;background:var(--btnbg,#222);border:1px solid var(--line,#333);color:var(--text,#eee)'; cl.addEventListener('click',()=>uiClose(ov));
+  bw.appendChild(lo); bw.appendChild(ad); bw.appendChild(cl); box.appendChild(bw);
+}
+
 function buildSsList(){
-  const list = $('ssList');
-  list.innerHTML = '';
-  $('ssEmpty').style.display = cfg.ssLib.length ? 'none' : 'block';
+  const list=$('ssList'); list.innerHTML='';
+  $('ssEmpty').style.display=cfg.ssLib.length?'none':'block';
   cfg.ssLib.forEach((ss,i)=>{
-    const row = document.createElement('div');
-    row.className = 'ss-row';
-    if(cfg.ssActive === ss.name) row.style.borderColor = 'var(--green)';
-    const name = document.createElement('span');
-    name.className = 'ss-name';
-    name.textContent = ss.name + (cfg.ssActive === ss.name ? ' \u2713' : '');
-    const loadBtn = document.createElement('button');
-    loadBtn.textContent = t('ssLoad');
-    loadBtn.addEventListener('click', ()=>{
-      cfg.rb = JSON.parse(JSON.stringify(ss.rb));
-      cfg.ssActive = ss.name;
-      rbPassedIdx = null; radShownIdx = -2; rbOffset = 0;
-      updateSsBadge();
-      saveCfg();
-      buildSsList();
-      showToast('\u201C' + ss.name + '\u201D \u2014 ' + t('ssLoadedMsg'));
+    const row=document.createElement('div'); row.className='ss-row';
+    if(cfg.ssActive===ss.name) row.style.borderColor='var(--green)';
+    const name=document.createElement('span'); name.className='ss-name'; name.style.cursor='pointer';
+    name.textContent=ss.name+(cfg.ssActive===ss.name?' \u2713':'');
+    name.addEventListener('click',()=>showStageDetail(i));
+    const loadBtn=document.createElement('button'); loadBtn.textContent=t('ssLoad'); loadBtn.addEventListener('click',()=>loadStage(i));
+    const delBtn=document.createElement('button'); delBtn.className='del'; delBtn.textContent='\u2715';
+    delBtn.addEventListener('click',()=>{
+      showConfirm(t('ssDelAsk')+' \u201C'+ss.name+'\u201D?',()=>{
+        if(cfg.ssActive===cfg.ssLib[i].name){ cfg.ssActive=''; cfg.rb=[]; updateSsBadge(); }
+        cfg.ssLib.splice(i,1); saveCfg(); buildSsList();
+      });
     });
-    const delBtn = document.createElement('button');
-    delBtn.className = 'del';
-    delBtn.textContent = '\u2715';
-    delBtn.addEventListener('click', ()=>{
-      if(!confirm(t('ssDelAsk') + ' \u201C' + cfg.ssLib[i].name + '\u201D?')) return;
-      if(cfg.ssActive === cfg.ssLib[i].name){ cfg.ssActive = ''; cfg.rb = []; updateSsBadge(); }
-      cfg.ssLib.splice(i,1);
-      saveCfg();
-      buildSsList();
-    });
-    row.appendChild(name);
-    row.appendChild(loadBtn);
-    row.appendChild(delBtn);
-    list.appendChild(row);
+    row.appendChild(name); row.appendChild(loadBtn); row.appendChild(delBtn); list.appendChild(row);
   });
 }
 
 /* ================= NUOVA PROVA + INFO ================= */
 let pendingStageName = null;
+let pendingAppend = false;
 
 $('ssNew').addEventListener('click', ()=>{
-  const name = (prompt(t('ssAskName')) || '').trim();
-  if(!name) return;
-  pendingStageName = name;
-  $('aiFile').click();
+  askName('', (name)=>{ pendingStageName=name; pendingAppend=false; $('aiFile').click(); });
 });
 
-$('rbInfo').addEventListener('click', ()=>{ alert(t('rbGuide')); });
+$('rbInfo').addEventListener('click', ()=>{ showMsg(t('rbGuide')); });
 
 $('closeNav').addEventListener('click', ()=>{
   saveCfg();
   $('navMenu').classList.remove('open');
 });
-
-/* ================= IMPOSTAZIONI GENERALI ================= */
-$('themeSel').addEventListener('change', ()=>{
-  cfg.theme = $('themeSel').value;
-  applyTheme();
-});
-$('langSel').addEventListener('change', ()=>{
-  cfg.lang = $('langSel').value;
-  applyLang();
-});
-$('unitSel').addEventListener('change', ()=>{
-  cfg.units = $('unitSel').value;
-  applyUnits();
-});
-$('numSel').addEventListener('change', ()=>{
-  cfg.numSize = parseInt($('numSel').value, 10);
-  applyLayout();
-});
-$('fontSel').addEventListener('change', ()=>{
-  cfg.numFont = $('fontSel').value;
-  applyLayout();
-});
-$('closeGen').addEventListener('click', ()=>{
-  cfg.lang = $('langSel').value;
-  cfg.units = $('unitSel').value;
-  cfg.numSize = parseInt($('numSel').value, 10);
-  cfg.numFont = $('fontSel').value;
-  cfg.h24 = $('timeSel').value === '24';
-  cfg.theme = $('themeSel').value;
-  cfg.autoReset = $('autoResetToggle').checked;
-  radShownIdx = -2;
-  saveCfg();
-  applyLang();
-  applyUnits();
-  applyTheme();
-  $('genMenu').classList.remove('open');
-});
-
-/* ================= FRECCE RADAR ================= */
-$('radPrev').addEventListener('click', e=>{ e.stopPropagation(); rbJump(-1); });
-$('radNext').addEventListener('click', e=>{ e.stopPropagation(); rbJump(1); });
 
 /* ================= SCANNER RADAR (AI) ================= */
 const SCAN_API = 'https://rally-scan.roberto-dapra5858.workers.dev';
@@ -1901,7 +1911,8 @@ function imgToB64(img, maxDim){
 }
 async function scanAIRun(img){
   const name = pendingStageName;
-  pendingStageName = null;
+  const append = pendingAppend;
+  pendingStageName = null; pendingAppend = false;
   if(!img || !name) return;
   showToast('\u23F3 ' + t('scanReading'));
   try{
@@ -1912,9 +1923,9 @@ async function scanAIRun(img){
       body: JSON.stringify({ image: b64 })
     });
     const data = await res.json();
-    if(data.error){ alert('\u26A0\uFE0F ' + data.error); return; }
+    if(data.error){ showMsg('\u26A0\uFE0F ' + data.error); return; }
     const rows = Array.isArray(data.rows) ? data.rows : [];
-    if(!rows.length){ alert('\u26A0\uFE0F ' + t('scanNone')); return; }
+    if(!rows.length){ showMsg('\u26A0\uFE0F ' + t('scanNone')); return; }
     const newRb = [];
     for(const r of rows){
       const km = (r.km == null ? '' : String(r.km)).replace('.', ',').trim();
@@ -1925,19 +1936,20 @@ async function scanAIRun(img){
       }
       newRb.push({ km: km, s: '', n: nota, img: cropped });
     }
-    const existing = cfg.ssLib.find(x => x.name === name);
-    if(existing){ existing.rb = newRb; }
-    else { cfg.ssLib.push({ name: name, rb: newRb }); }
-    cfg.rb = JSON.parse(JSON.stringify(newRb));
+    let stage = cfg.ssLib.find(x => x.name === name);
+    if(!stage){ stage = { name: name, rb: [] }; cfg.ssLib.push(stage); }
+    stage.rb = append ? (stage.rb || []).concat(newRb) : newRb;
+    stage.rb.sort((a,b)=> (parseKm(a.km)||0) - (parseKm(b.km)||0));
+    cfg.rb = JSON.parse(JSON.stringify(stage.rb));
     cfg.ssActive = name;
     rbPassedIdx = null; radShownIdx = -2; rbOffset = 0;
     updateSsBadge();
     const ok = saveCfg();
     buildSsList();
     if(ok) showToast('\u2705 ' + newRb.length + ' ' + t('scanSaved'));
-    else alert('\u26A0\uFE0F ' + t('storeFull'));
+    else showMsg('\u26A0\uFE0F ' + t('storeFull'));
   }catch(e){
-    alert('\u26A0\uFE0F ' + t('scanConnErr'));
+    showMsg('\u26A0\uFE0F ' + t('scanConnErr'));
   }
 }
 $('aiFile').addEventListener('change', e=>{
@@ -1946,7 +1958,7 @@ $('aiFile').addEventListener('change', e=>{
   const url = URL.createObjectURL(f);
   const im = new Image();
   im.onload = ()=>{ URL.revokeObjectURL(url); scanAIRun(im); };
-  im.onerror = ()=>{ URL.revokeObjectURL(url); pendingStageName = null; alert('\u26A0\uFE0F ' + t('scanPhotoErr')); };
+  im.onerror = ()=>{ URL.revokeObjectURL(url); pendingStageName = null; pendingAppend = false; showMsg('\u26A0\uFE0F ' + t('scanPhotoErr')); };
   im.src = url;
   e.target.value = '';
 });
