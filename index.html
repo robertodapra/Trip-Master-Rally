@@ -1812,6 +1812,17 @@ $('drvSet').addEventListener('click', ()=>{
   $('autoResetToggle').checked = cfg.autoReset;
   $('genMenu').classList.add('open');
 });
+
+/* impostazioni generali: ogni scelta si applica subito e viene salvata */
+$('langSel').addEventListener('change', e=>{ cfg.lang = e.target.value; applyLang(); saveCfg(); });
+$('unitSel').addEventListener('change', e=>{ cfg.units = e.target.value; applyUnits(); saveCfg(); });
+$('numSel').addEventListener('change', e=>{ cfg.numSize = parseInt(e.target.value,10); if(![0,1,2].includes(cfg.numSize)) cfg.numSize = 1; applyLayout(); saveCfg(); });
+$('fontSel').addEventListener('change', e=>{ cfg.numFont = e.target.value; applyLayout(); saveCfg(); });
+$('timeSel').addEventListener('change', e=>{ cfg.h24 = e.target.value === '24'; saveCfg(); });
+$('themeSel').addEventListener('change', e=>{ cfg.theme = e.target.value; applyTheme(); saveCfg(); });
+$('autoResetToggle').addEventListener('change', e=>{ cfg.autoReset = e.target.checked; saveCfg(); });
+$('closeGen').addEventListener('click', ()=>{ saveCfg(); $('genMenu').classList.remove('open'); });
+
 $('drvInfo').addEventListener('click', ()=>{
   closeDrawer();
   $('hideIntro').checked = cfg.hideIntro;
