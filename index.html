@@ -2100,6 +2100,23 @@ function imgToB64(img, maxDim){
   g.drawImage(img, 0, 0, c.width, c.height);
   return c.toDataURL('image/jpeg', 0.72).split(',')[1];
 }
+function aiCrop(img, box){
+  let ymin=box[0], xmin=box[1], ymax=box[2], xmax=box[3];
+  const W=img.width, H=img.height;
+  let x0=Math.max(0,Math.min(W, xmin/1000*W));
+  let y0=Math.max(0,Math.min(H, ymin/1000*H));
+  let x1=Math.max(0,Math.min(W, xmax/1000*W));
+  let y1=Math.max(0,Math.min(H, ymax/1000*H));
+  let w=Math.max(4, x1-x0), h=Math.max(4, y1-y0);
+  const OUT_W=520, sc=Math.min(1, OUT_W/w);
+  const c=document.createElement('canvas');
+  c.width=Math.max(1,Math.round(w*sc));
+  c.height=Math.max(1,Math.round(h*sc));
+  const g=c.getContext('2d');
+  g.fillStyle='#fff'; g.fillRect(0,0,c.width,c.height);
+  g.drawImage(img, x0,y0,w,h, 0,0,c.width,c.height);
+  return c.toDataURL('image/jpeg', 0.72);
+}
 async function scanAIRun(img){
   if(!img){ $('scanMsg').textContent = t('scanNoImg'); return; }
   const btn = $('scanAI');
@@ -2113,17 +2130,18 @@ async function scanAIRun(img){
       body: JSON.stringify({ image: b64 })
     });
     const data = await res.json();
-    if(data.error){ $('scanMsg').textContent = '⚠️ ' + data.error + (data.raw ? ' — ' + String(data.raw).slice(0,300) : ''); btn.disabled = false; return; }
+    if(data.error){ $('scanMsg').textContent = '⚠️ ' + data.error; btn.disabled = false; return; }
     const rows = Array.isArray(data.rows) ? data.rows : [];
     if(!rows.length){ $('scanMsg').textContent = '⚠️ Nessun riferimento letto'; btn.disabled = false; return; }
     let added = 0;
     for(const r of rows){
       const km = (r.km == null ? '' : String(r.km)).replace('.', ',').trim();
-      const tipo = (r.tipo || '').trim();
-      let nota = (r.nota || '').trim();
-      const exit = extractExit(tipo + ' ' + nota);
-      if(exit && !nota.toUpperCase().includes(exit)) nota = exit + (nota ? ' · ' + nota : '');
-      cfg.rb.push({ km: km, s: wordToSym(tipo || nota), n: nota });
+      const nota = (r.nota || '').trim();
+      let cropped = '';
+      if(Array.isArray(r.box) && r.box.length === 4){
+        try{ cropped = aiCrop(img, r.box); }catch(e){}
+      }
+      cfg.rb.push({ km: km, s: '', n: nota, img: cropped });
       added++;
     }
     const ok = saveCfg();
