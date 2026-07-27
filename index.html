@@ -62,7 +62,7 @@
   #statusbar{
     position:fixed;top:0;left:0;right:0;z-index:6;
     display:flex;justify-content:space-between;align-items:center;
-    padding:4px 12px;min-height:38px;font-size:12px;color:var(--muted);
+    padding:4px calc(env(safe-area-inset-right) + 12px) 4px calc(env(safe-area-inset-left) + 12px);min-height:38px;font-size:12px;color:var(--muted);
     padding-top:calc(env(safe-area-inset-top) + 4px);
   }
   #clock{
@@ -103,6 +103,8 @@
     height:100dvh;
     padding-top:calc(42px + env(safe-area-inset-top));
     padding-bottom:calc(env(safe-area-inset-bottom) + 2px);
+    padding-left:env(safe-area-inset-left);
+    padding-right:env(safe-area-inset-right);
     grid-template-columns:1.2fr 1fr;
     grid-template-rows:1fr 1fr;
     grid-template-areas:
@@ -783,7 +785,7 @@ it:{introTitle:"Come funziona",
   autoResetSmall:"Acceso = il parziale si azzera da solo a ogni simbolo del radar. Spento = lo azzeri tu a mano (tocco sul parziale), e nemmeno le frecce lo toccano.",
   gsTitle:"Impostazioni generali",
   langLabel:"Lingua",unitLabel:"Unità di misura",
-  fontLabel:"Carattere numeri",numLabel:"Dimensione numeri",secLook:"Aspetto",secMeasure:"Misure e lingua",previewLabel:"Anteprima",numSmall:"Piccoli",numNormal:"Normali",numLarge:"Grandi",
+  fontLabel:"Carattere numeri",numLabel:"Dimensione numeri",secLook:"Aspetto",secMeasure:"Misure e lingua",previewLabel:"Anteprima",refDelAsk:"Eliminare il riferimento",refCount:"riferimenti",numSmall:"Piccoli",numNormal:"Normali",numLarge:"Grandi",
   timeLabel:"Formato orario",time24:"24 ore",time12:"12 ore",
   themeLabel:"Tema",themeDark:"Scuro",themeLight:"Chiaro",
   tunnelLabel:"Modalità galleria",tunnelSmall:"Senza segnale GPS continua a contare con l'ultima velocità (max 60 s)",
@@ -863,7 +865,7 @@ en:{introTitle:"How it works",
   autoResetSmall:"On = the partial resets by itself at each road book reference. Off = you reset it yourself (tap the partial), and the arrows do not touch it either.",
   gsTitle:"General settings",
   langLabel:"Language",unitLabel:"Units",
-  fontLabel:"Number font",numLabel:"Number size",secLook:"Appearance",secMeasure:"Units and language",previewLabel:"Preview",numSmall:"Small",numNormal:"Normal",numLarge:"Large",
+  fontLabel:"Number font",numLabel:"Number size",secLook:"Appearance",secMeasure:"Units and language",previewLabel:"Preview",refDelAsk:"Delete reference",refCount:"references",numSmall:"Small",numNormal:"Normal",numLarge:"Large",
   timeLabel:"Time format",time24:"24-hour",time12:"12-hour",
   themeLabel:"Theme",themeDark:"Dark",themeLight:"Light",
   tunnelLabel:"Tunnel mode",tunnelSmall:"Without GPS signal keeps counting at the last speed (max 60 s)",
@@ -919,7 +921,7 @@ fr:{introTitle:"Comment ça marche",
   autoResetSmall:"Après chaque repère du road book, le partiel repart de zéro (colonne des partiels)",
   gsTitle:"Réglages généraux",
   langLabel:"Langue",unitLabel:"Unités",
-  fontLabel:"Police des chiffres",numLabel:"Taille des chiffres",secLook:"Apparence",secMeasure:"Unités et langue",previewLabel:"Aperçu",numSmall:"Petits",numNormal:"Normaux",numLarge:"Grands",
+  fontLabel:"Police des chiffres",numLabel:"Taille des chiffres",secLook:"Apparence",secMeasure:"Unités et langue",previewLabel:"Aperçu",refDelAsk:"Supprimer le repère",refCount:"repères",numSmall:"Petits",numNormal:"Normaux",numLarge:"Grands",
   timeLabel:"Format horaire",time24:"24 heures",time12:"12 heures",
   themeLabel:"Thème",themeDark:"Sombre",themeLight:"Clair",
   tunnelLabel:"Mode tunnel",tunnelSmall:"Sans signal GPS continue à compter à la dernière vitesse (max 60 s)",
@@ -975,7 +977,7 @@ es:{introTitle:"Cómo funciona",
   autoResetSmall:"Tras cada referencia del road book, el parcial reinicia desde cero (columna de parciales)",
   gsTitle:"Ajustes generales",
   langLabel:"Idioma",unitLabel:"Unidades",
-  fontLabel:"Fuente de los números",numLabel:"Tamaño de los números",secLook:"Aspecto",secMeasure:"Unidades e idioma",previewLabel:"Vista previa",numSmall:"Pequeños",numNormal:"Normales",numLarge:"Grandes",
+  fontLabel:"Fuente de los números",numLabel:"Tamaño de los números",secLook:"Aspecto",secMeasure:"Unidades e idioma",previewLabel:"Vista previa",refDelAsk:"Eliminar la referencia",refCount:"referencias",numSmall:"Pequeños",numNormal:"Normales",numLarge:"Grandes",
   timeLabel:"Formato de hora",time24:"24 horas",time12:"12 horas",
   themeLabel:"Tema",themeDark:"Oscuro",themeLight:"Claro",
   tunnelLabel:"Modo túnel",tunnelSmall:"Sin señal GPS sigue contando con la última velocidad (máx 60 s)",
@@ -1031,7 +1033,7 @@ de:{introTitle:"So funktioniert es",
   autoResetSmall:"Nach jedem Roadbook-Bezugspunkt startet die Teildistanz bei null (Teilspalte)",
   gsTitle:"Allgemeine Einstellungen",
   langLabel:"Sprache",unitLabel:"Einheiten",
-  fontLabel:"Zahlen-Schriftart",numLabel:"Zahlengröße",secLook:"Darstellung",secMeasure:"Einheiten und Sprache",previewLabel:"Vorschau",numSmall:"Klein",numNormal:"Normal",numLarge:"Groß",
+  fontLabel:"Zahlen-Schriftart",numLabel:"Zahlengröße",secLook:"Darstellung",secMeasure:"Einheiten und Sprache",previewLabel:"Vorschau",refDelAsk:"Bezugspunkt löschen",refCount:"Bezugspunkte",numSmall:"Klein",numNormal:"Normal",numLarge:"Groß",
   timeLabel:"Zeitformat",time24:"24 Stunden",time12:"12 Stunden",
   themeLabel:"Design",themeDark:"Dunkel",themeLight:"Hell",
   tunnelLabel:"Tunnelmodus",tunnelSmall:"Ohne GPS-Signal zählt mit der letzten Geschwindigkeit weiter (max. 60 s)",
@@ -1087,7 +1089,7 @@ pt:{introTitle:"Como funciona",
   autoResetSmall:"Após cada referência do road book, o parcial recomeça do zero (coluna de parciais)",
   gsTitle:"Definições gerais",
   langLabel:"Idioma",unitLabel:"Unidades",
-  fontLabel:"Tipo de letra dos números",numLabel:"Tamanho dos números",secLook:"Aspeto",secMeasure:"Unidades e idioma",previewLabel:"Pré-visualização",numSmall:"Pequenos",numNormal:"Normais",numLarge:"Grandes",
+  fontLabel:"Tipo de letra dos números",numLabel:"Tamanho dos números",secLook:"Aspeto",secMeasure:"Unidades e idioma",previewLabel:"Pré-visualização",refDelAsk:"Eliminar a referência",refCount:"referências",numSmall:"Pequenos",numNormal:"Normais",numLarge:"Grandes",
   timeLabel:"Formato da hora",time24:"24 horas",time12:"12 horas",
   themeLabel:"Tema",themeDark:"Escuro",themeLight:"Claro",
   tunnelLabel:"Modo túnel",tunnelSmall:"Sem sinal GPS continua a contar com a última velocidade (máx 60 s)",
@@ -1143,7 +1145,7 @@ ja:{introTitle:"使い方",
   autoResetSmall:"各基準点を通過すると区間距離がゼロから再開(区間列に一致)",
   gsTitle:"一般設定",
   langLabel:"言語",unitLabel:"単位",
-  fontLabel:"数字のフォント",numLabel:"数字の大きさ",secLook:"表示",secMeasure:"単位と言語",previewLabel:"プレビュー",numSmall:"小",numNormal:"標準",numLarge:"大",
+  fontLabel:"数字のフォント",numLabel:"数字の大きさ",secLook:"表示",secMeasure:"単位と言語",previewLabel:"プレビュー",refDelAsk:"この基準点を削除",refCount:"件の基準点",numSmall:"小",numNormal:"標準",numLarge:"大",
   timeLabel:"時刻表示",time24:"24時間",time12:"12時間",
   themeLabel:"テーマ",themeDark:"ダーク",themeLight:"ライト",
   tunnelLabel:"トンネルモード",tunnelSmall:"GPSなしで直前の速度のまま計測を継続(最大60秒)",
@@ -1199,7 +1201,7 @@ cs:{introTitle:"Jak to funguje",
   autoResetSmall:"Po každém bodu roadbooku začne dílčí vzdálenost od nuly (sloupec dílčích)",
   gsTitle:"Obecná nastavení",
   langLabel:"Jazyk",unitLabel:"Jednotky",
-  fontLabel:"Písmo čísel",numLabel:"Velikost čísel",secLook:"Vzhled",secMeasure:"Jednotky a jazyk",previewLabel:"Náhled",numSmall:"Malá",numNormal:"Normální",numLarge:"Velká",
+  fontLabel:"Písmo čísel",numLabel:"Velikost čísel",secLook:"Vzhled",secMeasure:"Jednotky a jazyk",previewLabel:"Náhled",refDelAsk:"Odstranit bod",refCount:"bodů",numSmall:"Malá",numNormal:"Normální",numLarge:"Velká",
   timeLabel:"Formát času",time24:"24 hodin",time12:"12 hodin",
   themeLabel:"Vzhled",themeDark:"Tmavý",themeLight:"Světlý",
   tunnelLabel:"Režim tunelu",tunnelSmall:"Bez GPS signálu počítá dál poslední rychlostí (max 60 s)",
@@ -1790,6 +1792,10 @@ $('btnArr').addEventListener('click', e=>{
 });
 $('drawerBg').addEventListener('click', closeDrawer);
 
+/* frecce radar: scorrono tra i riferimenti (◀ indietro, ▶ avanti) */
+$('radPrev').addEventListener('click', e=>{ e.stopPropagation(); rbJump(-1); });
+$('radNext').addEventListener('click', e=>{ e.stopPropagation(); rbJump(1); });
+
 /* modalità: si attivano subito al tocco */
 function setMode(m){
   cfg.mode = m;
@@ -1929,18 +1935,55 @@ async function showStageDetail(i){
   await hydrateRb(ss.rb);
   const {ov,box}=uiBox();
   const h=document.createElement('div'); h.style.cssText='font-weight:800;color:var(--amber);font-size:16px;margin-bottom:2px'; h.textContent=ss.name; box.appendChild(h);
-  const cnt=document.createElement('div'); cnt.style.cssText='font-size:12px;color:var(--muted,#888);margin-bottom:12px'; cnt.textContent=((ss.rb&&ss.rb.length)||0)+' riferimenti'; box.appendChild(cnt);
-  (ss.rb||[]).forEach((r,idx)=>{
-    const rr=document.createElement('div'); rr.style.cssText='display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--line,#333)';
-    const nn=document.createElement('div'); nn.style.cssText='min-width:24px;font-weight:800;color:var(--amber)'; nn.textContent=(idx+1); rr.appendChild(nn);
-    const km=document.createElement('div'); km.style.cssText='min-width:54px;font-weight:700'; km.textContent=r.km||'\u2014'; rr.appendChild(km);
-    const th=document.createElement('div'); th.style.cssText='flex:0 0 auto';
-    const _src=imgOf(r); if(_src){ const im=document.createElement('img'); im.src=_src; im.style.cssText='height:46px;border-radius:4px;background:#fff'; th.appendChild(im); }
-    else { th.textContent='(no foto)'; th.style.cssText='font-size:11px;color:var(--red,#e5484d)'; }
-    rr.appendChild(th);
-    const nt=document.createElement('div'); nt.style.cssText='flex:1;font-size:12px;color:var(--muted,#aaa)'; nt.textContent=r.n||''; rr.appendChild(nt);
-    box.appendChild(rr);
-  });
+  const cnt=document.createElement('div'); cnt.style.cssText='font-size:12px;color:var(--muted,#888);margin-bottom:12px'; box.appendChild(cnt);
+  const listWrap=document.createElement('div'); box.appendChild(listWrap);
+
+  function afterEdit(){
+    saveCfg();
+    if(cfg.ssActive===ss.name){
+      cfg.rb=JSON.parse(JSON.stringify(ss.rb||[]));
+      rbPassedIdx=null; radShownIdx=-2;
+    }
+    buildSsList();
+    render();
+  }
+  function move(idx,dir){
+    const j=idx+dir; if(j<0||j>=ss.rb.length) return;
+    const tmp=ss.rb[idx]; ss.rb[idx]=ss.rb[j]; ss.rb[j]=tmp;
+    afterEdit();
+  }
+  function delRow(idx){
+    showConfirm(t('refDelAsk')+' n. '+(idx+1)+'?',()=>{
+      const r=ss.rb[idx];
+      if(r && r.imgId){ idbDel(r.imgId); imgCache.delete(r.imgId); }
+      ss.rb.splice(idx,1);
+      afterEdit();
+    });
+  }
+  function render(){
+    listWrap.innerHTML='';
+    cnt.textContent=((ss.rb&&ss.rb.length)||0)+' '+t('refCount');
+    (ss.rb||[]).forEach((r,idx)=>{
+      const rr=document.createElement('div'); rr.style.cssText='display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line,#333)';
+      const nn=document.createElement('div'); nn.style.cssText='min-width:20px;font-weight:800;color:var(--amber)'; nn.textContent=(idx+1); rr.appendChild(nn);
+      const km=document.createElement('div'); km.style.cssText='min-width:46px;font-weight:700;font-size:13px'; km.textContent=r.km||'\u2014'; rr.appendChild(km);
+      const th=document.createElement('div'); th.style.cssText='flex:0 0 auto';
+      const _src=imgOf(r); if(_src){ const im=document.createElement('img'); im.src=_src; im.style.cssText='height:44px;max-width:80px;object-fit:contain;border-radius:4px;background:#fff'; th.appendChild(im); }
+      else { const nf=document.createElement('span'); nf.textContent='(no foto)'; nf.style.cssText='font-size:11px;color:var(--red,#e5484d)'; th.appendChild(nf); }
+      rr.appendChild(th);
+      const nt=document.createElement('div'); nt.style.cssText='flex:1;font-size:11px;color:var(--muted,#aaa);word-break:break-word'; nt.textContent=r.n||''; rr.appendChild(nt);
+      const ctr=document.createElement('div'); ctr.style.cssText='display:flex;align-items:center;gap:4px;flex-shrink:0';
+      const mkBtn=(label,fn,col)=>{ const b=document.createElement('button'); b.textContent=label; b.style.cssText='width:30px;height:30px;border-radius:8px;background:var(--btnbg,#222);border:1px solid var(--line,#333);color:'+(col||'var(--text,#eee)')+';font-size:13px;line-height:1;padding:0'; b.addEventListener('click',fn); return b; };
+      const up=mkBtn('\u25B2',()=>move(idx,-1)); if(idx===0) up.style.opacity='.3';
+      const dn=mkBtn('\u25BC',()=>move(idx,1)); if(idx===ss.rb.length-1) dn.style.opacity='.3';
+      const dl=mkBtn('\u2715',()=>delRow(idx),'var(--red,#e5484d)');
+      ctr.appendChild(up); ctr.appendChild(dn); ctr.appendChild(dl);
+      rr.appendChild(ctr);
+      listWrap.appendChild(rr);
+    });
+  }
+  render();
+
   const bw=document.createElement('div'); bw.style.cssText='display:flex;flex-direction:column;gap:8px;margin-top:14px';
   const lo=document.createElement('button'); lo.textContent=t('ssLoad'); lo.style.cssText='padding:12px;border-radius:10px;background:var(--green,#39d353);border:none;color:#000;font-weight:800'; lo.addEventListener('click',()=>{ uiClose(ov); loadStage(i); });
   const ad=document.createElement('button'); ad.textContent='+ '+t('rbAddScan'); ad.style.cssText='padding:12px;border-radius:10px;background:var(--btnbg,#222);border:2px solid var(--amber);color:var(--amber);font-weight:800'; ad.addEventListener('click',()=>{ uiClose(ov); pendingStageName=ss.name; pendingAppend=true; $('aiFile').click(); });
