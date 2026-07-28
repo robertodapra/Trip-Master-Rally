@@ -28,6 +28,8 @@
     --muted:#8b949e;
     --btnbg:rgba(255,255,255,.06);
     --inputbg:#1a1f25;
+    --cardbg:#161a20;
+    --cardink:#f2f4f7;
   }
   body[data-theme="light"]{
     --bg:#f4f5f7;
@@ -42,6 +44,8 @@
     --muted:#5c6670;
     --btnbg:rgba(0,0,0,.05);
     --inputbg:#eef0f3;
+    --cardbg:#ffffff;
+    --cardink:#12151a;
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%}
@@ -508,6 +512,93 @@
     position:fixed;inset:0;background:rgba(255,180,0,.18);z-index:5;
     opacity:0;pointer-events:none;transition:opacity .3s;
   }
+
+  /* ============ LAYOUT SCHEDA (skin alternativo) ============ */
+  #cardApp{display:none}
+  body[data-skin="card"] #app{display:none}
+  body[data-skin="card"] #btnArr{display:none !important}
+  body[data-skin="card"] #cardApp{
+    display:flex;flex-direction:column;gap:10px;
+    height:100dvh;
+    padding:calc(46px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 12px) calc(12px + env(safe-area-inset-left));
+  }
+  #ctStrip{
+    position:relative;flex-shrink:0;
+    display:flex;justify-content:space-between;align-items:baseline;
+    padding:4px 8px 8px;border-bottom:1px solid var(--line);
+    font-family:var(--mono);color:var(--muted);
+  }
+  #ctStrip .ct-strip-lbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase}
+  #cTotal{color:var(--text);font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+  #ctStrip .ct-strip-u{color:var(--muted);font-size:13px}
+  #cHoldBar{position:absolute;left:0;bottom:-1px;height:3px;width:0;background:var(--red);border-radius:2px}
+
+  #ctCard{
+    flex:1;min-height:0;position:relative;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+    background:var(--cardbg);color:var(--cardink);border-radius:20px;padding:16px;overflow:hidden;
+  }
+  #ctHead{display:none;align-items:center;gap:14px;flex-shrink:0}
+  #ctHead .ct-arrow{
+    background:var(--btnbg);border:1px solid var(--line);color:var(--cardink);
+    border-radius:12px;width:46px;height:46px;font-size:20px;line-height:1;
+  }
+  #ctHead .ct-arrow:active{background:var(--amber);color:#000}
+  #cNum{
+    min-width:36px;height:36px;padding:0 10px;border-radius:9px;
+    background:var(--green);color:#000;font-weight:800;font-family:var(--mono);
+    display:flex;align-items:center;justify-content:center;font-size:18px;
+  }
+  #ctCard .ct-lbl{
+    position:absolute;top:12px;left:16px;
+    font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700;
+  }
+  #cImg{display:none;max-width:100%;max-height:100%;object-fit:contain;border-radius:12px;background:#fff}
+  #cSym{font-size:clamp(60px,20vw,150px);line-height:1}
+  #cWord{
+    font-size:calc(clamp(46px,13vw,110px) * var(--numscale));
+    font-weight:900;text-transform:uppercase;color:var(--green);
+    text-align:center;word-break:break-word;line-height:1.05;
+  }
+  #cWord.num{font-family:var(--mono);color:var(--amber);font-weight:800;font-variant-numeric:tabular-nums}
+  #cTrip{display:flex;flex-direction:column;align-items:center}
+  #cTripVal{
+    font-family:var(--mono);font-weight:800;
+    font-size:calc(clamp(50px,15vw,120px) * var(--numscale));
+    line-height:1;color:var(--cardink);font-variant-numeric:tabular-nums;
+  }
+  #cTripU{font-size:15px;color:var(--muted);margin-top:6px;letter-spacing:.1em}
+  #cNote{
+    font-size:clamp(18px,5vw,32px);font-weight:800;text-transform:uppercase;
+    text-align:center;color:var(--cardink);word-break:break-word;max-width:100%;
+  }
+
+  #ctPrimary{flex-shrink:0;text-align:center;padding:2px 4px 4px}
+  .ct-sub{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+  .ct-big{
+    font-family:var(--mono);font-weight:800;line-height:1;font-variant-numeric:tabular-nums;
+    font-size:calc(clamp(44px,12vw,80px) * var(--numscale));
+  }
+  .ct-big.near{color:var(--red) !important}
+  .ct-bar{height:12px;border-radius:7px;background:var(--btnbg);overflow:hidden;margin-top:10px;display:none}
+  .ct-bar i{display:block;height:100%;width:0;background:var(--green);border-radius:7px;transition:width .25s linear}
+
+  /* mostra/nascondi i pezzi della scheda in base alla modalità */
+  #ctCard #cImg,#ctCard #cSym,#ctCard #cWord,#ctCard #cTrip,#ctCard #cNote{display:none}
+  body[data-mode="radar"][data-skin="card"] #ctHead{display:flex}
+  body[data-mode="radar"][data-skin="card"] #cSym{display:block}
+  body[data-mode="radar"][data-skin="card"] #cNote{display:block}
+  body[data-mode="radar"][data-skin="card"] .ct-bar{display:block}
+  body[data-mode="radar"][data-skin="card"] .ct-big{color:var(--green)}
+  body[data-mode="nav"][data-skin="card"] #cTrip{display:flex}
+  body[data-mode="nav"][data-skin="card"] #ctCard .ct-lbl{display:block}
+  body[data-mode="nav"][data-skin="card"] .ct-big{color:var(--green)}
+  body[data-mode="pilot"][data-skin="card"] #cWord{display:block}
+  body[data-mode="pilot"][data-skin="card"] #ctCard .ct-lbl{display:block}
+  body[data-mode="pilot"][data-skin="card"] .ct-big{display:none}
+  body[data-mode="pilot"][data-skin="card"] .ct-bar{display:none}
+  /* etichetta in alto nascosta in Radar (c'è la testata con numero e frecce) */
+  body[data-mode="radar"][data-skin="card"] #ctCard .ct-lbl{display:none}
 </style>
 </head>
 <body data-mode="pilot" data-theme="dark">
@@ -563,6 +654,33 @@
     <span class="zlabel" data-t="speedLabel"></span>
     <div id="speedVal">0</div>
     <div class="unit" id="speedUnit">km/h</div>
+  </div>
+</div>
+
+<!-- ============ LAYOUT SCHEDA (skin alternativo) ============ -->
+<div id="cardApp">
+  <div id="ctStrip">
+    <span class="ct-strip-lbl" data-t="totalShort"></span>
+    <span><b id="cTotal">0,00</b> <span id="cTotalU" class="ct-strip-u">km</span></span>
+    <div id="cHoldBar"></div>
+  </div>
+  <div id="ctCard">
+    <div id="ctHead">
+      <button id="cPrev" class="ct-arrow">&#9664;</button>
+      <span id="cNum" class="ct-num"></span>
+      <button id="cNext" class="ct-arrow">&#9654;</button>
+    </div>
+    <span class="ct-lbl" id="cCardLbl"></span>
+    <img id="cImg" class="ct-img" alt="">
+    <div id="cSym" class="ct-sym">&mdash;</div>
+    <div id="cWord" class="ct-word"></div>
+    <div id="cTrip" class="ct-trip"><span id="cTripVal">0,00</span><span id="cTripU" class="ct-trip-u">km</span></div>
+    <div id="cNote" class="ct-note"></div>
+  </div>
+  <div id="ctPrimary">
+    <div class="ct-sub" id="cSub"></div>
+    <div class="ct-big" id="cBig">0</div>
+    <div class="ct-bar" id="cBar"><i id="cBarFill"></i></div>
   </div>
 </div>
 
@@ -644,6 +762,13 @@
   <h2 data-t="gsTitle"></h2>
 
   <h3 data-t="secLook"></h3>
+  <div class="setting-row">
+    <span data-t="layoutLabel"></span>
+    <select id="skinSel">
+      <option value="classic" data-t="layoutClassic"></option>
+      <option value="card" data-t="layoutCard"></option>
+    </select>
+  </div>
   <div class="setting-row">
     <span data-t="themeLabel"></span>
     <select id="themeSel">
@@ -794,7 +919,7 @@ it:{introTitle:"Come funziona",
   autoResetSmall:"Acceso = il parziale si azzera da solo a ogni simbolo del radar. Spento = lo azzeri tu a mano (tocco sul parziale), e nemmeno le frecce lo toccano.",
   gsTitle:"Impostazioni generali",
   langLabel:"Lingua",unitLabel:"Unità di misura",
-  fontLabel:"Carattere numeri",numLabel:"Dimensione numeri",secLook:"Aspetto",secMeasure:"Misure e lingua",previewLabel:"Anteprima",refDelAsk:"Eliminare il riferimento",refCount:"riferimenti",gpsCalLabel:"Taratura GPS (%)",gpsCalSmall:"Correzione fissa della distanza per allineare il GPS ai km del road book. Esempio: se il GPS misura 1000 m dove il road book ne segna 1015, imposta +1,5. Lascia 0 se non serve.",resumeAsk:"Riprendere la prova in corso?",resumeYes:"Riprendi",resumeNo:"Ricomincia",secGps:"GPS",numSmall:"Piccoli",numNormal:"Normali",numLarge:"Grandi",
+  fontLabel:"Carattere numeri",numLabel:"Dimensione numeri",secLook:"Aspetto",secMeasure:"Misure e lingua",previewLabel:"Anteprima",refDelAsk:"Eliminare il riferimento",refCount:"riferimenti",gpsCalLabel:"Taratura GPS (%)",gpsCalSmall:"Correzione fissa della distanza per allineare il GPS ai km del road book. Esempio: se il GPS misura 1000 m dove il road book ne segna 1015, imposta +1,5. Lascia 0 se non serve.",resumeAsk:"Riprendere la prova in corso?",resumeYes:"Riprendi",resumeNo:"Ricomincia",secGps:"GPS",layoutLabel:"Layout",layoutClassic:"Classico",layoutCard:"Scheda",cardNext:"al prossimo",numSmall:"Piccoli",numNormal:"Normali",numLarge:"Grandi",
   timeLabel:"Formato orario",time24:"24 ore",time12:"12 ore",
   themeLabel:"Tema",themeDark:"Scuro",themeLight:"Chiaro",
   tunnelLabel:"Modalità galleria",tunnelSmall:"Senza segnale GPS continua a contare con l'ultima velocità (max 60 s)",
@@ -874,7 +999,7 @@ en:{introTitle:"How it works",
   autoResetSmall:"On = the partial resets by itself at each road book reference. Off = you reset it yourself (tap the partial), and the arrows do not touch it either.",
   gsTitle:"General settings",
   langLabel:"Language",unitLabel:"Units",
-  fontLabel:"Number font",numLabel:"Number size",secLook:"Appearance",secMeasure:"Units and language",previewLabel:"Preview",refDelAsk:"Delete reference",refCount:"references",gpsCalLabel:"GPS calibration (%)",gpsCalSmall:"Fixed distance correction to align GPS with the road book km. Example: if GPS reads 1000 m where the road book says 1015, set +1.5. Leave 0 if not needed.",resumeAsk:"Resume the current stage?",resumeYes:"Resume",resumeNo:"Start over",secGps:"GPS",numSmall:"Small",numNormal:"Normal",numLarge:"Large",
+  fontLabel:"Number font",numLabel:"Number size",secLook:"Appearance",secMeasure:"Units and language",previewLabel:"Preview",refDelAsk:"Delete reference",refCount:"references",gpsCalLabel:"GPS calibration (%)",gpsCalSmall:"Fixed distance correction to align GPS with the road book km. Example: if GPS reads 1000 m where the road book says 1015, set +1.5. Leave 0 if not needed.",resumeAsk:"Resume the current stage?",resumeYes:"Resume",resumeNo:"Start over",secGps:"GPS",layoutLabel:"Layout",layoutClassic:"Classic",layoutCard:"Card",cardNext:"to next",numSmall:"Small",numNormal:"Normal",numLarge:"Large",
   timeLabel:"Time format",time24:"24-hour",time12:"12-hour",
   themeLabel:"Theme",themeDark:"Dark",themeLight:"Light",
   tunnelLabel:"Tunnel mode",tunnelSmall:"Without GPS signal keeps counting at the last speed (max 60 s)",
@@ -1271,7 +1396,8 @@ let cfg = {
   tunnel: true,
   theme: 'dark',
   h24: true,
-  gpsPct: 0
+  gpsPct: 0,
+  skin: 'classic'
 };
 
 try{
@@ -1296,6 +1422,7 @@ if(typeof cfg.autoReset !== 'boolean') cfg.autoReset = true;
 if(typeof cfg.h24 !== 'boolean') cfg.h24 = true;
 if(typeof cfg.gpsPct !== 'number' || !isFinite(cfg.gpsPct)) cfg.gpsPct = 0;
 cfg.gpsPct = Math.max(-20, Math.min(20, cfg.gpsPct));
+if(cfg.skin !== 'classic' && cfg.skin !== 'card') cfg.skin = 'classic';
 if(typeof cfg.ssActive !== 'string') cfg.ssActive = '';
 if(!cfg.lay || typeof cfg.lay !== 'object') cfg.lay = {arr:'top'};
 if(!['top','left','right'].includes(cfg.lay.arr)) cfg.lay.arr = 'top';
@@ -1392,6 +1519,12 @@ function applyLang(){
     el.textContent = t(el.dataset.t);
   });
   updateStateText();
+  updateCardStatic();
+}
+function updateCardStatic(){
+  if(cfg.mode === 'radar'){ cCardLbl.textContent = ''; cSub.textContent = t('cardNext'); }
+  else if(cfg.mode === 'nav'){ cCardLbl.textContent = t('partialLabel'); cSub.textContent = t('speedLabel'); }
+  else { cCardLbl.textContent = t('wordShort'); cSub.textContent = t('partialLabel'); }
 }
 function applyTheme(){
   document.body.dataset.theme = cfg.theme;
@@ -1411,6 +1544,11 @@ const totalVal=$('totalVal'), partialVal=$('partialVal'),
       radImg=$('radImg'),
       holdBar=$('holdBar'), toast=$('toast'),
       ssBadge=$('ssBadge');
+/* elementi del layout scheda */
+const cTotal=$('cTotal'), cTotalU=$('cTotalU'), cHoldBar=$('cHoldBar'),
+      cNum=$('cNum'), cImg=$('cImg'), cSym=$('cSym'), cWord=$('cWord'),
+      cTripVal=$('cTripVal'), cTripU=$('cTripU'), cNote=$('cNote'),
+      cCardLbl=$('cCardLbl'), cSub=$('cSub'), cBig=$('cBig'), cBarFill=$('cBarFill');
 
 let toastTimer = null;
 function showToast(msg){
@@ -1451,6 +1589,7 @@ function applyMode(){
     zonePartial.classList.remove('stopped');
   }
   updateSsBadge();
+  cImg.style.display = ''; cSym.style.display = ''; cNote.style.display = '';
   applyLang();
 }
 function applyUnits(){
@@ -1566,6 +1705,10 @@ function radarRender(){
       radNote.textContent = ''; radNote.style.display = '';
       radDist.textContent = '';
       radImg.style.display = 'none'; radImg.removeAttribute('src');
+      cNum.textContent = '';
+      cSym.textContent = '\u2014'; cSym.style.display = '';
+      cNote.textContent = ''; cImg.style.display = 'none'; cImg.removeAttribute('src');
+      cBig.textContent = ''; cBarFill.style.width = '0%';
       radShownIdx = -2;
     }
     radNextIdx = -1;
@@ -1596,11 +1739,30 @@ function radarRender(){
       radSym.textContent = r.s || (next === -1 ? '🏁' : '⚠️');
       radNote.textContent = r.n || '';
     }
+    /* stessa cosa sulla scheda */
+    cNum.textContent = idx + 1;
+    if(src){
+      cImg.src = src; cImg.style.display = 'block';
+      cSym.style.display = 'none'; cNote.style.display = 'none';
+    } else {
+      cImg.style.display = 'none'; cImg.removeAttribute('src');
+      cSym.style.display = ''; cNote.style.display = '';
+      cSym.textContent = r.s || (next === -1 ? '🏁' : '⚠️');
+      cNote.textContent = r.n || '';
+    }
     radShownIdx = key;
   }
   const rem = next === -1 ? 0 : Math.max(0, dM - tR);
   radDist.textContent = fmtDist(rem) + ' ' + distUnit();
   radDist.classList.toggle('near', next !== -1 && rem <= 100);
+  if(cfg.skin === 'card'){
+    cBig.textContent = fmtDist(rem) + ' ' + distUnit();
+    cBig.classList.toggle('near', next !== -1 && rem <= 100);
+    const segStart = idx > 0 ? ((parseKm(cfg.rb[idx-1].km) * 1000) || 0) : 0;
+    const seg = dM - segStart;
+    const pct = (next !== -1 && seg > 0) ? Math.max(0, Math.min(100, rem / seg * 100)) : 0;
+    cBarFill.style.width = pct + '%';
+  }
 }
 
 /* frecce: riancora il radar al riferimento scelto e azzera il parziale */
@@ -1685,14 +1847,27 @@ function frame(){
       wordVal.classList.add('numeric');
     }
   }
+  if(cfg.skin === 'card'){
+    cTotal.textContent = totalVal.textContent;
+    cTotalU.textContent = distUnit();
+    if(cfg.mode === 'pilot'){
+      cWord.textContent = wordVal.textContent;
+      cWord.classList.toggle('num', !currentWord);
+      cSub.textContent = running ? t('running') : t('ready');
+    } else if(cfg.mode === 'nav'){
+      cTripVal.textContent = fmtDist(partial);
+      cTripU.textContent = distUnit();
+      cBig.textContent = speedVal.textContent + ' ' + speedUnitStr();
+    }
+  }
   requestAnimationFrame(frame);
 }
-
-/* ================= DISPOSIZIONE RADAR / SCALA NUMERI ================= */
 function applyLayout(){
   document.body.dataset.arr = cfg.lay.arr;
   document.body.dataset.numsize = cfg.numSize;
   document.body.dataset.numfont = cfg.numFont;
+  document.body.dataset.skin = cfg.skin;
+  radShownIdx = -2;
 }
 
 /* ================= AZIONE PRINCIPALE ================= */
@@ -1740,10 +1915,14 @@ let holdTimer = null;
 function resetHoldBar(){
   holdBar.style.transition = 'none';
   holdBar.style.width = '0';
+  cHoldBar.style.transition = 'none';
+  cHoldBar.style.width = '0';
 }
 function startHold(e){
   holdBar.style.transition = 'width 2s linear';
   holdBar.style.width = '100%';
+  cHoldBar.style.transition = 'width 2s linear';
+  cHoldBar.style.width = '100%';
   holdTimer = setTimeout(()=>{
     total = 0;
     rbOffset = 0;
@@ -1766,6 +1945,18 @@ zoneTotal.addEventListener('pointerup', cancelHold);
 zoneTotal.addEventListener('pointercancel', cancelHold);
 zoneTotal.addEventListener('pointerleave', cancelHold);
 zoneTotal.addEventListener('contextmenu', e => e.preventDefault());
+
+/* stessi comandi sul layout scheda */
+const ctStripEl = $('ctStrip');
+ctStripEl.addEventListener('pointerdown', startHold);
+ctStripEl.addEventListener('pointerup', cancelHold);
+ctStripEl.addEventListener('pointercancel', cancelHold);
+ctStripEl.addEventListener('pointerleave', cancelHold);
+ctStripEl.addEventListener('contextmenu', e => e.preventDefault());
+$('ctCard').addEventListener('click', mainAction);
+$('ctPrimary').addEventListener('click', mainAction);
+$('cPrev').addEventListener('click', e=>{ e.stopPropagation(); rbJump(-1); });
+$('cNext').addEventListener('click', e=>{ e.stopPropagation(); rbJump(1); });
 
 /* ================= LEGENDA GPS ================= */
 $('btnInfo').addEventListener('click', e=>{
@@ -1877,6 +2068,7 @@ $('drvSet').addEventListener('click', ()=>{
   $('fontSel').value = cfg.numFont;
   $('timeSel').value = cfg.h24 ? '24' : '12';
   $('themeSel').value = cfg.theme;
+  $('skinSel').value = cfg.skin;
   $('gpsPctInput').value = cfg.gpsPct;
   $('genMenu').classList.add('open');
 });
@@ -1888,6 +2080,7 @@ $('numSel').addEventListener('change', e=>{ cfg.numSize = parseInt(e.target.valu
 $('fontSel').addEventListener('change', e=>{ cfg.numFont = e.target.value; applyLayout(); saveCfg(); });
 $('timeSel').addEventListener('change', e=>{ cfg.h24 = e.target.value === '24'; saveCfg(); });
 $('themeSel').addEventListener('change', e=>{ cfg.theme = e.target.value; applyTheme(); saveCfg(); });
+$('skinSel').addEventListener('change', e=>{ cfg.skin = e.target.value; applyLayout(); saveCfg(); });
 $('autoResetToggle').addEventListener('change', e=>{ cfg.autoReset = e.target.checked; saveCfg(); });
 $('gpsCalInfo').addEventListener('click', ()=>{ showMsg(t('gpsCalSmall'), t('gpsCalLabel')); });
 function readGpsPct(){
