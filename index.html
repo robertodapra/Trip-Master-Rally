@@ -522,83 +522,75 @@
     height:100dvh;
     padding:calc(46px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 12px) calc(12px + env(safe-area-inset-left));
   }
-  #ctStrip{
+
+  /* fascia superiore: parziale (grande) + totale (piccolo) */
+  #ctTop{
     position:relative;flex-shrink:0;
-    display:flex;justify-content:space-between;align-items:baseline;
-    padding:4px 8px 8px;border-bottom:1px solid var(--line);
-    font-family:var(--mono);color:var(--muted);
+    display:flex;flex-direction:column;gap:2px;
+    padding:2px 8px 8px;border-bottom:1px solid var(--line);
+    font-family:var(--mono);
   }
-  #ctStrip .ct-strip-lbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase}
-  #cTotal{color:var(--text);font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
-  #ctStrip .ct-strip-u{color:var(--muted);font-size:13px}
+  .ct-read{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .ct-read-lbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .ct-read-val b{color:var(--text);font-weight:800;font-variant-numeric:tabular-nums}
+  .ct-read-val i{color:var(--muted);font-style:normal;font-size:.7em}
+  #ctPartTop .ct-read-val b{font-size:30px}
+  #ctTotTop .ct-read-val b{font-size:20px}
   #cHoldBar{position:absolute;left:0;bottom:-1px;height:3px;width:0;background:var(--red);border-radius:2px}
 
+  /* scheda centrale */
   #ctCard{
     flex:1;min-height:0;position:relative;
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
     background:var(--cardbg);color:var(--cardink);border-radius:20px;padding:16px;overflow:hidden;
   }
   #ctHead{display:none;align-items:center;gap:14px;flex-shrink:0}
-  #ctHead .ct-arrow{
-    background:var(--btnbg);border:1px solid var(--line);color:var(--cardink);
-    border-radius:12px;width:46px;height:46px;font-size:20px;line-height:1;
-  }
+  #ctHead .ct-arrow{background:var(--btnbg);border:1px solid var(--line);color:var(--cardink);border-radius:12px;width:46px;height:46px;font-size:20px;line-height:1}
   #ctHead .ct-arrow:active{background:var(--amber);color:#000}
-  #cNum{
-    min-width:36px;height:36px;padding:0 10px;border-radius:9px;
-    background:var(--green);color:#000;font-weight:800;font-family:var(--mono);
-    display:flex;align-items:center;justify-content:center;font-size:18px;
-  }
-  #ctCard .ct-lbl{
-    position:absolute;top:12px;left:16px;
-    font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700;
-  }
+  #cNum{min-width:36px;height:36px;padding:0 10px;border-radius:9px;background:var(--green);color:#000;font-weight:800;font-family:var(--mono);display:flex;align-items:center;justify-content:center;font-size:18px}
+  #ctCard .ct-lbl{position:absolute;top:12px;left:16px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700}
   #cImg{display:none;max-width:100%;max-height:100%;object-fit:contain;border-radius:12px;background:#fff}
   #cSym{font-size:clamp(60px,20vw,150px);line-height:1}
-  #cWord{
-    font-size:calc(clamp(46px,13vw,110px) * var(--numscale));
-    font-weight:900;text-transform:uppercase;color:var(--green);
-    text-align:center;word-break:break-word;line-height:1.05;
-  }
+  #cWord{font-size:calc(clamp(46px,13vw,110px) * var(--numscale));font-weight:900;text-transform:uppercase;color:var(--green);text-align:center;word-break:break-word;line-height:1.05}
   #cWord.num{font-family:var(--mono);color:var(--amber);font-weight:800;font-variant-numeric:tabular-nums}
   #cTrip{display:flex;flex-direction:column;align-items:center}
-  #cTripVal{
-    font-family:var(--mono);font-weight:800;
-    font-size:calc(clamp(50px,15vw,120px) * var(--numscale));
-    line-height:1;color:var(--cardink);font-variant-numeric:tabular-nums;
-  }
+  #cTripVal{font-family:var(--mono);font-weight:800;font-size:calc(clamp(50px,15vw,120px) * var(--numscale));line-height:1;color:var(--cardink);font-variant-numeric:tabular-nums}
   #cTripU{font-size:15px;color:var(--muted);margin-top:6px;letter-spacing:.1em}
-  #cNote{
-    font-size:clamp(18px,5vw,32px);font-weight:800;text-transform:uppercase;
-    text-align:center;color:var(--cardink);word-break:break-word;max-width:100%;
-  }
+  #cNote{font-size:clamp(18px,5vw,32px);font-weight:800;text-transform:uppercase;text-align:center;color:var(--cardink);word-break:break-word;max-width:100%}
 
-  #ctPrimary{flex-shrink:0;text-align:center;padding:2px 4px 4px}
+  /* piede: 1 dato grande (verticale) o 3 colonne (Radar orizzontale) */
+  #ctFoot{flex-shrink:0;display:flex;justify-content:center;align-items:flex-end;gap:16px;padding:2px 4px 4px}
+  .ct-col{display:flex;flex-direction:column;align-items:center;text-align:center}
   .ct-sub{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
-  .ct-big{
-    font-family:var(--mono);font-weight:800;line-height:1;font-variant-numeric:tabular-nums;
-    font-size:calc(clamp(44px,12vw,80px) * var(--numscale));
-  }
+  .ct-big{font-family:var(--mono);font-weight:800;line-height:1;font-variant-numeric:tabular-nums;font-size:calc(clamp(44px,12vw,80px) * var(--numscale))}
   .ct-big.near{color:var(--red) !important}
-  .ct-bar{height:12px;border-radius:7px;background:var(--btnbg);overflow:hidden;margin-top:10px;display:none}
-  .ct-bar i{display:block;height:100%;width:0;background:var(--green);border-radius:7px;transition:width .25s linear}
+  .ct-mid{font-family:var(--mono);font-weight:800;line-height:1;font-variant-numeric:tabular-nums;font-size:calc(clamp(22px,6vw,34px) * var(--numscale));color:var(--text)}
 
-  /* mostra/nascondi i pezzi della scheda in base alla modalità */
+  /* mostra/nascondi in base alla modalità */
   #ctCard #cImg,#ctCard #cSym,#ctCard #cWord,#ctCard #cTrip,#ctCard #cNote{display:none}
+  #ctPartTop{display:none}
+  #ctColPar,#ctColTot{display:none}
   body[data-mode="radar"][data-skin="card"] #ctHead{display:flex}
   body[data-mode="radar"][data-skin="card"] #cSym{display:block}
   body[data-mode="radar"][data-skin="card"] #cNote{display:block}
-  body[data-mode="radar"][data-skin="card"] .ct-bar{display:block}
+  body[data-mode="radar"][data-skin="card"] #ctPartTop{display:flex}
   body[data-mode="radar"][data-skin="card"] .ct-big{color:var(--green)}
+  body[data-mode="radar"][data-skin="card"] #ctCard .ct-lbl{display:none}
   body[data-mode="nav"][data-skin="card"] #cTrip{display:flex}
   body[data-mode="nav"][data-skin="card"] #ctCard .ct-lbl{display:block}
   body[data-mode="nav"][data-skin="card"] .ct-big{color:var(--green)}
   body[data-mode="pilot"][data-skin="card"] #cWord{display:block}
   body[data-mode="pilot"][data-skin="card"] #ctCard .ct-lbl{display:block}
-  body[data-mode="pilot"][data-skin="card"] .ct-big{display:none}
-  body[data-mode="pilot"][data-skin="card"] .ct-bar{display:none}
-  /* etichetta in alto nascosta in Radar (c'è la testata con numero e frecce) */
-  body[data-mode="radar"][data-skin="card"] #ctCard .ct-lbl{display:none}
+  body[data-mode="pilot"][data-skin="card"] #ctColNext .ct-big{display:none}
+
+  /* Radar orizzontale: niente totale in alto, 3 distanze in basso (prossimo · parziale · totale) */
+  @media (orientation:landscape){
+    body[data-mode="radar"][data-skin="card"] #ctTop{display:none}
+    body[data-mode="radar"][data-skin="card"] #ctColPar,
+    body[data-mode="radar"][data-skin="card"] #ctColTot{display:flex}
+    body[data-mode="radar"][data-skin="card"] #ctFoot{justify-content:space-between;padding:2px 14px 4px}
+    body[data-mode="radar"][data-skin="card"] .ct-big{font-size:calc(clamp(30px,8vw,58px) * var(--numscale))}
+  }
 </style>
 </head>
 <body data-mode="pilot" data-theme="dark">
@@ -659,9 +651,15 @@
 
 <!-- ============ LAYOUT SCHEDA (skin alternativo) ============ -->
 <div id="cardApp">
-  <div id="ctStrip">
-    <span class="ct-strip-lbl" data-t="totalShort"></span>
-    <span><b id="cTotal">0,00</b> <span id="cTotalU" class="ct-strip-u">km</span></span>
+  <div id="ctTop">
+    <div id="ctPartTop" class="ct-read">
+      <span class="ct-read-lbl" data-t="partialLabel"></span>
+      <span class="ct-read-val"><b id="cPartTop">0,00</b> <i id="cPartTopU">km</i></span>
+    </div>
+    <div id="ctTotTop" class="ct-read ct-total">
+      <span class="ct-read-lbl" data-t="totalShort"></span>
+      <span class="ct-read-val"><b id="cTotTop">0,00</b> <i id="cTotTopU">km</i></span>
+    </div>
     <div id="cHoldBar"></div>
   </div>
   <div id="ctCard">
@@ -677,10 +675,19 @@
     <div id="cTrip" class="ct-trip"><span id="cTripVal">0,00</span><span id="cTripU" class="ct-trip-u">km</span></div>
     <div id="cNote" class="ct-note"></div>
   </div>
-  <div id="ctPrimary">
-    <div class="ct-sub" id="cSub"></div>
-    <div class="ct-big" id="cBig">0</div>
-    <div class="ct-bar" id="cBar"><i id="cBarFill"></i></div>
+  <div id="ctFoot">
+    <div class="ct-col" id="ctColNext">
+      <span class="ct-sub" id="cSub"></span>
+      <span class="ct-big" id="cBig">0</span>
+    </div>
+    <div class="ct-col" id="ctColPar">
+      <span class="ct-sub" data-t="partialLabel"></span>
+      <span class="ct-mid" id="cPartFoot">0,00</span>
+    </div>
+    <div class="ct-col ct-total" id="ctColTot">
+      <span class="ct-sub" data-t="totalShort"></span>
+      <span class="ct-mid" id="cTotFoot">0,00</span>
+    </div>
   </div>
 </div>
 
@@ -827,15 +834,6 @@
     </select>
   </div>
 
-  <h3 data-t="secGps"></h3>
-  <div class="setting-row">
-    <span style="display:flex;align-items:center;gap:8px">
-      <span data-t="gpsCalLabel"></span>
-      <button id="gpsCalInfo" style="background:var(--btnbg);border:1px solid var(--line);color:var(--muted);border-radius:50%;width:24px;height:24px;font-size:12px;font-weight:700;flex-shrink:0">i</button>
-    </span>
-    <input type="number" id="gpsPctInput" inputmode="decimal" step="0.1" min="-20" max="20" style="width:96px;padding:10px 8px;background:var(--inputbg);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:16px;text-align:right">
-  </div>
-
   <button class="okbtn" id="closeGen" data-t="close"></button>
 </div>
 
@@ -916,7 +914,7 @@ it:{introTitle:"Come funziona",
   thDist:"Km totali",thSym:"Simbolo",thNote:"Nota",
   rbClear:"Svuota tutto",
   autoResetLabel:"Azzeramento automatico del parziale",
-  autoResetSmall:"Acceso = il parziale si azzera da solo a ogni simbolo del radar. Spento = lo azzeri tu a mano (tocco sul parziale), e nemmeno le frecce lo toccano.",
+  autoResetSmall:"Acceso = il parziale si azzera da solo a ogni riferimento, in base ai km del road book. Spento = lo gestisci tu: a ogni tocco avanzi al riferimento successivo e azzeri il parziale a mano. Nota: la precisione automatica non è garantita, dipende da com’è fatto il radar (km e disegni).",
   gsTitle:"Impostazioni generali",
   langLabel:"Lingua",unitLabel:"Unità di misura",
   fontLabel:"Carattere numeri",numLabel:"Dimensione numeri",secLook:"Aspetto",secMeasure:"Misure e lingua",previewLabel:"Anteprima",refDelAsk:"Eliminare il riferimento",refCount:"riferimenti",gpsCalLabel:"Taratura GPS (%)",gpsCalSmall:"Correzione fissa della distanza per allineare il GPS ai km del road book. Esempio: se il GPS misura 1000 m dove il road book ne segna 1015, imposta +1,5. Lascia 0 se non serve.",resumeAsk:"Riprendere la prova in corso?",resumeYes:"Riprendi",resumeNo:"Ricomincia",secGps:"GPS",layoutLabel:"Layout",layoutClassic:"Classico",layoutCard:"Scheda",cardNext:"al prossimo",numSmall:"Piccoli",numNormal:"Normali",numLarge:"Grandi",
@@ -996,7 +994,7 @@ en:{introTitle:"How it works",
   thDist:"Total km",thSym:"Symbol",thNote:"Note",
   rbClear:"Clear all",
   autoResetLabel:"Automatic partial reset",
-  autoResetSmall:"On = the partial resets by itself at each road book reference. Off = you reset it yourself (tap the partial), and the arrows do not touch it either.",
+  autoResetSmall:"On = the partial resets by itself at each reference, based on the road book km. Off = you control it: each tap moves to the next reference and resets the partial by hand. Note: automatic precision isn’t guaranteed — it depends on how the road book is made (km and drawings).",
   gsTitle:"General settings",
   langLabel:"Language",unitLabel:"Units",
   fontLabel:"Number font",numLabel:"Number size",secLook:"Appearance",secMeasure:"Units and language",previewLabel:"Preview",refDelAsk:"Delete reference",refCount:"references",gpsCalLabel:"GPS calibration (%)",gpsCalSmall:"Fixed distance correction to align GPS with the road book km. Example: if GPS reads 1000 m where the road book says 1015, set +1.5. Leave 0 if not needed.",resumeAsk:"Resume the current stage?",resumeYes:"Resume",resumeNo:"Start over",secGps:"GPS",layoutLabel:"Layout",layoutClassic:"Classic",layoutCard:"Card",cardNext:"to next",numSmall:"Small",numNormal:"Normal",numLarge:"Large",
@@ -1545,10 +1543,12 @@ const totalVal=$('totalVal'), partialVal=$('partialVal'),
       holdBar=$('holdBar'), toast=$('toast'),
       ssBadge=$('ssBadge');
 /* elementi del layout scheda */
-const cTotal=$('cTotal'), cTotalU=$('cTotalU'), cHoldBar=$('cHoldBar'),
+const cPartTop=$('cPartTop'), cPartTopU=$('cPartTopU'), cTotTop=$('cTotTop'), cTotTopU=$('cTotTopU'),
+      cHoldBar=$('cHoldBar'),
       cNum=$('cNum'), cImg=$('cImg'), cSym=$('cSym'), cWord=$('cWord'),
       cTripVal=$('cTripVal'), cTripU=$('cTripU'), cNote=$('cNote'),
-      cCardLbl=$('cCardLbl'), cSub=$('cSub'), cBig=$('cBig'), cBarFill=$('cBarFill');
+      cCardLbl=$('cCardLbl'), cSub=$('cSub'), cBig=$('cBig'),
+      cPartFoot=$('cPartFoot'), cTotFoot=$('cTotFoot');
 
 let toastTimer = null;
 function showToast(msg){
@@ -1608,6 +1608,7 @@ function haversine(lat1, lon1, lat2, lon2){
   return 2*R*Math.asin(Math.sqrt(a));
 }
 
+let gpsWarmup = performance.now() + 3000;
 function onFix(pos){
   const c = pos.coords;
   const acc = c.accuracy;
@@ -1624,13 +1625,12 @@ function onFix(pos){
     lastGoodFix = performance.now();
     lastPos = c;
   } else {
-    if(lastPos){
+    if(lastPos && performance.now() >= gpsWarmup){
       const d = haversine(lastPos.latitude, lastPos.longitude, c.latitude, c.longitude);
-      const noiseFloor = Math.max(2, acc * 0.5);
+      const noiseFloor = Math.max(4, acc * 0.7);
       if(d >= noiseFloor && d < 500){
-        const dc = d * (1 + (cfg.gpsPct||0)/100);
-        total += dc;
-        if(partialActive()) partial += dc;
+        total += d;
+        if(partialActive()) partial += d;
       }
     }
     curSpeed = 0;
@@ -1671,6 +1671,7 @@ function rbSortKey(r){
 /* offset manuale: permette di riancorare il radar al riferimento scelto con le frecce */
 let rbOffset = 0;
 let radNextIdx = -1;
+let radManual = 0;
 function radT(){ return total + rbOffset; }
 
 /* azzeramento automatico del parziale a ogni riferimento superato (modalità Radar) */
@@ -1708,22 +1709,31 @@ function radarRender(){
       cNum.textContent = '';
       cSym.textContent = '\u2014'; cSym.style.display = '';
       cNote.textContent = ''; cImg.style.display = 'none'; cImg.removeAttribute('src');
-      cBig.textContent = ''; cBarFill.style.width = '0%';
+      cBig.textContent = '';
       radShownIdx = -2;
     }
     radNextIdx = -1;
     return;
   }
   const tR = radT();
-  let next = -1, dM = 0;
-  for(let i = 0; i < cfg.rb.length; i++){
-    const d = parseKm(cfg.rb[i].km) * 1000;
-    if(isNaN(d)) continue;
-    if(tR < d){ next = i; dM = d; break; }
+  let next = -1, dM = 0, idx;
+  if(!cfg.autoReset){
+    /* MANUALE: il simbolo lo avanza il navigatore (tocco o frecce) */
+    idx = Math.max(0, Math.min(cfg.rb.length - 1, radManual));
+    const kmIdx = parseKm(cfg.rb[idx].km) * 1000;
+    dM = isNaN(kmIdx) ? tR : kmIdx;
+    next = idx;
+    radNextIdx = idx;
+  } else {
+    for(let i = 0; i < cfg.rb.length; i++){
+      const d = parseKm(cfg.rb[i].km) * 1000;
+      if(isNaN(d)) continue;
+      if(tR < d){ next = i; dM = d; break; }
+    }
+    idx = next === -1 ? cfg.rb.length - 1 : next;
+    radNextIdx = next === -1 ? cfg.rb.length : next;
   }
-  const idx = next === -1 ? cfg.rb.length - 1 : next;
-  radNextIdx = next === -1 ? cfg.rb.length : next;
-  const key = next === -1 ? idx + 10000 : next;
+  const key = cfg.autoReset ? (next === -1 ? idx + 10000 : next) : ('m' + idx);
   if(radShownIdx !== key){
     const r = cfg.rb[idx];
     radNum.textContent = idx + 1;
@@ -1736,7 +1746,7 @@ function radarRender(){
     } else {
       radImg.style.display = 'none'; radImg.removeAttribute('src');
       radSym.style.display = ''; radNote.style.display = '';
-      radSym.textContent = r.s || (next === -1 ? '🏁' : '⚠️');
+      radSym.textContent = r.s || (cfg.autoReset && next === -1 ? '🏁' : '⚠️');
       radNote.textContent = r.n || '';
     }
     /* stessa cosa sulla scheda */
@@ -1747,27 +1757,31 @@ function radarRender(){
     } else {
       cImg.style.display = 'none'; cImg.removeAttribute('src');
       cSym.style.display = ''; cNote.style.display = '';
-      cSym.textContent = r.s || (next === -1 ? '🏁' : '⚠️');
+      cSym.textContent = r.s || (cfg.autoReset && next === -1 ? '🏁' : '⚠️');
       cNote.textContent = r.n || '';
     }
     radShownIdx = key;
   }
-  const rem = next === -1 ? 0 : Math.max(0, dM - tR);
+  const rem = Math.max(0, dM - tR);
+  const isNear = rem <= 100 && !(cfg.autoReset && next === -1);
   radDist.textContent = fmtDist(rem) + ' ' + distUnit();
-  radDist.classList.toggle('near', next !== -1 && rem <= 100);
+  radDist.classList.toggle('near', isNear);
   if(cfg.skin === 'card'){
     cBig.textContent = fmtDist(rem) + ' ' + distUnit();
-    cBig.classList.toggle('near', next !== -1 && rem <= 100);
-    const segStart = idx > 0 ? ((parseKm(cfg.rb[idx-1].km) * 1000) || 0) : 0;
-    const seg = dM - segStart;
-    const pct = (next !== -1 && seg > 0) ? Math.max(0, Math.min(100, rem / seg * 100)) : 0;
-    cBarFill.style.width = pct + '%';
+    cBig.classList.toggle('near', isNear);
   }
 }
 
-/* frecce: riancora il radar al riferimento scelto e azzera il parziale */
+/* frecce: in auto riancora al riferimento; in manuale sposta l'indice scelto */
 function rbJump(dir){
   if(!cfg.rb.length) return;
+  if(!cfg.autoReset){
+    radManual = Math.max(0, Math.min(cfg.rb.length - 1, radManual + dir));
+    partial = 0;
+    radShownIdx = -2;
+    if(navigator.vibrate) navigator.vibrate(40);
+    return;
+  }
   const cur = radNextIdx < 0 ? 0 : Math.min(radNextIdx, cfg.rb.length - 1);
   const n = Math.max(0, Math.min(cfg.rb.length - 1, cur + dir));
   const prevKm = n > 0 ? ((parseKm(cfg.rb[n-1].km) * 1000) || 0) : 0;
@@ -1777,6 +1791,14 @@ function rbJump(dir){
   radNextIdx = n;
   radShownIdx = -2;
   if(navigator.vibrate) navigator.vibrate(40);
+}
+/* quando passo da auto a manuale, parto dal riferimento attualmente in arrivo */
+function syncManual(){
+  if(!cfg.autoReset){
+    let m = (radNextIdx >= 0 && radNextIdx < cfg.rb.length) ? radNextIdx : 0;
+    radManual = cfg.rb.length ? Math.max(0, Math.min(cfg.rb.length - 1, m)) : 0;
+  }
+  radShownIdx = -2;
 }
 
 /* ================= CONTEGGIO CONTINUO + RENDER ================= */
@@ -1804,8 +1826,8 @@ function frame(){
   const sinceFix = (now - lastGoodFix) / 1000;
   const maxGap = 60; /* modalità galleria sempre attiva */
   const counting = curSpeed > 0 && lastGoodFix > 0 && sinceFix < maxGap;
-  if(counting && dtF > 0 && dtF < 1){
-    const d = curSpeed * dtF * (1 + (cfg.gpsPct||0)/100);
+  if(counting && dtF > 0 && dtF < 1 && now >= gpsWarmup){
+    const d = curSpeed * dtF;
     total += d;
     if(partialActive()) partial += d;
   }
@@ -1848,16 +1870,21 @@ function frame(){
     }
   }
   if(cfg.skin === 'card'){
-    cTotal.textContent = totalVal.textContent;
-    cTotalU.textContent = distUnit();
-    if(cfg.mode === 'pilot'){
+    const totTxt = totalVal.textContent, u = distUnit();
+    cTotTop.textContent = totTxt; cTotTopU.textContent = u;
+    cTotFoot.textContent = totTxt + ' ' + u;
+    if(cfg.mode === 'radar'){
+      const pv = fmtDist(partial);
+      cPartTop.textContent = pv; cPartTopU.textContent = u;
+      cPartFoot.textContent = pv + ' ' + u;
+    } else if(cfg.mode === 'nav'){
+      cTripVal.textContent = fmtDist(partial);
+      cTripU.textContent = u;
+      cBig.textContent = speedVal.textContent + ' ' + speedUnitStr();
+    } else {
       cWord.textContent = wordVal.textContent;
       cWord.classList.toggle('num', !currentWord);
       cSub.textContent = running ? t('running') : t('ready');
-    } else if(cfg.mode === 'nav'){
-      cTripVal.textContent = fmtDist(partial);
-      cTripU.textContent = distUnit();
-      cBig.textContent = speedVal.textContent + ' ' + speedUnitStr();
     }
   }
   requestAnimationFrame(frame);
@@ -1878,6 +1905,10 @@ function anyOverlayOpen(){
 
 function mainAction(){
   if(cfg.mode !== 'pilot'){
+    if(cfg.mode === 'radar' && !cfg.autoReset && cfg.rb.length){
+      radManual = Math.min(cfg.rb.length - 1, radManual + 1);
+      radShownIdx = -2;
+    }
     partial = 0;
     showToast(t('partialResetMsg'));
   } else {
@@ -1927,6 +1958,7 @@ function startHold(e){
     total = 0;
     rbOffset = 0;
     rbPassedIdx = null;
+    radManual = 0;
     radShownIdx = -2;
     resetHoldBar();
     showToast(t('totalResetMsg'));
@@ -1947,14 +1979,17 @@ zoneTotal.addEventListener('pointerleave', cancelHold);
 zoneTotal.addEventListener('contextmenu', e => e.preventDefault());
 
 /* stessi comandi sul layout scheda */
-const ctStripEl = $('ctStrip');
-ctStripEl.addEventListener('pointerdown', startHold);
-ctStripEl.addEventListener('pointerup', cancelHold);
-ctStripEl.addEventListener('pointercancel', cancelHold);
-ctStripEl.addEventListener('pointerleave', cancelHold);
-ctStripEl.addEventListener('contextmenu', e => e.preventDefault());
-$('ctCard').addEventListener('click', mainAction);
-$('ctPrimary').addEventListener('click', mainAction);
+['ctTotTop','ctColTot'].forEach(id=>{
+  const el = $(id);
+  el.addEventListener('pointerdown', startHold);
+  el.addEventListener('pointerup', cancelHold);
+  el.addEventListener('pointercancel', cancelHold);
+  el.addEventListener('pointerleave', cancelHold);
+  el.addEventListener('contextmenu', e => e.preventDefault());
+});
+['ctCard','ctColNext','ctColPar','ctPartTop'].forEach(id=>{
+  $(id).addEventListener('click', mainAction);
+});
 $('cPrev').addEventListener('click', e=>{ e.stopPropagation(); rbJump(-1); });
 $('cNext').addEventListener('click', e=>{ e.stopPropagation(); rbJump(1); });
 
@@ -2069,7 +2104,6 @@ $('drvSet').addEventListener('click', ()=>{
   $('timeSel').value = cfg.h24 ? '24' : '12';
   $('themeSel').value = cfg.theme;
   $('skinSel').value = cfg.skin;
-  $('gpsPctInput').value = cfg.gpsPct;
   $('genMenu').classList.add('open');
 });
 
@@ -2081,16 +2115,8 @@ $('fontSel').addEventListener('change', e=>{ cfg.numFont = e.target.value; apply
 $('timeSel').addEventListener('change', e=>{ cfg.h24 = e.target.value === '24'; saveCfg(); });
 $('themeSel').addEventListener('change', e=>{ cfg.theme = e.target.value; applyTheme(); saveCfg(); });
 $('skinSel').addEventListener('change', e=>{ cfg.skin = e.target.value; applyLayout(); saveCfg(); });
-$('autoResetToggle').addEventListener('change', e=>{ cfg.autoReset = e.target.checked; saveCfg(); });
-$('gpsCalInfo').addEventListener('click', ()=>{ showMsg(t('gpsCalSmall'), t('gpsCalLabel')); });
-function readGpsPct(){
-  let v = parseFloat(String($('gpsPctInput').value).replace(',', '.'));
-  if(isNaN(v)) v = 0;
-  v = Math.max(-20, Math.min(20, v));
-  cfg.gpsPct = v; saveCfg();
-}
-$('gpsPctInput').addEventListener('change', readGpsPct);
-$('closeGen').addEventListener('click', ()=>{ readGpsPct(); $('genMenu').classList.remove('open'); });
+$('autoResetToggle').addEventListener('change', e=>{ cfg.autoReset = e.target.checked; syncManual(); saveCfg(); });
+$('closeGen').addEventListener('click', ()=>{ saveCfg(); $('genMenu').classList.remove('open'); });
 
 $('drvInfo').addEventListener('click', ()=>{
   closeDrawer();
@@ -2175,7 +2201,7 @@ async function loadStage(i){
   await hydrateRb(ss.rb);
   cfg.rb=JSON.parse(JSON.stringify(ss.rb||[]));
   cfg.ssActive=ss.name;
-  rbPassedIdx=null; radShownIdx=-2; rbOffset=0;
+  rbPassedIdx=null; radShownIdx=-2; rbOffset=0; radManual=0;
   updateSsBadge(); saveCfg(); buildSsList();
   showToast('\u201C'+ss.name+'\u201D \u2014 '+t('ssLoadedMsg'));
 }
@@ -2350,7 +2376,7 @@ async function scanAIRun(img){
     stage.rb.sort((a,b)=> (parseKm(a.km)||0) - (parseKm(b.km)||0));
     cfg.rb = JSON.parse(JSON.stringify(stage.rb));
     cfg.ssActive = name;
-    rbPassedIdx = null; radShownIdx = -2; rbOffset = 0;
+    rbPassedIdx = null; radShownIdx = -2; rbOffset = 0; radManual = 0;
     updateSsBadge();
     const ok = saveCfg();
     buildSsList();
