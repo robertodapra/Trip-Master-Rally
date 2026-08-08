@@ -28,8 +28,6 @@
     --muted:#8b949e;
     --btnbg:rgba(255,255,255,.06);
     --inputbg:#1a1f25;
-    --cardbg:#161a20;
-    --cardink:#f2f4f7;
   }
   body[data-theme="light"]{
     --bg:#f4f5f7;
@@ -44,8 +42,6 @@
     --muted:#5c6670;
     --btnbg:rgba(0,0,0,.05);
     --inputbg:#eef0f3;
-    --cardbg:#ffffff;
-    --cardink:#12151a;
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%}
@@ -66,7 +62,7 @@
   #statusbar{
     position:fixed;top:0;left:0;right:0;z-index:6;
     display:flex;justify-content:space-between;align-items:center;
-    padding:4px calc(env(safe-area-inset-right) + 12px) 4px calc(env(safe-area-inset-left) + 12px);min-height:38px;font-size:12px;color:var(--muted);
+    padding:4px 12px;min-height:38px;font-size:12px;color:var(--muted);
     padding-top:calc(env(safe-area-inset-top) + 4px);
   }
   #clock{
@@ -107,8 +103,6 @@
     height:100dvh;
     padding-top:calc(42px + env(safe-area-inset-top));
     padding-bottom:calc(env(safe-area-inset-bottom) + 2px);
-    padding-left:env(safe-area-inset-left);
-    padding-right:env(safe-area-inset-right);
     grid-template-columns:1.2fr 1fr;
     grid-template-rows:1fr 1fr;
     grid-template-areas:
@@ -465,11 +459,6 @@
   .setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;font-size:14px}
   .setting-row select{padding:10px;background:var(--inputbg);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:15px}
   .setting-row input[type=checkbox]{width:24px;height:24px}
-  #fontPreview{
-    font-family:var(--mono);font-variant-numeric:tabular-nums;
-    font-weight:800;font-size:26px;color:var(--amber);line-height:1.15;text-align:right;
-  }
-  #fontPreview .pv-small{font-size:15px;color:var(--text);font-weight:700}
 
   #rbImport{
     width:100%;min-height:110px;
@@ -512,20 +501,6 @@
     position:fixed;inset:0;background:rgba(255,180,0,.18);z-index:5;
     opacity:0;pointer-events:none;transition:opacity .3s;
   }
-
-  /* barretta della pressione breve sul parziale (adatta misura) */
-  #zonePartial{position:relative}
-  .pHoldBar{
-    position:absolute;left:0;bottom:0;height:5px;width:0;
-    background:var(--amber);border-radius:0 3px 3px 0;pointer-events:none;
-  }
-  /* spinner di caricamento (durante lo scan) */
-  .spin{
-    display:inline-block;width:16px;height:16px;flex-shrink:0;
-    border:2px solid var(--line);border-top-color:var(--amber);border-radius:50%;
-    animation:spin .7s linear infinite;vertical-align:middle;
-  }
-  @keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body data-mode="pilot" data-theme="dark">
@@ -575,7 +550,6 @@
     <span class="zlabel" id="partialLbl" data-t="partialLabel"></span>
     <div id="partialVal">0</div>
     <div class="unit" id="partialUnit">m</div>
-    <div class="pHoldBar"></div>
   </div>
 
   <div class="zone" id="zoneSpeed">
@@ -598,6 +572,7 @@
   <div class="dsep"></div>
   <button class="drawer-item" id="drvWords"><span data-t="wordsTitle"></span></button>
   <button class="drawer-item" id="drvRb"><span data-t="navRadar"></span></button>
+  <button class="drawer-item" id="drvTdm"><span data-t="navTdm"></span></button>
   <button class="drawer-item" id="drvSet"><span data-t="drvSet"></span></button>
   <button class="drawer-item" id="drvInfo"><span data-t="guideMenu"></span></button>
 </div>
@@ -648,26 +623,62 @@
   <div id="ssList"></div>
   <div id="ssEmpty" data-t="ssEmpty"></div>
   <input type="file" id="aiFile" accept="image/*" style="display:none">
-  <div class="setting-row" style="border-top:1px solid var(--line);padding-top:14px;margin-top:10px">
-    <span style="display:flex;align-items:center;gap:8px">
-      <span data-t="autoResetLabel"></span>
-      <button id="autoResetInfo" style="background:var(--btnbg);border:1px solid var(--line);color:var(--muted);border-radius:50%;width:24px;height:24px;font-size:12px;font-weight:700;flex-shrink:0">i</button>
-    </span>
-    <input type="checkbox" id="autoResetToggle">
-  </div>
   <button class="okbtn" id="closeNav" data-t="close"></button>
 </div>
 
 <!-- ============ IMPOSTAZIONI GENERALI ============ -->
+<div class="overlay" id="tdmMenu"><div id="tdmBody"></div></div>
+<style>
+#tdmMenu #tdmBody{width:100%}
+.tdm-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.tdm-head h2{margin:0;font-size:17px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber)}
+.tdm-i{background:var(--btnbg);border:1px solid var(--line);color:var(--muted);border-radius:50%;width:30px;height:30px;font-weight:700;flex-shrink:0}
+.tdm-back{background:var(--btnbg);border:1px solid var(--line);color:var(--amber);border-radius:8px;width:40px;height:36px;font-size:22px;font-weight:800;flex-shrink:0}
+.tdm-tabname{flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--btnbg);color:var(--text);font-size:16px;font-weight:700}
+.tdm-new{width:100%;padding:14px;border-radius:10px;font-size:15px;font-weight:800;background:var(--btnbg);border:2px solid var(--green);color:var(--green);margin-bottom:12px}
+.tdm-empty{color:var(--muted);font-size:13px;text-align:center;padding:14px}
+.tdm-row{display:flex;align-items:center;gap:8px;padding:12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px}
+.tdm-name{flex:1;cursor:pointer;font-weight:700}
+.tdm-name small{color:var(--muted);font-weight:400;font-size:12px}
+.tdm-row .del,.tdm-cr1 .del{background:none;border:none;color:var(--red);font-size:16px;flex-shrink:0;cursor:pointer}
+.tdm-startrow{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#1e1e1e;padding:10px 12px;border-radius:8px;margin-bottom:12px;font-size:14px}
+.tdm-start{width:92px;text-align:center;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--btnbg);color:var(--green);font-size:17px;font-weight:800}
+.tdm-ctrl{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px}
+.tdm-cr1{display:flex;gap:6px;align-items:center;margin-bottom:8px}
+.tdm-cr1 select{padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--btnbg);color:var(--text);font-size:12px}
+.tdm-label{flex:1;min-width:0;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--btnbg);color:var(--text);font-size:14px}
+.tdm-cr2{display:flex;gap:12px;align-items:center;margin-bottom:8px;font-size:12px;color:var(--muted)}
+.tdm-cr2 input[type=number]{width:56px;padding:6px;border-radius:6px;border:1px solid var(--line);background:var(--btnbg);color:var(--text);font-size:14px}
+.tdm-pst{padding:6px 8px;border-radius:6px;border:1px solid var(--amber);background:var(--btnbg);color:var(--amber);font-size:13px;width:120px}
+.tdm-cr3{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px}
+.tdm-teo b{color:var(--text);font-size:16px}
+.tdm-realin{width:70px;text-align:center;padding:6px;border-radius:6px;border:1px solid var(--line);background:var(--btnbg);color:var(--text);font-size:15px;font-weight:700}
+.tdm-real button{width:32px;height:32px;border-radius:6px;border:1px solid var(--line);background:var(--btnbg);color:var(--amber);font-size:17px;font-weight:800;margin-left:3px}
+.b-late{color:var(--red);font-weight:800;font-size:12px}
+.b-early{color:#6ab7ff;font-weight:800;font-size:12px}
+.b-ok{color:var(--green);font-weight:800;font-size:12px}
+</style>
 <div class="overlay" id="genMenu">
   <h2 data-t="gsTitle"></h2>
 
-  <h3 data-t="secLook"></h3>
   <div class="setting-row">
-    <span data-t="themeLabel"></span>
-    <select id="themeSel">
-      <option value="dark" data-t="themeDark"></option>
-      <option value="light" data-t="themeLight"></option>
+    <span data-t="langLabel"></span>
+    <select id="langSel">
+      <option value="it">Italiano</option>
+      <option value="en">English</option>
+      <option value="fr">Français</option>
+      <option value="es">Español</option>
+      <option value="de">Deutsch</option>
+      <option value="pt">Português</option>
+      <option value="ja">日本語</option>
+      <option value="cs">Čeština</option>
+    </select>
+  </div>
+  <div class="setting-row">
+    <span data-t="unitLabel"></span>
+    <select id="unitSel">
+      <option value="metric">km · km/h</option>
+      <option value="imperial">mi · mph</option>
     </select>
   </div>
   <div class="setting-row">
@@ -688,19 +699,6 @@
     </select>
   </div>
   <div class="setting-row">
-    <span data-t="previewLabel"></span>
-    <div id="fontPreview">123,45<br><span class="pv-small">0 1 2 3 4 5 6 7 8 9</span></div>
-  </div>
-
-  <h3 data-t="secMeasure"></h3>
-  <div class="setting-row">
-    <span data-t="unitLabel"></span>
-    <select id="unitSel">
-      <option value="metric">km · km/h</option>
-      <option value="imperial">mi · mph</option>
-    </select>
-  </div>
-  <div class="setting-row">
     <span data-t="timeLabel"></span>
     <select id="timeSel">
       <option value="24" data-t="time24"></option>
@@ -708,18 +706,18 @@
     </select>
   </div>
   <div class="setting-row">
-    <span data-t="langLabel"></span>
-    <select id="langSel">
-      <option value="it">Italiano</option>
-      <option value="en">English</option>
-      <option value="fr">Français</option>
-      <option value="es">Español</option>
-      <option value="de">Deutsch</option>
-      <option value="pt">Português</option>
-      <option value="ja">日本語</option>
-      <option value="cs">Čeština</option>
+    <span data-t="themeLabel"></span>
+    <select id="themeSel">
+      <option value="dark" data-t="themeDark"></option>
+      <option value="light" data-t="themeLight"></option>
     </select>
   </div>
+
+  <div class="setting-row">
+    <span data-t="autoResetLabel"></span>
+    <input type="checkbox" id="autoResetToggle">
+  </div>
+  <p class="small" data-t="autoResetSmall"></p>
 
   <button class="okbtn" id="closeGen" data-t="close"></button>
 </div>
@@ -745,7 +743,7 @@ it:{introTitle:"Come funziona",
   gTunnel:"Sempre attiva: senza segnale GPS (gallerie) l'app continua a contare con l'ultima velocità nota per massimo 60 secondi, poi si ferma.",
   gMenu:"Dal menu scegli la modalità: Pilota (start-stop con parole), Trip (contachilometri e velocità) o Radar (note del roadbook). Da lì riapri anche questa guida.",
   totalShort:"Totale",wordShort:"Parola / Parziale",
-  totalResetMsg:"Totale azzerato",partialResetMsg:"Parziale azzerato",adaptMsg:"Misura adattata al rif.",
+  totalResetMsg:"Totale azzerato",partialResetMsg:"Parziale azzerato",
   editLayout:"Modifica layout",editArr:"Disposizione",editReset:"Ripristina",editDone:"Fine",
   editHint:"Tocca un riquadro per cambiarne la grandezza · Disposizione cambia lo schema in orizzontale",
   totalLabel:"Totale · tieni premuto 2s per azzerare",partialLabel:"Parziale",
@@ -777,6 +775,7 @@ it:{introTitle:"Come funziona",
   scanConnErr:"Errore di connessione. Controlla la rete e riprova.",
   scanPhotoErr:"Foto non leggibile, riprova.",
   rbAddScan:"Aggiungi scan",
+  navTdm:"Tabella di marcia",
   ssSavedMsg:"Prova salvata",ssLoadedMsg:"Prova caricata",ssNoName:"Scrivi un nome per la prova",
   rbImpTitle:"Importa radar",
   rbImpDesc:"Fotografa la pagina del radar e falla trascrivere a un'AI (es. Claude) nel formato: km_totali ; tipo ; nota (una riga per riferimento). Incolla qui il testo e premi Importa.",
@@ -801,10 +800,10 @@ it:{introTitle:"Come funziona",
   thDist:"Km totali",thSym:"Simbolo",thNote:"Nota",
   rbClear:"Svuota tutto",
   autoResetLabel:"Azzeramento automatico del parziale",
-  autoResetSmall:"Acceso = il parziale si azzera da solo a ogni riferimento, in base ai km del road book. Spento = lo gestisci tu: a ogni tocco avanzi al riferimento successivo e azzeri il parziale a mano. Nota: la precisione automatica non è garantita, dipende da com’è fatto il radar (km e disegni).",
+  autoResetSmall:"Acceso = il parziale si azzera da solo a ogni simbolo del radar. Spento = lo azzeri tu a mano (tocco sul parziale), e nemmeno le frecce lo toccano.",
   gsTitle:"Impostazioni generali",
   langLabel:"Lingua",unitLabel:"Unità di misura",
-  fontLabel:"Carattere numeri",numLabel:"Dimensione numeri",secLook:"Aspetto",secMeasure:"Misure e lingua",previewLabel:"Anteprima",refDelAsk:"Eliminare il riferimento",refCount:"riferimenti",gpsCalLabel:"Taratura GPS (%)",gpsCalSmall:"Correzione fissa della distanza per allineare il GPS ai km del road book. Esempio: se il GPS misura 1000 m dove il road book ne segna 1015, imposta +1,5. Lascia 0 se non serve.",resumeAsk:"Riprendere la prova in corso?",resumeYes:"Riprendi",resumeNo:"Ricomincia",secGps:"GPS",layoutLabel:"Layout",layoutClassic:"Classico",layoutCard:"Scheda",cardNext:"al prossimo",numSmall:"Piccoli",numNormal:"Normali",numLarge:"Grandi",
+  fontLabel:"Stile numeri",numLabel:"Grandezza numeri",numSmall:"Piccoli",numNormal:"Normali",numLarge:"Grandi",
   timeLabel:"Formato orario",time24:"24 ore",time12:"12 ore",
   themeLabel:"Tema",themeDark:"Scuro",themeLight:"Chiaro",
   tunnelLabel:"Modalità galleria",tunnelSmall:"Senza segnale GPS continua a contare con l'ultima velocità (max 60 s)",
@@ -825,7 +824,7 @@ en:{introTitle:"How it works",
   gTunnel:"Always on: without GPS signal (tunnels) the app keeps counting at the last known speed for up to 60 seconds, then stops.",
   gMenu:"From the menu pick the mode: Driver (start-stop with words), Trip (odometer and speed) or Radar (road book notes). You can also reopen this guide from there.",
   totalShort:"Total",wordShort:"Word / Partial",
-  totalResetMsg:"Total reset",partialResetMsg:"Partial reset",adaptMsg:"Measurement set to ref.",
+  totalResetMsg:"Total reset",partialResetMsg:"Partial reset",
   editLayout:"Edit layout",editArr:"Arrangement",editReset:"Reset",editDone:"Done",
   editHint:"Tap a box to change its size · Arrangement changes the landscape scheme",
   totalLabel:"Total · hold 2s to reset",partialLabel:"Partial",
@@ -857,6 +856,7 @@ en:{introTitle:"How it works",
   scanConnErr:"Connection error. Check the network and retry.",
   scanPhotoErr:"Photo not readable, try again.",
   rbAddScan:"Add scan",
+  navTdm:"Time card",
   ssSavedMsg:"Stage saved",ssLoadedMsg:"Stage loaded",ssNoName:"Type a name for the stage",
   rbImpTitle:"Import road book",
   rbImpDesc:"Photograph the road book page and have an AI (e.g. Claude) transcribe it in the format: total_km ; type ; note (one line per reference). Paste the text here and press Import.",
@@ -881,10 +881,10 @@ en:{introTitle:"How it works",
   thDist:"Total km",thSym:"Symbol",thNote:"Note",
   rbClear:"Clear all",
   autoResetLabel:"Automatic partial reset",
-  autoResetSmall:"On = the partial resets by itself at each reference, based on the road book km. Off = you control it: each tap moves to the next reference and resets the partial by hand. Note: automatic precision isn’t guaranteed — it depends on how the road book is made (km and drawings).",
+  autoResetSmall:"On = the partial resets by itself at each road book reference. Off = you reset it yourself (tap the partial), and the arrows do not touch it either.",
   gsTitle:"General settings",
   langLabel:"Language",unitLabel:"Units",
-  fontLabel:"Number font",numLabel:"Number size",secLook:"Appearance",secMeasure:"Units and language",previewLabel:"Preview",refDelAsk:"Delete reference",refCount:"references",gpsCalLabel:"GPS calibration (%)",gpsCalSmall:"Fixed distance correction to align GPS with the road book km. Example: if GPS reads 1000 m where the road book says 1015, set +1.5. Leave 0 if not needed.",resumeAsk:"Resume the current stage?",resumeYes:"Resume",resumeNo:"Start over",secGps:"GPS",layoutLabel:"Layout",layoutClassic:"Classic",layoutCard:"Card",cardNext:"to next",numSmall:"Small",numNormal:"Normal",numLarge:"Large",
+  fontLabel:"Number style",numLabel:"Number size",numSmall:"Small",numNormal:"Normal",numLarge:"Large",
   timeLabel:"Time format",time24:"24-hour",time12:"12-hour",
   themeLabel:"Theme",themeDark:"Dark",themeLight:"Light",
   tunnelLabel:"Tunnel mode",tunnelSmall:"Without GPS signal keeps counting at the last speed (max 60 s)",
@@ -940,7 +940,7 @@ fr:{introTitle:"Comment ça marche",
   autoResetSmall:"Après chaque repère du road book, le partiel repart de zéro (colonne des partiels)",
   gsTitle:"Réglages généraux",
   langLabel:"Langue",unitLabel:"Unités",
-  fontLabel:"Police des chiffres",numLabel:"Taille des chiffres",secLook:"Apparence",secMeasure:"Unités et langue",previewLabel:"Aperçu",refDelAsk:"Supprimer le repère",refCount:"repères",numSmall:"Petits",numNormal:"Normaux",numLarge:"Grands",
+  fontLabel:"Style des chiffres",numLabel:"Taille des chiffres",numSmall:"Petits",numNormal:"Normaux",numLarge:"Grands",
   timeLabel:"Format horaire",time24:"24 heures",time12:"12 heures",
   themeLabel:"Thème",themeDark:"Sombre",themeLight:"Clair",
   tunnelLabel:"Mode tunnel",tunnelSmall:"Sans signal GPS continue à compter à la dernière vitesse (max 60 s)",
@@ -996,7 +996,7 @@ es:{introTitle:"Cómo funciona",
   autoResetSmall:"Tras cada referencia del road book, el parcial reinicia desde cero (columna de parciales)",
   gsTitle:"Ajustes generales",
   langLabel:"Idioma",unitLabel:"Unidades",
-  fontLabel:"Fuente de los números",numLabel:"Tamaño de los números",secLook:"Aspecto",secMeasure:"Unidades e idioma",previewLabel:"Vista previa",refDelAsk:"Eliminar la referencia",refCount:"referencias",numSmall:"Pequeños",numNormal:"Normales",numLarge:"Grandes",
+  fontLabel:"Estilo de números",numLabel:"Tamaño de los números",numSmall:"Pequeños",numNormal:"Normales",numLarge:"Grandes",
   timeLabel:"Formato de hora",time24:"24 horas",time12:"12 horas",
   themeLabel:"Tema",themeDark:"Oscuro",themeLight:"Claro",
   tunnelLabel:"Modo túnel",tunnelSmall:"Sin señal GPS sigue contando con la última velocidad (máx 60 s)",
@@ -1052,7 +1052,7 @@ de:{introTitle:"So funktioniert es",
   autoResetSmall:"Nach jedem Roadbook-Bezugspunkt startet die Teildistanz bei null (Teilspalte)",
   gsTitle:"Allgemeine Einstellungen",
   langLabel:"Sprache",unitLabel:"Einheiten",
-  fontLabel:"Zahlen-Schriftart",numLabel:"Zahlengröße",secLook:"Darstellung",secMeasure:"Einheiten und Sprache",previewLabel:"Vorschau",refDelAsk:"Bezugspunkt löschen",refCount:"Bezugspunkte",numSmall:"Klein",numNormal:"Normal",numLarge:"Groß",
+  fontLabel:"Zahlenstil",numLabel:"Zahlengröße",numSmall:"Klein",numNormal:"Normal",numLarge:"Groß",
   timeLabel:"Zeitformat",time24:"24 Stunden",time12:"12 Stunden",
   themeLabel:"Design",themeDark:"Dunkel",themeLight:"Hell",
   tunnelLabel:"Tunnelmodus",tunnelSmall:"Ohne GPS-Signal zählt mit der letzten Geschwindigkeit weiter (max. 60 s)",
@@ -1108,7 +1108,7 @@ pt:{introTitle:"Como funciona",
   autoResetSmall:"Após cada referência do road book, o parcial recomeça do zero (coluna de parciais)",
   gsTitle:"Definições gerais",
   langLabel:"Idioma",unitLabel:"Unidades",
-  fontLabel:"Tipo de letra dos números",numLabel:"Tamanho dos números",secLook:"Aspeto",secMeasure:"Unidades e idioma",previewLabel:"Pré-visualização",refDelAsk:"Eliminar a referência",refCount:"referências",numSmall:"Pequenos",numNormal:"Normais",numLarge:"Grandes",
+  fontLabel:"Estilo dos números",numLabel:"Tamanho dos números",numSmall:"Pequenos",numNormal:"Normais",numLarge:"Grandes",
   timeLabel:"Formato da hora",time24:"24 horas",time12:"12 horas",
   themeLabel:"Tema",themeDark:"Escuro",themeLight:"Claro",
   tunnelLabel:"Modo túnel",tunnelSmall:"Sem sinal GPS continua a contar com a última velocidade (máx 60 s)",
@@ -1164,7 +1164,7 @@ ja:{introTitle:"使い方",
   autoResetSmall:"各基準点を通過すると区間距離がゼロから再開(区間列に一致)",
   gsTitle:"一般設定",
   langLabel:"言語",unitLabel:"単位",
-  fontLabel:"数字のフォント",numLabel:"数字の大きさ",secLook:"表示",secMeasure:"単位と言語",previewLabel:"プレビュー",refDelAsk:"この基準点を削除",refCount:"件の基準点",numSmall:"小",numNormal:"標準",numLarge:"大",
+  fontLabel:"数字のスタイル",numLabel:"数字の大きさ",numSmall:"小",numNormal:"標準",numLarge:"大",
   timeLabel:"時刻表示",time24:"24時間",time12:"12時間",
   themeLabel:"テーマ",themeDark:"ダーク",themeLight:"ライト",
   tunnelLabel:"トンネルモード",tunnelSmall:"GPSなしで直前の速度のまま計測を継続(最大60秒)",
@@ -1220,7 +1220,7 @@ cs:{introTitle:"Jak to funguje",
   autoResetSmall:"Po každém bodu roadbooku začne dílčí vzdálenost od nuly (sloupec dílčích)",
   gsTitle:"Obecná nastavení",
   langLabel:"Jazyk",unitLabel:"Jednotky",
-  fontLabel:"Písmo čísel",numLabel:"Velikost čísel",secLook:"Vzhled",secMeasure:"Jednotky a jazyk",previewLabel:"Náhled",refDelAsk:"Odstranit bod",refCount:"bodů",numSmall:"Malá",numNormal:"Normální",numLarge:"Velká",
+  fontLabel:"Styl čísel",numLabel:"Velikost čísel",numSmall:"Malá",numNormal:"Normální",numLarge:"Velká",
   timeLabel:"Formát času",time24:"24 hodin",time12:"12 hodin",
   themeLabel:"Vzhled",themeDark:"Tmavý",themeLight:"Světlý",
   tunnelLabel:"Režim tunelu",tunnelSmall:"Bez GPS signálu počítá dál poslední rychlostí (max 60 s)",
@@ -1272,6 +1272,7 @@ let cfg = {
   rb: [],
   ssLib: [],
   ssActive: '',
+  tdm: [],
   speak: false,
   autoReset: true,
   lang: null,
@@ -1280,9 +1281,7 @@ let cfg = {
   units: 'metric',
   tunnel: true,
   theme: 'dark',
-  h24: true,
-  gpsPct: 0,
-  skin: 'classic'
+  h24: true
 };
 
 try{
@@ -1292,6 +1291,7 @@ try{
     cfg.rows = (cfg.rows||[]).map(r => r.m !== undefined ? {from:r.m, to:'', w:r.w} : r);
     if(!Array.isArray(cfg.rb)) cfg.rb = [];
     if(!Array.isArray(cfg.ssLib)) cfg.ssLib = [];
+    if(!Array.isArray(cfg.tdm)) cfg.tdm = [];
     cfg.rb = cfg.rb.map(r => r.d !== undefined && r.km === undefined ? {km:(parseFloat(r.d)/1000)||'', s:r.s, n:r.n} : r);
   }
 }catch(e){}
@@ -1305,8 +1305,6 @@ if(cfg.theme !== 'dark' && cfg.theme !== 'light') cfg.theme = 'dark';
 if(typeof cfg.tunnel !== 'boolean') cfg.tunnel = true;
 if(typeof cfg.autoReset !== 'boolean') cfg.autoReset = true;
 if(typeof cfg.h24 !== 'boolean') cfg.h24 = true;
-if(typeof cfg.gpsPct !== 'number' || !isFinite(cfg.gpsPct)) cfg.gpsPct = 0;
-cfg.gpsPct = Math.max(-20, Math.min(20, cfg.gpsPct));
 if(typeof cfg.ssActive !== 'string') cfg.ssActive = '';
 if(!cfg.lay || typeof cfg.lay !== 'object') cfg.lay = {arr:'top'};
 if(!['top','left','right'].includes(cfg.lay.arr)) cfg.lay.arr = 'top';
@@ -1315,84 +1313,6 @@ if(!['jb','share','orbitron','system'].includes(cfg.numFont)) cfg.numFont = 'jb'
 function saveCfg(){
   try{ localStorage.setItem('rallytrip_cfg', JSON.stringify(cfg)); return true; }
   catch(e){ return false; }
-}
-
-/* ================= ARCHIVIO FOTO (IndexedDB) ================= */
-/* Le foto ritagliate del radar sono pesanti e non stanno nei ~5 MB di
-   localStorage. Le salviamo qui (spazio molto più ampio). In localStorage
-   resta solo un identificativo leggero (imgId) per ogni riferimento. */
-const IDB_NAME = 'rallytrip', IDB_STORE = 'photos';
-let _idb = null;
-function idbOpen(){
-  return new Promise((res, rej)=>{
-    if(_idb) return res(_idb);
-    let req;
-    try{ req = indexedDB.open(IDB_NAME, 1); }
-    catch(e){ return rej(e); }
-    req.onupgradeneeded = ()=>{
-      const db = req.result;
-      if(!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE);
-    };
-    req.onsuccess = ()=>{ _idb = req.result; res(_idb); };
-    req.onerror = ()=> rej(req.error);
-  });
-}
-function idbPut(key, val){
-  return idbOpen().then(db => new Promise((res, rej)=>{
-    const tx = db.transaction(IDB_STORE, 'readwrite');
-    tx.objectStore(IDB_STORE).put(val, key);
-    tx.oncomplete = ()=> res(); tx.onerror = ()=> rej(tx.error);
-  }));
-}
-function idbGet(key){
-  return idbOpen().then(db => new Promise((res, rej)=>{
-    const tx = db.transaction(IDB_STORE, 'readonly');
-    const r = tx.objectStore(IDB_STORE).get(key);
-    r.onsuccess = ()=> res(r.result); r.onerror = ()=> rej(r.error);
-  }));
-}
-function idbDel(key){
-  return idbOpen().then(db => new Promise((res)=>{
-    const tx = db.transaction(IDB_STORE, 'readwrite');
-    tx.objectStore(IDB_STORE).delete(key);
-    tx.oncomplete = ()=> res(); tx.onerror = ()=> res();
-  })).catch(()=>{});
-}
-
-/* cache in memoria: imgId -> dataURL (per disegnare subito senza rileggere l'IDB) */
-const imgCache = new Map();
-function newImgId(){ return 'i' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
-function imgOf(r){ return r && r.imgId ? (imgCache.get(r.imgId) || '') : (r && r.img ? r.img : ''); }
-
-/* carica in cache le foto di un elenco di riferimenti (se non già presenti) */
-async function hydrateRb(rb){
-  if(!Array.isArray(rb)) return;
-  for(const r of rb){
-    if(r && r.imgId && !imgCache.has(r.imgId)){
-      try{ const v = await idbGet(r.imgId); if(v) imgCache.set(r.imgId, v); }catch(e){}
-    }
-  }
-}
-
-/* migrazione una-tantum: sposta le vecchie foto base64 da localStorage a IndexedDB */
-async function migrateImages(){
-  let changed = false;
-  async function mv(r){
-    if(!r || !r.img) return;
-    if(!r.imgId){
-      const id = newImgId();
-      try{
-        await idbPut(id, r.img);
-        imgCache.set(id, r.img);
-        r.imgId = id; delete r.img; changed = true;
-      }catch(e){ /* IDB non disponibile: teniamo r.img come ripiego */ }
-    } else { delete r.img; changed = true; }
-  }
-  for(const st of (cfg.ssLib || [])){
-    for(const r of (st.rb || [])) await mv(r);
-  }
-  for(const r of (cfg.rb || [])) await mv(r);
-  if(changed) saveCfg();
 }
 
 /* ================= LINGUA / TEMA ================= */
@@ -1422,6 +1342,7 @@ const totalVal=$('totalVal'), partialVal=$('partialVal'),
       radImg=$('radImg'),
       holdBar=$('holdBar'), toast=$('toast'),
       ssBadge=$('ssBadge');
+
 let toastTimer = null;
 function showToast(msg){
   toast.textContent = msg;
@@ -1479,7 +1400,6 @@ function haversine(lat1, lon1, lat2, lon2){
   return 2*R*Math.asin(Math.sqrt(a));
 }
 
-let gpsWarmup = performance.now() + 3000;
 function onFix(pos){
   const c = pos.coords;
   const acc = c.accuracy;
@@ -1496,9 +1416,9 @@ function onFix(pos){
     lastGoodFix = performance.now();
     lastPos = c;
   } else {
-    if(lastPos && performance.now() >= gpsWarmup){
+    if(lastPos){
       const d = haversine(lastPos.latitude, lastPos.longitude, c.latitude, c.longitude);
-      const noiseFloor = Math.max(4, acc * 0.7);
+      const noiseFloor = Math.max(2, acc * 0.5);
       if(d >= noiseFloor && d < 500){
         total += d;
         if(partialActive()) partial += d;
@@ -1542,7 +1462,6 @@ function rbSortKey(r){
 /* offset manuale: permette di riancorare il radar al riferimento scelto con le frecce */
 let rbOffset = 0;
 let radNextIdx = -1;
-let radManual = 0;
 function radT(){ return total + rbOffset; }
 
 /* azzeramento automatico del parziale a ogni riferimento superato (modalità Radar) */
@@ -1583,57 +1502,39 @@ function radarRender(){
     return;
   }
   const tR = radT();
-  let next = -1, dM = 0, idx;
-  if(!cfg.autoReset){
-    /* MANUALE: il simbolo lo avanza il navigatore (tocco o frecce) */
-    idx = Math.max(0, Math.min(cfg.rb.length - 1, radManual));
-    const kmIdx = parseKm(cfg.rb[idx].km) * 1000;
-    dM = isNaN(kmIdx) ? tR : kmIdx;
-    next = idx;
-    radNextIdx = idx;
-  } else {
-    for(let i = 0; i < cfg.rb.length; i++){
-      const d = parseKm(cfg.rb[i].km) * 1000;
-      if(isNaN(d)) continue;
-      if(tR < d){ next = i; dM = d; break; }
-    }
-    idx = next === -1 ? cfg.rb.length - 1 : next;
-    radNextIdx = next === -1 ? cfg.rb.length : next;
+  let next = -1, dM = 0;
+  for(let i = 0; i < cfg.rb.length; i++){
+    const d = parseKm(cfg.rb[i].km) * 1000;
+    if(isNaN(d)) continue;
+    if(tR < d){ next = i; dM = d; break; }
   }
-  const key = cfg.autoReset ? (next === -1 ? idx + 10000 : next) : ('m' + idx);
+  const idx = next === -1 ? cfg.rb.length - 1 : next;
+  radNextIdx = next === -1 ? cfg.rb.length : next;
+  const key = next === -1 ? idx + 10000 : next;
   if(radShownIdx !== key){
     const r = cfg.rb[idx];
     radNum.textContent = idx + 1;
-    const src = imgOf(r);
-    if(src){
-      radImg.src = src;
+    if(r.img){
+      radImg.src = r.img;
       radImg.style.display = 'block';
       radSym.style.display = 'none';
       radNote.style.display = 'none';
     } else {
       radImg.style.display = 'none'; radImg.removeAttribute('src');
       radSym.style.display = ''; radNote.style.display = '';
-      radSym.textContent = r.s || (cfg.autoReset && next === -1 ? '🏁' : '⚠️');
+      radSym.textContent = r.s || (next === -1 ? '🏁' : '⚠️');
       radNote.textContent = r.n || '';
     }
     radShownIdx = key;
   }
-  const rem = Math.max(0, dM - tR);
-  const isNear = rem <= 100 && !(cfg.autoReset && next === -1);
+  const rem = next === -1 ? 0 : Math.max(0, dM - tR);
   radDist.textContent = fmtDist(rem) + ' ' + distUnit();
-  radDist.classList.toggle('near', isNear);
+  radDist.classList.toggle('near', next !== -1 && rem <= 100);
 }
 
-/* frecce: in auto riancora al riferimento; in manuale sposta l'indice scelto */
+/* frecce: riancora il radar al riferimento scelto e azzera il parziale */
 function rbJump(dir){
   if(!cfg.rb.length) return;
-  if(!cfg.autoReset){
-    radManual = Math.max(0, Math.min(cfg.rb.length - 1, radManual + dir));
-    partial = 0;
-    radShownIdx = -2;
-    if(navigator.vibrate) navigator.vibrate(40);
-    return;
-  }
   const cur = radNextIdx < 0 ? 0 : Math.min(radNextIdx, cfg.rb.length - 1);
   const n = Math.max(0, Math.min(cfg.rb.length - 1, cur + dir));
   const prevKm = n > 0 ? ((parseKm(cfg.rb[n-1].km) * 1000) || 0) : 0;
@@ -1643,45 +1544,6 @@ function rbJump(dir){
   radNextIdx = n;
   radShownIdx = -2;
   if(navigator.vibrate) navigator.vibrate(40);
-}
-/* quando passo da auto a manuale, parto dal riferimento attualmente in arrivo */
-function syncManual(){
-  if(!cfg.autoReset){
-    let m = (radNextIdx >= 0 && radNextIdx < cfg.rb.length) ? radNextIdx : 0;
-    radManual = cfg.rb.length ? Math.max(0, Math.min(cfg.rb.length - 1, m)) : 0;
-  }
-  radShownIdx = -2;
-}
-
-/* correzione drift: "sono qui a questo riferimento" -> sposta il totale così che il
-   conteggio verso il prossimo riferimento riparta giusto (pressione breve sul parziale) */
-function adaptMeasure(){
-  if(cfg.mode !== 'radar' || !cfg.rb.length) return;
-  const tR = radT();
-  let target;
-  if(!cfg.autoReset){
-    /* manuale: il riferimento a cui sto arrivando è quello mostrato */
-    target = Math.max(0, Math.min(cfg.rb.length - 1, radManual));
-  } else {
-    /* automatico: il riferimento con km più vicino a dove sono ora */
-    target = -1; let best = Infinity;
-    for(let i = 0; i < cfg.rb.length; i++){
-      const km = parseKm(cfg.rb[i].km) * 1000;
-      if(isNaN(km)) continue;
-      const d = Math.abs(km - tR);
-      if(d < best){ best = d; target = i; }
-    }
-    if(target < 0) return;
-  }
-  const kmT = parseKm(cfg.rb[target].km) * 1000;
-  if(isNaN(kmT)) return;
-  rbOffset += (kmT - tR);        /* ora radT = km del riferimento "dove sono" */
-  partial = 0;
-  rbPassedIdx = target;
-  radManual = Math.min(cfg.rb.length - 1, target + 1);
-  radShownIdx = -2;
-  if(navigator.vibrate) navigator.vibrate([30,40,30]);
-  showToast(t('adaptMsg') + ' ' + (target + 1));
 }
 
 /* ================= CONTEGGIO CONTINUO + RENDER ================= */
@@ -1709,7 +1571,7 @@ function frame(){
   const sinceFix = (now - lastGoodFix) / 1000;
   const maxGap = 60; /* modalità galleria sempre attiva */
   const counting = curSpeed > 0 && lastGoodFix > 0 && sinceFix < maxGap;
-  if(counting && dtF > 0 && dtF < 1 && now >= gpsWarmup){
+  if(counting && dtF > 0 && dtF < 1){
     const d = curSpeed * dtF;
     total += d;
     if(partialActive()) partial += d;
@@ -1754,25 +1616,22 @@ function frame(){
   }
   requestAnimationFrame(frame);
 }
+
+/* ================= DISPOSIZIONE RADAR / SCALA NUMERI ================= */
 function applyLayout(){
   document.body.dataset.arr = cfg.lay.arr;
   document.body.dataset.numsize = cfg.numSize;
   document.body.dataset.numfont = cfg.numFont;
-  radShownIdx = -2;
 }
 
 /* ================= AZIONE PRINCIPALE ================= */
 function anyOverlayOpen(){
-  return ['intro','pilotMenu','navMenu','genMenu'].some(id => $(id).classList.contains('open'))
+  return ['intro','pilotMenu','navMenu','genMenu','tdmMenu'].some(id => $(id).classList.contains('open'))
     || $('drawer').classList.contains('open');
 }
 
 function mainAction(){
   if(cfg.mode !== 'pilot'){
-    if(cfg.mode === 'radar' && !cfg.autoReset && cfg.rb.length){
-      radManual = Math.min(cfg.rb.length - 1, radManual + 1);
-      radShownIdx = -2;
-    }
     partial = 0;
     showToast(t('partialResetMsg'));
   } else {
@@ -1796,37 +1655,7 @@ function mainAction(){
 }
 
 zoneWord.addEventListener('click', mainAction);
-
-/* parziale: tocco = azzera/avanza · pressione breve (~1s) in Radar = adatta la misura */
-function attachPartialHold(el, bar){
-  let timer = null, held = false;
-  const start = ()=>{
-    if(cfg.mode !== 'radar' || !cfg.rb.length) return;
-    held = false;
-    if(bar){ bar.style.transition = 'width 1s linear'; bar.style.width = '100%'; }
-    timer = setTimeout(()=>{
-      held = true;
-      adaptMeasure();
-      if(bar){ bar.style.transition = 'none'; bar.style.width = '0'; }
-      timer = null;
-    }, 1000);
-  };
-  const end = ()=>{
-    if(bar){ bar.style.transition = 'none'; bar.style.width = '0'; }
-    if(timer){ clearTimeout(timer); timer = null; }
-  };
-  el.addEventListener('pointerdown', start);
-  el.addEventListener('pointerup', end);
-  el.addEventListener('pointercancel', end);
-  el.addEventListener('pointerleave', end);
-  el.addEventListener('contextmenu', e => e.preventDefault());
-  el.addEventListener('click', ()=>{
-    if(cfg.mode === 'pilot') return;
-    if(held){ held = false; return; }   /* la pressione breve ha già agito */
-    mainAction();
-  });
-}
-attachPartialHold(zonePartial, zonePartial.querySelector('.pHoldBar'));
+zonePartial.addEventListener('click', ()=>{ if(cfg.mode !== 'pilot') mainAction(); });
 
 window.addEventListener('keydown', e => {
   if(anyOverlayOpen()) return;
@@ -1848,7 +1677,6 @@ function startHold(e){
     total = 0;
     rbOffset = 0;
     rbPassedIdx = null;
-    radManual = 0;
     radShownIdx = -2;
     resetHoldBar();
     showToast(t('totalResetMsg'));
@@ -1906,45 +1734,6 @@ $('btnArr').addEventListener('click', e=>{
 });
 $('drawerBg').addEventListener('click', closeDrawer);
 
-/* frecce radar: scorrono tra i riferimenti (◀ indietro, ▶ avanti) */
-$('radPrev').addEventListener('click', e=>{ e.stopPropagation(); rbJump(-1); });
-$('radNext').addEventListener('click', e=>{ e.stopPropagation(); rbJump(1); });
-
-/* ---- ripresa dopo chiusura ---- */
-function saveSession(){
-  try{
-    localStorage.setItem('rallytrip_session', JSON.stringify({
-      total: Math.round(total), partial: Math.round(partial),
-      rbOffset: Math.round(rbOffset), ts: Date.now()
-    }));
-  }catch(e){}
-}
-setInterval(saveSession, 2000);
-document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='hidden') saveSession(); });
-window.addEventListener('pagehide', saveSession);
-
-function checkResume(){
-  let s = null;
-  try{ s = JSON.parse(localStorage.getItem('rallytrip_session')); }catch(e){}
-  if(!s || typeof s.total !== 'number') return;
-  if((Date.now() - (s.ts||0)) > 12*3600*1000) return;
-  if(s.total <= 20) return;
-  const {ov,box} = uiBox();
-  const h = document.createElement('div'); h.style.cssText='font-weight:800;color:var(--amber);margin-bottom:8px'; h.textContent=t('resumeAsk'); box.appendChild(h);
-  const info = document.createElement('div'); info.style.cssText='font-size:15px;margin-bottom:16px;color:var(--text)';
-  info.textContent = t('totalShort')+': '+fmtDist(s.total)+' '+distUnit(); box.appendChild(info);
-  const rw=document.createElement('div'); rw.style.cssText='display:flex;gap:10px';
-  const no=document.createElement('button'); no.textContent=t('resumeNo'); no.style.cssText='flex:1;padding:12px;border-radius:10px;background:var(--btnbg);border:1px solid var(--line);color:var(--text)';
-  no.addEventListener('click',()=>{ try{localStorage.removeItem('rallytrip_session');}catch(e){} uiClose(ov); });
-  const ye=document.createElement('button'); ye.textContent=t('resumeYes'); ye.style.cssText='flex:1;padding:12px;border-radius:10px;background:var(--green);border:none;color:#000;font-weight:800';
-  ye.addEventListener('click',()=>{
-    total = s.total; partial = s.partial||0; rbOffset = s.rbOffset||0;
-    rbPassedIdx = null; radShownIdx = -2;
-    uiClose(ov);
-  });
-  rw.appendChild(no); rw.appendChild(ye); box.appendChild(rw);
-}
-
 /* modalità: si attivano subito al tocco */
 function setMode(m){
   cfg.mode = m;
@@ -1967,7 +1756,6 @@ $('drvWords').addEventListener('click', ()=>{
 $('drvRb').addEventListener('click', ()=>{
   closeDrawer();
   buildSsList();
-  $('autoResetToggle').checked = cfg.autoReset;
   $('navMenu').classList.add('open');
 });
 $('drvSet').addEventListener('click', ()=>{
@@ -1978,19 +1766,9 @@ $('drvSet').addEventListener('click', ()=>{
   $('fontSel').value = cfg.numFont;
   $('timeSel').value = cfg.h24 ? '24' : '12';
   $('themeSel').value = cfg.theme;
+  $('autoResetToggle').checked = cfg.autoReset;
   $('genMenu').classList.add('open');
 });
-
-/* impostazioni generali: ogni scelta si applica subito e viene salvata */
-$('langSel').addEventListener('change', e=>{ cfg.lang = e.target.value; applyLang(); saveCfg(); });
-$('unitSel').addEventListener('change', e=>{ cfg.units = e.target.value; applyUnits(); saveCfg(); });
-$('numSel').addEventListener('change', e=>{ cfg.numSize = parseInt(e.target.value,10); if(![0,1,2].includes(cfg.numSize)) cfg.numSize = 1; applyLayout(); saveCfg(); });
-$('fontSel').addEventListener('change', e=>{ cfg.numFont = e.target.value; applyLayout(); saveCfg(); });
-$('timeSel').addEventListener('change', e=>{ cfg.h24 = e.target.value === '24'; saveCfg(); });
-$('themeSel').addEventListener('change', e=>{ cfg.theme = e.target.value; applyTheme(); saveCfg(); });
-$('autoResetToggle').addEventListener('change', e=>{ cfg.autoReset = e.target.checked; syncManual(); saveCfg(); });
-$('closeGen').addEventListener('click', ()=>{ saveCfg(); $('genMenu').classList.remove('open'); });
-
 $('drvInfo').addEventListener('click', ()=>{
   closeDrawer();
   $('hideIntro').checked = cfg.hideIntro;
@@ -2069,70 +1847,31 @@ function askName(preset,onOk){
   setTimeout(()=>{ try{inp.focus();}catch(e){} },120);
 }
 
-async function loadStage(i){
+function loadStage(i){
   const ss=cfg.ssLib[i]; if(!ss) return;
-  await hydrateRb(ss.rb);
   cfg.rb=JSON.parse(JSON.stringify(ss.rb||[]));
   cfg.ssActive=ss.name;
-  rbPassedIdx=null; radShownIdx=-2; rbOffset=0; radManual=0;
+  rbPassedIdx=null; radShownIdx=-2; rbOffset=0;
   updateSsBadge(); saveCfg(); buildSsList();
   showToast('\u201C'+ss.name+'\u201D \u2014 '+t('ssLoadedMsg'));
 }
 
-async function showStageDetail(i){
+function showStageDetail(i){
   const ss=cfg.ssLib[i]; if(!ss) return;
-  await hydrateRb(ss.rb);
   const {ov,box}=uiBox();
   const h=document.createElement('div'); h.style.cssText='font-weight:800;color:var(--amber);font-size:16px;margin-bottom:2px'; h.textContent=ss.name; box.appendChild(h);
-  const cnt=document.createElement('div'); cnt.style.cssText='font-size:12px;color:var(--muted,#888);margin-bottom:12px'; box.appendChild(cnt);
-  const listWrap=document.createElement('div'); box.appendChild(listWrap);
-
-  function afterEdit(){
-    saveCfg();
-    if(cfg.ssActive===ss.name){
-      cfg.rb=JSON.parse(JSON.stringify(ss.rb||[]));
-      rbPassedIdx=null; radShownIdx=-2;
-    }
-    buildSsList();
-    render();
-  }
-  function move(idx,dir){
-    const j=idx+dir; if(j<0||j>=ss.rb.length) return;
-    const tmp=ss.rb[idx]; ss.rb[idx]=ss.rb[j]; ss.rb[j]=tmp;
-    afterEdit();
-  }
-  function delRow(idx){
-    showConfirm(t('refDelAsk')+' n. '+(idx+1)+'?',()=>{
-      const r=ss.rb[idx];
-      if(r && r.imgId){ idbDel(r.imgId); imgCache.delete(r.imgId); }
-      ss.rb.splice(idx,1);
-      afterEdit();
-    });
-  }
-  function render(){
-    listWrap.innerHTML='';
-    cnt.textContent=((ss.rb&&ss.rb.length)||0)+' '+t('refCount');
-    (ss.rb||[]).forEach((r,idx)=>{
-      const rr=document.createElement('div'); rr.style.cssText='display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line,#333)';
-      const nn=document.createElement('div'); nn.style.cssText='min-width:20px;font-weight:800;color:var(--amber)'; nn.textContent=(idx+1); rr.appendChild(nn);
-      const km=document.createElement('div'); km.style.cssText='min-width:46px;font-weight:700;font-size:13px'; km.textContent=r.km||'\u2014'; rr.appendChild(km);
-      const th=document.createElement('div'); th.style.cssText='flex:0 0 auto';
-      const _src=imgOf(r); if(_src){ const im=document.createElement('img'); im.src=_src; im.style.cssText='height:44px;max-width:80px;object-fit:contain;border-radius:4px;background:#fff'; th.appendChild(im); }
-      else { const nf=document.createElement('span'); nf.textContent='(no foto)'; nf.style.cssText='font-size:11px;color:var(--red,#e5484d)'; th.appendChild(nf); }
-      rr.appendChild(th);
-      const nt=document.createElement('div'); nt.style.cssText='flex:1;font-size:11px;color:var(--muted,#aaa);word-break:break-word'; nt.textContent=r.n||''; rr.appendChild(nt);
-      const ctr=document.createElement('div'); ctr.style.cssText='display:flex;align-items:center;gap:4px;flex-shrink:0';
-      const mkBtn=(label,fn,col)=>{ const b=document.createElement('button'); b.textContent=label; b.style.cssText='width:30px;height:30px;border-radius:8px;background:var(--btnbg,#222);border:1px solid var(--line,#333);color:'+(col||'var(--text,#eee)')+';font-size:13px;line-height:1;padding:0'; b.addEventListener('click',fn); return b; };
-      const up=mkBtn('\u25B2',()=>move(idx,-1)); if(idx===0) up.style.opacity='.3';
-      const dn=mkBtn('\u25BC',()=>move(idx,1)); if(idx===ss.rb.length-1) dn.style.opacity='.3';
-      const dl=mkBtn('\u2715',()=>delRow(idx),'var(--red,#e5484d)');
-      ctr.appendChild(up); ctr.appendChild(dn); ctr.appendChild(dl);
-      rr.appendChild(ctr);
-      listWrap.appendChild(rr);
-    });
-  }
-  render();
-
+  const cnt=document.createElement('div'); cnt.style.cssText='font-size:12px;color:var(--muted,#888);margin-bottom:12px'; cnt.textContent=((ss.rb&&ss.rb.length)||0)+' riferimenti'; box.appendChild(cnt);
+  (ss.rb||[]).forEach((r,idx)=>{
+    const rr=document.createElement('div'); rr.style.cssText='display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--line,#333)';
+    const nn=document.createElement('div'); nn.style.cssText='min-width:24px;font-weight:800;color:var(--amber)'; nn.textContent=(idx+1); rr.appendChild(nn);
+    const km=document.createElement('div'); km.style.cssText='min-width:54px;font-weight:700'; km.textContent=r.km||'\u2014'; rr.appendChild(km);
+    const th=document.createElement('div'); th.style.cssText='flex:0 0 auto';
+    if(r.img){ const im=document.createElement('img'); im.src=r.img; im.style.cssText='height:46px;border-radius:4px;background:#fff'; th.appendChild(im); }
+    else { th.textContent='(no foto)'; th.style.cssText='font-size:11px;color:var(--red,#e5484d)'; }
+    rr.appendChild(th);
+    const nt=document.createElement('div'); nt.style.cssText='flex:1;font-size:12px;color:var(--muted,#aaa)'; nt.textContent=r.n||''; rr.appendChild(nt);
+    box.appendChild(rr);
+  });
   const bw=document.createElement('div'); bw.style.cssText='display:flex;flex-direction:column;gap:8px;margin-top:14px';
   const lo=document.createElement('button'); lo.textContent=t('ssLoad'); lo.style.cssText='padding:12px;border-radius:10px;background:var(--green,#39d353);border:none;color:#000;font-weight:800'; lo.addEventListener('click',()=>{ uiClose(ov); loadStage(i); });
   const ad=document.createElement('button'); ad.textContent='+ '+t('rbAddScan'); ad.style.cssText='padding:12px;border-radius:10px;background:var(--btnbg,#222);border:2px solid var(--amber);color:var(--amber);font-weight:800'; ad.addEventListener('click',()=>{ uiClose(ov); pendingStageName=ss.name; pendingAppend=true; $('aiFile').click(); });
@@ -2143,28 +1882,16 @@ async function showStageDetail(i){
 function buildSsList(){
   const list=$('ssList'); list.innerHTML='';
   $('ssEmpty').style.display=cfg.ssLib.length?'none':'block';
-  /* prova NUOVA in fase di scansione: riga temporanea con spinner (non è ancora in libreria) */
-  if(scanningName && !cfg.ssLib.some(s=>s.name===scanningName)){
-    const row=document.createElement('div'); row.className='ss-row'; row.style.borderColor='var(--amber)';
-    const name=document.createElement('span'); name.className='ss-name';
-    name.textContent=scanningName;
-    const sp=document.createElement('span'); sp.className='spin';
-    name.appendChild(sp);
-    row.appendChild(name); list.appendChild(row);
-  }
   cfg.ssLib.forEach((ss,i)=>{
     const row=document.createElement('div'); row.className='ss-row';
     if(cfg.ssActive===ss.name) row.style.borderColor='var(--green)';
     const name=document.createElement('span'); name.className='ss-name'; name.style.cursor='pointer';
     name.textContent=ss.name+(cfg.ssActive===ss.name?' \u2713':'');
-    if(scanningName===ss.name){ const sp=document.createElement('span'); sp.className='spin'; name.appendChild(sp); }
     name.addEventListener('click',()=>showStageDetail(i));
     const loadBtn=document.createElement('button'); loadBtn.textContent=t('ssLoad'); loadBtn.addEventListener('click',()=>loadStage(i));
     const delBtn=document.createElement('button'); delBtn.className='del'; delBtn.textContent='\u2715';
     delBtn.addEventListener('click',()=>{
       showConfirm(t('ssDelAsk')+' \u201C'+ss.name+'\u201D?',()=>{
-        const st=cfg.ssLib[i];
-        if(st) (st.rb||[]).forEach(r=>{ if(r.imgId){ idbDel(r.imgId); imgCache.delete(r.imgId); } });
         if(cfg.ssActive===cfg.ssLib[i].name){ cfg.ssActive=''; cfg.rb=[]; updateSsBadge(); }
         cfg.ssLib.splice(i,1); saveCfg(); buildSsList();
       });
@@ -2176,18 +1903,129 @@ function buildSsList(){
 /* ================= NUOVA PROVA + INFO ================= */
 let pendingStageName = null;
 let pendingAppend = false;
-let scanningName = null;   /* prova attualmente in scansione (per lo spinner) */
 
 $('ssNew').addEventListener('click', ()=>{
   askName('', (name)=>{ pendingStageName=name; pendingAppend=false; $('aiFile').click(); });
 });
 
 $('rbInfo').addEventListener('click', ()=>{ showMsg(t('rbGuide')); });
-$('autoResetInfo').addEventListener('click', ()=>{ showMsg(t('autoResetSmall'), t('autoResetLabel')); });
 
 $('closeNav').addEventListener('click', ()=>{
   saveCfg();
   $('navMenu').classList.remove('open');
+});
+
+/* ================= TABELLA DI MARCIA ================= */
+let tdmOpenIdx = null;
+const tdmGuide = "TABELLA DI MARCIA\n\n\u2022 Tocca + per creare una tabella (una per sezione) e dai un nome.\n\u2022 Imposta l'orario di partenza (CO 0) e aggiungi i timbri con \u201C+ Aggiungi timbro\u201D.\n\u2022 Per ogni timbro scegli il tipo, la localita e i minuti di tempo imposto: l'ora teorica si calcola da sola sommando.\n\u2022 In gara scrivi l'ora reale a cui timbri (oppure usa \u2212 e +): l'app calcola il ritardo e sposta i teorici dei controlli successivi.\n\u2022 Sui timbri Start PS puoi segnare il tempo fatto in prova.";
+function td_esc(x){ return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function td_att(x){ return td_esc(x).replace(/"/g,'&quot;'); }
+function td_hm(x){ x=String(x==null?'':x).trim(); var m=x.match(/^(\d{1,2})[:.\s]+(\d{1,2})$/); var h,mi; if(m){ h=+m[1]; mi=+m[2]; } else { var d=x.replace(/\D/g,''); if(d.length===4){ h=+d.slice(0,2); mi=+d.slice(2); } else if(d.length===3){ h=+d.slice(0,1); mi=+d.slice(1); } else if(d.length>0&&d.length<=2){ h=+d; mi=0; } else return NaN; } if(isNaN(h)||isNaN(mi)||h>23||mi>59) return NaN; return h*60+mi; }
+function td_mh(m){ m=((Math.round(m)%1440)+1440)%1440; const h=Math.floor(m/60), mi=m%60; return (h<10?'0':'')+h+':'+(mi<10?'0':'')+mi; }
+function td_norm(x){ x=((x%1440)+1440)%1440; if(x>720)x-=1440; return x; }
+function td_calc(tab){ const out=[]; let prev=td_hm(tab.start); if(isNaN(prev)) prev=0; let ideal=prev; const OFF=(tab.offset==null||isNaN(parseInt(tab.offset)))?3:parseInt(tab.offset);
+  (tab.rows||[]).forEach(r=>{ const imp=parseInt(r.imp)||0; const teoT=prev+imp; const idT=ideal+imp;
+    if(r.tipo==='PS'){ const tr=td_hm(r.real); const effT=isNaN(tr)?teoT:tr; const teoP=effT+OFF; const idP=idT+OFF; const pr=td_hm(r.rstart); const effExit=isNaN(pr)?teoP:pr; const hasReal=!isNaN(pr); const cum=td_norm(effExit-idP); out.push({isPS:true,teoT:td_mh(teoT),teoP:td_mh(teoP),cum:cum,hasReal:hasReal}); prev=effExit; ideal=idP; }
+    else { const rm=td_hm(r.real); const effExit=isNaN(rm)?teoT:rm; const hasReal=!isNaN(rm); const cum=td_norm(effExit-idT); out.push({isPS:false,teo:td_mh(teoT),cum:cum,hasReal:hasReal}); prev=effExit; ideal=idT; }
+  }); return out; }
+function td_badge(c,tipo){ const cum=c.cum; const hr=c.hasReal;
+  if(tipo==='RIO'){ if(!hr) return cum>0?'<span class="b-late">porti +'+cum+'\u2032</span>':''; if(cum<=0) return '<span class="b-ok">\u2713 ritardo cancellato</span>'; return '<span class="b-late">resta +'+cum+'\u2032</span>'; }
+  if(!hr && cum===0) return '';
+  if(cum>0) return '<span class="b-late">RITARDO +'+cum+'\u2032</span>';
+  if(cum<0) return '<span class="b-early">ANTICIPO \u2212'+Math.abs(cum)+'\u2032</span>';
+  return '<span class="b-ok">in orario</span>'; }
+function td_types(sel){ const o=[['CO','CO \u2014 Controllo orario'],['PS','Start PS'],['RIO','Riordino'],['PARCO','Parco / Service'],['CT','Controllo a timbro'],['ARR','Arrivo']]; return o.map(x=>'<option value="'+x[0]+'"'+(x[0]===sel?' selected':'')+'>'+x[1]+'</option>').join(''); }
+function td_delayHtml(d){ const a=Math.abs(d); if(d>0) return '<span class="b-late">RITARDO +'+a+'\u2032</span>'; if(d<0) return '<span class="b-early">ANTICIPO \u2212'+a+'\u2032</span>'; return '<span class="b-ok">in orario</span>'; }
+
+function renderTdm(){
+  const b=$('tdmBody');
+  if(tdmOpenIdx==null){
+    let h='<div class="tdm-head"><h2>'+td_esc(t('navTdm'))+'</h2><button class="tdm-i" data-act="info">i</button></div>';
+    h+='<button class="tdm-new" data-act="newtab">+ Nuova tabella</button>';
+    if(!cfg.tdm.length) h+='<div class="tdm-empty">Nessuna tabella salvata. Tocca + per crearne una.</div>';
+    cfg.tdm.forEach((tab,i)=>{ h+='<div class="tdm-row"><span class="tdm-name" data-act="open" data-i="'+i+'">'+td_esc(tab.name)+' <small>('+((tab.rows&&tab.rows.length)||0)+' timbri \u00b7 via '+td_esc(tab.start)+')</small></span><button class="del" data-act="deltab" data-i="'+i+'">\u2715</button></div>'; });
+    h+='<button class="okbtn" data-act="close">Chiudi</button>';
+    b.innerHTML=h;
+  } else {
+    const tab=cfg.tdm[tdmOpenIdx]; if(!tab){ tdmOpenIdx=null; return renderTdm(); }
+    const calc=td_calc(tab);
+    let h='<div class="tdm-head"><button class="tdm-back" data-act="back">\u2039</button><input class="tdm-tabname" data-act="rename" value="'+td_att(tab.name)+'"></div>';
+    h+='<div class="tdm-startrow"><span>Partenza (CO 0)</span><input class="tdm-start" inputmode="numeric" data-act="setstart" value="'+td_att(tab.start)+'" placeholder="08:30"></div>';
+    h+='<div class="tdm-startrow"><span>Partenza PS dal timbro</span><span>+<input class="tdm-start" inputmode="numeric" style="width:54px;color:var(--amber)" data-act="setoff" value="'+(tab.offset==null?3:tab.offset)+'"> min</span></div>';
+    (tab.rows||[]).forEach((r,i)=>{
+      const c=calc[i];
+      h+='<div class="tdm-ctrl">'
+        +'<div class="tdm-cr1"><select data-act="tipo" data-i="'+i+'">'+td_types(r.tipo)+'</select>'
+        +'<input class="tdm-label" data-act="label" data-i="'+i+'" value="'+td_att(r.label)+'" placeholder="es. PS1 Larciano">'
+        +'<button class="del" data-act="delrow" data-i="'+i+'">✕</button></div>'
+        +'<div class="tdm-cr2"><label>imposto <input type="number" min="0" data-act="imp" data-i="'+i+'" value="'+(parseInt(r.imp)||0)+'"> min</label></div>';
+      if(r.tipo==='PS'){
+        h+='<div class="tdm-cr3"><span class="tdm-teo">timbro <b>'+c.teoT+'</b></span>'
+          +'<span class="tdm-real">reale <input class="tdm-realin" inputmode="numeric" data-act="real" data-i="'+i+'" value="'+td_att(r.real||'')+'" placeholder="--:--"></span></div>'
+          +'<div class="tdm-cr3" style="border-left:2px solid var(--amber);padding-left:10px;margin-top:6px"><span class="tdm-teo">partenza <b>'+c.teoP+'</b></span>'
+          +'<span class="tdm-real">reale <input class="tdm-realin" inputmode="numeric" data-act="rstart" data-i="'+i+'" value="'+td_att(r.rstart||'')+'" placeholder="--:--"><button data-act="rminus" data-i="'+i+'">−</button><button data-act="rplus" data-i="'+i+'">+</button></span>'
+          +td_badge(c,'PS')
+          +'<input class="tdm-pst" inputmode="numeric" data-act="pst" data-i="'+i+'" value="'+td_att(r.psTime||'')+'" placeholder="tempo PS"></div>';
+      } else {
+        h+='<div class="tdm-cr3"><span class="tdm-teo">teorica <b>'+c.teo+'</b></span>'
+          +'<span class="tdm-real">reale <input class="tdm-realin" inputmode="numeric" data-act="real" data-i="'+i+'" value="'+td_att(r.real||'')+'" placeholder="--:--"><button data-act="rminus" data-i="'+i+'">−</button><button data-act="rplus" data-i="'+i+'">+</button></span>'
+          +td_badge(c,r.tipo)+'</div>';
+      }
+      h+='</div>';
+    });
+        h+='<button class="tdm-new" data-act="addrow">+ Aggiungi timbro</button>';
+    h+='<button class="okbtn" data-act="close">Chiudi</button>';
+    b.innerHTML=h;
+  }
+}
+function td_adjReal(i,d){ const tab=cfg.tdm[tdmOpenIdx]; const calc=td_calc(tab); const r=tab.rows[i]; const c=calc[i]; if(r.tipo==='PS'){ let b=td_hm(r.rstart); if(isNaN(b)) b=td_hm(c.teoP); r.rstart=td_mh(b+d); } else { let b=td_hm(r.real); if(isNaN(b)) b=td_hm(c.teo); r.real=td_mh(b+d); } saveCfg(); renderTdm(); }
+
+$('tdmBody').addEventListener('click', e=>{
+  const el=e.target.closest('[data-act]'); if(!el) return;
+  const a=el.dataset.act; const i=el.dataset.i!=null?+el.dataset.i:null;
+  if(a==='close'){ saveCfg(); $('tdmMenu').classList.remove('open'); }
+  else if(a==='info'){ showMsg(tdmGuide); }
+  else if(a==='newtab'){ askName('', function(name){ cfg.tdm.push({name:name,start:'08:30',offset:3,rows:[]}); saveCfg(); tdmOpenIdx=cfg.tdm.length-1; renderTdm(); }); }
+  else if(a==='open'){ tdmOpenIdx=i; renderTdm(); }
+  else if(a==='deltab'){ const nm=cfg.tdm[i].name; showConfirm('Eliminare la tabella \u201C'+nm+'\u201D?', function(){ cfg.tdm.splice(i,1); saveCfg(); renderTdm(); }); }
+  else if(a==='back'){ tdmOpenIdx=null; saveCfg(); renderTdm(); }
+  else if(a==='addrow'){ cfg.tdm[tdmOpenIdx].rows.push({tipo:'CO',label:'',imp:0,psTime:'',real:'',rstart:''}); saveCfg(); renderTdm(); }
+  else if(a==='delrow'){ cfg.tdm[tdmOpenIdx].rows.splice(i,1); saveCfg(); renderTdm(); }
+  else if(a==='rplus'){ td_adjReal(i,1); }
+  else if(a==='rminus'){ td_adjReal(i,-1); }
+});
+$('tdmBody').addEventListener('input', e=>{
+  const el=e.target.closest('[data-act]'); if(!el) return;
+  const a=el.dataset.act; const i=el.dataset.i!=null?+el.dataset.i:null;
+  const tab=cfg.tdm[tdmOpenIdx]; if(!tab) return;
+  if(a==='rename') tab.name=el.value;
+  else if(a==='setstart') tab.start=el.value;
+  else if(a==='label') tab.rows[i].label=el.value;
+  else if(a==='imp') tab.rows[i].imp=parseInt(el.value)||0;
+  else if(a==='pst') tab.rows[i].psTime=el.value;
+  else if(a==='real') tab.rows[i].real=el.value;
+  else if(a==='rstart') tab.rows[i].rstart=el.value;
+  else if(a==='setoff') tab.offset=parseInt(el.value)||0;
+  saveCfg();
+});
+$('tdmBody').addEventListener('change', e=>{
+  const el=e.target.closest('[data-act]'); if(!el) return;
+  const a=el.dataset.act; const i=el.dataset.i!=null?+el.dataset.i:null;
+  const tab=cfg.tdm[tdmOpenIdx]; if(!tab) return;
+  if(a==='tipo'){ tab.rows[i].tipo=el.value; saveCfg(); renderTdm(); }
+  else if(a==='imp'||a==='real'||a==='rstart'||a==='setstart'||a==='setoff'){
+    if(a==='setstart'){ const v=td_hm(tab.start); if(!isNaN(v)) tab.start=td_mh(v); }
+    else if(a==='real'&&i!=null){ const v=td_hm(tab.rows[i].real); if(!isNaN(v)) tab.rows[i].real=td_mh(v); }
+    else if(a==='rstart'&&i!=null){ const v=td_hm(tab.rows[i].rstart); if(!isNaN(v)) tab.rows[i].rstart=td_mh(v); }
+    saveCfg(); renderTdm();
+  }
+});
+
+$('drvTdm').addEventListener('click', ()=>{
+  closeDrawer();
+  tdmOpenIdx=null;
+  renderTdm();
+  $('tdmMenu').classList.add('open');
 });
 
 /* ================= SCANNER RADAR (AI) ================= */
@@ -2225,8 +2063,6 @@ async function scanAIRun(img){
   const append = pendingAppend;
   pendingStageName = null; pendingAppend = false;
   if(!img || !name) return;
-  scanningName = name;
-  buildSsList();                       /* mostra il pallino che gira accanto alla prova */
   showToast('\u23F3 ' + t('scanReading'));
   try{
     const b64 = imgToB64(img, 1800);
@@ -2243,18 +2079,11 @@ async function scanAIRun(img){
     for(const r of rows){
       const km = (r.km == null ? '' : String(r.km)).replace('.', ',').trim();
       const nota = (r.nota || '').trim();
-      let imgId = '';
+      let cropped = '';
       if(Array.isArray(r.box) && r.box.length === 4){
-        try{
-          const cropped = aiCrop(img, r.box);
-          if(cropped){
-            imgId = newImgId();
-            await idbPut(imgId, cropped);
-            imgCache.set(imgId, cropped);
-          }
-        }catch(e){ imgId = ''; }
+        try{ cropped = aiCrop(img, r.box); }catch(e){}
       }
-      newRb.push({ km: km, s: '', n: nota, imgId: imgId });
+      newRb.push({ km: km, s: '', n: nota, img: cropped });
     }
     let stage = cfg.ssLib.find(x => x.name === name);
     if(!stage){ stage = { name: name, rb: [] }; cfg.ssLib.push(stage); }
@@ -2262,16 +2091,14 @@ async function scanAIRun(img){
     stage.rb.sort((a,b)=> (parseKm(a.km)||0) - (parseKm(b.km)||0));
     cfg.rb = JSON.parse(JSON.stringify(stage.rb));
     cfg.ssActive = name;
-    rbPassedIdx = null; radShownIdx = -2; rbOffset = 0; radManual = 0;
+    rbPassedIdx = null; radShownIdx = -2; rbOffset = 0;
     updateSsBadge();
     const ok = saveCfg();
+    buildSsList();
     if(ok) showToast('\u2705 ' + newRb.length + ' ' + t('scanSaved'));
     else showMsg('\u26A0\uFE0F ' + t('storeFull'));
   }catch(e){
     showMsg('\u26A0\uFE0F ' + t('scanConnErr'));
-  }finally{
-    scanningName = null;
-    buildSsList();                     /* toglie il pallino e mostra lo stato finale */
   }
 }
 $('aiFile').addEventListener('change', e=>{
@@ -2308,16 +2135,6 @@ applyTheme();
 applyMode();
 applyLayout();
 requestAnimationFrame(frame);
-
-/* avvio archivio foto: migra le vecchie foto in IndexedDB e carica in cache la prova attiva */
-(async function initPhotos(){
-  try{
-    await migrateImages();
-    await hydrateRb(cfg.rb);
-    radShownIdx = -2;
-  }catch(e){}
-  checkResume();
-})();
 })();
 </script>
 </body>
