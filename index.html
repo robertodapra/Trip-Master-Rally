@@ -652,7 +652,8 @@
 .tdm-pst{padding:6px 8px;border-radius:6px;border:1px solid var(--amber);background:var(--btnbg);color:var(--amber);font-size:13px;width:120px}
 .tdm-cr3{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px}
 .tdm-teo b{color:var(--text);font-size:16px}
-.tdm-realin{width:70px;text-align:center;padding:6px;border-radius:6px;border:1px solid var(--line);background:var(--btnbg);color:var(--text);font-size:15px;font-weight:700}
+.tdm-realin{width:96px;text-align:center;padding:6px;border-radius:6px;border:1px solid var(--line);background:var(--btnbg);color:var(--text);font-size:15px;font-weight:700}
+.tdm-imp{width:96px;padding:6px;border-radius:6px;border:1px solid var(--line);background:var(--btnbg);color:var(--text);font-size:14px}
 .tdm-real button{width:32px;height:32px;border-radius:6px;border:1px solid var(--line);background:var(--btnbg);color:var(--amber);font-size:17px;font-weight:800;margin-left:3px}
 .b-late{color:var(--red);font-weight:800;font-size:12px}
 .b-early{color:#6ab7ff;font-weight:800;font-size:12px}
@@ -1915,6 +1916,19 @@ $('closeNav').addEventListener('click', ()=>{
   $('navMenu').classList.remove('open');
 });
 
+$('closeGen').addEventListener('click', ()=>{
+  cfg.lang = $('langSel').value;
+  cfg.units = $('unitSel').value;
+  cfg.numSize = parseInt($('numSel').value)||1;
+  cfg.numFont = $('fontSel').value;
+  cfg.h24 = ($('timeSel').value === '24');
+  cfg.theme = $('themeSel').value;
+  cfg.autoReset = $('autoResetToggle').checked;
+  applyLang(); applyTheme(); applyUnits(); applyLayout();
+  saveCfg();
+  $('genMenu').classList.remove('open');
+});
+
 /* ================= TABELLA DI MARCIA ================= */
 let tdmOpenIdx = null;
 const tdmGuide = "TABELLA DI MARCIA\n\n\u2022 Tocca + per creare una tabella (una per sezione) e dai un nome.\n\u2022 Imposta l'orario di partenza (CO 0) e aggiungi i timbri con \u201C+ Aggiungi timbro\u201D.\n\u2022 Per ogni timbro scegli il tipo, la localita e i minuti di tempo imposto: l'ora teorica si calcola da sola sommando.\n\u2022 In gara scrivi l'ora reale a cui timbri (oppure usa \u2212 e +): l'app calcola il ritardo e sposta i teorici dei controlli successivi.\n\u2022 Sui timbri Start PS puoi segnare il tempo fatto in prova.";
@@ -1923,17 +1937,15 @@ function td_att(x){ return td_esc(x).replace(/"/g,'&quot;'); }
 function td_hm(x){ x=String(x==null?'':x).trim(); var m=x.match(/^(\d{1,2})[:.\s]+(\d{1,2})$/); var h,mi; if(m){ h=+m[1]; mi=+m[2]; } else { var d=x.replace(/\D/g,''); if(d.length===4){ h=+d.slice(0,2); mi=+d.slice(2); } else if(d.length===3){ h=+d.slice(0,1); mi=+d.slice(1); } else if(d.length>0&&d.length<=2){ h=+d; mi=0; } else return NaN; } if(isNaN(h)||isNaN(mi)||h>23||mi>59) return NaN; return h*60+mi; }
 function td_mh(m){ m=((Math.round(m)%1440)+1440)%1440; const h=Math.floor(m/60), mi=m%60; return (h<10?'0':'')+h+':'+(mi<10?'0':'')+mi; }
 function td_norm(x){ x=((x%1440)+1440)%1440; if(x>720)x-=1440; return x; }
-function td_calc(tab){ const out=[]; let prev=td_hm(tab.start); if(isNaN(prev)) prev=0; let ideal=prev; const OFF=(tab.offset==null||isNaN(parseInt(tab.offset)))?3:parseInt(tab.offset);
-  (tab.rows||[]).forEach(r=>{ const imp=parseInt(r.imp)||0; const teoT=prev+imp; const idT=ideal+imp;
-    if(r.tipo==='PS'){ const tr=td_hm(r.real); const effT=isNaN(tr)?teoT:tr; const teoP=effT+OFF; const idP=idT+OFF; const pr=td_hm(r.rstart); const effExit=isNaN(pr)?teoP:pr; const hasReal=!isNaN(pr); const cum=td_norm(effExit-idP); out.push({isPS:true,teoT:td_mh(teoT),teoP:td_mh(teoP),cum:cum,hasReal:hasReal}); prev=effExit; ideal=idP; }
-    else { const rm=td_hm(r.real); const effExit=isNaN(rm)?teoT:rm; const hasReal=!isNaN(rm); const cum=td_norm(effExit-idT); out.push({isPS:false,teo:td_mh(teoT),cum:cum,hasReal:hasReal}); prev=effExit; ideal=idT; }
+function impMin(x){ x=String(x==null?'':x).trim(); if(!x) return 0; if(/[:.]/.test(x)){ var v=td_hm(x); return isNaN(v)?0:v; } var n=parseInt(x.replace(/\D/g,'')); return isNaN(n)?0:n; }
+function impHM(x){ return td_mh(impMin(x)); }
+function td_mark(n){ if(!n) return ''; return '<span class="b-late">'+(n>0?'+':'\u2212')+Math.abs(n)+'\u2032</span>'; }
+function td_calc(tab){ const out=[]; let ideal=td_hm(tab.start); if(isNaN(ideal)) ideal=0; let D=0; const OFF=(tab.offset==null||isNaN(parseInt(tab.offset)))?3:parseInt(tab.offset);
+  (tab.rows||[]).forEach(r=>{ ideal+=impMin(r.imp);
+    if(r.tipo==='PS'){ const idT=ideal, idP=idT+OFF; const teoT=idT+D, teoP=idP+D; const tr=td_hm(r.real); const tmark=isNaN(tr)?null:td_norm(tr-teoT); const pr=td_hm(r.rstart); if(!isNaN(pr)){ const extra=td_norm(pr-teoP); if(extra>0) D+=extra; } out.push({isPS:true,teoT:td_mh(teoT),teoP:td_mh(teoP),tmark:tmark}); ideal=idP; }
+    else if(r.tipo==='RIO'){ const teo=ideal+D; const rm=td_hm(r.real); if(!isNaN(rm)){ D=td_norm(rm-ideal); } out.push({isPS:false,teo:td_mh(teo)}); }
+    else { const teo=ideal+D; const rm=td_hm(r.real); const mark=isNaN(rm)?null:td_norm(rm-teo); out.push({isPS:false,teo:td_mh(teo),mark:mark}); }
   }); return out; }
-function td_badge(c,tipo){ const cum=c.cum; const hr=c.hasReal;
-  if(tipo==='RIO'){ if(!hr) return cum>0?'<span class="b-late">porti +'+cum+'\u2032</span>':''; if(cum<=0) return '<span class="b-ok">\u2713 ritardo cancellato</span>'; return '<span class="b-late">resta +'+cum+'\u2032</span>'; }
-  if(!hr && cum===0) return '';
-  if(cum>0) return '<span class="b-late">RITARDO +'+cum+'\u2032</span>';
-  if(cum<0) return '<span class="b-early">ANTICIPO \u2212'+Math.abs(cum)+'\u2032</span>';
-  return '<span class="b-ok">in orario</span>'; }
 function td_types(sel){ const o=[['CO','CO \u2014 Controllo orario'],['PS','Start PS'],['RIO','Riordino'],['PARCO','Parco / Service'],['CT','Controllo a timbro'],['ARR','Arrivo']]; return o.map(x=>'<option value="'+x[0]+'"'+(x[0]===sel?' selected':'')+'>'+x[1]+'</option>').join(''); }
 function td_delayHtml(d){ const a=Math.abs(d); if(d>0) return '<span class="b-late">RITARDO +'+a+'\u2032</span>'; if(d<0) return '<span class="b-early">ANTICIPO \u2212'+a+'\u2032</span>'; return '<span class="b-ok">in orario</span>'; }
 
@@ -1950,7 +1962,7 @@ function renderTdm(){
     const tab=cfg.tdm[tdmOpenIdx]; if(!tab){ tdmOpenIdx=null; return renderTdm(); }
     const calc=td_calc(tab);
     let h='<div class="tdm-head"><button class="tdm-back" data-act="back">\u2039</button><input class="tdm-tabname" data-act="rename" value="'+td_att(tab.name)+'"></div>';
-    h+='<div class="tdm-startrow"><span>Partenza (CO 0)</span><input class="tdm-start" inputmode="numeric" data-act="setstart" value="'+td_att(tab.start)+'" placeholder="08:30"></div>';
+    h+='<div class="tdm-startrow"><span>Partenza (CO 0)</span><input type="time" class="tdm-start" data-act="setstart" value="'+td_att(tab.start)+'"></div>';
     h+='<div class="tdm-startrow"><span>Partenza PS dal timbro</span><span>+<input class="tdm-start" inputmode="numeric" style="width:54px;color:var(--amber)" data-act="setoff" value="'+(tab.offset==null?3:tab.offset)+'"> min</span></div>';
     (tab.rows||[]).forEach((r,i)=>{
       const c=calc[i];
@@ -1958,18 +1970,18 @@ function renderTdm(){
         +'<div class="tdm-cr1"><select data-act="tipo" data-i="'+i+'">'+td_types(r.tipo)+'</select>'
         +'<input class="tdm-label" data-act="label" data-i="'+i+'" value="'+td_att(r.label)+'" placeholder="es. PS1 Larciano">'
         +'<button class="del" data-act="delrow" data-i="'+i+'">✕</button></div>'
-        +'<div class="tdm-cr2"><label>imposto <input type="number" min="0" data-act="imp" data-i="'+i+'" value="'+(parseInt(r.imp)||0)+'"> min</label></div>';
+        +'<div class="tdm-cr2"><label>target time <input type="time" class="tdm-imp" data-act="imp" data-i="'+i+'" value="'+td_att(impHM(r.imp))+'"></label>'
+        +(r.tipo==='PS'?'<input class="tdm-pst" inputmode="numeric" data-act="pst" data-i="'+i+'" value="'+td_att(r.psTime||'')+'" placeholder="tempo PS">':'')+'</div>';
       if(r.tipo==='PS'){
         h+='<div class="tdm-cr3"><span class="tdm-teo">timbro <b>'+c.teoT+'</b></span>'
-          +'<span class="tdm-real">reale <input class="tdm-realin" inputmode="numeric" data-act="real" data-i="'+i+'" value="'+td_att(r.real||'')+'" placeholder="--:--"></span></div>'
+          +'<span class="tdm-real">reale <input type="time" class="tdm-realin" data-act="real" data-i="'+i+'" value="'+td_att(r.real||'')+'"></span>'
+          +(c.tmark?td_mark(c.tmark):'')+'</div>'
           +'<div class="tdm-cr3" style="border-left:2px solid var(--amber);padding-left:10px;margin-top:6px"><span class="tdm-teo">partenza <b>'+c.teoP+'</b></span>'
-          +'<span class="tdm-real">reale <input class="tdm-realin" inputmode="numeric" data-act="rstart" data-i="'+i+'" value="'+td_att(r.rstart||'')+'" placeholder="--:--"><button data-act="rminus" data-i="'+i+'">−</button><button data-act="rplus" data-i="'+i+'">+</button></span>'
-          +td_badge(c,'PS')
-          +'<input class="tdm-pst" inputmode="numeric" data-act="pst" data-i="'+i+'" value="'+td_att(r.psTime||'')+'" placeholder="tempo PS"></div>';
+          +'<span class="tdm-real">reale <input type="time" class="tdm-realin" data-act="rstart" data-i="'+i+'" value="'+td_att(r.rstart||'')+'"><button data-act="rminus" data-i="'+i+'">−</button><button data-act="rplus" data-i="'+i+'">+</button></span></div>';
       } else {
         h+='<div class="tdm-cr3"><span class="tdm-teo">teorica <b>'+c.teo+'</b></span>'
-          +'<span class="tdm-real">reale <input class="tdm-realin" inputmode="numeric" data-act="real" data-i="'+i+'" value="'+td_att(r.real||'')+'" placeholder="--:--"><button data-act="rminus" data-i="'+i+'">−</button><button data-act="rplus" data-i="'+i+'">+</button></span>'
-          +td_badge(c,r.tipo)+'</div>';
+          +'<span class="tdm-real">reale <input type="time" class="tdm-realin" data-act="real" data-i="'+i+'" value="'+td_att(r.real||'')+'"><button data-act="rminus" data-i="'+i+'">−</button><button data-act="rplus" data-i="'+i+'">+</button></span>'
+          +(c.mark?td_mark(c.mark):'')+'</div>';
       }
       h+='</div>';
     });
@@ -2001,7 +2013,7 @@ $('tdmBody').addEventListener('input', e=>{
   if(a==='rename') tab.name=el.value;
   else if(a==='setstart') tab.start=el.value;
   else if(a==='label') tab.rows[i].label=el.value;
-  else if(a==='imp') tab.rows[i].imp=parseInt(el.value)||0;
+  else if(a==='imp') tab.rows[i].imp=el.value;
   else if(a==='pst') tab.rows[i].psTime=el.value;
   else if(a==='real') tab.rows[i].real=el.value;
   else if(a==='rstart') tab.rows[i].rstart=el.value;
