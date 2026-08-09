@@ -566,13 +566,18 @@
 <div id="drawerBg"></div>
 <div id="drawer">
   <h2 data-t="drawerTitle"></h2>
+
+  <div class="drawer-group" data-t="grpPilot"></div>
   <button class="drawer-item" id="drvPilot"><span data-t="drvPilot"></span><span class="di-tag" data-t="activeTag"></span></button>
+  <button class="drawer-item" id="drvWords"><span data-t="wordsTitle"></span></button>
+
+  <div class="drawer-group" data-t="grpNav"></div>
   <button class="drawer-item" id="drvTrip"><span data-t="navTrip"></span><span class="di-tag" data-t="activeTag"></span></button>
   <button class="drawer-item" id="drvRadar"><span>Radar</span><span class="di-tag" data-t="activeTag"></span></button>
-  <div class="dsep"></div>
-  <button class="drawer-item" id="drvWords"><span data-t="wordsTitle"></span></button>
   <button class="drawer-item" id="drvRb"><span data-t="navRadar"></span></button>
   <button class="drawer-item" id="drvTdm"><span data-t="navTdm"></span></button>
+
+  <div class="drawer-group" data-t="grpGen"></div>
   <button class="drawer-item" id="drvSet"><span data-t="drvSet"></span></button>
   <button class="drawer-item" id="drvInfo"><span data-t="guideMenu"></span></button>
 </div>
@@ -629,6 +634,7 @@
 <!-- ============ IMPOSTAZIONI GENERALI ============ -->
 <div class="overlay" id="tdmMenu"><div id="tdmBody"></div></div>
 <style>
+.drawer-group{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:800;margin:16px 8px 6px;opacity:.8}
 #tdmMenu #tdmBody{width:100%}
 .tdm-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
 .tdm-head h2{margin:0;font-size:17px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber)}
@@ -777,6 +783,7 @@ it:{introTitle:"Come funziona",
   scanPhotoErr:"Foto non leggibile, riprova.",
   rbAddScan:"Aggiungi scan",
   navTdm:"Tabella di marcia",
+  grpPilot:"Pilota",grpNav:"Navigatore",grpGen:"Generali",
   ssSavedMsg:"Prova salvata",ssLoadedMsg:"Prova caricata",ssNoName:"Scrivi un nome per la prova",
   rbImpTitle:"Importa radar",
   rbImpDesc:"Fotografa la pagina del radar e falla trascrivere a un'AI (es. Claude) nel formato: km_totali ; tipo ; nota (una riga per riferimento). Incolla qui il testo e premi Importa.",
@@ -858,6 +865,7 @@ en:{introTitle:"How it works",
   scanPhotoErr:"Photo not readable, try again.",
   rbAddScan:"Add scan",
   navTdm:"Time card",
+  grpPilot:"Driver",grpNav:"Co-driver",grpGen:"General",
   ssSavedMsg:"Stage saved",ssLoadedMsg:"Stage loaded",ssNoName:"Type a name for the stage",
   rbImpTitle:"Import road book",
   rbImpDesc:"Photograph the road book page and have an AI (e.g. Claude) transcribe it in the format: total_km ; type ; note (one line per reference). Paste the text here and press Import.",
