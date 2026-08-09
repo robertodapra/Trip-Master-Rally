@@ -576,6 +576,7 @@
   <button class="drawer-item" id="drvRadar"><span>Radar</span><span class="di-tag" data-t="activeTag"></span></button>
   <button class="drawer-item" id="drvRb"><span data-t="navRadar"></span></button>
   <button class="drawer-item" id="drvTdm"><span data-t="navTdm"></span></button>
+  <button class="drawer-item" id="drvCalc"><span data-t="navCalc"></span></button>
 
   <div class="drawer-group" data-t="grpGen"></div>
   <button class="drawer-item" id="drvSet"><span data-t="drvSet"></span></button>
@@ -632,6 +633,15 @@
 </div>
 
 <!-- ============ IMPOSTAZIONI GENERALI ============ -->
+<div class="overlay" id="calcMenu">
+  <div class="tdm-head"><h2 id="calcTitle">Calcolatrice tempo</h2></div>
+  <div class="setting-row"><span>Orario</span><input type="time" id="calcBase" value="12:00"></div>
+  <div class="setting-row"><span>Somma / sottrai</span><button id="calcSign" style="width:46px;height:40px;border-radius:8px;border:2px solid var(--amber);background:var(--btnbg);color:var(--amber);font-size:22px;font-weight:800">+</button></div>
+  <div class="setting-row"><span>Ore</span><input type="number" id="calcH" min="0" value="0" inputmode="numeric" style="width:74px;text-align:center"></div>
+  <div class="setting-row"><span>Minuti</span><input type="number" id="calcM" min="0" value="0" inputmode="numeric" style="width:74px;text-align:center"></div>
+  <div style="text-align:center;margin:20px 0;color:var(--muted);font-size:14px">Risultato<div id="calcRes" style="font-size:44px;font-weight:800;color:var(--green);margin-top:4px">--:--</div></div>
+  <button class="okbtn" id="calcClose" data-t="close"></button>
+</div>
 <div class="overlay" id="tdmMenu"><div id="tdmBody"></div></div>
 <style>
 .drawer-group{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:800;margin:16px 8px 6px;opacity:.8}
@@ -784,6 +794,7 @@ it:{introTitle:"Come funziona",
   rbAddScan:"Aggiungi scan",
   navTdm:"Tabella di marcia",
   grpPilot:"Pilota",grpNav:"Navigatore",grpGen:"Generali",
+  navCalc:"Calcolatrice tempo",
   ssSavedMsg:"Prova salvata",ssLoadedMsg:"Prova caricata",ssNoName:"Scrivi un nome per la prova",
   rbImpTitle:"Importa radar",
   rbImpDesc:"Fotografa la pagina del radar e falla trascrivere a un'AI (es. Claude) nel formato: km_totali ; tipo ; nota (una riga per riferimento). Incolla qui il testo e premi Importa.",
@@ -866,6 +877,7 @@ en:{introTitle:"How it works",
   rbAddScan:"Add scan",
   navTdm:"Time card",
   grpPilot:"Driver",grpNav:"Co-driver",grpGen:"General",
+  navCalc:"Time calculator",
   ssSavedMsg:"Stage saved",ssLoadedMsg:"Stage loaded",ssNoName:"Type a name for the stage",
   rbImpTitle:"Import road book",
   rbImpDesc:"Photograph the road book page and have an AI (e.g. Claude) transcribe it in the format: total_km ; type ; note (one line per reference). Paste the text here and press Import.",
@@ -1635,7 +1647,7 @@ function applyLayout(){
 
 /* ================= AZIONE PRINCIPALE ================= */
 function anyOverlayOpen(){
-  return ['intro','pilotMenu','navMenu','genMenu','tdmMenu'].some(id => $(id).classList.contains('open'))
+  return ['intro','pilotMenu','navMenu','genMenu','tdmMenu','calcMenu'].some(id => $(id).classList.contains('open'))
     || $('drawer').classList.contains('open');
 }
 
@@ -1983,13 +1995,13 @@ function renderTdm(){
       if(r.tipo==='PS'){
         h+='<div class="tdm-cr3"><span class="tdm-teo">timbro <b>'+c.teoT+'</b></span>'
           +'<span class="tdm-real">reale <input type="time" class="tdm-realin" data-act="real" data-i="'+i+'" value="'+td_att(r.real||'')+'"></span>'
-          +(c.tmark?td_mark(c.tmark):'')+'</div>'
+          +'<span class="tdm-mk">'+(c.tmark?td_mark(c.tmark):'')+'</span></div>'
           +'<div class="tdm-cr3" style="border-left:2px solid var(--amber);padding-left:10px;margin-top:6px"><span class="tdm-teo">partenza <b>'+c.teoP+'</b></span>'
           +'<span class="tdm-real">reale <input type="time" class="tdm-realin" data-act="rstart" data-i="'+i+'" value="'+td_att(r.rstart||'')+'"><button data-act="rminus" data-i="'+i+'">−</button><button data-act="rplus" data-i="'+i+'">+</button></span></div>';
       } else {
         h+='<div class="tdm-cr3"><span class="tdm-teo">teorica <b>'+c.teo+'</b></span>'
           +'<span class="tdm-real">reale <input type="time" class="tdm-realin" data-act="real" data-i="'+i+'" value="'+td_att(r.real||'')+'"><button data-act="rminus" data-i="'+i+'">−</button><button data-act="rplus" data-i="'+i+'">+</button></span>'
-          +(c.mark?td_mark(c.mark):'')+'</div>';
+          +'<span class="tdm-mk">'+(c.mark?td_mark(c.mark):'')+'</span></div>';
       }
       h+='</div>';
     });
@@ -1997,6 +2009,19 @@ function renderTdm(){
     h+='<button class="okbtn" data-act="close">Chiudi</button>';
     b.innerHTML=h;
   }
+}
+function td_refresh(){
+  if(tdmOpenIdx==null) return;
+  const tab=cfg.tdm[tdmOpenIdx]; if(!tab) return;
+  const calc=td_calc(tab);
+  const ctrls=$('tdmBody').querySelectorAll('.tdm-ctrl');
+  ctrls.forEach((ctrl,i)=>{
+    const c=calc[i]; if(!c) return;
+    const teos=ctrl.querySelectorAll('.tdm-teo b');
+    const mks=ctrl.querySelectorAll('.tdm-mk');
+    if(c.isPS){ if(teos[0])teos[0].textContent=c.teoT; if(teos[1])teos[1].textContent=c.teoP; if(mks[0]) mks[0].innerHTML=(c.tmark?td_mark(c.tmark):''); }
+    else { if(teos[0])teos[0].textContent=c.teo; if(mks[0]) mks[0].innerHTML=(c.mark?td_mark(c.mark):''); }
+  });
 }
 function td_adjReal(i,d){ const tab=cfg.tdm[tdmOpenIdx]; const calc=td_calc(tab); const r=tab.rows[i]; const c=calc[i]; if(r.tipo==='PS'){ let b=td_hm(r.rstart); if(isNaN(b)) b=td_hm(c.teoP); r.rstart=td_mh(b+d); } else { let b=td_hm(r.real); if(isNaN(b)) b=td_hm(c.teo); r.real=td_mh(b+d); } saveCfg(); renderTdm(); }
 
@@ -2027,18 +2052,14 @@ $('tdmBody').addEventListener('input', e=>{
   else if(a==='rstart') tab.rows[i].rstart=el.value;
   else if(a==='setoff') tab.offset=parseInt(el.value)||0;
   saveCfg();
+  if(a==='setstart'||a==='imp'||a==='real'||a==='rstart'||a==='setoff') td_refresh();
 });
 $('tdmBody').addEventListener('change', e=>{
   const el=e.target.closest('[data-act]'); if(!el) return;
   const a=el.dataset.act; const i=el.dataset.i!=null?+el.dataset.i:null;
   const tab=cfg.tdm[tdmOpenIdx]; if(!tab) return;
   if(a==='tipo'){ tab.rows[i].tipo=el.value; saveCfg(); renderTdm(); }
-  else if(a==='imp'||a==='real'||a==='rstart'||a==='setstart'||a==='setoff'){
-    if(a==='setstart'){ const v=td_hm(tab.start); if(!isNaN(v)) tab.start=td_mh(v); }
-    else if(a==='real'&&i!=null){ const v=td_hm(tab.rows[i].real); if(!isNaN(v)) tab.rows[i].real=td_mh(v); }
-    else if(a==='rstart'&&i!=null){ const v=td_hm(tab.rows[i].rstart); if(!isNaN(v)) tab.rows[i].rstart=td_mh(v); }
-    saveCfg(); renderTdm();
-  }
+  else if(a==='imp'||a==='real'||a==='rstart'||a==='setstart'||a==='setoff'){ saveCfg(); td_refresh(); }
 });
 
 $('drvTdm').addEventListener('click', ()=>{
@@ -2047,6 +2068,16 @@ $('drvTdm').addEventListener('click', ()=>{
   renderTdm();
   $('tdmMenu').classList.add('open');
 });
+
+/* ================= CALCOLATRICE TEMPO ================= */
+let calcSign=1;
+function calcRun(){ const b=td_hm($('calcBase').value); const h=parseInt($('calcH').value)||0; const m=parseInt($('calcM').value)||0; if(isNaN(b)){ $('calcRes').textContent='--:--'; return; } $('calcRes').textContent=td_mh(b+calcSign*(h*60+m)); }
+$('calcSign').addEventListener('click', ()=>{ calcSign*=-1; $('calcSign').textContent=calcSign>0?'+':'\u2212'; calcRun(); });
+$('calcBase').addEventListener('input', calcRun);
+$('calcH').addEventListener('input', calcRun);
+$('calcM').addEventListener('input', calcRun);
+$('calcClose').addEventListener('click', ()=>$('calcMenu').classList.remove('open'));
+$('drvCalc').addEventListener('click', ()=>{ closeDrawer(); $('calcTitle').textContent=t('navCalc'); calcRun(); $('calcMenu').classList.add('open'); });
 
 /* ================= SCANNER RADAR (AI) ================= */
 const SCAN_API = 'https://rally-scan.roberto-dapra5858.workers.dev';
