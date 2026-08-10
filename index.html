@@ -635,13 +635,17 @@
 <!-- ============ IMPOSTAZIONI GENERALI ============ -->
 <div class="overlay" id="calcMenu">
   <div class="tdm-head"><h2 id="calcTitle">Calcolatrice tempo</h2><button id="calcClose" class="tdm-i">✕</button></div>
-  <div id="calcExpr"></div>
-  <div id="calcDisp">00:00</div>
-  <div id="calcKeys">
-    <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button><button data-k="back" class="op">⌫</button>
-    <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button><button data-k="minus" class="op">−</button>
-    <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button><button data-k="plus" class="op">+</button>
-    <button data-k="clear" class="op">C</button><button data-k="0">0</button><button data-k="00">00</button><button data-k="eq" class="eq">=</button>
+  <div id="calcRow">
+    <div id="calcLeft">
+      <div id="calcExpr"></div>
+      <div id="calcDisp">00:00</div>
+    </div>
+    <div id="calcKeys">
+      <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button><button data-k="back" class="op">⌫</button>
+      <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button><button data-k="minus" class="op">−</button>
+      <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button><button data-k="plus" class="op">+</button>
+      <button data-k="clear" class="op">C</button><button data-k="0">0</button><button data-k="00">00</button><button data-k="eq" class="eq">=</button>
+    </div>
   </div>
   <p class="small" style="margin-top:14px;color:var(--muted)">Scrivi l'orario (es. 1335 = 13:35), poi + o − e un altro tempo, infine =.</p>
 </div>
@@ -654,6 +658,17 @@
 #calcKeys button{height:64px;font-size:24px;font-weight:800;border-radius:12px;border:none;background:#2b2b2b;color:#fff}
 #calcKeys button.op{background:var(--btnbg);border:2px solid var(--amber);color:var(--amber)}
 #calcKeys button.eq{background:var(--amber);color:#000}
+@media (orientation:landscape){
+  #calcMenu .tdm-head{margin-bottom:2px}
+  #calcMenu .tdm-head h2{font-size:14px}
+  #calcMenu #calcRow{display:flex;align-items:center;gap:22px}
+  #calcMenu #calcLeft{flex:1;min-width:0}
+  #calcMenu #calcExpr{font-size:16px;min-height:18px;padding:0 6px 2px;text-align:right}
+  #calcMenu #calcDisp{font-size:46px;padding:12px 16px;margin:0}
+  #calcMenu #calcKeys{flex:0 0 auto;width:56%;max-width:560px;gap:8px}
+  #calcMenu #calcKeys button{height:48px;font-size:20px}
+  #calcMenu p.small{display:none}
+}
 #tdmMenu #tdmBody{width:100%}
 .tdm-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
 .tdm-head h2{margin:0;font-size:17px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber)}
@@ -668,6 +683,8 @@
 .tdm-row .del,.tdm-cr1 .del{background:none;border:none;color:var(--red);font-size:16px;flex-shrink:0;cursor:pointer}
 .tdm-startrow{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#1e1e1e;padding:10px 12px;border-radius:8px;margin-bottom:12px;font-size:14px}
 .tdm-start{width:92px;text-align:center;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--btnbg);color:var(--green);font-size:17px;font-weight:800}
+.tdm-startsel{padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--btnbg);color:var(--text);font-size:14px;font-weight:700;max-width:160px}
+.tdm-offsel{padding:6px 10px;border-radius:8px;border:1px solid var(--amber);background:var(--btnbg);color:var(--amber);font-size:16px;font-weight:800}
 .tdm-ctrl{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px}
 .tdm-cr1{display:flex;gap:6px;align-items:center;margin-bottom:8px}
 .tdm-cr1 select{padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--btnbg);color:var(--text);font-size:12px}
@@ -1322,6 +1339,15 @@ try{
     if(!Array.isArray(cfg.rb)) cfg.rb = [];
     if(!Array.isArray(cfg.ssLib)) cfg.ssLib = [];
     if(!Array.isArray(cfg.tdm)) cfg.tdm = [];
+    // migrazione tipi timbro vecchi -> nuovi (CO->TC, PS->SS, RIO->Regroup out, PARCO->Service in, CT->TC, ARR->Finish)
+    var TDM_MAP = {CO:'TC', PS:'SS', RIO:'RGO', PARCO:'SVI', CT:'TC', ARR:'FIN'};
+    cfg.tdm = cfg.tdm.map(function(tab){
+      if(tab && Array.isArray(tab.rows)){
+        tab.rows = tab.rows.map(function(r){ if(r && TDM_MAP[r.tipo]) r.tipo = TDM_MAP[r.tipo]; return r; });
+      }
+      if(tab && tab.startType == null) tab.startType = 'SEC';
+      return tab;
+    });
     cfg.rb = cfg.rb.map(r => r.d !== undefined && r.km === undefined ? {km:(parseFloat(r.d)/1000)||'', s:r.s, n:r.n} : r);
   }
 }catch(e){}
@@ -1960,7 +1986,7 @@ $('closeGen').addEventListener('click', ()=>{
 
 /* ================= TABELLA DI MARCIA ================= */
 let tdmOpenIdx = null;
-const tdmGuide = "TABELLA DI MARCIA\n\n\u2022 Tocca + per creare una tabella (una per sezione) e dai un nome.\n\u2022 Imposta l'orario di partenza (CO 0) e aggiungi i timbri con \u201C+ Aggiungi timbro\u201D.\n\u2022 Per ogni timbro scegli il tipo, la localita e i minuti di tempo imposto: l'ora teorica si calcola da sola sommando.\n\u2022 In gara scrivi l'ora reale a cui timbri (oppure usa \u2212 e +): l'app calcola il ritardo e sposta i teorici dei controlli successivi.\n\u2022 Sui timbri Start PS puoi segnare il tempo fatto in prova.";
+const tdmGuide = "TABELLA DI MARCIA\n\n\u2022 Tocca + per creare una tabella (una per sezione) e dai un nome.\n\u2022 Imposta l'orario di partenza (CO 0) e aggiungi i timbri con \u201C+ Aggiungi timbro\u201D.\n\u2022 Per ogni timbro scegli il tipo, la localita e i minuti di tempo imposto: l'ora teorica si calcola da sola sommando.\n\u2022 In gara scrivi l'ora reale a cui timbri (oppure usa \u2212 e +): l'app calcola il ritardo e sposta i teorici dei controlli successivi.\n\u2022 Sui timbri Start SS puoi segnare il tempo fatto in prova.";
 function td_esc(x){ return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function td_att(x){ return td_esc(x).replace(/"/g,'&quot;'); }
 function td_hm(x){ x=String(x==null?'':x).trim(); var m=x.match(/^(\d{1,2})[:.\s]+(\d{1,2})$/); var h,mi; if(m){ h=+m[1]; mi=+m[2]; } else { var d=x.replace(/\D/g,''); if(d.length===4){ h=+d.slice(0,2); mi=+d.slice(2); } else if(d.length===3){ h=+d.slice(0,1); mi=+d.slice(1); } else if(d.length>0&&d.length<=2){ h=+d; mi=0; } else return NaN; } if(isNaN(h)||isNaN(mi)||h>23||mi>59) return NaN; return h*60+mi; }
@@ -1971,11 +1997,11 @@ function impHM(x){ return td_mh(impMin(x)); }
 function td_mark(n){ if(!n) return ''; return '<span class="b-late">'+(n>0?'+':'\u2212')+Math.abs(n)+'\u2032</span>'; }
 function td_calc(tab){ const out=[]; let ideal=td_hm(tab.start); if(isNaN(ideal)) ideal=0; let D=0; const OFF=(tab.offset==null||isNaN(parseInt(tab.offset)))?3:parseInt(tab.offset);
   (tab.rows||[]).forEach(r=>{ ideal+=impMin(r.imp);
-    if(r.tipo==='PS'){ const idT=ideal, idP=idT+OFF; const teoT=idT+D, teoP=idP+D; const tr=td_hm(r.real); const tmark=isNaN(tr)?null:td_norm(tr-teoT); const pr=td_hm(r.rstart); if(!isNaN(pr)){ const extra=td_norm(pr-teoP); if(extra>0) D+=extra; } out.push({isPS:true,teoT:td_mh(teoT),teoP:td_mh(teoP),tmark:tmark}); ideal=idP; }
-    else if(r.tipo==='RIO'){ const teo=ideal+D; const rm=td_hm(r.real); if(!isNaN(rm)){ D=td_norm(rm-ideal); } out.push({isPS:false,teo:td_mh(teo)}); }
+    if(r.tipo==='SS'){ const idT=ideal, idP=idT+OFF; const teoT=idT+D, teoP=idP+D; const tr=td_hm(r.real); const tmark=isNaN(tr)?null:td_norm(tr-teoT); const pr=td_hm(r.rstart); if(!isNaN(pr)){ const extra=td_norm(pr-teoP); if(extra>0) D+=extra; } out.push({isPS:true,teoT:td_mh(teoT),teoP:td_mh(teoP),tmark:tmark}); ideal=idP; }
+    else if(r.tipo==='RGO'){ const teo=ideal+D; const rm=td_hm(r.real); if(!isNaN(rm)){ D=td_norm(rm-ideal); } out.push({isPS:false,teo:td_mh(teo)}); }
     else { const teo=ideal+D; const rm=td_hm(r.real); const mark=isNaN(rm)?null:td_norm(rm-teo); out.push({isPS:false,teo:td_mh(teo),mark:mark}); }
   }); return out; }
-function td_types(sel){ const o=[['CO','CO \u2014 Controllo orario'],['PS','Start PS'],['RIO','Riordino'],['PARCO','Parco / Service'],['CT','Controllo a timbro'],['ARR','Arrivo']]; return o.map(x=>'<option value="'+x[0]+'"'+(x[0]===sel?' selected':'')+'>'+x[1]+'</option>').join(''); }
+function td_types(sel){ const o=[['SEC','Start section'],['SVI','Service in'],['SVO','Service out'],['RGI','Regroup in'],['RGO','Regroup out'],['SS','Start SS'],['TC','TC'],['FIN','Finish']]; return o.map(x=>'<option value="'+x[0]+'"'+(x[0]===sel?' selected':'')+'>'+x[1]+'</option>').join(''); }
 function td_delayHtml(d){ const a=Math.abs(d); if(d>0) return '<span class="b-late">RITARDO +'+a+'\u2032</span>'; if(d<0) return '<span class="b-early">ANTICIPO \u2212'+a+'\u2032</span>'; return '<span class="b-ok">in orario</span>'; }
 
 function renderTdm(){
@@ -1991,8 +2017,10 @@ function renderTdm(){
     const tab=cfg.tdm[tdmOpenIdx]; if(!tab){ tdmOpenIdx=null; return renderTdm(); }
     const calc=td_calc(tab);
     let h='<div class="tdm-head"><button class="tdm-back" data-act="back">\u2039</button><input class="tdm-tabname" data-act="rename" value="'+td_att(tab.name)+'"></div>';
-    h+='<div class="tdm-startrow"><span>Partenza (CO 0)</span><input type="time" class="tdm-start" data-act="setstart" value="'+td_att(tab.start)+'"></div>';
-    h+='<div class="tdm-startrow"><span>Partenza PS dal timbro</span><span>+<input class="tdm-start" inputmode="numeric" style="width:54px;color:var(--amber)" data-act="setoff" value="'+(tab.offset==null?3:tab.offset)+'"> min</span></div>';
+    h+='<div class="tdm-startrow"><span>Partenza <select class="tdm-startsel" data-act="starttype">'+td_types(tab.startType||'SEC')+'</select></span><input type="time" class="tdm-start" data-act="setstart" value="'+td_att(tab.start)+'"></div>';
+    let offCur=(tab.offset==null)?3:(parseInt(tab.offset)||0), offOpts='';
+    for(let om=0;om<=20;om++){ offOpts+='<option value="'+om+'"'+(om===offCur?' selected':'')+'>'+om+'</option>'; }
+    h+='<div class="tdm-startrow"><span>Partenza SS dal timbro</span><span>+ <select class="tdm-offsel" data-act="setoff">'+offOpts+'</select> min</span></div>';
     (tab.rows||[]).forEach((r,i)=>{
       const c=calc[i];
       h+='<div class="tdm-ctrl">'
@@ -2000,8 +2028,8 @@ function renderTdm(){
         +'<input class="tdm-label" data-act="label" data-i="'+i+'" value="'+td_att(r.label)+'" placeholder="es. PS1 Larciano">'
         +'<button class="del" data-act="delrow" data-i="'+i+'">✕</button></div>'
         +'<div class="tdm-cr2"><label>target time <input type="time" class="tdm-imp" data-act="imp" data-i="'+i+'" value="'+td_att(impHM(r.imp))+'"></label>'
-        +(r.tipo==='PS'?'<input class="tdm-pst" inputmode="numeric" data-act="pst" data-i="'+i+'" value="'+td_att(r.psTime||'')+'" placeholder="tempo PS">':'')+'</div>';
-      if(r.tipo==='PS'){
+        +(r.tipo==='SS'?'<input class="tdm-pst" inputmode="numeric" data-act="pst" data-i="'+i+'" value="'+td_att(r.psTime||'')+'" placeholder="tempo SS">':'')+'</div>';
+      if(r.tipo==='SS'){
         h+='<div class="tdm-cr3"><span class="tdm-teo">timbro <b>'+c.teoT+'</b></span>'
           +'<span class="tdm-real">reale <input type="time" class="tdm-realin" data-act="real" data-i="'+i+'" value="'+td_att(r.real||'')+'"></span>'
           +'<span class="tdm-mk">'+(c.tmark?td_mark(c.tmark):'')+'</span></div>'
@@ -2032,7 +2060,7 @@ function td_refresh(){
     else { if(teos[0])teos[0].textContent=c.teo; if(mks[0]) mks[0].innerHTML=(c.mark?td_mark(c.mark):''); }
   });
 }
-function td_adjReal(i,d){ const tab=cfg.tdm[tdmOpenIdx]; const calc=td_calc(tab); const r=tab.rows[i]; const c=calc[i]; if(r.tipo==='PS'){ let b=td_hm(r.rstart); if(isNaN(b)) b=td_hm(c.teoP); r.rstart=td_mh(b+d); } else { let b=td_hm(r.real); if(isNaN(b)) b=td_hm(c.teo); r.real=td_mh(b+d); } saveCfg(); renderTdm(); }
+function td_adjReal(i,d){ const tab=cfg.tdm[tdmOpenIdx]; const calc=td_calc(tab); const r=tab.rows[i]; const c=calc[i]; if(r.tipo==='SS'){ let b=td_hm(r.rstart); if(isNaN(b)) b=td_hm(c.teoP); r.rstart=td_mh(b+d); } else { let b=td_hm(r.real); if(isNaN(b)) b=td_hm(c.teo); r.real=td_mh(b+d); } saveCfg(); renderTdm(); }
 
 $('tdmBody').addEventListener('click', e=>{
   const el=e.target.closest('[data-act]'); if(!el) return;
@@ -2043,7 +2071,7 @@ $('tdmBody').addEventListener('click', e=>{
   else if(a==='open'){ tdmOpenIdx=i; renderTdm(); }
   else if(a==='deltab'){ const nm=cfg.tdm[i].name; showConfirm('Eliminare la tabella \u201C'+nm+'\u201D?', function(){ cfg.tdm.splice(i,1); saveCfg(); renderTdm(); }); }
   else if(a==='back'){ tdmOpenIdx=null; saveCfg(); renderTdm(); }
-  else if(a==='addrow'){ cfg.tdm[tdmOpenIdx].rows.push({tipo:'CO',label:'',imp:0,psTime:'',real:'',rstart:''}); saveCfg(); renderTdm(); }
+  else if(a==='addrow'){ cfg.tdm[tdmOpenIdx].rows.push({tipo:'TC',label:'',imp:0,psTime:'',real:'',rstart:''}); saveCfg(); renderTdm(); }
   else if(a==='delrow'){ cfg.tdm[tdmOpenIdx].rows.splice(i,1); saveCfg(); renderTdm(); }
   else if(a==='rplus'){ td_adjReal(i,1); }
   else if(a==='rminus'){ td_adjReal(i,-1); }
@@ -2068,7 +2096,9 @@ $('tdmBody').addEventListener('change', e=>{
   const a=el.dataset.act; const i=el.dataset.i!=null?+el.dataset.i:null;
   const tab=cfg.tdm[tdmOpenIdx]; if(!tab) return;
   if(a==='tipo'){ tab.rows[i].tipo=el.value; saveCfg(); renderTdm(); }
-  else if(a==='imp'||a==='real'||a==='rstart'||a==='setstart'||a==='setoff'){ saveCfg(); td_refresh(); }
+  else if(a==='starttype'){ tab.startType=el.value; saveCfg(); renderTdm(); }
+  else if(a==='setoff'){ tab.offset=parseInt(el.value)||0; saveCfg(); td_refresh(); }
+  else if(a==='imp'||a==='real'||a==='rstart'||a==='setstart'){ saveCfg(); td_refresh(); }
 });
 
 $('drvTdm').addEventListener('click', ()=>{
