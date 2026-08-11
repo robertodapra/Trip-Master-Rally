@@ -689,7 +689,11 @@
 .tdm-cr1{display:flex;gap:6px;align-items:center;margin-bottom:8px}
 .tdm-cr1 select{padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--btnbg);color:var(--text);font-size:12px}
 .tdm-label{flex:1;min-width:0;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--btnbg);color:var(--text);font-size:14px}
-.tdm-cr2{display:flex;gap:12px;align-items:center;margin-bottom:8px;font-size:12px;color:var(--muted)}
+.tdm-cr2{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:8px;font-size:12px;color:var(--muted)}
+.tdm-pstwrap{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--muted)}
+.tdm-pstlab{margin-right:2px}
+.tdm-pstwrap i{font-style:normal;color:var(--amber);font-weight:800;font-size:15px}
+.tdm-pstsel{padding:6px 4px;border-radius:6px;border:1px solid var(--amber);background:var(--btnbg);color:var(--amber);font-size:15px;font-weight:700;text-align:center}
 .tdm-cr2 input[type=number]{width:56px;padding:6px;border-radius:6px;border:1px solid var(--line);background:var(--btnbg);color:var(--text);font-size:14px}
 .tdm-pst{padding:6px 8px;border-radius:6px;border:1px solid var(--amber);background:var(--btnbg);color:var(--amber);font-size:13px;width:120px}
 .tdm-cr3{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px}
@@ -700,6 +704,22 @@
 .b-late{color:var(--red);font-weight:800;font-size:12px}
 .b-early{color:#6ab7ff;font-weight:800;font-size:12px}
 .b-ok{color:var(--green);font-weight:800;font-size:12px}
+/* --- celle stile time card cartacea --- */
+.tc-ss{border-top:1px dashed var(--line);padding-top:2px}
+.tc-cells{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;margin-top:4px}
+.tc-cell{display:flex;flex-direction:column;gap:3px}
+.tc-lab{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.tc-box{display:inline-flex;align-items:stretch;border:1.5px solid var(--line);border-radius:7px;overflow:hidden;background:#0f1318}
+.tc-box b{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:19px;font-weight:800;color:var(--green);padding:6px 9px;min-width:32px;text-align:center;font-variant-numeric:tabular-nums;line-height:1}
+.tc-sep{width:1.5px;background:var(--line)}
+.tc-input{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:17px;font-weight:700;color:var(--text);background:#0f1318;border:1.5px solid var(--line);border-radius:7px;padding:5px 8px;min-height:34px}
+.tc-adj{display:flex;gap:5px;padding-bottom:1px}
+.tc-adj button{width:34px;height:34px;border-radius:7px;border:1px solid var(--line);background:var(--btnbg);color:var(--amber);font-size:18px;font-weight:800}
+.tc-mk{align-self:center;padding-bottom:6px;min-width:38px}
+.tc-sslab{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);font-weight:800;margin:8px 0 0}
+.tc-sslab2{margin-top:10px}
+.tdm-offrow{display:flex;justify-content:flex-end;align-items:center;gap:6px;margin:0 2px 12px;font-size:12px;color:var(--muted)}
+.tdm-offrow .tdm-offsel{margin:0 2px}
 </style>
 <div class="overlay" id="genMenu">
   <h2 data-t="gsTitle"></h2>
@@ -2003,6 +2023,15 @@ function td_calc(tab){ const out=[]; let ideal=td_hm(tab.start); if(isNaN(ideal)
   }); return out; }
 function td_types(sel){ const o=[['SEC','Start section'],['SVI','Service in'],['SVO','Service out'],['RGI','Regroup in'],['RGO','Regroup out'],['SS','Start SS'],['TC','TC'],['FIN','Finish']]; return o.map(x=>'<option value="'+x[0]+'"'+(x[0]===sel?' selected':'')+'>'+x[1]+'</option>').join(''); }
 function td_delayHtml(d){ const a=Math.abs(d); if(d>0) return '<span class="b-late">RITARDO +'+a+'\u2032</span>'; if(d<0) return '<span class="b-early">ANTICIPO \u2212'+a+'\u2032</span>'; return '<span class="b-ok">in orario</span>'; }
+/* --- celle stile time card cartacea (etichetta + ore|minuti riquadrati) --- */
+function td_teoCell(lab, hhmm){ const p=String(hhmm||'').split(':'); return '<div class="tc-cell tc-teo" data-teo><span class="tc-lab">'+lab+'</span><span class="tc-box"><b class="tc-hh">'+(p[0]||'--')+'</b><span class="tc-sep"></span><b class="tc-mm">'+(p[1]||'--')+'</b></span></div>'; }
+function td_realCell(act, i, val){ return '<div class="tc-cell tc-realc"><span class="tc-lab">Reale</span><input type="time" class="tc-input" data-act="'+act+'" data-i="'+i+'" value="'+td_att(val||'')+'"></div>'; }
+function td_setTeoEl(el, hhmm){ if(!el) return; const p=String(hhmm||'').split(':'); const hh=el.querySelector('.tc-hh'), mm=el.querySelector('.tc-mm'); if(hh) hh.textContent=(p[0]||'--'); if(mm) mm.textContent=(p[1]||'--'); }
+/* --- tempo SS: ruote minuti : secondi . decimi --- */
+function td_optsRange(n, sel, pad){ let o=''; for(let k=0;k<n;k++){ const v=(pad&&k<10)?('0'+k):(''+k); o+='<option value="'+k+'"'+(k===sel?' selected':'')+'>'+v+'</option>'; } return o; }
+function td_pstParse(v){ v=String(v||'').trim(); if(!v) return {m:0,s:0,d:0}; let mt=v.match(/^(\d+)[:.](\d{1,2})(?:[.,](\d))?$/); if(mt) return {m:+mt[1], s:+mt[2], d:mt[3]!=null?+mt[3]:0}; const ds=v.replace(/\D/g,''); if(!ds) return {m:0,s:0,d:0}; return {m:+(ds.slice(0,-3)||0), s:+(ds.slice(-3,-1)||0), d:+ds.slice(-1)}; }
+function td_pstFmt(m,s,d){ if(!m && !s && !d) return ''; return m+':'+(s<10?'0':'')+s+'.'+d; }
+function td_pstGroup(i, val){ const p=td_pstParse(val); const m=Math.min(59,p.m||0), s=Math.min(59,p.s||0), d=Math.min(9,p.d||0); return '<span class="tdm-pstwrap"><span class="tdm-pstlab">tempo SS</span><select class="tdm-pstsel" data-act="pstM" data-i="'+i+'">'+td_optsRange(60,m,false)+'</select><i>:</i><select class="tdm-pstsel" data-act="pstS" data-i="'+i+'">'+td_optsRange(60,s,true)+'</select><i>.</i><select class="tdm-pstsel" data-act="pstD" data-i="'+i+'">'+td_optsRange(10,d,false)+'</select></span>'; }
 
 function renderTdm(){
   const b=$('tdmBody');
@@ -2018,9 +2047,6 @@ function renderTdm(){
     const calc=td_calc(tab);
     let h='<div class="tdm-head"><button class="tdm-back" data-act="back">\u2039</button><input class="tdm-tabname" data-act="rename" value="'+td_att(tab.name)+'"></div>';
     h+='<div class="tdm-startrow"><span>Partenza <select class="tdm-startsel" data-act="starttype">'+td_types(tab.startType||'SEC')+'</select></span><input type="time" class="tdm-start" data-act="setstart" value="'+td_att(tab.start)+'"></div>';
-    let offCur=(tab.offset==null)?3:(parseInt(tab.offset)||0), offOpts='';
-    for(let om=0;om<=20;om++){ offOpts+='<option value="'+om+'"'+(om===offCur?' selected':'')+'>'+om+'</option>'; }
-    h+='<div class="tdm-startrow"><span>Partenza SS dal timbro</span><span>+ <select class="tdm-offsel" data-act="setoff">'+offOpts+'</select> min</span></div>';
     (tab.rows||[]).forEach((r,i)=>{
       const c=calc[i];
       h+='<div class="tdm-ctrl">'
@@ -2028,20 +2054,22 @@ function renderTdm(){
         +'<input class="tdm-label" data-act="label" data-i="'+i+'" value="'+td_att(r.label)+'" placeholder="es. PS1 Larciano">'
         +'<button class="del" data-act="delrow" data-i="'+i+'">✕</button></div>'
         +'<div class="tdm-cr2"><label>target time <input type="time" class="tdm-imp" data-act="imp" data-i="'+i+'" value="'+td_att(impHM(r.imp))+'"></label>'
-        +(r.tipo==='SS'?'<input class="tdm-pst" inputmode="numeric" data-act="pst" data-i="'+i+'" value="'+td_att(r.psTime||'')+'" placeholder="tempo SS">':'')+'</div>';
+        +(r.tipo==='SS'?td_pstGroup(i, r.psTime):'')+'</div>';
       if(r.tipo==='SS'){
-        h+='<div class="tdm-cr3"><span class="tdm-teo">timbro <b>'+c.teoT+'</b></span>'
-          +'<span class="tdm-real">reale <input type="time" class="tdm-realin" data-act="real" data-i="'+i+'" value="'+td_att(r.real||'')+'"></span>'
-          +'<span class="tdm-mk">'+(c.tmark?td_mark(c.tmark):'')+'</span></div>'
-          +'<div class="tdm-cr3" style="border-left:2px solid var(--amber);padding-left:10px;margin-top:6px"><span class="tdm-teo">partenza <b>'+c.teoP+'</b></span>'
-          +'<span class="tdm-real">reale <input type="time" class="tdm-realin" data-act="rstart" data-i="'+i+'" value="'+td_att(r.rstart||'')+'"><button data-act="rminus" data-i="'+i+'">−</button><button data-act="rplus" data-i="'+i+'">+</button></span></div>';
+        h+='<div class="tc-ss">'
+          +'<div class="tc-sslab">Timbro</div>'
+          +'<div class="tc-cells">'+td_teoCell('Teorica',c.teoT)+td_realCell('real',i,r.real)+'<div class="tc-mk" data-mk>'+(c.tmark?td_mark(c.tmark):'')+'</div></div>'
+          +'<div class="tc-sslab tc-sslab2">Partenza</div>'
+          +'<div class="tc-cells">'+td_teoCell('Teorica',c.teoP)+td_realCell('rstart',i,r.rstart)+'<div class="tc-mk" data-mk></div></div>'
+          +'</div>';
       } else {
-        h+='<div class="tdm-cr3"><span class="tdm-teo">teorica <b>'+c.teo+'</b></span>'
-          +'<span class="tdm-real">reale <input type="time" class="tdm-realin" data-act="real" data-i="'+i+'" value="'+td_att(r.real||'')+'"><button data-act="rminus" data-i="'+i+'">−</button><button data-act="rplus" data-i="'+i+'">+</button></span>'
-          +'<span class="tdm-mk">'+(c.mark?td_mark(c.mark):'')+'</span></div>';
+        h+='<div class="tc-cells">'+td_teoCell('Teorica',c.teo)+td_realCell('real',i,r.real)+'<div class="tc-mk" data-mk>'+(c.mark?td_mark(c.mark):'')+'</div></div>';
       }
       h+='</div>';
     });
+    let offCur=(tab.offset==null)?3:(parseInt(tab.offset)||0), offOpts='';
+    for(let om=0;om<=20;om++){ offOpts+='<option value="'+om+'"'+(om===offCur?' selected':'')+'>'+om+'</option>'; }
+    h+='<div class="tdm-offrow"><span>Start SS: timbro +<select class="tdm-offsel" data-act="setoff">'+offOpts+'</select> min</span></div>';
         h+='<button class="tdm-new" data-act="addrow">+ Aggiungi timbro</button>';
     h+='<button class="okbtn" data-act="close">Chiudi</button>';
     b.innerHTML=h;
@@ -2054,14 +2082,12 @@ function td_refresh(){
   const ctrls=$('tdmBody').querySelectorAll('.tdm-ctrl');
   ctrls.forEach((ctrl,i)=>{
     const c=calc[i]; if(!c) return;
-    const teos=ctrl.querySelectorAll('.tdm-teo b');
-    const mks=ctrl.querySelectorAll('.tdm-mk');
-    if(c.isPS){ if(teos[0])teos[0].textContent=c.teoT; if(teos[1])teos[1].textContent=c.teoP; if(mks[0]) mks[0].innerHTML=(c.tmark?td_mark(c.tmark):''); }
-    else { if(teos[0])teos[0].textContent=c.teo; if(mks[0]) mks[0].innerHTML=(c.mark?td_mark(c.mark):''); }
+    const teos=ctrl.querySelectorAll('[data-teo]');
+    const mks=ctrl.querySelectorAll('[data-mk]');
+    if(c.isPS){ td_setTeoEl(teos[0],c.teoT); td_setTeoEl(teos[1],c.teoP); if(mks[0]) mks[0].innerHTML=(c.tmark?td_mark(c.tmark):''); }
+    else { td_setTeoEl(teos[0],c.teo); if(mks[0]) mks[0].innerHTML=(c.mark?td_mark(c.mark):''); }
   });
 }
-function td_adjReal(i,d){ const tab=cfg.tdm[tdmOpenIdx]; const calc=td_calc(tab); const r=tab.rows[i]; const c=calc[i]; if(r.tipo==='SS'){ let b=td_hm(r.rstart); if(isNaN(b)) b=td_hm(c.teoP); r.rstart=td_mh(b+d); } else { let b=td_hm(r.real); if(isNaN(b)) b=td_hm(c.teo); r.real=td_mh(b+d); } saveCfg(); renderTdm(); }
-
 $('tdmBody').addEventListener('click', e=>{
   const el=e.target.closest('[data-act]'); if(!el) return;
   const a=el.dataset.act; const i=el.dataset.i!=null?+el.dataset.i:null;
@@ -2073,8 +2099,6 @@ $('tdmBody').addEventListener('click', e=>{
   else if(a==='back'){ tdmOpenIdx=null; saveCfg(); renderTdm(); }
   else if(a==='addrow'){ cfg.tdm[tdmOpenIdx].rows.push({tipo:'TC',label:'',imp:0,psTime:'',real:'',rstart:''}); saveCfg(); renderTdm(); }
   else if(a==='delrow'){ cfg.tdm[tdmOpenIdx].rows.splice(i,1); saveCfg(); renderTdm(); }
-  else if(a==='rplus'){ td_adjReal(i,1); }
-  else if(a==='rminus'){ td_adjReal(i,-1); }
 });
 $('tdmBody').addEventListener('input', e=>{
   const el=e.target.closest('[data-act]'); if(!el) return;
@@ -2084,7 +2108,6 @@ $('tdmBody').addEventListener('input', e=>{
   else if(a==='setstart') tab.start=el.value;
   else if(a==='label') tab.rows[i].label=el.value;
   else if(a==='imp') tab.rows[i].imp=el.value;
-  else if(a==='pst') tab.rows[i].psTime=el.value;
   else if(a==='real') tab.rows[i].real=el.value;
   else if(a==='rstart') tab.rows[i].rstart=el.value;
   else if(a==='setoff') tab.offset=parseInt(el.value)||0;
@@ -2098,6 +2121,7 @@ $('tdmBody').addEventListener('change', e=>{
   if(a==='tipo'){ tab.rows[i].tipo=el.value; saveCfg(); renderTdm(); }
   else if(a==='starttype'){ tab.startType=el.value; saveCfg(); renderTdm(); }
   else if(a==='setoff'){ tab.offset=parseInt(el.value)||0; saveCfg(); td_refresh(); }
+  else if(a==='pstM'||a==='pstS'||a==='pstD'){ const ctrl=el.closest('.tdm-ctrl'); const gm=ctrl.querySelector('[data-act="pstM"]'), gs=ctrl.querySelector('[data-act="pstS"]'), gd=ctrl.querySelector('[data-act="pstD"]'); tab.rows[i].psTime=td_pstFmt(+(gm?gm.value:0), +(gs?gs.value:0), +(gd?gd.value:0)); saveCfg(); }
   else if(a==='imp'||a==='real'||a==='rstart'||a==='setstart'){ saveCfg(); td_refresh(); }
 });
 
