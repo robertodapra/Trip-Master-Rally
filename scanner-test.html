@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>iRally · Test scanner time card</title>
+<style>
+  :root{--bg:#0c0e11;--panel:#14181d;--line:#2a2f36;--amber:#ffb400;--green:#39d353;--red:#ff4d4d;--text:#f2f4f7;--muted:#8b949e}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;padding:16px;padding-top:max(16px,env(safe-area-inset-top))}
+  h1{font-size:17px;margin:0 0 4px}
+  p.sub{font-size:13px;color:var(--muted);margin:0 0 16px;line-height:1.5}
+  .row{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+  label{font-size:13px;color:var(--muted)}
+  select{padding:9px 10px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:15px}
+  button{padding:14px;border-radius:10px;font-size:16px;font-weight:700;background:var(--panel);border:2px solid var(--green);color:var(--green);width:100%;margin-bottom:12px}
+  #status{font-size:14px;min-height:20px;margin-bottom:12px;color:var(--amber);word-break:break-word}
+  #prev{max-width:100%;border-radius:10px;border:1px solid var(--line);display:none;margin-bottom:12px}
+  table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:14px;display:none}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+  td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+  td.tt{color:var(--red);font-weight:800;font-variant-numeric:tabular-nums}
+  pre{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:12px;overflow:auto;white-space:pre-wrap;word-break:break-word;color:var(--muted);max-height:50vh}
+  .head{font-size:13px;color:var(--muted);margin-bottom:10px}
+  .head b{color:var(--text)}
+</style>
+</head>
+<body>
+<h1>Test scanner time card <span style="color:var(--muted);font-size:12px">v2</span></h1>
+<p class="sub">Pagina di prova. Scegli una foto della time card: viene mandata al worker e ti mostro il JSON che torna. Non tocca l'app iRally.</p>
+
+<div class="row">
+  <label for="mode">Modalità</label>
+  <select id="mode">
+    <option value="timecard" selected>Time card (ERC/WRC)</option>
+    <option value="radar">Radar (road book)</option>
+  </select>
+</div>
+
+<input type="file" id="file" accept="image/*" style="display:none">
+<button id="pick">📷 Scatta o scegli la foto</button>
+
+<div id="status"></div>
+<img id="prev" alt="">
+
+<div class="head" id="cardHead"></div>
+<table id="tbl">
+  <thead><tr><th>Da → A</th><th>Target</th><th>Prova / km</th><th>Note</th></tr></thead>
+  <tbody id="tblBody"></tbody>
+</table>
+
+<pre id="raw" style="display:none"></pre>
+
+<script>
+(function(){
+  const API = 'https://rally-scan.roberto-dapra5858.workers.dev';
+  const $ = id => document.getElementById(id);
+  const file = $('file');
+
+  $('pick').addEventListener('click', ()=> file.click());
+
+  file.addEventListener('change', async e=>{
+    const f = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if(!f) return;
+    setStatus('⏳ Carico la foto…');
+    try{
+      const src = await loadImage(f);
+      run(src, f);
+    }catch(err){
+      setStatus('⚠️ Foto non leggibile: ' + err);
+    }
+  });
+
+  function setStatus(t){ $('status').textContent = t; }
+
+  // carica la foto in modo tollerante: prima createImageBitmap (gestisce HEIC e foto grandi), poi fallback
+  async function loadImage(f){
+    if(window.createImageBitmap){
+      try{ return await createImageBitmap(f); }catch(e){ /* provo il fallback */ }
+    }
+    return await new Promise((res, rej)=>{
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        const im = new Image();
+        im.onload = ()=> res(im);
+        im.onerror = ()=> rej('decodifica non riuscita');
+        im.src = reader.result;
+      };
+      reader.onerror = ()=> rej('lettura non riuscita');
+      reader.readAsDataURL(f);
+    });
+  }
+
+  function toB64(src, maxDim){
+    const w = src.width, h = src.height;
+    const s = Math.min(1, maxDim / Math.max(w, h));
+    const c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(w * s));
+    c.height = Math.max(1, Math.round(h * s));
+    const g = c.getContext('2d');
+    g.fillStyle = '#fff'; g.fillRect(0,0,c.width,c.height);
+    g.drawImage(src, 0, 0, c.width, c.height);
+    return c.toDataURL('image/jpeg', 0.72).split(',')[1];
+  }
+
+  async function run(src, fileObj){
+    const mode = $('mode').value;
+    try{ $('prev').src = URL.createObjectURL(fileObj); $('prev').style.display = 'block'; }catch(e){}
+    $('tbl').style.display = 'none';
+    $('raw').style.display = 'none';
+    $('cardHead').textContent = '';
+    $('tblBody').innerHTML = '';
+    setStatus('⏳ Invio al worker e lettura in corso…');
+    try{
+      const b64 = toB64(src, 1800);
+      const res = await fetch(API, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ image: b64, mode })
+      });
+      const data = await res.json();
+      $('raw').style.display = 'block';
+      $('raw').textContent = JSON.stringify(data, null, 2);
+      if(data.error){ setStatus('⚠️ ' + data.error); return; }
+      setStatus('✅ Letto (modello: ' + (data.model || '?') + ')');
+      if(mode === 'timecard' && data.card){ renderCard(data.card); }
+    }catch(err){
+      setStatus('⚠️ Errore di connessione al worker: ' + err);
+    }
+  }
+
+  function renderCard(card){
+    $('cardHead').innerHTML =
+      'Rally: <b>' + (card.rally||'?') + '</b> · Sezione: <b>' + (card.section||'?') +
+      '</b> · Data: <b>' + (card.date||'?') + '</b>';
+    const legs = Array.isArray(card.legs) ? card.legs : [];
+    if(!legs.length) return;
+    $('tblBody').innerHTML = legs.map(l =>
+      '<tr>' +
+        '<td>' + esc(l.from||'') + ' → ' + esc(l.to||'') + '</td>' +
+        '<td class="tt">' + esc(l.target||'') + '</td>' +
+        '<td>' + esc(l.ss||'') + (l.km ? ' · ' + esc(l.km) : '') + '</td>' +
+        '<td>' + esc(l.desc||'') + '</td>' +
+      '</tr>'
+    ).join('');
+    $('tbl').style.display = 'table';
+  }
+
+  function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+})();
+</script>
+</body>
+</html>
