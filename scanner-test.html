@@ -3,151 +3,123 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>iRally · Test scanner time card</title>
+<title>iRally · Time card layout (prova)</title>
 <style>
-  :root{--bg:#0c0e11;--panel:#14181d;--line:#2a2f36;--amber:#ffb400;--green:#39d353;--red:#ff4d4d;--text:#f2f4f7;--muted:#8b949e}
+  :root{--bg:#0c0e11;--panel:#14181d;--line:#2a2f36;--amber:#ffb400;--green:#39d353;--text:#f2f4f7;--muted:#8b949e}
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;padding:16px;padding-top:max(16px,env(safe-area-inset-top))}
   h1{font-size:17px;margin:0 0 4px}
-  p.sub{font-size:13px;color:var(--muted);margin:0 0 16px;line-height:1.5}
-  .row{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
-  label{font-size:13px;color:var(--muted)}
-  select{padding:9px 10px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:15px}
-  button{padding:14px;border-radius:10px;font-size:16px;font-weight:700;background:var(--panel);border:2px solid var(--green);color:var(--green);width:100%;margin-bottom:12px}
+  p.sub{font-size:13px;color:var(--muted);margin:0 0 14px;line-height:1.5}
+  button.pick{padding:14px;border-radius:10px;font-size:16px;font-weight:700;background:var(--panel);border:2px solid var(--green);color:var(--green);width:100%;margin-bottom:12px}
   #status{font-size:14px;min-height:20px;margin-bottom:12px;color:var(--amber);word-break:break-word}
-  #prev{max-width:100%;border-radius:10px;border:1px solid var(--line);display:none;margin-bottom:12px}
-  table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:14px;display:none}
-  th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
-  td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
-  td.tt{color:var(--red);font-weight:800;font-variant-numeric:tabular-nums}
-  pre{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:12px;overflow:auto;white-space:pre-wrap;word-break:break-word;color:var(--muted);max-height:50vh}
-  .head{font-size:13px;color:var(--muted);margin-bottom:10px}
-  .head b{color:var(--text)}
+  #cardHead{font-size:13px;color:var(--muted);margin:6px 2px 14px}
+  #cardHead b{color:var(--text)}
+
+  /* ---- look "carta" della time card ---- */
+  .card{background:#f7f7f4;color:#141414;border-radius:10px;padding:12px 12px 4px;box-shadow:0 2px 10px rgba(0,0,0,.4)}
+  .blk{border:1px solid #b9b9b3;border-radius:8px;padding:10px;margin-bottom:12px}
+  .blkhead{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+  .tc{background:#141414;color:#fff;font-weight:800;font-size:13px;border-radius:5px;padding:3px 8px;flex-shrink:0}
+  .blktitle{font-weight:800;font-size:14px}
+  .blksub{font-size:12px;color:#666}
+  .cellrow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+  .cell{display:flex;flex-direction:column;gap:3px}
+  .cell .lab{font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:#777;font-weight:700}
+  .boxes{display:flex;align-items:stretch;border:1.5px solid #333;border-radius:5px;overflow:hidden;background:#fff}
+  .boxes select{border:none;background:transparent;font-family:'Courier New',monospace;font-size:17px;font-weight:800;color:#111;padding:6px 4px;text-align:center;-webkit-appearance:none;appearance:none;min-width:34px}
+  .boxes .sep{width:1.5px;background:#333}
+  .target{display:inline-flex;border:1.5px solid #c00;border-radius:5px;overflow:hidden;background:#fff}
+  .target b{font-family:'Courier New',monospace;font-size:18px;font-weight:900;color:#c00;padding:6px 9px;min-width:34px;text-align:center}
+  .target .sep{width:1.5px;background:#c00}
+  .hint{font-size:11px;color:#888;margin:2px 2px 8px}
 </style>
 </head>
 <body>
-<h1>Test scanner time card <span style="color:var(--muted);font-size:12px">v2</span></h1>
-<p class="sub">Pagina di prova. Scegli una foto della time card: viene mandata al worker e ti mostro il JSON che torna. Non tocca l'app iRally.</p>
-
-<div class="row">
-  <label for="mode">Modalità</label>
-  <select id="mode">
-    <option value="timecard" selected>Time card (ERC/WRC)</option>
-    <option value="radar">Radar (road book)</option>
-  </select>
-</div>
+<h1>Time card — prova layout</h1>
+<p class="sub">Scansiona una time card: ti disegno il layout con i valori stampati (rosso) già dentro e le caselle da compilare a mano vuote, con i selettori dell'iPhone. È solo una prova, non tocca l'app.</p>
 
 <input type="file" id="file" accept="image/*" style="display:none">
-<button id="pick">📷 Scatta o scegli la foto</button>
-
+<button class="pick" id="pick">📷 Scatta o scegli la foto della time card</button>
 <div id="status"></div>
-<img id="prev" alt="">
-
-<div class="head" id="cardHead"></div>
-<table id="tbl">
-  <thead><tr><th>Da → A</th><th>Target</th><th>Prova / km</th><th>Note</th></tr></thead>
-  <tbody id="tblBody"></tbody>
-</table>
-
-<pre id="raw" style="display:none"></pre>
+<div id="cardHead"></div>
+<div id="out"></div>
 
 <script>
 (function(){
-  const API = 'https://rally-scan.roberto-dapra5858.workers.dev';
-  const $ = id => document.getElementById(id);
-  const file = $('file');
+  const API='https://rally-scan.roberto-dapra5858.workers.dev';
+  const $=id=>document.getElementById(id);
+  const S=setTxt; function setTxt(t){ $('status').textContent=t; }
 
-  $('pick').addEventListener('click', ()=> file.click());
-
-  file.addEventListener('change', async e=>{
-    const f = e.target.files && e.target.files[0];
-    e.target.value = '';
-    if(!f) return;
-    setStatus('⏳ Carico la foto…');
-    try{
-      const src = await loadImage(f);
-      run(src, f);
-    }catch(err){
-      setStatus('⚠️ Foto non leggibile: ' + err);
-    }
+  $('pick').addEventListener('click',()=>$('file').click());
+  $('file').addEventListener('change', async e=>{
+    const f=e.target.files&&e.target.files[0]; e.target.value=''; if(!f) return;
+    setTxt('⏳ Carico la foto…');
+    try{ const src=await loadImage(f); await scan(src); }
+    catch(err){ setTxt('⚠️ Foto non leggibile: '+err); }
   });
 
-  function setStatus(t){ $('status').textContent = t; }
-
-  // carica la foto in modo tollerante: prima createImageBitmap (gestisce HEIC e foto grandi), poi fallback
   async function loadImage(f){
-    if(window.createImageBitmap){
-      try{ return await createImageBitmap(f); }catch(e){ /* provo il fallback */ }
-    }
-    return await new Promise((res, rej)=>{
-      const reader = new FileReader();
-      reader.onload = ()=>{
-        const im = new Image();
-        im.onload = ()=> res(im);
-        im.onerror = ()=> rej('decodifica non riuscita');
-        im.src = reader.result;
-      };
-      reader.onerror = ()=> rej('lettura non riuscita');
-      reader.readAsDataURL(f);
-    });
+    if(window.createImageBitmap){ try{ return await createImageBitmap(f); }catch(e){} }
+    return await new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=()=>rej('decodifica'); im.src=r.result; }; r.onerror=()=>rej('lettura'); r.readAsDataURL(f); });
   }
+  function toB64(src,max){ const w=src.width,h=src.height,s=Math.min(1,max/Math.max(w,h)); const c=document.createElement('canvas'); c.width=Math.max(1,Math.round(w*s)); c.height=Math.max(1,Math.round(h*s)); const g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,c.width,c.height); g.drawImage(src,0,0,c.width,c.height); return c.toDataURL('image/jpeg',0.72).split(',')[1]; }
 
-  function toB64(src, maxDim){
-    const w = src.width, h = src.height;
-    const s = Math.min(1, maxDim / Math.max(w, h));
-    const c = document.createElement('canvas');
-    c.width = Math.max(1, Math.round(w * s));
-    c.height = Math.max(1, Math.round(h * s));
-    const g = c.getContext('2d');
-    g.fillStyle = '#fff'; g.fillRect(0,0,c.width,c.height);
-    g.drawImage(src, 0, 0, c.width, c.height);
-    return c.toDataURL('image/jpeg', 0.72).split(',')[1];
-  }
-
-  async function run(src, fileObj){
-    const mode = $('mode').value;
-    try{ $('prev').src = URL.createObjectURL(fileObj); $('prev').style.display = 'block'; }catch(e){}
-    $('tbl').style.display = 'none';
-    $('raw').style.display = 'none';
-    $('cardHead').textContent = '';
-    $('tblBody').innerHTML = '';
-    setStatus('⏳ Invio al worker e lettura in corso…');
+  async function scan(src){
+    $('out').innerHTML=''; $('cardHead').textContent='';
+    setTxt('⏳ Leggo la time card…');
     try{
-      const b64 = toB64(src, 1800);
-      const res = await fetch(API, {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ image: b64, mode })
-      });
-      const data = await res.json();
-      $('raw').style.display = 'block';
-      $('raw').textContent = JSON.stringify(data, null, 2);
-      if(data.error){ setStatus('⚠️ ' + data.error); return; }
-      setStatus('✅ Letto (modello: ' + (data.model || '?') + ')');
-      if(mode === 'timecard' && data.card){ renderCard(data.card); }
-    }catch(err){
-      setStatus('⚠️ Errore di connessione al worker: ' + err);
+      const b64=toB64(src,1800);
+      const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:b64,mode:'timecard'})});
+      const data=await res.json();
+      if(data.error){ setTxt('⚠️ '+data.error); return; }
+      if(!data.card){ setTxt('⚠️ Nessun dato letto.'); return; }
+      setTxt('✅ Letta. Compila le caselle vuote toccandole.');
+      render(data.card);
+    }catch(err){ setTxt('⚠️ Errore di connessione: '+err); }
+  }
+
+  // opzioni: prima vuota, poi 0..max con due cifre
+  function opts(max){ let o='<option value=""></option>'; for(let x=0;x<=max;x++){ const v=(x<10?'0':'')+x; o+='<option value="'+x+'">'+v+'</option>'; } return o; }
+  const OPT_H=opts(23), OPT_M=opts(59), OPT_S=opts(59), OPT_T=opts(9);
+
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+  // cella ore:minuti (due caselle native, vuote)
+  function hm(lab){ return '<div class="cell"><span class="lab">'+esc(lab)+'</span><span class="boxes"><select>'+OPT_H+'</select><span class="sep"></span><select>'+OPT_M+'</select></span></div>'; }
+  // cella target time stampato (rosso, solo lettura)
+  function tgt(v){ const p=String(v||'').split(':'); return '<div class="cell"><span class="lab">Target time</span><span class="target"><b>'+esc(p[0]||'--')+'</b><span class="sep"></span><b>'+esc(p[1]||'--')+'</b></span></div>'; }
+  // finish time h:m:s:decimi
+  function finish(){ return '<div class="cell"><span class="lab">Finish time</span><span class="boxes"><select>'+OPT_H+'</select><span class="sep"></span><select>'+OPT_M+'</select><span class="sep"></span><select>'+OPT_S+'</select><span class="sep"></span><select>'+OPT_T+'</select></span></div>'; }
+  // time taken m:s:decimi
+  function taken(){ return '<div class="cell"><span class="lab">Time taken</span><span class="boxes"><select>'+OPT_M+'</select><span class="sep"></span><select>'+OPT_S+'</select><span class="sep"></span><select>'+OPT_T+'</select></span></div>'; }
+
+  function render(card){
+    $('cardHead').innerHTML='Rally: <b>'+esc(card.rally||'?')+'</b> · Sezione: <b>'+esc(card.section||'?')+'</b> · Data: <b>'+esc(card.date||'?')+'</b>';
+    const legs=Array.isArray(card.legs)?card.legs:[];
+    let h='<div class="card">';
+    // blocco partenza sezione (dal primo "from")
+    if(legs.length){
+      h+='<div class="blk"><div class="blkhead"><span class="tc">'+esc(legs[0].from||'—')+'</span><span class="blktitle">Partenza sezione</span></div>'
+        +'<div class="cellrow">'+hm('Due start')+hm('Actual start')+'</div></div>';
     }
+    legs.forEach(l=>{
+      if(l.ss){
+        h+='<div class="blk"><div class="blkhead"><span class="tc">'+esc(l.to||'—')+'</span><span class="blktitle">'+esc(l.ss)+'</span>'+(l.km?'<span class="blksub">'+esc(l.km)+'</span>':'')+'</div>'
+          +'<div class="cellrow">'+finish()+'</div>'
+          +'<div class="cellrow">'+hm('Provisional start')+hm('Actual start')+'</div>'
+          +'<div class="cellrow">'+tgt(l.target)+hm('Due time')+'</div>'
+          +'<div class="cellrow">'+taken()+hm('Ora timbro (TC)')+'</div>'
+          +'</div>';
+      } else {
+        h+='<div class="blk"><div class="blkhead"><span class="tc">'+esc(l.to||'—')+'</span><span class="blktitle">'+esc(l.desc||'Controllo')+'</span></div>'
+          +'<div class="cellrow">'+tgt(l.target)+hm('Due time')+hm('Ora timbro')+'</div>'
+          +'</div>';
+      }
+    });
+    h+='</div>';
+    h+='<p class="hint">Le caselle bianche sono vuote: toccale per aprire la rotella dell\u2019iPhone. Il target time in rosso \u00e8 lo stampato letto dalla foto.</p>';
+    $('out').innerHTML=h;
   }
-
-  function renderCard(card){
-    $('cardHead').innerHTML =
-      'Rally: <b>' + (card.rally||'?') + '</b> · Sezione: <b>' + (card.section||'?') +
-      '</b> · Data: <b>' + (card.date||'?') + '</b>';
-    const legs = Array.isArray(card.legs) ? card.legs : [];
-    if(!legs.length) return;
-    $('tblBody').innerHTML = legs.map(l =>
-      '<tr>' +
-        '<td>' + esc(l.from||'') + ' → ' + esc(l.to||'') + '</td>' +
-        '<td class="tt">' + esc(l.target||'') + '</td>' +
-        '<td>' + esc(l.ss||'') + (l.km ? ' · ' + esc(l.km) : '') + '</td>' +
-        '<td>' + esc(l.desc||'') + '</td>' +
-      '</tr>'
-    ).join('');
-    $('tbl').style.display = 'table';
-  }
-
-  function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 })();
 </script>
 </body>
