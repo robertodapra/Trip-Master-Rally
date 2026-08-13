@@ -776,11 +776,12 @@
     </select>
   </div>
 
-  <div class="setting-row">
-    <span data-t="autoResetLabel"></span>
-    <input type="checkbox" id="autoResetToggle">
+  <div style="display:flex;flex-direction:column;gap:10px;margin:16px 0 6px">
+    <button id="btnExport" style="padding:14px;border-radius:10px;font-size:15px;font-weight:700;background:var(--btnbg);border:2px solid var(--green);color:var(--green)">⬇︎ Esporta backup</button>
+    <button id="btnImport" style="padding:14px;border-radius:10px;font-size:15px;font-weight:700;background:var(--btnbg);border:2px solid var(--amber);color:var(--amber)">⬆︎ Importa backup</button>
   </div>
-  <p class="small" data-t="autoResetSmall"></p>
+  <p class="small" style="color:var(--muted)">Salva in un file tutte le prove del radar, le tabelle di marcia e le impostazioni — o ripristinale da un backup. Fallo spesso: è la tua rete di sicurezza.</p>
+  <input type="file" id="importFile" accept="application/json,.json" style="display:none">
 
   <button class="okbtn" id="closeGen" data-t="close"></button>
 </div>
@@ -1379,7 +1380,7 @@ if(cfg.mode !== 'pilot' && cfg.mode !== 'nav' && cfg.mode !== 'radar') cfg.mode 
 if(cfg.units !== 'metric' && cfg.units !== 'imperial') cfg.units = 'metric';
 if(cfg.theme !== 'dark' && cfg.theme !== 'light') cfg.theme = 'dark';
 if(typeof cfg.tunnel !== 'boolean') cfg.tunnel = true;
-if(typeof cfg.autoReset !== 'boolean') cfg.autoReset = true;
+cfg.autoReset = true;
 if(typeof cfg.h24 !== 'boolean') cfg.h24 = true;
 if(typeof cfg.ssActive !== 'string') cfg.ssActive = '';
 if(!cfg.lay || typeof cfg.lay !== 'object') cfg.lay = {arr:'top'};
@@ -1842,7 +1843,6 @@ $('drvSet').addEventListener('click', ()=>{
   $('fontSel').value = cfg.numFont;
   $('timeSel').value = cfg.h24 ? '24' : '12';
   $('themeSel').value = cfg.theme;
-  $('autoResetToggle').checked = cfg.autoReset;
   $('genMenu').classList.add('open');
 });
 $('drvInfo').addEventListener('click', ()=>{
@@ -1902,12 +1902,12 @@ function showMsg(text,title){
   const ok=document.createElement('button'); ok.textContent='OK'; ok.style.cssText='width:100%;padding:12px;border-radius:10px;font-weight:800;background:var(--amber);border:none;color:#000';
   ok.addEventListener('click',()=>uiClose(ov)); box.appendChild(ok);
 }
-function showConfirm(text,onYes){
+function showConfirm(text,onYes,yesLabel,yesColor){
   const {ov,box}=uiBox();
   const pp=document.createElement('div'); pp.style.cssText='font-size:15px;line-height:1.5;margin-bottom:16px'; pp.textContent=text; box.appendChild(pp);
   const rb=document.createElement('div'); rb.style.cssText='display:flex;gap:10px';
   const no=document.createElement('button'); no.textContent='Annulla'; no.style.cssText='flex:1;padding:12px;border-radius:10px;background:var(--btnbg,#222);border:1px solid var(--line,#333);color:var(--text,#eee)'; no.addEventListener('click',()=>uiClose(ov));
-  const ye=document.createElement('button'); ye.textContent='Elimina'; ye.style.cssText='flex:1;padding:12px;border-radius:10px;background:var(--red,#e5484d);border:none;color:#fff;font-weight:800'; ye.addEventListener('click',()=>{uiClose(ov);onYes();});
+  const ye=document.createElement('button'); ye.textContent=yesLabel||'Elimina'; ye.style.cssText='flex:1;padding:12px;border-radius:10px;background:'+(yesColor||'var(--red,#e5484d)')+';border:none;color:#fff;font-weight:800'; ye.addEventListener('click',()=>{uiClose(ov);onYes();});
   rb.appendChild(no); rb.appendChild(ye); box.appendChild(rb);
 }
 function askName(preset,onOk){
@@ -1998,10 +1998,56 @@ $('closeGen').addEventListener('click', ()=>{
   cfg.numFont = $('fontSel').value;
   cfg.h24 = ($('timeSel').value === '24');
   cfg.theme = $('themeSel').value;
-  cfg.autoReset = $('autoResetToggle').checked;
   applyLang(); applyTheme(); applyUnits(); applyLayout();
   saveCfg();
   $('genMenu').classList.remove('open');
+});
+
+/* ================= BACKUP / RIPRISTINO ================= */
+async function exportData(){
+  const data = localStorage.getItem('rallytrip_cfg') || JSON.stringify(cfg);
+  const d = new Date(); const p = n => (n<10?'0':'')+n;
+  const fname = 'iRally-backup-'+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'-'+p(d.getHours())+p(d.getMinutes())+'.json';
+  try{
+    const file = new File([data], fname, {type:'application/json'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file], title:'iRally backup'});
+      return;
+    }
+  }catch(e){ /* condivisione annullata o non disponibile: uso il download */ }
+  try{
+    const blob = new Blob([data], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = fname;
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ if(a.parentNode) a.parentNode.removeChild(a); URL.revokeObjectURL(url); }, 1500);
+    showToast('Backup esportato');
+  }catch(e){ showMsg('Non riesco a esportare qui: '+e); }
+}
+$('btnExport').addEventListener('click', exportData);
+$('btnImport').addEventListener('click', ()=> $('importFile').click());
+$('importFile').addEventListener('change', e=>{
+  const f = e.target.files && e.target.files[0];
+  e.target.value = '';
+  if(!f) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    let parsed;
+    try{ parsed = JSON.parse(reader.result); }
+    catch(err){ showMsg('File non valido: non sembra un backup iRally.'); return; }
+    if(!parsed || typeof parsed !== 'object' || Array.isArray(parsed)){ showMsg('File non valido: non sembra un backup iRally.'); return; }
+    const nSt = Array.isArray(parsed.ssLib) ? parsed.ssLib.length : 0;
+    const nTab = Array.isArray(parsed.tdm) ? parsed.tdm.length : 0;
+    showConfirm('Ripristinare questo backup? Contiene '+nSt+' prove radar e '+nTab+' tabelle. I dati attuali verranno sostituiti.', ()=>{
+      try{
+        localStorage.setItem('rallytrip_cfg', JSON.stringify(parsed));
+        location.reload();
+      }catch(err){ showMsg('Errore durante il ripristino: '+err); }
+    }, 'Ripristina', 'var(--green,#39d353)');
+  };
+  reader.onerror = ()=>{ showMsg('Impossibile leggere il file.'); };
+  reader.readAsText(f);
 });
 
 /* ================= TABELLA DI MARCIA ================= */
