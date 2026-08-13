@@ -3,52 +3,70 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>iRally · Time card layout (prova)</title>
+<title>iRally · Time card (prova)</title>
 <style>
-  :root{--bg:#0c0e11;--panel:#14181d;--line:#2a2f36;--amber:#ffb400;--green:#39d353;--text:#f2f4f7;--muted:#8b949e}
+  :root{--bg:#0c0e11;--panel:#14181d;--line:#2a2f36;--amber:#ffb400;--green:#39d353;--blue:#1e6fd0;--text:#f2f4f7;--muted:#8b949e}
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;padding:16px;padding-top:max(16px,env(safe-area-inset-top))}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;padding:14px;padding-top:max(14px,env(safe-area-inset-top))}
   h1{font-size:17px;margin:0 0 4px}
-  p.sub{font-size:13px;color:var(--muted);margin:0 0 14px;line-height:1.5}
-  button.pick{padding:14px;border-radius:10px;font-size:16px;font-weight:700;background:var(--panel);border:2px solid var(--green);color:var(--green);width:100%;margin-bottom:12px}
-  #status{font-size:14px;min-height:20px;margin-bottom:12px;color:var(--amber);word-break:break-word}
-  #cardHead{font-size:13px;color:var(--muted);margin:6px 2px 14px}
+  p.sub{font-size:12px;color:var(--muted);margin:0 0 12px;line-height:1.5}
+  button.pick{padding:13px;border-radius:10px;font-size:15px;font-weight:700;background:var(--panel);border:2px solid var(--green);color:var(--green);width:100%;margin-bottom:10px}
+  #status{font-size:13px;min-height:18px;margin-bottom:10px;color:var(--amber);word-break:break-word}
+  #cardHead{font-size:12px;color:var(--muted);margin:4px 2px 10px}
   #cardHead b{color:var(--text)}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin:0 2px 10px}
+  .legend span{display:flex;align-items:center;gap:5px}
+  .dot{width:11px;height:11px;border-radius:3px;border:1.5px solid #333;display:inline-block}
+  .dot.red{border-color:#c00;background:#fff}
+  .dot.auto{border-color:#1e6fd0;background:#eaf2fc}
+  .dot.man{border-color:#333;background:#fff}
 
-  /* ---- look "carta" della time card ---- */
-  .card{background:#f7f7f4;color:#141414;border-radius:10px;padding:12px 12px 4px;box-shadow:0 2px 10px rgba(0,0,0,.4)}
-  .blk{border:1px solid #b9b9b3;border-radius:8px;padding:10px;margin-bottom:12px}
-  .blkhead{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
-  .tc{background:#141414;color:#fff;font-weight:800;font-size:13px;border-radius:5px;padding:3px 8px;flex-shrink:0}
+  .offrow{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:13px;display:flex;align-items:center;justify-content:flex-end;gap:6px;color:var(--muted)}
+  .offrow select{padding:6px 8px;border-radius:8px;border:1px solid var(--amber);background:var(--panel);color:var(--amber);font-size:15px;font-weight:800}
+
+  /* ---- look "carta" ---- */
+  .card{background:#f7f7f4;color:#141414;border-radius:10px;padding:10px;box-shadow:0 2px 10px rgba(0,0,0,.4)}
+  .blk{border:1px solid #b9b9b3;border-radius:8px;padding:9px;margin-bottom:11px}
+  .blkhead{display:flex;align-items:center;gap:8px;margin-bottom:9px;flex-wrap:wrap}
+  .tc{background:#141414;color:#fff;font-weight:800;font-size:13px;border-radius:5px;padding:3px 9px;flex-shrink:0}
   .blktitle{font-weight:800;font-size:14px}
-  .blksub{font-size:12px;color:#666}
-  .cellrow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+  .blksub{font-size:11px;color:#777}
+  .cellrow{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:7px}
   .cell{display:flex;flex-direction:column;gap:3px}
-  .cell .lab{font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:#777;font-weight:700}
+  .cell .lab{font-size:8px;letter-spacing:.06em;text-transform:uppercase;color:#777;font-weight:700}
+  .cell .sub{font-size:8px;color:#999;text-align:right;margin-top:1px}
   .boxes{display:flex;align-items:stretch;border:1.5px solid #333;border-radius:5px;overflow:hidden;background:#fff}
-  .boxes select{border:none;background:transparent;font-family:'Courier New',monospace;font-size:17px;font-weight:800;color:#111;padding:6px 4px;text-align:center;-webkit-appearance:none;appearance:none;min-width:34px}
-  .boxes .sep{width:1.5px;background:#333}
-  .target{display:inline-flex;border:1.5px solid #c00;border-radius:5px;overflow:hidden;background:#fff}
-  .target b{font-family:'Courier New',monospace;font-size:18px;font-weight:900;color:#c00;padding:6px 9px;min-width:34px;text-align:center}
-  .target .sep{width:1.5px;background:#c00}
-  .hint{font-size:11px;color:#888;margin:2px 2px 8px}
+  .boxes>select,.boxes>b{font-family:'Courier New',monospace;font-size:16px;font-weight:800;color:#111;padding:6px 3px;text-align:center;min-width:30px}
+  .boxes>select{border:none;background:transparent;-webkit-appearance:none;appearance:none}
+  .boxes .sep{width:1.5px;background:#333;flex-shrink:0}
+  .boxes.auto{border-color:#1e6fd0;background:#eaf2fc}
+  .boxes.auto>b{color:#1e6fd0}
+  .boxes.tgt{border-color:#c00;background:#fff}
+  .boxes.tgt>b{color:#c00;font-weight:900;font-size:17px}
+  .boxes.tgt .sep{background:#c00}
 </style>
 </head>
 <body>
-<h1>Time card — prova layout</h1>
-<p class="sub">Scansiona una time card: ti disegno il layout con i valori stampati (rosso) già dentro e le caselle da compilare a mano vuote, con i selettori dell'iPhone. È solo una prova, non tocca l'app.</p>
+<h1>Time card — prova</h1>
+<p class="sub">Scansiona una time card. I valori stampati (rosso) sono già dentro. Metti l'orario di <b>Due start</b> in alto: le caselle azzurre (teoriche) si calcolano da sole. Se metti un <b>Actual start</b> di prova in ritardo, i timbri successivi si spostano.</p>
 
 <input type="file" id="file" accept="image/*" style="display:none">
 <button class="pick" id="pick">📷 Scatta o scegli la foto della time card</button>
 <div id="status"></div>
 <div id="cardHead"></div>
+<div class="legend">
+  <span><i class="dot red"></i>stampato (target)</span>
+  <span><i class="dot auto"></i>calcolato in automatico</span>
+  <span><i class="dot man"></i>da compilare a mano</span>
+</div>
 <div id="out"></div>
 
 <script>
 (function(){
   const API='https://rally-scan.roberto-dapra5858.workers.dev';
   const $=id=>document.getElementById(id);
-  const S=setTxt; function setTxt(t){ $('status').textContent=t; }
+  function setTxt(t){ $('status').textContent=t; }
+  let BANDS=[];
 
   $('pick').addEventListener('click',()=>$('file').click());
   $('file').addEventListener('change', async e=>{
@@ -73,52 +91,80 @@
       const data=await res.json();
       if(data.error){ setTxt('⚠️ '+data.error); return; }
       if(!data.card){ setTxt('⚠️ Nessun dato letto.'); return; }
-      setTxt('✅ Letta. Compila le caselle vuote toccandole.');
+      setTxt('✅ Letta. Metti il Due start in alto e guarda le caselle azzurre.');
       render(data.card);
     }catch(err){ setTxt('⚠️ Errore di connessione: '+err); }
   }
 
-  // opzioni: prima vuota, poi 0..max con due cifre
-  function opts(max){ let o='<option value=""></option>'; for(let x=0;x<=max;x++){ const v=(x<10?'0':'')+x; o+='<option value="'+x+'">'+v+'</option>'; } return o; }
-  const OPT_H=opts(23), OPT_M=opts(59), OPT_S=opts(59), OPT_T=opts(9);
-
   function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+  function opts(max){ let o='<option value=""></option>'; for(let x=0;x<=max;x++){ o+='<option value="'+x+'">'+(x<10?'0':'')+x+'</option>'; } return o; }
+  const OPT_H=opts(23),OPT_M=opts(59),OPT_S=opts(59),OPT_T=opts(9);
 
-  // cella ore:minuti (due caselle native, vuote)
-  function hm(lab){ return '<div class="cell"><span class="lab">'+esc(lab)+'</span><span class="boxes"><select>'+OPT_H+'</select><span class="sep"></span><select>'+OPT_M+'</select></span></div>'; }
-  // cella target time stampato (rosso, solo lettura)
-  function tgt(v){ const p=String(v||'').split(':'); return '<div class="cell"><span class="lab">Target time</span><span class="target"><b>'+esc(p[0]||'--')+'</b><span class="sep"></span><b>'+esc(p[1]||'--')+'</b></span></div>'; }
-  // finish time h:m:s:decimi
-  function finish(){ return '<div class="cell"><span class="lab">Finish time</span><span class="boxes"><select>'+OPT_H+'</select><span class="sep"></span><select>'+OPT_M+'</select><span class="sep"></span><select>'+OPT_S+'</select><span class="sep"></span><select>'+OPT_T+'</select></span></div>'; }
-  // time taken m:s:decimi
-  function taken(){ return '<div class="cell"><span class="lab">Time taken</span><span class="boxes"><select>'+OPT_M+'</select><span class="sep"></span><select>'+OPT_S+'</select><span class="sep"></span><select>'+OPT_T+'</select></span></div>'; }
+  // caselle manuali (select nativi) e automatiche (solo lettura)
+  function selBox(role,parts){ let h='<span class="boxes">'; parts.forEach((p,idx)=>{ if(idx)h+='<span class="sep"></span>'; h+='<select data-role="'+role+'" data-part="'+p.k+'">'+p.o+'</select>'; }); return h+'</span>'; }
+  function autoBox(role,n){ let h='<span class="boxes auto">'; for(let i=0;i<n;i++){ if(i)h+='<span class="sep"></span>'; h+='<b data-role="'+role+'" data-part="'+(i===0?'h':'m')+'">--</b>'; } return h+'</span>'; }
+  function tgtBox(v){ const p=String(v||'').split(':'); return '<span class="boxes tgt"><b>'+esc(p[0]||'--')+'</b><span class="sep"></span><b>'+esc(p[1]||'--')+'</b></span>'; }
+  const HM=[{k:'h',o:OPT_H},{k:'m',o:OPT_M}];
+  const HMST=[{k:'h',o:OPT_H},{k:'m',o:OPT_M},{k:'s',o:OPT_S},{k:'t',o:OPT_T}];
+  const MST=[{k:'m',o:OPT_M},{k:'s',o:OPT_S},{k:'t',o:OPT_T}];
+  function cell(lab,inner,sub){ return '<div class="cell"><span class="lab">'+esc(lab)+'</span>'+inner+(sub?'<span class="sub">'+esc(sub)+'</span>':'')+'</div>'; }
 
   function render(card){
     $('cardHead').innerHTML='Rally: <b>'+esc(card.rally||'?')+'</b> · Sezione: <b>'+esc(card.section||'?')+'</b> · Data: <b>'+esc(card.date||'?')+'</b>';
     const legs=Array.isArray(card.legs)?card.legs:[];
-    let h='<div class="card">';
-    // blocco partenza sezione (dal primo "from")
-    if(legs.length){
-      h+='<div class="blk"><div class="blkhead"><span class="tc">'+esc(legs[0].from||'—')+'</span><span class="blktitle">Partenza sezione</span></div>'
-        +'<div class="cellrow">'+hm('Due start')+hm('Actual start')+'</div></div>';
-    }
-    legs.forEach(l=>{
-      if(l.ss){
-        h+='<div class="blk"><div class="blkhead"><span class="tc">'+esc(l.to||'—')+'</span><span class="blktitle">'+esc(l.ss)+'</span>'+(l.km?'<span class="blksub">'+esc(l.km)+'</span>':'')+'</div>'
-          +'<div class="cellrow">'+finish()+'</div>'
-          +'<div class="cellrow">'+hm('Provisional start')+hm('Actual start')+'</div>'
-          +'<div class="cellrow">'+tgt(l.target)+hm('Due time')+'</div>'
-          +'<div class="cellrow">'+taken()+hm('Ora timbro (TC)')+'</div>'
-          +'</div>';
-      } else {
-        h+='<div class="blk"><div class="blkhead"><span class="tc">'+esc(l.to||'—')+'</span><span class="blktitle">'+esc(l.desc||'Controllo')+'</span></div>'
-          +'<div class="cellrow">'+tgt(l.target)+hm('Due time')+hm('Ora timbro')+'</div>'
-          +'</div>';
+    BANDS=legs.map((l,i)=>({from:l.from,to:l.to,target:l.target,ss:l.ss,km:l.km,desc:l.desc,isSS:!!l.ss,isFirst:i===0}));
+
+    let offOpts=''; for(let m=0;m<=20;m++){ offOpts+='<option value="'+m+'"'+(m===3?' selected':'')+'>'+m+'</option>'; }
+    let h='<div class="offrow">Start SS: timbro +<select id="offSel">'+offOpts+'</select> min</div>';
+    h+='<div class="card">';
+    BANDS.forEach((b,i)=>{
+      h+='<div class="blk" data-band="'+i+'"><div class="blkhead"><span class="tc">'+esc(b.from||'—')+'</span>'
+        +'<span class="blktitle">'+esc(b.ss || b.desc || (b.isFirst?'Partenza sezione':'Controllo'))+'</span>'
+        +(b.km?'<span class="blksub">'+esc(b.km)+'</span>':'')+'</div>';
+      if(b.isFirst){
+        h+='<div class="cellrow">'+cell('Due start',selBox('dueStart',HM))+cell('Actual start',selBox('actualStart',HM))+'</div>';
       }
+      if(b.isSS){
+        h+='<div class="cellrow">'+cell('Finish time',selBox('finish',HMST))+'</div>';
+        h+='<div class="cellrow">'+cell('Provisional start',autoBox('provStart',2))+cell('Actual start',selBox('ssStart',HM))+'</div>';
+        h+='<div class="cellrow">'+cell('Target time',tgtBox(b.target))+cell('Due time',autoBox('dueTime',2),b.to)+'</div>';
+        h+='<div class="cellrow">'+cell('Time taken',selBox('taken',MST))+cell('Ora timbro',selBox('stamp',HM),b.to)+'</div>';
+      } else {
+        h+='<div class="cellrow">'+cell('Target time',tgtBox(b.target))+cell('Due time',autoBox('dueTime',2),b.to)+cell('Ora timbro',selBox('stamp',HM),b.to)+'</div>';
+      }
+      h+='</div>';
     });
     h+='</div>';
-    h+='<p class="hint">Le caselle bianche sono vuote: toccale per aprire la rotella dell\u2019iPhone. Il target time in rosso \u00e8 lo stampato letto dalla foto.</p>';
     $('out').innerHTML=h;
+    $('out').addEventListener('change', recompute);
+    recompute();
+  }
+
+  function scopeOf(i){ return document.querySelector('.blk[data-band="'+i+'"]'); }
+  function readHM(i,role){ const s=scopeOf(i); if(!s) return null; const h=s.querySelector('select[data-role="'+role+'"][data-part="h"]'); const m=s.querySelector('select[data-role="'+role+'"][data-part="m"]'); if(!h||!m||h.value===''||m.value==='') return null; return (+h.value)*60+(+m.value); }
+  function setHM(i,role,mins){ const s=scopeOf(i); if(!s) return; const h=s.querySelector('b[data-role="'+role+'"][data-part="h"]'); const m=s.querySelector('b[data-role="'+role+'"][data-part="m"]'); if(mins==null){ if(h)h.textContent='--'; if(m)m.textContent='--'; return; } mins=((Math.round(mins)%1440)+1440)%1440; const hh=Math.floor(mins/60),mm=mins%60; if(h)h.textContent=(hh<10?'0':'')+hh; if(m)m.textContent=(mm<10?'0':'')+mm; }
+  function tmin(v){ if(!v) return NaN; const p=String(v).split(':'); if(p.length<2) return NaN; const h=parseInt(p[0]),m=parseInt(p[1]); if(isNaN(h)||isNaN(m)) return NaN; return h*60+m; }
+
+  function recompute(){
+    if(!BANDS.length) return;
+    const off=parseInt(($('offSel')||{}).value)||0;
+    const anchor=readHM(0,'dueStart');
+    if(anchor==null){ BANDS.forEach((b,i)=>{ setHM(i,'dueTime',null); if(b.isSS) setHM(i,'provStart',null); }); return; }
+    let ideal=anchor, D=0;
+    BANDS.forEach((b,i)=>{
+      const tg=tmin(b.target); const t=isNaN(tg)?0:tg;
+      if(b.isSS){
+        const ssIdeal=ideal+off;                 // partenza SS ideale
+        setHM(i,'provStart',ssIdeal+D);          // teorica (spostata dal ritardo)
+        const act=readHM(i,'ssStart');
+        if(act!=null){ const late=act-(ssIdeal+D); if(late>0) D+=late; }  // ritardo alla partenza SS -> si accumula
+        ideal=ssIdeal+t;                          // ideale al TC successivo
+        setHM(i,'dueTime',ideal+D);
+      } else {
+        ideal=ideal+t;
+        setHM(i,'dueTime',ideal+D);
+      }
+    });
   }
 })();
 </script>
