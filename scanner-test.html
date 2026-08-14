@@ -48,7 +48,7 @@
 </head>
 <body>
 <h1>Time card — prova</h1>
-<p class="sub">Scansiona una time card. I valori stampati (rosso) sono già dentro. Metti l'orario di <b>Due start</b> in alto: le caselle azzurre (teoriche) si calcolano da sole. Se metti un <b>Actual start</b> di prova in ritardo, i timbri successivi si spostano.</p>
+<p class="sub">Scansiona una time card. I valori stampati (rosso) sono già dentro. Metti l'<b>Actual start</b> in alto (l'ora a cui parti davvero): le caselle azzurre (teoriche) si calcolano da sole a partire da lì. Se poi in una prova metti un Actual start in ritardo, i timbri successivi si spostano ancora.</p>
 
 <input type="file" id="file" accept="image/*" style="display:none">
 <button class="pick" id="pick">📷 Scatta o scegli la foto della time card</button>
@@ -91,7 +91,7 @@
       const data=await res.json();
       if(data.error){ setTxt('⚠️ '+data.error); return; }
       if(!data.card){ setTxt('⚠️ Nessun dato letto.'); return; }
-      setTxt('✅ Letta. Metti il Due start in alto e guarda le caselle azzurre.');
+      setTxt('✅ Letta. Metti l\u2019Actual start in alto e guarda le caselle azzurre.');
       render(data.card);
     }catch(err){ setTxt('⚠️ Errore di connessione: '+err); }
   }
@@ -148,9 +148,10 @@
   function recompute(){
     if(!BANDS.length) return;
     const off=parseInt(($('offSel')||{}).value)||0;
-    const anchor=readHM(0,'dueStart');
-    if(anchor==null){ BANDS.forEach((b,i)=>{ setHM(i,'dueTime',null); if(b.isSS) setHM(i,'provStart',null); }); return; }
-    let ideal=anchor, D=0;
+    // ancora i teorici all'ACTUAL START (se manca, usa il Due start solo come anteprima)
+    const start=(readHM(0,'actualStart')!=null)?readHM(0,'actualStart'):readHM(0,'dueStart');
+    if(start==null){ BANDS.forEach((b,i)=>{ setHM(i,'dueTime',null); if(b.isSS) setHM(i,'provStart',null); }); return; }
+    let ideal=start, D=0;
     BANDS.forEach((b,i)=>{
       const tg=tmin(b.target); const t=isNaN(tg)?0:tg;
       if(b.isSS){
