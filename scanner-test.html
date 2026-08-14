@@ -42,6 +42,8 @@
   .boxes>input:focus{outline:2px solid #1e6fd0;outline-offset:-2px}
   .mbtn{padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--muted);font-size:13px;font-weight:700}
   .mbtn.on{border-color:var(--green);color:var(--green)}
+  .arrow{align-self:flex-end;color:#c00;font-size:16px;padding:0 2px 8px}
+  .cu{margin-left:auto;font-size:9px;letter-spacing:.08em;color:#999;font-weight:700;align-self:flex-start}
   .boxes .sep{width:1.5px;background:#333;flex-shrink:0}
   .boxes.auto{border-color:#1e6fd0;background:#eaf2fc}
   .boxes.auto>b{color:#1e6fd0}
@@ -133,31 +135,42 @@
   const HMST=[{k:'h'},{k:'m'},{k:'s'},{k:'t'}];
   const MST=[{k:'m'},{k:'s'},{k:'t'}];
   function cell(lab,inner,sub){ return '<div class="cell"><span class="lab">'+esc(lab)+'</span>'+inner+(sub?'<span class="sub">'+esc(sub)+'</span>':'')+'</div>'; }
+  function arrow(){ return '<span class="arrow">\u25B6</span>'; }
 
   function render(card){
     lastCard=card;
     var mr=$('modeRow'); if(mr) mr.style.display='flex';
     $('cardHead').innerHTML='Rally: <b>'+esc(card.rally||'?')+'</b> · Sezione: <b>'+esc(card.section||'?')+'</b> · Data: <b>'+esc(card.date||'?')+'</b>';
     const legs=Array.isArray(card.legs)?card.legs:[];
-    BANDS=legs.map((l,i)=>({from:l.from,to:l.to,target:l.target,ss:l.ss,km:l.km,desc:l.desc,isSS:!!l.ss,isFirst:i===0}));
+    // descrizione di un controllo = cosa fai lì (dalla tratta che PARTE da quel controllo, se non è una PS)
+    function descOf(code){ const L=legs.find(x=>x.from===code); return (L && !L.ss)?(L.desc||''):''; }
+    // controlli: primo = partenza sezione, poi ogni ARRIVO (destinazione) di ciascuna tratta
+    const controls=[];
+    if(legs.length){
+      controls.push({code:legs[0].from, kind:'start', title:(descOf(legs[0].from)||'Partenza sezione')});
+      legs.forEach(L=>{
+        controls.push({code:L.to, kind:(L.ss?'ss':'ctrl'), target:L.target, ss:L.ss, km:L.km, title:(L.ss? L.ss : descOf(L.to))});
+      });
+    }
+    BANDS=controls;
 
     let offOpts=''; for(let m=0;m<=20;m++){ offOpts+='<option value="'+m+'"'+(m===3?' selected':'')+'>'+m+'</option>'; }
     let h='<div class="offrow">Start SS: timbro +<select id="offSel">'+offOpts+'</select> min</div>';
     h+='<div class="card">';
-    BANDS.forEach((b,i)=>{
-      h+='<div class="blk" data-band="'+i+'"><div class="blkhead"><span class="tc">'+esc(b.from||'—')+'</span>'
-        +'<span class="blktitle">'+esc(b.ss || b.desc || (b.isFirst?'Partenza sezione':'Controllo'))+'</span>'
-        +(b.km?'<span class="blksub">'+esc(b.km)+'</span>':'')+'</div>';
-      if(b.isFirst){
-        h+='<div class="cellrow">'+cell('Due start',selBox('dueStart',HM))+cell('Actual start',selBox('actualStart',HM))+'</div>';
-      }
-      if(b.isSS){
+    controls.forEach((b,i)=>{
+      h+='<div class="blk" data-band="'+i+'"><div class="blkhead"><span class="tc">'+esc(b.code||'—')+'</span>'
+        +'<span class="blktitle">'+esc(b.title||b.code||'')+'</span>'
+        +(b.km?'<span class="blksub">'+esc(b.km)+'</span>':'')
+        +'<span class="cu">COMPETITOR USE</span></div>';
+      if(b.kind==='start'){
+        h+='<div class="cellrow">'+cell('Due start',selBox('dueStart',HM))+arrow()+cell('Actual start',selBox('actualStart',HM),b.code)+'</div>';
+      } else if(b.kind==='ss'){
         h+='<div class="cellrow">'+cell('Finish time',selBox('finish',HMST))+'</div>';
-        h+='<div class="cellrow">'+cell('Provisional start',autoBox('provStart',2))+cell('Actual start',selBox('ssStart',HM))+'</div>';
-        h+='<div class="cellrow">'+cell('Target time',tgtBox(b.target))+cell('Due time',autoBox('dueTime',2),b.to)+'</div>';
-        h+='<div class="cellrow">'+cell('Time taken',selBox('taken',MST))+cell('Ora timbro',selBox('stamp',HM),b.to)+'</div>';
+        h+='<div class="cellrow">'+cell('Provisional start',autoBox('provStart',2))+arrow()+cell('Actual start',selBox('ssStart',HM))+'</div>';
+        h+='<div class="cellrow">'+cell('Target time',tgtBox(b.target))+cell('Due time',autoBox('dueTime',2),b.code)+'</div>';
+        h+='<div class="cellrow">'+cell('Time taken',selBox('taken',MST))+cell('Ora timbro',selBox('stamp',HM),b.code)+'</div>';
       } else {
-        h+='<div class="cellrow">'+cell('Target time',tgtBox(b.target))+cell('Due time',autoBox('dueTime',2),b.to)+cell('Ora timbro',selBox('stamp',HM),b.to)+'</div>';
+        h+='<div class="cellrow">'+cell('Target time',tgtBox(b.target))+cell('Due time',autoBox('dueTime',2),b.code)+cell('Ora timbro',selBox('stamp',HM),b.code)+'</div>';
       }
       h+='</div>';
     });
@@ -193,24 +206,24 @@
   function recompute(){
     if(!BANDS.length) return;
     const off=parseInt(($('offSel')||{}).value)||0;
-    // ancora i teorici all'ACTUAL START (se manca, usa il Due start solo come anteprima)
+    // ancora i teorici all'ACTUAL START del primo controllo (se manca, usa il Due start come anteprima)
     const start=(readHM(0,'actualStart')!=null)?readHM(0,'actualStart'):readHM(0,'dueStart');
-    if(start==null){ BANDS.forEach((b,i)=>{ setHM(i,'dueTime',null); if(b.isSS) setHM(i,'provStart',null); }); return; }
+    if(start==null){ BANDS.forEach((b,i)=>{ if(i>0){ setHM(i,'dueTime',null); if(b.kind==='ss') setHM(i,'provStart',null); } }); return; }
     let ideal=start, D=0;
-    BANDS.forEach((b,i)=>{
-      const tg=tmin(b.target); const t=isNaN(tg)?0:tg;
-      if(b.isSS){
-        const ssIdeal=ideal+off;                 // partenza SS ideale
+    for(let i=1;i<BANDS.length;i++){
+      const b=BANDS[i]; const tg=tmin(b.target); const t=isNaN(tg)?0:tg;
+      if(b.kind==='ss'){
+        const ssIdeal=ideal+off;                 // partenza SS ideale = timbro controllo precedente + offset
         setHM(i,'provStart',ssIdeal+D);          // teorica (spostata dal ritardo)
         const act=readHM(i,'ssStart');
         if(act!=null){ const late=act-(ssIdeal+D); if(late>0) D+=late; }  // ritardo alla partenza SS -> si accumula
-        ideal=ssIdeal+t;                          // ideale al TC successivo
+        ideal=ssIdeal+t;                          // ideale all'arrivo di questo controllo
         setHM(i,'dueTime',ideal+D);
       } else {
         ideal=ideal+t;
         setHM(i,'dueTime',ideal+D);
       }
-    });
+    }
   }
 })();
 </script>
