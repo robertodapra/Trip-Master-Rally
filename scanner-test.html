@@ -36,8 +36,12 @@
   .cell .lab{font-size:8px;letter-spacing:.06em;text-transform:uppercase;color:#777;font-weight:700}
   .cell .sub{font-size:8px;color:#999;text-align:right;margin-top:1px}
   .boxes{display:flex;align-items:stretch;border:1.5px solid #333;border-radius:5px;overflow:hidden;background:#fff}
-  .boxes>select,.boxes>b{font-family:'Courier New',monospace;font-size:16px;font-weight:800;color:#111;padding:6px 3px;text-align:center;min-width:30px}
-  .boxes>select{border:none;background:transparent;-webkit-appearance:none;appearance:none}
+  .boxes>select,.boxes>b,.boxes>input{font-family:'Courier New',monospace;font-size:16px;font-weight:800;color:#111;padding:6px 3px;text-align:center;min-width:32px}
+  .boxes>select,.boxes>input{border:none;background:transparent;-webkit-appearance:none;appearance:none;border-radius:0}
+  .boxes>input{width:40px}
+  .boxes>input:focus{outline:2px solid #1e6fd0;outline-offset:-2px}
+  .mbtn{padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--muted);font-size:13px;font-weight:700}
+  .mbtn.on{border-color:var(--green);color:var(--green)}
   .boxes .sep{width:1.5px;background:#333;flex-shrink:0}
   .boxes.auto{border-color:#1e6fd0;background:#eaf2fc}
   .boxes.auto>b{color:#1e6fd0}
@@ -52,6 +56,10 @@
 
 <input type="file" id="file" accept="image/*" style="display:none">
 <button class="pick" id="pick">📷 Scatta o scegli la foto della time card</button>
+<div id="modeRow" style="display:none;align-items:center;gap:8px;font-size:13px;color:#8b949e;margin-bottom:10px">Inserimento:
+  <button type="button" class="mbtn on" data-mode="wheel">Rotelle</button>
+  <button type="button" class="mbtn" data-mode="keyboard">Tastiera</button>
+</div>
 <div id="status"></div>
 <div id="cardHead"></div>
 <div class="legend">
@@ -67,6 +75,15 @@
   const $=id=>document.getElementById(id);
   function setTxt(t){ $('status').textContent=t; }
   let BANDS=[];
+  let INPUT_MODE='wheel';   // 'wheel' = rotelle · 'keyboard' = tastiera
+  let lastCard=null;
+  const manualVals={};       // valori scritti a mano: non si perdono cambiando modalità
+  ['input','change'].forEach(ev=> document.getElementById('out').addEventListener(ev, onManualChange));
+  document.querySelectorAll('.mbtn').forEach(b=> b.addEventListener('click', ()=>{
+    INPUT_MODE=b.dataset.mode;
+    document.querySelectorAll('.mbtn').forEach(x=> x.classList.toggle('on', x.dataset.mode===INPUT_MODE));
+    if(lastCard) render(lastCard);
+  }));
 
   $('pick').addEventListener('click',()=>$('file').click());
   $('file').addEventListener('change', async e=>{
@@ -100,16 +117,26 @@
   function opts(max){ let o='<option value=""></option>'; for(let x=0;x<=max;x++){ o+='<option value="'+x+'">'+(x<10?'0':'')+x+'</option>'; } return o; }
   const OPT_H=opts(23),OPT_M=opts(59),OPT_S=opts(59),OPT_T=opts(9);
 
-  // caselle manuali (select nativi) e automatiche (solo lettura)
-  function selBox(role,parts){ let h='<span class="boxes">'; parts.forEach((p,idx)=>{ if(idx)h+='<span class="sep"></span>'; h+='<select data-role="'+role+'" data-part="'+p.k+'">'+p.o+'</select>'; }); return h+'</span>'; }
+  // un campo: rotella (select) o tastiera (input numerico) in base a INPUT_MODE
+  function optsFor(k){ return k==='h'?OPT_H : k==='t'?OPT_T : k==='s'?OPT_S : OPT_M; }
+  function field(role,k){
+    const max=(k==='t')?1:2;
+    if(INPUT_MODE==='keyboard'){
+      return '<input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="'+max+'" data-max="'+max+'" data-role="'+role+'" data-part="'+k+'">';
+    }
+    return '<select data-role="'+role+'" data-part="'+k+'">'+optsFor(k)+'</select>';
+  }
+  function selBox(role,parts){ let h='<span class="boxes">'; parts.forEach((p,idx)=>{ if(idx)h+='<span class="sep"></span>'; h+=field(role,p.k); }); return h+'</span>'; }
   function autoBox(role,n){ let h='<span class="boxes auto">'; for(let i=0;i<n;i++){ if(i)h+='<span class="sep"></span>'; h+='<b data-role="'+role+'" data-part="'+(i===0?'h':'m')+'">--</b>'; } return h+'</span>'; }
   function tgtBox(v){ const p=String(v||'').split(':'); return '<span class="boxes tgt"><b>'+esc(p[0]||'--')+'</b><span class="sep"></span><b>'+esc(p[1]||'--')+'</b></span>'; }
-  const HM=[{k:'h',o:OPT_H},{k:'m',o:OPT_M}];
-  const HMST=[{k:'h',o:OPT_H},{k:'m',o:OPT_M},{k:'s',o:OPT_S},{k:'t',o:OPT_T}];
-  const MST=[{k:'m',o:OPT_M},{k:'s',o:OPT_S},{k:'t',o:OPT_T}];
+  const HM=[{k:'h'},{k:'m'}];
+  const HMST=[{k:'h'},{k:'m'},{k:'s'},{k:'t'}];
+  const MST=[{k:'m'},{k:'s'},{k:'t'}];
   function cell(lab,inner,sub){ return '<div class="cell"><span class="lab">'+esc(lab)+'</span>'+inner+(sub?'<span class="sub">'+esc(sub)+'</span>':'')+'</div>'; }
 
   function render(card){
+    lastCard=card;
+    var mr=$('modeRow'); if(mr) mr.style.display='flex';
     $('cardHead').innerHTML='Rally: <b>'+esc(card.rally||'?')+'</b> · Sezione: <b>'+esc(card.section||'?')+'</b> · Data: <b>'+esc(card.date||'?')+'</b>';
     const legs=Array.isArray(card.legs)?card.legs:[];
     BANDS=legs.map((l,i)=>({from:l.from,to:l.to,target:l.target,ss:l.ss,km:l.km,desc:l.desc,isSS:!!l.ss,isFirst:i===0}));
@@ -136,12 +163,28 @@
     });
     h+='</div>';
     $('out').innerHTML=h;
-    $('out').addEventListener('change', recompute);
+    restoreVals();
     recompute();
+  }
+  function restoreVals(){
+    Object.keys(manualVals).forEach(k=>{
+      const p=k.split('|'); const s=scopeOf(+p[0]); if(!s) return;
+      const el=s.querySelector('[data-role="'+p[1]+'"][data-part="'+p[2]+'"]');
+      if(el && el.tagName!=='B') el.value=manualVals[k];
+    });
+  }
+  function onManualChange(e){
+    const el=e.target; if(!el||el.tagName==='B') return;
+    if(el.id==='offSel'){ recompute(); return; }
+    if(el.dataset && el.dataset.role!=null && el.dataset.part!=null){
+      if(el.tagName==='INPUT'){ const mx=+(el.dataset.max||2); el.value=el.value.replace(/\D/g,'').slice(0,mx); }
+      const s=el.closest('.blk'); if(s){ manualVals[s.getAttribute('data-band')+'|'+el.dataset.role+'|'+el.dataset.part]=el.value; }
+      recompute();
+    }
   }
 
   function scopeOf(i){ return document.querySelector('.blk[data-band="'+i+'"]'); }
-  function readHM(i,role){ const s=scopeOf(i); if(!s) return null; const h=s.querySelector('select[data-role="'+role+'"][data-part="h"]'); const m=s.querySelector('select[data-role="'+role+'"][data-part="m"]'); if(!h||!m||h.value===''||m.value==='') return null; return (+h.value)*60+(+m.value); }
+  function readHM(i,role){ const s=scopeOf(i); if(!s) return null; const h=s.querySelector('[data-role="'+role+'"][data-part="h"]'); const m=s.querySelector('[data-role="'+role+'"][data-part="m"]'); if(!h||!m||h.tagName==='B') return null; const hv=String(h.value==null?'':h.value).trim(), mv=String(m.value==null?'':m.value).trim(); if(hv===''||mv==='') return null; const H=parseInt(hv,10),M=parseInt(mv,10); if(isNaN(H)||isNaN(M)) return null; return H*60+M; }
   function setHM(i,role,mins){ const s=scopeOf(i); if(!s) return; const h=s.querySelector('b[data-role="'+role+'"][data-part="h"]'); const m=s.querySelector('b[data-role="'+role+'"][data-part="m"]'); if(mins==null){ if(h)h.textContent='--'; if(m)m.textContent='--'; return; } mins=((Math.round(mins)%1440)+1440)%1440; const hh=Math.floor(mins/60),mm=mins%60; if(h)h.textContent=(hh<10?'0':'')+hh; if(m)m.textContent=(mm<10?'0':'')+mm; }
   function tmin(v){ if(!v) return NaN; const p=String(v).split(':'); if(p.length<2) return NaN; const h=parseInt(p[0]),m=parseInt(p[1]); if(isNaN(h)||isNaN(m)) return NaN; return h*60+m; }
 
