@@ -177,9 +177,11 @@
     const el=e.target; if(!el||el.tagName==='B') return;
     if(el.id==='offSel'){ recompute(); return; }
     if(el.dataset && el.dataset.role!=null && el.dataset.part!=null){
-      if(el.tagName==='INPUT'){ const mx=+(el.dataset.max||2); el.value=el.value.replace(/\D/g,'').slice(0,mx); }
+      let advance=false;
+      if(el.tagName==='INPUT'){ const mx=+(el.dataset.max||2); el.value=el.value.replace(/\D/g,'').slice(0,mx); if(e.type==='input' && el.value.length>=mx) advance=true; }
       const s=el.closest('.blk'); if(s){ manualVals[s.getAttribute('data-band')+'|'+el.dataset.role+'|'+el.dataset.part]=el.value; }
       recompute();
+      if(advance){ const ins=Array.prototype.slice.call(document.getElementById('out').querySelectorAll('input[data-role]')); const i=ins.indexOf(el); if(i>-1 && i<ins.length-1){ ins[i+1].focus(); try{ins[i+1].select();}catch(_){} } }
     }
   }
 
