@@ -2457,8 +2457,8 @@ requestAnimationFrame(frame);
   });
 
   /* ===== LIBRERIA (elenco tabelle salvate + editor) ===== */
-  function showLib(){ persist(); curIdx=null; $('tc_editor').style.display='none'; $('tc_lib').style.display='block'; renderLib(); }
-  function showEditor(){ $('tc_lib').style.display='none'; $('tc_editor').style.display='block'; }
+  function showLib(){ persist(); curIdx=null; const ed=$('tc_editor'); if(ed) ed.style.display='none'; const lb=$('tc_lib'); if(lb) lb.style.display='block'; renderLib(); }
+  function showEditor(){ const lb=$('tc_lib'); if(lb) lb.style.display='none'; const ed=$('tc_editor'); if(ed) ed.style.display='block'; }
   window.tcShowLib = showLib;
 
   function renderLib(){
@@ -2493,7 +2493,7 @@ requestAnimationFrame(frame);
     Object.assign(alarmOn, e.alarms||{});
     tcMin=e.min||5; tcOff=(e.off==null?3:e.off);
     lastCard=e.card;
-    $('tc_name').value=e.name||'';
+    const nmEl=$('tc_name'); if(nmEl) nmEl.value=e.name||'';
     setTxt('');
     showEditor();
     render(lastCard);
@@ -2563,12 +2563,12 @@ requestAnimationFrame(frame);
     const legs=Array.isArray(card.legs)?card.legs:[];
     if(!legs.length){
       const mr=$('tc_modeRow'); if(mr) mr.style.display='none';
-      $('tc_head').textContent='';
-      $('tc_out').innerHTML='<div class="tdm-empty">Ancora nessun TC.<br>Tocca \u201C\uD83D\uDCF7 Scansiona pagina\u201D e fotografa la time card. Ogni pagina in pi\u00f9 si somma.</div>';
+      const hd=$('tc_head'); if(hd) hd.textContent='';
+      const ou=$('tc_out'); if(ou) ou.innerHTML='<div class="tdm-empty">Ancora nessun TC.<br>Tocca \u201C\uD83D\uDCF7 Scansiona pagina\u201D e fotografa la time card. Ogni pagina in pi\u00f9 si somma.</div>';
       return;
     }
     const mr=$('tc_modeRow'); if(mr) mr.style.display='flex';
-    $('tc_head').innerHTML='Rally: <b>'+esc(card.rally||'?')+'</b> \u00b7 Sezione: <b>'+esc(card.section||'?')+'</b> \u00b7 Data: <b>'+esc(card.date||'?')+'</b>';
+    const hd0=$('tc_head'); if(hd0) hd0.innerHTML='Rally: <b>'+esc(card.rally||'?')+'</b> \u00b7 Sezione: <b>'+esc(card.section||'?')+'</b> \u00b7 Data: <b>'+esc(card.date||'?')+'</b>';
     function descOf(code){ const L=legs.find(x=>x.from===code); return (L && !L.ss)?(L.desc||''):''; }
     const controls=[];
     if(legs.length){
@@ -2600,7 +2600,7 @@ requestAnimationFrame(frame);
       h+='</div>';
     });
     h+='</div>';
-    $('tc_out').innerHTML=h;
+    const outEl=$('tc_out'); if(outEl) outEl.innerHTML=h;
     restoreVals();
     recompute();
   }
