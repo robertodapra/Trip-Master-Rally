@@ -2518,7 +2518,7 @@ requestAnimationFrame(frame);
       if(fire.getTime() <= now.getTime()+3000) return;
       const id=9000+(+i);
       lastIds.push(id);
-      notifs.push({ id:id, title:'iRally \u2014 sveglia timbro', body:'Tra '+mins+' min: '+b.code+' \u2014 timbri alle '+fmt(due), schedule:{ at: fire } });
+      notifs.push({ id:id, title:'iRally \u2014 sveglia timbro', body:'Tra '+mins+' min: '+b.code+' \u2014 timbri alle '+fmt(due), sound:'default', schedule:{ at: fire } });
     });
     if(notifs.length){ try{ await ln.schedule({notifications:notifs}); }catch(e){} }
   }
