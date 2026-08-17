@@ -567,21 +567,31 @@
 <div id="drawer">
   <h2 data-t="drawerTitle"></h2>
 
-  <div class="drawer-group" data-t="grpPilot"></div>
-  <button class="drawer-item" id="drvPilot"><span data-t="drvPilot"></span><span class="di-tag" data-t="activeTag"></span></button>
-  <button class="drawer-item" id="drvWords"><span data-t="wordsTitle"></span></button>
+  <button class="drawer-sec" data-sec="pilot"><span data-t="grpPilot"></span><span class="chev">›</span></button>
+  <div class="drawer-body" data-body="pilot">
+    <button class="drawer-item" id="drvPilot"><span data-t="drvPilot"></span><span class="di-tag" data-t="activeTag"></span></button>
+    <button class="drawer-item" id="drvWords"><span data-t="wordsTitle"></span></button>
+  </div>
 
-  <div class="drawer-group" data-t="grpNav"></div>
-  <button class="drawer-item" id="drvTrip"><span data-t="navTrip"></span><span class="di-tag" data-t="activeTag"></span></button>
-  <button class="drawer-item" id="drvRadar"><span>Radar</span><span class="di-tag" data-t="activeTag"></span></button>
-  <button class="drawer-item" id="drvRb"><span data-t="navRadar"></span></button>
-  <button class="drawer-item" id="drvTdm"><span data-t="navTdm"></span></button>
-  <button class="drawer-item" id="drvTimecard"><span>Time card</span></button>
-  <button class="drawer-item" id="drvCalc"><span data-t="navCalc"></span></button>
+  <button class="drawer-sec" data-sec="nav"><span data-t="grpNav"></span><span class="chev">›</span></button>
+  <div class="drawer-body" data-body="nav">
+    <button class="drawer-item" id="drvTrip"><span data-t="navTrip"></span><span class="di-tag" data-t="activeTag"></span></button>
+    <button class="drawer-item" id="drvRadar"><span>Radar</span><span class="di-tag" data-t="activeTag"></span></button>
+    <button class="drawer-item" id="drvRb"><span data-t="navRadar"></span></button>
+  </div>
 
-  <div class="drawer-group" data-t="grpGen"></div>
-  <button class="drawer-item" id="drvSet"><span data-t="drvSet"></span></button>
-  <button class="drawer-item" id="drvInfo"><span data-t="guideMenu"></span></button>
+  <button class="drawer-sec" data-sec="tdm"><span>Tabelle di marcia</span><span class="chev">›</span></button>
+  <div class="drawer-body" data-body="tdm">
+    <button class="drawer-item" id="drvTimecard"><span>Time card</span></button>
+    <button class="drawer-item" id="drvTdm"><span data-t="navTdm"></span></button>
+    <button class="drawer-item" id="drvCalc"><span data-t="navCalc"></span></button>
+  </div>
+
+  <button class="drawer-sec" data-sec="gen"><span data-t="grpGen"></span><span class="chev">›</span></button>
+  <div class="drawer-body" data-body="gen">
+    <button class="drawer-item" id="drvSet"><span data-t="drvSet"></span></button>
+    <button class="drawer-item" id="drvInfo"><span data-t="guideMenu"></span></button>
+  </div>
 </div>
 
 <!-- ============ GUIDA ============ -->
@@ -707,6 +717,12 @@
 </div>
 <style>
 .drawer-group{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:800;margin:16px 8px 6px;opacity:.8}
+.drawer-sec{display:flex;align-items:center;justify-content:space-between;width:100%;background:var(--btnbg);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:15px 14px;font-size:16px;font-weight:800;letter-spacing:.03em;margin-bottom:8px}
+.drawer-sec .chev{transition:transform .2s ease;color:var(--muted);font-size:20px;line-height:1}
+.drawer-sec.open{border-color:var(--amber);color:var(--amber)}
+.drawer-sec.open .chev{transform:rotate(90deg);color:var(--amber)}
+.drawer-body{display:none;margin:-2px 0 10px 8px;padding-left:8px;border-left:2px solid var(--line)}
+.drawer-body.open{display:block}
 #calcExpr{font-family:'JetBrains Mono',ui-monospace,monospace;text-align:right;color:var(--muted);font-size:20px;min-height:26px;padding:0 18px 2px;letter-spacing:1px}
 #calcDisp{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:52px;font-weight:800;text-align:right;color:var(--green);background:#111;border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin-bottom:14px;letter-spacing:2px}
 #calcKeys{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
@@ -1865,6 +1881,20 @@ $('btnArr').addEventListener('click', e=>{
   saveCfg();
 });
 $('drawerBg').addEventListener('click', closeDrawer);
+
+/* menu a sezioni che si aprono (una alla volta) */
+document.querySelectorAll('.drawer-sec').forEach(sec=>{
+  sec.addEventListener('click', ()=>{
+    const willOpen = !sec.classList.contains('open');
+    document.querySelectorAll('.drawer-sec').forEach(s=>s.classList.remove('open'));
+    document.querySelectorAll('.drawer-body').forEach(b=>b.classList.remove('open'));
+    if(willOpen){
+      sec.classList.add('open');
+      const body = document.querySelector('.drawer-body[data-body="'+sec.dataset.sec+'"]');
+      if(body) body.classList.add('open');
+    }
+  });
+});
 
 /* modalità: si attivano subito al tocco */
 function setMode(m){
