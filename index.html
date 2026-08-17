@@ -459,6 +459,7 @@
   .setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;font-size:14px}
   .setting-row select{padding:10px;background:var(--inputbg);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:15px}
   .setting-row input[type=checkbox]{width:24px;height:24px}
+  .font-preview{margin:-6px 0 14px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--inputbg);color:var(--green);font-size:26px;font-weight:800;text-align:center;letter-spacing:.06em;font-variant-numeric:tabular-nums;overflow:hidden;white-space:nowrap}
 
   #rbImport{
     width:100%;min-height:110px;
@@ -582,7 +583,7 @@
 
   <button class="drawer-sec" data-sec="tdm"><span>Tabelle di marcia</span><span class="chev">›</span></button>
   <div class="drawer-body" data-body="tdm">
-    <button class="drawer-item" id="drvTimecard"><span>Time card</span></button>
+    <button class="drawer-item" id="drvTimecard"><span>Scanner tabella di marcia</span></button>
     <button class="drawer-item" id="drvTdm"><span data-t="navTdm"></span></button>
     <button class="drawer-item" id="drvCalc"><span data-t="navCalc"></span></button>
   </div>
@@ -706,7 +707,7 @@
 #tcMenu .arrow{align-self:flex-end;color:#c00;font-size:16px;padding:0 2px 8px}
 </style>
 <div class="overlay" id="tcMenu">
-  <div class="tc-topbar"><h2>Time card</h2><button id="tc_close" class="tc-x">&#10005;</button></div>
+  <div class="tc-topbar"><h2>Scanner tabella di marcia</h2><button id="tc_close" class="tc-x">&#10005;</button></div>
   <div class="tc-wrap">
     <input type="file" id="tc_file" accept="image/*" style="display:none">
 
@@ -851,6 +852,7 @@
       <option value="system">System</option>
     </select>
   </div>
+  <div class="font-preview" id="fontPreview">08:30&nbsp;&nbsp;12.34&nbsp;&nbsp;0123456789</div>
   <div class="setting-row">
     <span data-t="timeLabel"></span>
     <select id="timeSel">
@@ -929,7 +931,7 @@ it:{introTitle:"Come funziona",
   scanConnErr:"Errore di connessione. Controlla la rete e riprova.",
   scanPhotoErr:"Foto non leggibile, riprova.",
   rbAddScan:"Aggiungi scan",
-  navTdm:"Tabella di marcia",
+  navTdm:"Tabella di marcia manuale",
   grpPilot:"Pilota",grpNav:"Navigatore",grpGen:"Generali",
   navCalc:"Calcolatrice tempo",
   ssSavedMsg:"Prova salvata",ssLoadedMsg:"Prova caricata",ssNoName:"Scrivi un nome per la prova",
@@ -1012,7 +1014,7 @@ en:{introTitle:"How it works",
   scanConnErr:"Connection error. Check the network and retry.",
   scanPhotoErr:"Photo not readable, try again.",
   rbAddScan:"Add scan",
-  navTdm:"Time card",
+  navTdm:"Time card (manual)",
   grpPilot:"Driver",grpNav:"Co-driver",grpGen:"General",
   navCalc:"Time calculator",
   ssSavedMsg:"Stage saved",ssLoadedMsg:"Stage loaded",ssNoName:"Type a name for the stage",
@@ -1947,6 +1949,7 @@ $('drvSet').addEventListener('click', ()=>{
   $('unitSel').value = cfg.units;
   $('numSel').value = String(cfg.numSize);
   $('fontSel').value = cfg.numFont;
+  updateFontPreview();
   $('timeSel').value = cfg.h24 ? '24' : '12';
   $('themeSel').value = cfg.theme;
   $('genMenu').classList.add('open');
@@ -2108,6 +2111,11 @@ $('closeGen').addEventListener('click', ()=>{
   saveCfg();
   $('genMenu').classList.remove('open');
 });
+function updateFontPreview(){
+  const FONTS={jb:"'JetBrains Mono',ui-monospace,monospace",share:"'Share Tech Mono',ui-monospace,monospace",orbitron:"'Orbitron',ui-monospace,monospace",system:"ui-monospace,Menlo,Consolas,monospace"};
+  const p=$('fontPreview'), s=$('fontSel'); if(!p||!s) return; p.style.fontFamily=FONTS[s.value]||FONTS.jb;
+}
+$('fontSel').addEventListener('change', updateFontPreview);
 
 /* ================= BACKUP / RIPRISTINO ================= */
 async function exportData(){
