@@ -668,6 +668,10 @@
 #tcMenu .tc-x{background:var(--btnbg);border:1px solid var(--line);color:var(--muted);border-radius:50%;width:32px;height:32px;font-weight:700}
 #tcMenu .tc-wrap{padding:4px 14px 28px}
 #tcMenu .tc-pick{padding:13px;border-radius:10px;font-size:15px;font-weight:700;background:var(--panel);border:2px solid var(--green);color:var(--green);width:100%;margin-bottom:10px}
+#tcMenu .tc-pick small{font-weight:400;color:var(--muted);font-size:12px}
+#tcMenu .tc-editbar{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+#tcMenu .tc-del{background:var(--btnbg);border:1px solid var(--line);color:var(--red);border-radius:8px;width:40px;height:36px;font-size:18px;flex-shrink:0}
+#tcMenu #tc_list .tdm-name small{display:block;color:var(--muted);font-weight:400;font-size:12px;margin-top:2px}
 #tcMenu #tc_status{font-size:13px;min-height:18px;margin-bottom:10px;color:var(--amber);word-break:break-word}
 #tcMenu #tc_head{font-size:12px;color:var(--muted);margin:4px 2px 10px}
 #tcMenu #tc_head b{color:var(--text)}
@@ -705,14 +709,29 @@
   <div class="tc-topbar"><h2>Time card</h2><button id="tc_close" class="tc-x">&#10005;</button></div>
   <div class="tc-wrap">
     <input type="file" id="tc_file" accept="image/*" style="display:none">
-    <button class="tc-pick" id="tc_pick">📷 Scansiona la time card</button>
-    <div id="tc_modeRow" style="display:none">Inserimento:
-      <button type="button" class="tc-mbtn on" data-mode="wheel">Rotelle</button>
-      <button type="button" class="tc-mbtn" data-mode="keyboard">Tastiera</button>
+
+    <!-- LIBRERIA tabelle di marcia salvate -->
+    <div id="tc_lib">
+      <button class="tdm-new" id="tc_new">+ Nuova tabella di marcia</button>
+      <div id="tc_list"></div>
     </div>
-    <div id="tc_status"></div>
-    <div id="tc_head"></div>
-    <div id="tc_out"></div>
+
+    <!-- EDITOR della tabella aperta -->
+    <div id="tc_editor" style="display:none">
+      <div class="tc-editbar">
+        <button class="tdm-back" id="tc_back">&#8592;</button>
+        <input class="tdm-tabname" id="tc_name" type="text" placeholder="Nome tabella">
+        <button class="tc-del" id="tc_delcur" title="Elimina">&#128465;</button>
+      </div>
+      <button class="tc-pick" id="tc_pick">📷 Scansiona pagina <small>(si somma)</small></button>
+      <div id="tc_modeRow" style="display:none">Inserimento:
+        <button type="button" class="tc-mbtn on" data-mode="wheel">Rotelle</button>
+        <button type="button" class="tc-mbtn" data-mode="keyboard">Tastiera</button>
+      </div>
+      <div id="tc_status"></div>
+      <div id="tc_head"></div>
+      <div id="tc_out"></div>
+    </div>
   </div>
 </div>
 <style>
@@ -1412,6 +1431,7 @@ let cfg = {
   ssLib: [],
   ssActive: '',
   tdm: [],
+  tcards: [],
   speak: false,
   autoReset: true,
   lang: null,
@@ -1431,6 +1451,7 @@ try{
     if(!Array.isArray(cfg.rb)) cfg.rb = [];
     if(!Array.isArray(cfg.ssLib)) cfg.ssLib = [];
     if(!Array.isArray(cfg.tdm)) cfg.tdm = [];
+    if(!Array.isArray(cfg.tcards)) cfg.tcards = [];
     // migrazione tipi timbro vecchi -> nuovi (CO->TC, PS->SS, RIO->Regroup out, PARCO->Service in, CT->TC, ARR->Finish)
     var TDM_MAP = {CO:'TC', PS:'SS', RIO:'RGO', PARCO:'SVI', CT:'TC', ARR:'FIN'};
     cfg.tdm = cfg.tdm.map(function(tab){
@@ -2262,7 +2283,7 @@ $('drvTdm').addEventListener('click', ()=>{
   renderTdm();
   $('tdmMenu').classList.add('open');
 });
-$('drvTimecard').addEventListener('click', ()=>{ closeDrawer(); $('tcMenu').classList.add('open'); });
+$('drvTimecard').addEventListener('click', ()=>{ closeDrawer(); $('tcMenu').classList.add('open'); if(window.tcShowLib) window.tcShowLib(); });
 
 /* ================= CALCOLATRICE TEMPO ================= */
 let calc={acc:null,op:null,entry:'',exprDone:''};
@@ -2406,16 +2427,92 @@ requestAnimationFrame(frame);
   const API='https://rally-scan.roberto-dapra5858.workers.dev';
   const $=id=>document.getElementById(id);
   const root=()=>$('tcMenu');
-  let BANDS=[], INPUT_MODE='wheel', lastCard=null, tcMin=5, tcOff=3;
+  let BANDS=[], INPUT_MODE='wheel', lastCard=null, tcMin=5, tcOff=3, curIdx=null, persistTimer=null;
   const manualVals={}, alarmOn={}, tcDue={};
   let lastIds=[], schedTimer=null, permAsked=false;
 
   function setTxt(t){ const s=$('tc_status'); if(s) s.textContent=t; }
   function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
-  $('tc_close').addEventListener('click', ()=> root().classList.remove('open'));
+  $('tc_close').addEventListener('click', ()=>{ persist(); root().classList.remove('open'); });
   ['input','change'].forEach(ev=> root().addEventListener(ev, onChange));
   $('tc_pick').addEventListener('click', ()=> $('tc_file').click());
+  $('tc_new').addEventListener('click', newCard);
+  $('tc_back').addEventListener('click', showLib);
+  $('tc_delcur').addEventListener('click', deleteCur);
+  $('tc_lib').addEventListener('click', e=>{
+    const o=e.target.closest('[data-open]'); if(o){ openCard(+o.getAttribute('data-open')); return; }
+    const d=e.target.closest('[data-del]'); if(d){ const i=+d.getAttribute('data-del'); const nm=(cfg.tcards[i]&&cfg.tcards[i].name)||''; showConfirm('Eliminare la tabella \u201C'+nm+'\u201D?', function(){ cfg.tcards.splice(i,1); saveCfg(); renderLib(); }); }
+  });
+
+  /* ===== LIBRERIA (elenco tabelle salvate + editor) ===== */
+  function showLib(){ persist(); curIdx=null; $('tc_editor').style.display='none'; $('tc_lib').style.display='block'; renderLib(); }
+  function showEditor(){ $('tc_lib').style.display='none'; $('tc_editor').style.display='block'; }
+  window.tcShowLib = showLib;
+
+  function renderLib(){
+    const list=$('tc_list'); if(!list) return;
+    if(!cfg.tcards.length){ list.innerHTML='<div class="tdm-empty">Nessuna tabella salvata.<br>Tocca \u201C+ Nuova tabella di marcia\u201D, poi scansiona tutte le pagine (i TC si sommano).</div>'; return; }
+    let h='';
+    cfg.tcards.forEach((e,i)=>{
+      const n=(e.card&&e.card.legs&&e.card.legs.length)||0;
+      const sub=(e.card&&e.card.rally? esc(e.card.rally)+' \u00b7 ':'')+n+' TC';
+      h+='<div class="tdm-row"><div class="tdm-name" data-open="'+i+'">'+esc(e.name||'(senza nome)')+'<small>'+sub+'</small></div><button class="del" data-del="'+i+'">\uD83D\uDDD1</button></div>';
+    });
+    list.innerHTML=h;
+  }
+
+  function newCard(){
+    askName('', function(name){
+      cfg.tcards.push({ name:name, card:{rally:'',section:'',date:'',legs:[]}, vals:{}, alarms:{}, min:5, off:3 });
+      saveCfg();
+      openCard(cfg.tcards.length-1);
+      setTxt('Scansiona la prima pagina della time card.');
+    });
+  }
+
+  function openCard(idx){
+    const e=cfg.tcards[idx]; if(!e) return;
+    curIdx=idx;
+    if(!e.card||typeof e.card!=='object') e.card={rally:'',section:'',date:'',legs:[]};
+    if(!Array.isArray(e.card.legs)) e.card.legs=[];
+    for(const k in manualVals) delete manualVals[k];
+    for(const k in alarmOn) delete alarmOn[k];
+    Object.assign(manualVals, e.vals||{});
+    Object.assign(alarmOn, e.alarms||{});
+    tcMin=e.min||5; tcOff=(e.off==null?3:e.off);
+    lastCard=e.card;
+    $('tc_name').value=e.name||'';
+    setTxt('');
+    showEditor();
+    render(lastCard);
+  }
+
+  function deleteCur(){
+    if(curIdx==null) return;
+    const nm=(cfg.tcards[curIdx]&&cfg.tcards[curIdx].name)||'';
+    showConfirm('Eliminare la tabella \u201C'+nm+'\u201D?', function(){ cfg.tcards.splice(curIdx,1); saveCfg(); showLib(); });
+  }
+
+  function persist(){
+    if(curIdx==null) return; const e=cfg.tcards[curIdx]; if(!e) return;
+    e.card=lastCard||e.card; e.vals=Object.assign({},manualVals); e.alarms=Object.assign({},alarmOn); e.min=tcMin; e.off=tcOff;
+    saveCfg();
+  }
+  function persistSoon(){ clearTimeout(persistTimer); persistTimer=setTimeout(persist, 350); }
+
+  function sig(L){ return (L.from||'')+'|'+(L.to||'')+'|'+(L.target||'')+'|'+(L.ss||''); }
+  function mergeCard(nc){
+    if(!lastCard) lastCard={rally:'',section:'',date:'',legs:[]};
+    if(!Array.isArray(lastCard.legs)) lastCard.legs=[];
+    if(!lastCard.rally && nc.rally) lastCard.rally=nc.rally;
+    if(!lastCard.section && nc.section) lastCard.section=nc.section;
+    if(!lastCard.date && nc.date) lastCard.date=nc.date;
+    const have={}; lastCard.legs.forEach(L=>{ have[sig(L)]=1; });
+    let added=0;
+    (Array.isArray(nc.legs)?nc.legs:[]).forEach(L=>{ const s=sig(L); if(!have[s]){ lastCard.legs.push(L); have[s]=1; added++; } });
+    return added;
+  }
   $('tc_file').addEventListener('change', async e=>{ const f=e.target.files&&e.target.files[0]; e.target.value=''; if(!f) return; setTxt('\u23F3 Carico la foto\u2026'); try{ const src=await loadImage(f); await scan(src); }catch(err){ setTxt('\u26A0\uFE0F Foto non leggibile: '+err); } });
   root().querySelectorAll('.tc-mbtn').forEach(b=> b.addEventListener('click', ()=>{ INPUT_MODE=b.dataset.mode; root().querySelectorAll('.tc-mbtn').forEach(x=>x.classList.toggle('on', x.dataset.mode===INPUT_MODE)); if(lastCard) render(lastCard); }));
 
@@ -2423,16 +2520,19 @@ requestAnimationFrame(frame);
   function toB64(src,max){ const w=src.width,h=src.height,s=Math.min(1,max/Math.max(w,h)); const c=document.createElement('canvas'); c.width=Math.max(1,Math.round(w*s)); c.height=Math.max(1,Math.round(h*s)); const g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,c.width,c.height); g.drawImage(src,0,0,c.width,c.height); return c.toDataURL('image/jpeg',0.72).split(',')[1]; }
 
   async function scan(src){
-    $('tc_out').innerHTML=''; $('tc_head').textContent='';
-    setTxt('\u23F3 Leggo la time card\u2026');
+    if(curIdx==null) return;
+    setTxt('\u23F3 Leggo la pagina\u2026');
     try{
       const b64=toB64(src,1800);
       const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:b64,mode:'timecard'})});
       const data=await res.json();
       if(data.error){ setTxt('\u26A0\uFE0F '+data.error); return; }
-      if(!data.card){ setTxt('\u26A0\uFE0F Nessun dato letto.'); return; }
-      setTxt('\u2705 Letta. Metti l\u2019Actual start e attiva la \uD83D\uDD14 sui timbri che vuoi.');
-      render(data.card);
+      if(!data.card){ setTxt('\u26A0\uFE0F Nessun dato letto in questa pagina.'); return; }
+      const added=mergeCard(data.card);
+      persist();
+      const tot=(lastCard.legs&&lastCard.legs.length)||0;
+      setTxt('\u2705 Pagina letta: +'+added+' TC (totale '+tot+'). Fotografa le altre pagine oppure metti l\u2019Actual start.');
+      render(lastCard);
     }catch(err){ setTxt('\u26A0\uFE0F Errore di connessione: '+err); }
   }
 
@@ -2449,9 +2549,15 @@ requestAnimationFrame(frame);
 
   function render(card){
     lastCard=card;
+    const legs=Array.isArray(card.legs)?card.legs:[];
+    if(!legs.length){
+      const mr=$('tc_modeRow'); if(mr) mr.style.display='none';
+      $('tc_head').textContent='';
+      $('tc_out').innerHTML='<div class="tdm-empty">Ancora nessun TC.<br>Tocca \u201C\uD83D\uDCF7 Scansiona pagina\u201D e fotografa la time card. Ogni pagina in pi\u00f9 si somma.</div>';
+      return;
+    }
     const mr=$('tc_modeRow'); if(mr) mr.style.display='flex';
     $('tc_head').innerHTML='Rally: <b>'+esc(card.rally||'?')+'</b> \u00b7 Sezione: <b>'+esc(card.section||'?')+'</b> \u00b7 Data: <b>'+esc(card.date||'?')+'</b>';
-    const legs=Array.isArray(card.legs)?card.legs:[];
     function descOf(code){ const L=legs.find(x=>x.from===code); return (L && !L.ss)?(L.desc||''):''; }
     const controls=[];
     if(legs.length){
@@ -2494,15 +2600,16 @@ requestAnimationFrame(frame);
 
   function onChange(e){
     const el=e.target; if(!el) return;
-    if(el.id==='tc_minSel'){ tcMin=parseInt(el.value)||5; recompute(); return; }
-    if(el.id==='tc_offSel'){ tcOff=parseInt(el.value)||0; recompute(); return; }
-    if(el.classList && el.classList.contains('tc-alarm')){ const i=el.getAttribute('data-band'); alarmOn[i]=el.checked; if(el.checked) ensurePerm(); scheduleSoon(); return; }
+    if(el.id==='tc_name'){ if(curIdx!=null && cfg.tcards[curIdx]){ cfg.tcards[curIdx].name=el.value; persistSoon(); } return; }
+    if(el.id==='tc_minSel'){ tcMin=parseInt(el.value)||5; recompute(); persistSoon(); return; }
+    if(el.id==='tc_offSel'){ tcOff=parseInt(el.value)||0; recompute(); persistSoon(); return; }
+    if(el.classList && el.classList.contains('tc-alarm')){ const i=el.getAttribute('data-band'); alarmOn[i]=el.checked; if(el.checked) ensurePerm(); scheduleSoon(); persistSoon(); return; }
     if(el.tagName==='B') return;
     if(el.dataset && el.dataset.role!=null && el.dataset.part!=null){
       let advance=false;
       if(el.tagName==='INPUT'){ const mx=+(el.dataset.max||2); el.value=el.value.replace(/\D/g,'').slice(0,mx); if(e.type==='input' && el.value.length>=mx) advance=true; }
       const s=el.closest('.blk'); if(s){ manualVals[s.getAttribute('data-band')+'|'+el.dataset.role+'|'+el.dataset.part]=el.value; }
-      recompute();
+      recompute(); persistSoon();
       if(advance){ const ins=Array.prototype.slice.call($('tc_out').querySelectorAll('input[data-role]')); const i=ins.indexOf(el); if(i>-1 && i<ins.length-1){ ins[i+1].focus(); try{ins[i+1].select();}catch(_){} } }
     }
   }
