@@ -2442,15 +2442,18 @@ requestAnimationFrame(frame);
   function setTxt(t){ const s=$('tc_status'); if(s) s.textContent=t; }
   function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
-  $('tc_close').addEventListener('click', ()=>{ persist(); root().classList.remove('open'); });
+  window.tcShowLib = showLib;
   ['input','change'].forEach(ev=> root().addEventListener(ev, onChange));
-  $('tc_pick').addEventListener('click', ()=> $('tc_file').click());
-  $('tc_new').addEventListener('click', newCard);
-  $('tc_back').addEventListener('click', showLib);
-  $('tc_delcur').addEventListener('click', deleteCur);
-  $('tc_lib').addEventListener('click', e=>{
-    const o=e.target.closest('[data-open]'); if(o){ openCard(+o.getAttribute('data-open')); return; }
-    const d=e.target.closest('[data-del]'); if(d){ const i=+d.getAttribute('data-del'); const nm=(cfg.tcards[i]&&cfg.tcards[i].name)||''; showConfirm('Eliminare la tabella \u201C'+nm+'\u201D?', function(){ cfg.tcards.splice(i,1); saveCfg(); renderLib(); }); }
+  root().addEventListener('click', function(e){
+    const t=e.target; if(!t||!t.closest) return;
+    if(t.closest('#tc_close')){ persist(); root().classList.remove('open'); return; }
+    if(t.closest('#tc_pick')){ const f=$('tc_file'); if(f) f.click(); return; }
+    if(t.closest('#tc_new')){ newCard(); return; }
+    if(t.closest('#tc_back')){ showLib(); return; }
+    if(t.closest('#tc_delcur')){ deleteCur(); return; }
+    const o=t.closest('[data-open]'); if(o){ openCard(+o.getAttribute('data-open')); return; }
+    const d=t.closest('[data-del]'); if(d){ const i=+d.getAttribute('data-del'); const nm=(cfg.tcards[i]&&cfg.tcards[i].name)||''; showConfirm('Eliminare la tabella \u201C'+nm+'\u201D?', function(){ cfg.tcards.splice(i,1); saveCfg(); renderLib(); }); return; }
+    const mb=t.closest('.tc-mbtn'); if(mb){ INPUT_MODE=mb.dataset.mode; root().querySelectorAll('.tc-mbtn').forEach(x=>x.classList.toggle('on', x.dataset.mode===INPUT_MODE)); if(lastCard) render(lastCard); return; }
   });
 
   /* ===== LIBRERIA (elenco tabelle salvate + editor) ===== */
