@@ -2453,11 +2453,20 @@ applyTheme();
 applyMode();
 applyLayout();
 requestAnimationFrame(frame);
+
+/* ===== PONTE verso la schermata Scanner (IIFE separato) ===== */
+window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askName:askName, showConfirm:showConfirm };
 })();
 </script>
 <script>
 /* ===== TIME CARD (schermata isolata: IIFE separato, non tocca l'app) ===== */
 (function(){
+  const __b = window.__rallyBridge || {};
+  const cfg = __b.getCfg ? __b.getCfg() : (window.cfg || { tcards:[] });
+  const saveCfg = __b.saveCfg || function(){};
+  const askName = __b.askName || function(p,cb){ if(cb) cb(''); };
+  const showConfirm = __b.showConfirm || function(m,cb){ if(cb) cb(); };
+  if(!cfg.tcards || !Array.isArray(cfg.tcards)) cfg.tcards = [];
   const API='https://rally-scan.roberto-dapra5858.workers.dev';
   const $=id=>document.getElementById(id);
   const root=()=>$('tcMenu');
