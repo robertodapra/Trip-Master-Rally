@@ -715,6 +715,7 @@
     <div id="tc_lib">
       <button class="tdm-new" id="tc_new">+ Nuova tabella di marcia</button>
       <div id="tc_list"></div>
+      <div style="text-align:center;color:#777;font-size:11px;margin-top:12px;line-height:1.5">build&nbsp;lib3<br>Se qui sopra NON vedi &ldquo;Nessuna tabella salvata&rdquo;, guarda il riquadro rosso in basso.</div>
     </div>
 
     <!-- EDITOR della tabella aperta -->
@@ -879,6 +880,31 @@
 </div>
 
 <script>
+/* === SPIA ERRORI (mostra a schermo l'errore vero, non "Script error.") === */
+(function(){
+  function showErr(m){
+    if(!document.body){ document.addEventListener('DOMContentLoaded',function(){showErr(m);}); return; }
+    var b=document.getElementById('__errbox');
+    if(!b){
+      b=document.createElement('div'); b.id='__errbox';
+      b.style.cssText='position:fixed;left:0;right:0;bottom:0;max-height:45%;overflow:auto;z-index:2147483647;background:#3a0000;color:#ffd6d6;font:12px ui-monospace,monospace;padding:10px;white-space:pre-wrap;border-top:3px solid #ff5555';
+      var x=document.createElement('button'); x.textContent='chiudi'; x.style.cssText='position:sticky;top:0;float:right;background:#ff5555;color:#000;border:0;border-radius:6px;padding:5px 10px;font-weight:800';
+      x.onclick=function(){ b.style.display='none'; };
+      document.body.appendChild(b); b.appendChild(x);
+    }
+    var p=document.createElement('div'); p.textContent=m; b.appendChild(p); b.style.display='block';
+  }
+  window.addEventListener('error', function(e){
+    var m=(e&&e.message)||'errore sconosciuto';
+    if(e&&e.filename) m+=' @'+String(e.filename).split('/').pop()+':'+e.lineno+':'+e.colno;
+    if(e&&e.error&&e.error.stack) m+='\n'+e.error.stack;
+    showErr('JS: '+m);
+  });
+  window.addEventListener('unhandledrejection', function(e){
+    var r=e&&e.reason; showErr('PROMISE: '+((r&&(r.stack||r.message))||r||'?'));
+  });
+})();
+/* === fine spia errori === */
 (function(){
 'use strict';
 
