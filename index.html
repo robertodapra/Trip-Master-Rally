@@ -459,6 +459,18 @@
   .setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;font-size:14px}
   .setting-row select{padding:10px;background:var(--inputbg);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:15px}
   .setting-row input[type=checkbox]{width:24px;height:24px}
+  .g-lead{color:var(--muted);font-size:13px;margin:0 0 12px}
+  #guideAcc{margin-bottom:14px}
+  .gsec{border:1px solid var(--line);border-radius:10px;margin-bottom:8px;overflow:hidden;background:var(--panel)}
+  .gsec-h{width:100%;text-align:left;background:transparent;border:0;color:var(--text);font-size:15px;font-weight:700;padding:13px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .gsec-h::after{content:'\25B8';color:var(--muted);font-size:16px;transition:transform .15s ease}
+  .gsec.open .gsec-h::after{transform:rotate(90deg)}
+  .gsec-b{display:none;padding:2px 14px 14px;font-size:14px;line-height:1.55;color:var(--text)}
+  .gsec.open .gsec-b{display:block}
+  .gsec-b b{color:var(--green);font-weight:700}
+  .gsec-b ul{margin:8px 0 0;padding-left:20px}
+  .gsec-b li{margin:6px 0}
+  .gsec-b .tip{color:var(--muted);font-style:italic;margin-top:10px;font-size:13px}
   .font-preview{margin:-6px 0 14px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--inputbg);color:var(--green);font-size:26px;font-weight:800;text-align:center;letter-spacing:.06em;font-variant-numeric:tabular-nums;overflow:hidden;white-space:nowrap}
 
   #rbImport{
@@ -598,13 +610,113 @@
 <!-- ============ GUIDA ============ -->
 <div class="overlay" id="intro">
   <h2 data-t="introTitle"></h2>
-  <div class="grow"><span class="gbadge" data-t="totalShort"></span><p data-t="gTotal"></p></div>
-  <div class="grow"><span class="gbadge" data-t="partialLabel"></span><p data-t="gPartial"></p></div>
-  <div class="grow"><span class="gbadge">➡️ <span data-t="thNote"></span></span><p data-t="gNote"></p></div>
-  <div class="grow"><span class="gbadge">Radar</span><p data-t="gRb"></p></div>
-  <div class="grow"><span class="gbadge" data-t="tunnelLabel"></span><p data-t="gTunnel"></p></div>
-  <div class="grow"><span class="gbadge">GPS</span><p data-t="intro4"></p></div>
-  <div class="grow"><span class="gbadge">☰ <span data-t="drawerTitle"></span></span><p data-t="gMenu"></p></div>
+  <p class="g-lead">Tutto quello che serve, diviso per sezione. Tocca un titolo per aprirlo.</p>
+  <div id="guideAcc">
+
+    <div class="gsec open">
+      <button class="gsec-h">☰ Menu e modalità</button>
+      <div class="gsec-b">
+        Tocca <b>☰</b> in alto per aprire il menu. Da lì scegli cosa usare:
+        <ul>
+          <li><b>Pilota</b> — legge parole/note ai metri che imposti.</li>
+          <li><b>Navigatore (Trip)</b> — contachilometri parziale e velocità.</li>
+          <li><b>Radar</b> — note del road book, con scansione.</li>
+          <li><b>Scanner tabella di marcia</b> — le time card, fotografate e con le sveglie.</li>
+          <li><b>Tabella di marcia manuale</b> — la stessa cosa, ma scritta a mano.</li>
+          <li><b>Impostazioni</b> e <b>Guida</b> (questa).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="gsec">
+      <button class="gsec-h">🏁 Pilota</button>
+      <div class="gsec-b">
+        Nella tabella imposti una <b>parola o nota</b> e il <b>range di metri</b> in cui deve comparire.
+        Durante il tratto, quando il contametri entra nel range, l'app mostra la nota (e la <b>legge a voce</b> se attivi l'interruttore).
+        Azzera il contatore alla partenza del tratto.
+        <div class="tip">Se hai un telecomando Bluetooth compatibile puoi dare il parziale senza toccare lo schermo.</div>
+      </div>
+    </div>
+
+    <div class="gsec">
+      <button class="gsec-h">🧭 Navigatore / Trip</button>
+      <div class="gsec-b">
+        Mostra un <b>parziale sempre attivo</b>, la <b>velocità</b> e la <b>qualità del GPS</b>.
+        In galleria attiva la <b>modalità Tunnel</b>: l'app continua a stimare la distanza anche senza segnale.
+        Tieni premuto sul parziale per azzerarlo.
+      </div>
+    </div>
+
+    <div class="gsec">
+      <button class="gsec-h">📡 Radar (road book)</button>
+      <div class="gsec-b">
+        <ul>
+          <li>Tocca <b>+</b> per creare una prova: scrivi il nome, fotografa la pagina del radar e l'app la legge e la salva da sola.</li>
+          <li>Tocca una prova salvata per <b>caricarla</b>.</li>
+          <li>In gara <b>azzera il TOTALE</b> alla partenza (tieni premuto 2 secondi).</li>
+          <li>Tieni premuto sul <b>PARZIALE</b> per azzerare i metri e passare <b>subito al simbolo successivo</b> (azzera i metri mancanti o in più).</li>
+          <li>Per ogni riferimento vedi <b>numero</b>, <b>foto</b> del tratto e <b>metri mancanti</b> al successivo. Le frecce scorrono senza toccare il totale.</li>
+        </ul>
+        <div class="tip">Fotografa la pagina dritta e ben illuminata.</div>
+      </div>
+    </div>
+
+    <div class="gsec">
+      <button class="gsec-h">📋 Scanner tabella di marcia</button>
+      <div class="gsec-b">
+        <ul>
+          <li>Tocca <b>+ Nuova tabella di marcia</b> e dai il <b>nome che vuoi</b>.</li>
+          <li>Fotografa <b>tutte le pagine</b>: i <b>TC si sommano</b>. Così a inizio gara scansioni tutto e controlli che ci siano tutti i controlli.</li>
+          <li>Metti l'<b>Actual start</b> (ora reale di partenza): i tempi <b>teorici si calcolano da soli</b>.</li>
+          <li>Se una PS parte in ritardo, i <b>timbri successivi si spostano</b> in automatico.</li>
+          <li>Attiva la <b>🔔</b> sui controlli che vuoi come sveglia e scegli i <b>minuti prima</b>.</li>
+          <li>In gara apri solo il <b>file col nome</b>: ritrovi tutto già pronto.</li>
+        </ul>
+        <div class="tip">Tutto è salvato nel telefono ed è incluso nel backup.</div>
+      </div>
+    </div>
+
+    <div class="gsec">
+      <button class="gsec-h">✍️ Tabella di marcia manuale</button>
+      <div class="gsec-b">
+        Come sopra, ma la costruisci a mano quando non puoi scansionare.
+        <ul>
+          <li>Tocca <b>+</b>, dai un nome (una tabella per sezione).</li>
+          <li>Imposta l'orario di partenza e aggiungi i timbri con <b>+ Aggiungi timbro</b>.</li>
+          <li>Per ogni timbro scegli tipo, località e minuti di tempo imposto: l'ora teorica si somma da sola.</li>
+          <li>In gara scrivi l'ora reale a cui timbri: l'app calcola il ritardo e sposta i teorici successivi.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="gsec">
+      <button class="gsec-h">🔔 Sveglie e notifiche</button>
+      <div class="gsec-b">
+        Quando attivi la 🔔 su un controllo, è <b>iOS</b> a tenere la sveglia: suona anche a <b>schermo spento</b> e ad <b>app chiusa</b>.
+        <ul>
+          <li>Serve il <b>permesso notifiche</b> attivo (l'app lo chiede la prima volta).</li>
+          <li>Le sveglie si (ri)programmano <b>quando l'app è aperta</b>: se ci sono ritardi che spostano i timbri, <b>riapri un attimo l'app</b> così si aggiornano.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="gsec">
+      <button class="gsec-h">💾 Backup (importante)</button>
+      <div class="gsec-b">
+        I dati stanno nel telefono e iOS <b>può cancellarli</b> se ha bisogno di spazio.
+        Prima delle gare fai <b>Impostazioni → Esporta</b> e salva il file. Per rimetterli usa <b>Importa</b>.
+        Il backup contiene <b>tutto</b>: prove radar, tabelle, sveglie e impostazioni.
+      </div>
+    </div>
+
+    <div class="gsec">
+      <button class="gsec-h">⚙️ Impostazioni</button>
+      <div class="gsec-b">
+        Da qui cambi <b>lingua</b>, <b>unità</b> (km/mi), <b>stile e dimensione dei numeri</b> (con anteprima dal vivo), <b>tema</b> e formato orario 12/24.
+      </div>
+    </div>
+
+  </div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
 </div>
@@ -673,6 +785,9 @@
 #tcMenu .tc-editbar{display:flex;align-items:center;gap:8px;margin-bottom:12px}
 #tcMenu .tc-del{background:var(--btnbg);border:1px solid var(--line);color:var(--red);border-radius:8px;width:40px;height:36px;font-size:18px;flex-shrink:0}
 #tcMenu #tc_list .tdm-name small{display:block;color:var(--muted);font-weight:400;font-size:12px;margin-top:2px}
+#tcMenu #tc_list .tdm-row{display:flex;align-items:center;gap:8px}
+#tcMenu .tc-libbell{background:var(--btnbg);border:1px solid var(--line);border-radius:8px;width:42px;height:36px;font-size:16px;flex-shrink:0;opacity:.45}
+#tcMenu .tc-libbell.on{opacity:1;border-color:var(--green)}
 #tcMenu #tc_status{font-size:13px;min-height:18px;margin-bottom:10px;color:var(--amber);word-break:break-word}
 #tcMenu #tc_head{font-size:12px;color:var(--muted);margin:4px 2px 10px}
 #tcMenu #tc_head b{color:var(--text)}
@@ -715,7 +830,7 @@
     <div id="tc_lib">
       <button class="tdm-new" id="tc_new">+ Nuova tabella di marcia</button>
       <div id="tc_list"></div>
-      <div style="text-align:center;color:#777;font-size:11px;margin-top:12px;line-height:1.5">build&nbsp;lib3<br>Se qui sopra NON vedi &ldquo;Nessuna tabella salvata&rdquo;, guarda il riquadro rosso in basso.</div>
+      <div style="text-align:center;color:#777;font-size:11px;margin-top:12px;line-height:1.5">build&nbsp;lib4<br>Se qui sopra NON vedi &ldquo;Nessuna tabella salvata&rdquo;, guarda il riquadro rosso in basso.</div>
     </div>
 
     <!-- EDITOR della tabella aperta -->
@@ -1985,6 +2100,7 @@ $('drvInfo').addEventListener('click', ()=>{
   $('hideIntro').checked = cfg.hideIntro;
   $('intro').classList.add('open');
 });
+$('guideAcc').addEventListener('click', e=>{ const h=e.target.closest('.gsec-h'); if(h && h.parentElement) h.parentElement.classList.toggle('open'); });
 
 /* ================= MENU PILOTA ================= */
 const tblBody = $('tblBody');
@@ -2487,7 +2603,8 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
     if(t.closest('#tc_back')){ showLib(); return; }
     if(t.closest('#tc_delcur')){ deleteCur(); return; }
     const o=t.closest('[data-open]'); if(o){ openCard(+o.getAttribute('data-open')); return; }
-    const d=t.closest('[data-del]'); if(d){ const i=+d.getAttribute('data-del'); const nm=(cfg.tcards[i]&&cfg.tcards[i].name)||''; showConfirm('Eliminare la tabella \u201C'+nm+'\u201D?', function(){ cfg.tcards.splice(i,1); saveCfg(); renderLib(); }); return; }
+    const nb=t.closest('[data-notif]'); if(nb){ toggleNotif(+nb.getAttribute('data-notif')); return; }
+    const d=t.closest('[data-del]'); if(d){ const i=+d.getAttribute('data-del'); const nm=(cfg.tcards[i]&&cfg.tcards[i].name)||''; showConfirm('Eliminare la tabella \u201C'+nm+'\u201D?', function(){ const e=cfg.tcards[i]; if(e){ e.notify=false; scheduleEntry(e); } cfg.tcards.splice(i,1); saveCfg(); renderLib(); }); return; }
     const mb=t.closest('.tc-mbtn'); if(mb){ INPUT_MODE=mb.dataset.mode; root().querySelectorAll('.tc-mbtn').forEach(x=>x.classList.toggle('on', x.dataset.mode===INPUT_MODE)); if(lastCard) render(lastCard); return; }
   });
 
@@ -2496,14 +2613,25 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
   function showEditor(){ const lb=$('tc_lib'); if(lb) lb.style.display='none'; const ed=$('tc_editor'); if(ed) ed.style.display='block'; }
   window.tcShowLib = showLib;
 
+  function toggleNotif(i){
+    const e=cfg.tcards[i]; if(!e) return;
+    e.notify=!e.notify;
+    if(e.notify){ if(!e.nid){ cfg.tcNidSeq=(cfg.tcNidSeq||0)+1; e.nid=(cfg.tcNidSeq%2000)+1; } ensurePerm(); }
+    saveCfg();
+    scheduleEntry(e);
+    renderLib();
+  }
+
   function renderLib(){
     const list=$('tc_list'); if(!list) return;
     if(!cfg.tcards.length){ list.innerHTML='<div class="tdm-empty">Nessuna tabella salvata.<br>Tocca \u201C+ Nuova tabella di marcia\u201D, poi scansiona tutte le pagine (i TC si sommano).</div>'; return; }
     let h='';
     cfg.tcards.forEach((e,i)=>{
       const n=(e.card&&e.card.legs&&e.card.legs.length)||0;
-      const sub=(e.card&&e.card.rally? esc(e.card.rally)+' \u00b7 ':'')+n+' TC';
-      h+='<div class="tdm-row"><div class="tdm-name" data-open="'+i+'">'+esc(e.name||'(senza nome)')+'<small>'+sub+'</small></div><button class="del" data-del="'+i+'">\uD83D\uDDD1</button></div>';
+      const sub=(e.card&&e.card.rally? esc(e.card.rally)+' \u00b7 ':'')+n+' TC'+(e.notify?' \u00b7 \uD83D\uDD14':'');
+      h+='<div class="tdm-row"><div class="tdm-name" data-open="'+i+'">'+esc(e.name||'(senza nome)')+'<small>'+sub+'</small></div>'
+        +'<button class="tc-libbell'+(e.notify?' on':'')+'" data-notif="'+i+'" title="Sveglie">'+(e.notify?'\uD83D\uDD14':'\uD83D\uDD15')+'</button>'
+        +'<button class="del" data-del="'+i+'">\uD83D\uDDD1</button></div>';
     });
     list.innerHTML=h;
   }
@@ -2671,7 +2799,7 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
     const off=tcOff;
     const start=(readHM(0,'actualStart')!=null)?readHM(0,'actualStart'):readHM(0,'dueStart');
     for(const k in tcDue) delete tcDue[k];
-    if(start==null){ BANDS.forEach((b,i)=>{ if(i>0){ setHM(i,'dueTime',null); if(b.kind==='ss') setHM(i,'provStart',null); } }); scheduleSoon(); return; }
+    if(start==null){ BANDS.forEach((b,i)=>{ if(i>0){ setHM(i,'dueTime',null); if(b.kind==='ss') setHM(i,'provStart',null); } }); if(curIdx!=null && cfg.tcards[curIdx]) cfg.tcards[curIdx].sched=[]; scheduleSoon(); return; }
     let ideal=start, D=0;
     for(let i=1;i<BANDS.length;i++){
       const b=BANDS[i]; const tg=tmin(b.target); const t=isNaN(tg)?0:tg;
@@ -2681,29 +2809,36 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
         ideal=ssIdeal+t; setHM(i,'dueTime',ideal+D); tcDue[i]=ideal+D;
       } else { ideal=ideal+t; setHM(i,'dueTime',ideal+D); tcDue[i]=ideal+D; }
     }
+    if(curIdx!=null && cfg.tcards[curIdx]){
+      const sc=[]; BANDS.forEach((b,i)=>{ if(i>0 && alarmOn[i] && tcDue[i]!=null) sc.push({band:i, code:b.code, due:tcDue[i]}); });
+      cfg.tcards[curIdx].sched=sc;
+    }
     scheduleSoon();
   }
 
   /* ===== SVEGLIA: notifiche locali native (Capacitor) ===== */
   function LN(){ return (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) || null; }
   async function ensurePerm(){ const ln=LN(); if(!ln) return false; if(permAsked) return true; permAsked=true; try{ await ln.requestPermissions(); return true; }catch(e){ return false; } }
-  function scheduleSoon(){ clearTimeout(schedTimer); schedTimer=setTimeout(schedule, 500); }
-  async function schedule(){
+  function scheduleSoon(){ clearTimeout(schedTimer); schedTimer=setTimeout(scheduleOpen, 500); }
+  function scheduleOpen(){ if(curIdx==null) return; const e=cfg.tcards[curIdx]; if(!e) return; e.min=tcMin; scheduleEntry(e); }
+  async function scheduleEntry(e){
+    if(!e) return;
     const ln=LN(); if(!ln) return;
-    try{ if(lastIds.length){ await ln.cancel({notifications:lastIds.map(id=>({id}))}); } }catch(e){}
-    lastIds=[];
-    const mins=tcMin, now=new Date(), notifs=[];
-    BANDS.forEach((b,i)=>{
-      if(i===0 || !alarmOn[i]) return;
-      const due=tcDue[i]; if(due==null) return;
-      const fm=due-mins; if(fm<0) return;
+    try{ if(e.sids && e.sids.length){ await ln.cancel({notifications:e.sids.map(id=>({id}))}); } }catch(_){}
+    e.sids=[];
+    if(!e.notify){ saveCfg(); return; }
+    const mins=e.min||5, now=new Date(), notifs=[], base=(e.nid||1)*1000;
+    (e.sched||[]).forEach(s=>{
+      if(s.due==null) return;
+      const fm=s.due-mins; if(fm<0) return;
       const fire=new Date(now); fire.setHours(Math.floor(fm/60), fm%60, 0, 0);
       if(fire.getTime() <= now.getTime()+3000) return;
-      const id=9000+(+i);
-      lastIds.push(id);
-      notifs.push({ id:id, title:'iRally \u2014 sveglia timbro', body:'Tra '+mins+' min: '+b.code+' \u2014 timbri alle '+fmt(due), sound:'default', schedule:{ at: fire } });
+      const id=base+(+s.band);
+      e.sids.push(id);
+      notifs.push({ id:id, title:'iRally \u2014 sveglia timbro', body:'Tra '+mins+' min: '+s.code+' \u2014 timbri alle '+fmt(s.due), sound:'default', schedule:{ at: fire } });
     });
-    if(notifs.length){ try{ await ln.schedule({notifications:notifs}); }catch(e){} }
+    if(notifs.length){ try{ await ln.schedule({notifications:notifs}); }catch(_){} }
+    saveCfg();
   }
 })();
 </script>
