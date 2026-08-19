@@ -796,6 +796,19 @@
 #tcMenu .tc-mbtn.on{border-color:var(--green);color:var(--green)}
 #tcMenu .tc-set{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin-bottom:10px;flex-wrap:wrap}
 #tcMenu .tc-set select{padding:6px 8px;border-radius:8px;border:1px solid var(--amber);background:var(--panel);color:var(--amber);font-size:15px;font-weight:800}
+#tcMenu .tc-editbtn{margin-left:auto;padding:6px 11px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--muted);font-size:13px;font-weight:700}
+#tcMenu .tc-editbtn.on{border-color:var(--amber);color:var(--amber)}
+#tcMenu #tc_out.tcedit .tgt{outline:2px dashed var(--amber);outline-offset:2px;border-radius:5px;cursor:pointer}
+.tc-emodal{position:fixed;inset:0;z-index:2147483000;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:20px}
+.tc-ebox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;width:100%;max-width:320px}
+.tc-etitle{font-size:16px;font-weight:800;margin-bottom:6px;color:var(--text)}
+.tc-esub{font-size:13px;color:var(--muted);margin-bottom:12px}
+.tc-einput{width:100%;box-sizing:border-box;padding:12px;font-size:22px;text-align:center;letter-spacing:2px;border:2px solid var(--amber);border-radius:10px;background:var(--inputbg);color:var(--text);font-weight:800}
+.tc-ehint{font-size:11px;color:var(--muted);margin:8px 0 14px}
+.tc-ebtns{display:flex;gap:10px}
+.tc-ebtns button{flex:1;padding:11px;border-radius:10px;font-size:14px;font-weight:700;border:1px solid var(--line)}
+.tc-ecancel{background:var(--btnbg);color:var(--text)}
+.tc-eok{background:var(--green);color:#000;border-color:var(--green)}
 #tcMenu .card{background:#f7f7f4;color:#141414;border-radius:10px;padding:10px;box-shadow:0 2px 10px rgba(0,0,0,.4)}
 #tcMenu .blk{border:1px solid #b9b9b3;border-radius:8px;padding:9px;margin-bottom:11px}
 #tcMenu .blkhead{display:flex;align-items:center;gap:8px;margin-bottom:9px;flex-wrap:wrap}
@@ -2752,7 +2765,7 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
   const API='https://rally-scan.roberto-dapra5858.workers.dev';
   const $=id=>document.getElementById(id);
   const root=()=>$('tcMenu');
-  let BANDS=[], INPUT_MODE='wheel', lastCard=null, tcMin=5, tcOff=3, curIdx=null, persistTimer=null;
+  let BANDS=[], INPUT_MODE='wheel', lastCard=null, tcMin=5, tcOff=3, curIdx=null, persistTimer=null, editMode=false;
   const manualVals={}, alarmOn={}, tcDue={};
   let lastIds=[], schedTimer=null, permAsked=false;
 
@@ -2772,6 +2785,8 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
     const nb=t.closest('[data-notif]'); if(nb){ toggleNotif(+nb.getAttribute('data-notif')); return; }
     const d=t.closest('[data-del]'); if(d){ const i=+d.getAttribute('data-del'); const nm=(cfg.tcards[i]&&cfg.tcards[i].name)||''; showConfirm('Eliminare la tabella \u201C'+nm+'\u201D?', function(){ const e=cfg.tcards[i]; if(e){ e.notify=false; scheduleEntry(e); } cfg.tcards.splice(i,1); saveCfg(); renderLib(); }); return; }
     const mb=t.closest('.tc-mbtn'); if(mb){ INPUT_MODE=mb.dataset.mode; root().querySelectorAll('.tc-mbtn').forEach(x=>x.classList.toggle('on', x.dataset.mode===INPUT_MODE)); if(lastCard) render(lastCard); return; }
+    if(t.closest('#tc_editbtn')){ toggleEdit(); return; }
+    const tg=t.closest('.tgt[data-tgt]'); if(tg){ if(editMode) editTarget(+tg.getAttribute('data-tgt')); return; }
   });
 
   /* ===== LIBRERIA (elenco tabelle salvate + editor) ===== */
@@ -2821,6 +2836,7 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
     Object.assign(manualVals, e.vals||{});
     Object.assign(alarmOn, e.alarms||{});
     tcMin=e.min||5; tcOff=(e.off==null?3:e.off);
+    editMode=false;
     lastCard=e.card;
     const nmEl=$('tc_name'); if(nmEl) nmEl.value=e.name||'';
     setTxt('');
@@ -2882,10 +2898,49 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
   function field(role,k){ const max=(k==='t')?1:2; if(INPUT_MODE==='keyboard'){ return '<input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="'+max+'" data-max="'+max+'" data-role="'+role+'" data-part="'+k+'">'; } return '<select data-role="'+role+'" data-part="'+k+'">'+optsFor(k)+'</select>'; }
   function selBox(role,parts){ let h='<span class="boxes">'; parts.forEach((p,idx)=>{ if(idx)h+='<span class="sep"></span>'; h+=field(role,p.k); }); return h+'</span>'; }
   function autoBox(role,n){ let h='<span class="boxes auto">'; for(let i=0;i<n;i++){ if(i)h+='<span class="sep"></span>'; h+='<b data-role="'+role+'" data-part="'+(i===0?'h':'m')+'">--</b>'; } return h+'</span>'; }
-  function tgtBox(v){ const p=String(v||'').split(':'); return '<span class="boxes tgt"><b>'+esc(p[0]||'--')+'</b><span class="sep"></span><b>'+esc(p[1]||'--')+'</b></span>'; }
+  function tgtBox(v,band){ const p=String(v||'').split(':'); return '<span class="boxes tgt" data-tgt="'+band+'"><b>'+esc(p[0]||'--')+'</b><span class="sep"></span><b>'+esc(p[1]||'--')+'</b></span>'; }
   const HM=[{k:'h'},{k:'m'}], HMST=[{k:'h'},{k:'m'},{k:'s'},{k:'t'}], MST=[{k:'m'},{k:'s'},{k:'t'}];
   function cell(lab,inner,sub){ return '<div class="cell"><span class="lab">'+esc(lab)+'</span>'+inner+(sub?'<span class="sub">'+esc(sub)+'</span>':'')+'</div>'; }
   function arrow(){ return '<span class="arrow">\u25B6</span>'; }
+
+  function toggleEdit(){ editMode=!editMode; const o=$('tc_out'); if(o) o.classList.toggle('tcedit', editMode); const b=document.getElementById('tc_editbtn'); if(b) b.classList.toggle('on', editMode); }
+
+  function normTarget(s){
+    s=String(s||'').replace(/[^0-9]/g,'');
+    if(!s.length) return null;
+    let hh,mm;
+    if(s.length<=2){ hh=0; mm=parseInt(s,10); }
+    else { mm=parseInt(s.slice(-2),10); hh=parseInt(s.slice(0,-2),10); }
+    if(isNaN(hh)||isNaN(mm)||mm>59||hh>23) return null;
+    return (hh<10?'0':'')+hh+':'+(mm<10?'0':'')+mm;
+  }
+
+  function editTarget(band){
+    if(!lastCard || !Array.isArray(lastCard.legs)) return;
+    const leg=lastCard.legs[band-1]; if(!leg) return;
+    const code=(BANDS[band]&&BANDS[band].code)||'';
+    const cur=leg.target||'';
+    const ov=document.createElement('div'); ov.className='tc-emodal';
+    ov.innerHTML='<div class="tc-ebox">'
+      +'<div class="tc-etitle">Correggi tempo imposto</div>'
+      +'<div class="tc-esub">'+esc(code)+' \u00b7 letto dallo scanner: <b>'+esc(cur||'--:--')+'</b></div>'
+      +'<input class="tc-einput" inputmode="numeric" placeholder="hh:mm" value="'+esc(cur)+'">'
+      +'<div class="tc-ehint">Correggi solo se lo scanner ha letto male. Ore:minuti, es. 01:03.</div>'
+      +'<div class="tc-ebtns"><button class="tc-ecancel">Annulla</button><button class="tc-eok">Conferma</button></div>'
+      +'</div>';
+    document.body.appendChild(ov);
+    const inp=ov.querySelector('.tc-einput');
+    try{ inp.focus(); inp.select(); }catch(_){}
+    function close(){ try{ document.body.removeChild(ov); }catch(_){} }
+    ov.addEventListener('click', e=>{ if(e.target===ov) close(); });
+    ov.querySelector('.tc-ecancel').addEventListener('click', close);
+    ov.querySelector('.tc-eok').addEventListener('click', ()=>{
+      const nv=normTarget(inp.value);
+      if(nv==null){ inp.style.borderColor='#ff5555'; return; }
+      if(nv!==cur){ leg.target=nv; persist(); render(lastCard); }
+      close();
+    });
+  }
 
   function render(card){
     lastCard=card;
@@ -2908,7 +2963,7 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
 
     let minOpts=''; for(let m=1;m<=30;m++){ minOpts+='<option value="'+m+'"'+(m===tcMin?' selected':'')+'>'+m+'</option>'; }
     let offOpts=''; for(let m=0;m<=20;m++){ offOpts+='<option value="'+m+'"'+(m===tcOff?' selected':'')+'>'+m+'</option>'; }
-    let h='<div class="tc-set">\uD83D\uDD14 Sveglia <select id="tc_minSel">'+minOpts+'</select> min prima \u00b7 Start SS: timbro +<select id="tc_offSel">'+offOpts+'</select> min</div>';
+    let h='<div class="tc-set">\uD83D\uDD14 Sveglia <select id="tc_minSel">'+minOpts+'</select> min prima \u00b7 Start SS: timbro +<select id="tc_offSel">'+offOpts+'</select> min<button id="tc_editbtn" class="tc-editbtn'+(editMode?' on':'')+'">\u270F\uFE0F Modifica</button></div>';
     h+='<div class="card">';
     controls.forEach((b,i)=>{
       h+='<div class="blk" data-band="'+i+'"><div class="blkhead"><span class="tcc">'+esc(b.code||'\u2014')+'</span>'
@@ -2921,15 +2976,15 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
       } else if(b.kind==='ss'){
         h+='<div class="cellrow">'+cell('Finish time',selBox('finish',HMST))+'</div>';
         h+='<div class="cellrow">'+cell('Provisional start',autoBox('provStart',2))+arrow()+cell('Actual start',selBox('ssStart',HM))+'</div>';
-        h+='<div class="cellrow">'+cell('Target time',tgtBox(b.target))+cell('Due time',autoBox('dueTime',2),b.code)+'</div>';
+        h+='<div class="cellrow">'+cell('Target time',tgtBox(b.target,i))+cell('Due time',autoBox('dueTime',2),b.code)+'</div>';
         h+='<div class="cellrow">'+cell('Time taken',selBox('taken',MST))+cell('Ora timbro',selBox('stamp',HM),b.code)+'</div>';
       } else {
-        h+='<div class="cellrow">'+cell('Target time',tgtBox(b.target))+cell('Due time',autoBox('dueTime',2),b.code)+cell('Ora timbro',selBox('stamp',HM),b.code)+'</div>';
+        h+='<div class="cellrow">'+cell('Target time',tgtBox(b.target,i))+cell('Due time',autoBox('dueTime',2),b.code)+cell('Ora timbro',selBox('stamp',HM),b.code)+'</div>';
       }
       h+='</div>';
     });
     h+='</div>';
-    const outEl=$('tc_out'); if(outEl) outEl.innerHTML=h;
+    const outEl=$('tc_out'); if(outEl){ outEl.innerHTML=h; outEl.classList.toggle('tcedit', editMode); }
     restoreVals();
     recompute();
   }
