@@ -104,6 +104,16 @@
     return c.toDataURL('image/jpeg', 0.72).split(',')[1];
   }
 
+  let timerInt = null, t0 = 0;
+  function startTimer(){
+    t0 = Date.now(); stopTimer();
+    timerInt = setInterval(()=>{
+      const s = Math.round((Date.now()-t0)/1000);
+      setStatus('⏳ In attesa del worker… ' + s + 's  (l\'AI può metterci 10-40s)');
+    }, 1000);
+  }
+  function stopTimer(){ if(timerInt){ clearInterval(timerInt); timerInt = null; } }
+
   async function run(src, fileObj){
     const mode = $('mode').value;
     try{ $('prev').src = URL.createObjectURL(fileObj); $('prev').style.display = 'block'; }catch(e){}
@@ -111,22 +121,34 @@
     $('raw').style.display = 'none';
     $('cardHead').textContent = '';
     $('tblBody').innerHTML = '';
-    setStatus('⏳ Invio al worker e lettura in corso…');
+    startTimer();
+    const ctrl = new AbortController();
+    const killer = setTimeout(()=> ctrl.abort(), 90000);
     try{
       const b64 = toB64(src, 1800);
       const res = await fetch(API, {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({ image: b64, mode })
+        body: JSON.stringify({ image: b64, mode }),
+        signal: ctrl.signal
       });
-      const data = await res.json();
+      clearTimeout(killer); stopTimer();
+      const txt = await res.text();
+      let data = null; try{ data = JSON.parse(txt); }catch(_){}
       $('raw').style.display = 'block';
-      $('raw').textContent = JSON.stringify(data, null, 2);
+      $('raw').textContent = data ? JSON.stringify(data, null, 2) : ('HTTP ' + res.status + '\n\n' + txt.slice(0, 2000));
+      if(!res.ok){ setStatus('⚠️ Il worker ha risposto con errore HTTP ' + res.status + ' (vedi sotto)'); return; }
+      if(!data){ setStatus('⚠️ Il worker ha risposto ma NON in JSON (vedi sotto)'); return; }
       if(data.error){ setStatus('⚠️ ' + data.error); return; }
       setStatus('✅ Letto (modello: ' + (data.model || '?') + ')');
       if(mode === 'timecard' && data.card){ renderCard(data.card); }
     }catch(err){
-      setStatus('⚠️ Errore di connessione al worker: ' + err);
+      clearTimeout(killer); stopTimer();
+      if(err && err.name === 'AbortError'){
+        setStatus('⚠️ Timeout: nessuna risposta dal worker entro 90s. Probabile worker/Gemini sovraccarico o non deployato.');
+      } else {
+        setStatus('⚠️ Errore di rete/CORS: ' + err + '  — il worker potrebbe essere offline o non permettere questo sito.');
+      }
     }
   }
 
