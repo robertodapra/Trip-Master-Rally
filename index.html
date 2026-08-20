@@ -798,6 +798,20 @@
 #tcMenu .tc-set select{padding:6px 8px;border-radius:8px;border:1px solid var(--amber);background:var(--panel);color:var(--amber);font-size:15px;font-weight:800}
 #tcMenu .tc-editbtn{margin-left:auto;padding:6px 11px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--muted);font-size:13px;font-weight:700}
 #tcMenu .tc-editbtn.on{border-color:var(--amber);color:var(--amber)}
+#tcMenu #tc_libbtns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+#tcMenu #tc_libbtns .tdm-new{margin-bottom:0}
+#tcMenu .tdm-new.alt{flex:1;min-width:130px;border-color:var(--line);color:var(--muted)}
+#tcMenu #tc_list .tdm-name small{display:block;color:var(--muted);font-weight:400;font-size:12px;margin-top:2px}
+#tcMenu #tc_list .tdm-row{display:flex;align-items:center;gap:6px}
+#tcMenu .folderrow .tdm-name{font-weight:800}
+#tcMenu .tc-libmove,#tcMenu .tc-libbell{background:var(--btnbg);border:1px solid var(--line);border-radius:8px;width:40px;height:36px;font-size:15px;flex-shrink:0}
+#tcMenu .tc-libbell{opacity:.45}
+#tcMenu .tc-libbell.on{opacity:1;border-color:var(--green)}
+#tcMenu .tc-folderbar{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+#tcMenu .tc-folderbar .tc-del{background:var(--btnbg);border:1px solid var(--line);color:var(--red);border-radius:8px;width:40px;height:36px;font-size:18px;flex-shrink:0}
+.tc-mvlist{display:flex;flex-direction:column;gap:8px;margin:4px 0 14px;max-height:50vh;overflow:auto}
+.tc-mvopt{text-align:left;padding:13px;border-radius:10px;border:1px solid var(--line);background:var(--btnbg);color:var(--text);font-size:15px;font-weight:600}
+.tc-mvopt.newf{color:var(--green);border-color:var(--green)}
 #tcMenu #tc_out.tcedit .tgt{outline:2px dashed var(--amber);outline-offset:2px;border-radius:5px;cursor:pointer}
 .tc-emodal{position:fixed;inset:0;z-index:2147483000;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:20px}
 .tc-ebox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;width:100%;max-width:320px}
@@ -841,7 +855,10 @@
 
     <!-- LIBRERIA tabelle di marcia salvate -->
     <div id="tc_lib">
-      <button class="tdm-new" id="tc_new">+ Nuova tabella di marcia</button>
+      <div id="tc_libbtns">
+        <button class="tdm-new" id="tc_new">+ Nuova tabella di marcia</button>
+        <button class="tdm-new alt" id="tc_newfolder">+ Nuova cartella</button>
+      </div>
       <div id="tc_list"></div>
     </div>
 
@@ -1754,6 +1771,7 @@ let cfg = {
   ssActive: '',
   tdm: [],
   tcards: [],
+  tcfolders: [],
   speak: false,
   autoReset: true,
   lang: null,
@@ -1774,6 +1792,7 @@ try{
     if(!Array.isArray(cfg.ssLib)) cfg.ssLib = [];
     if(!Array.isArray(cfg.tdm)) cfg.tdm = [];
     if(!Array.isArray(cfg.tcards)) cfg.tcards = [];
+    if(!Array.isArray(cfg.tcfolders)) cfg.tcfolders = [];
     // migrazione tipi timbro vecchi -> nuovi (CO->TC, PS->SS, RIO->Regroup out, PARCO->Service in, CT->TC, ARR->Finish)
     var TDM_MAP = {CO:'TC', PS:'SS', RIO:'RGO', PARCO:'SVI', CT:'TC', ARR:'FIN'};
     cfg.tdm = cfg.tdm.map(function(tab){
@@ -2765,20 +2784,26 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
   const API='https://rally-scan.roberto-dapra5858.workers.dev';
   const $=id=>document.getElementById(id);
   const root=()=>$('tcMenu');
-  let BANDS=[], INPUT_MODE='wheel', lastCard=null, tcMin=5, tcOff=3, curIdx=null, persistTimer=null, editMode=false;
+  let BANDS=[], INPUT_MODE='wheel', lastCard=null, tcMin=5, tcOff=3, curIdx=null, persistTimer=null, editMode=false, curFolder=null;
   const manualVals={}, alarmOn={}, tcDue={};
   let lastIds=[], schedTimer=null, permAsked=false;
 
   function setTxt(t){ const s=$('tc_status'); if(s) s.textContent=t; }
   function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
-  window.tcShowLib = showLib;
+  window.tcShowLib = function(){ curFolder=null; showLib(); };
   ['input','change'].forEach(ev=> root().addEventListener(ev, onChange));
   root().addEventListener('click', function(e){
     const t=e.target; if(!t||!t.closest) return;
     if(t.closest('#tc_close')){ persist(); root().classList.remove('open'); return; }
     if(t.closest('#tc_pick')){ const f=$('tc_file'); if(f) f.click(); return; }
     if(t.closest('#tc_new')){ newCard(); return; }
+    if(t.closest('#tc_newfolder')){ newFolder(); return; }
+    if(t.closest('#tc_folderback')){ curFolder=null; renderLib(); return; }
+    if(t.closest('#tc_folderdel')){ deleteFolder(curFolder); return; }
+    const of=t.closest('[data-openf]'); if(of){ curFolder=of.getAttribute('data-openf'); renderLib(); return; }
+    const df=t.closest('[data-delf]'); if(df){ deleteFolder(df.getAttribute('data-delf')); return; }
+    const mv=t.closest('[data-move]'); if(mv){ moveTable(+mv.getAttribute('data-move')); return; }
     if(t.closest('#tc_back')){ showLib(); return; }
     if(t.closest('#tc_delcur')){ deleteCur(); return; }
     const o=t.closest('[data-open]'); if(o){ openCard(+o.getAttribute('data-open')); return; }
@@ -2792,7 +2817,6 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
   /* ===== LIBRERIA (elenco tabelle salvate + editor) ===== */
   function showLib(){ persist(); curIdx=null; const ed=$('tc_editor'); if(ed) ed.style.display='none'; const lb=$('tc_lib'); if(lb) lb.style.display='block'; renderLib(); }
   function showEditor(){ const lb=$('tc_lib'); if(lb) lb.style.display='none'; const ed=$('tc_editor'); if(ed) ed.style.display='block'; }
-  window.tcShowLib = showLib;
 
   function toggleNotif(i){
     const e=cfg.tcards[i]; if(!e) return;
@@ -2803,18 +2827,78 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
     renderLib();
   }
 
+  function folderById(id){ return (cfg.tcfolders||[]).find(f=>f.id===id); }
+
+  function tableRow(e,i){
+    const n=(e.card&&e.card.legs&&e.card.legs.length)||0;
+    const sub=(e.card&&e.card.rally? esc(e.card.rally)+' \u00b7 ':'')+n+' TC'+(e.notify?' \u00b7 \uD83D\uDD14':'');
+    return '<div class="tdm-row"><div class="tdm-name" data-open="'+i+'">'+esc(e.name||'(senza nome)')+'<small>'+sub+'</small></div>'
+      +'<button class="tc-libmove" data-move="'+i+'" title="Sposta">\uD83D\uDCC1</button>'
+      +'<button class="tc-libbell'+(e.notify?' on':'')+'" data-notif="'+i+'" title="Sveglie">'+(e.notify?'\uD83D\uDD14':'\uD83D\uDD15')+'</button>'
+      +'<button class="del" data-del="'+i+'">\uD83D\uDDD1</button></div>';
+  }
+
   function renderLib(){
     const list=$('tc_list'); if(!list) return;
-    if(!cfg.tcards.length){ list.innerHTML='<div class="tdm-empty">Nessuna tabella salvata.<br>Tocca \u201C+ Nuova tabella di marcia\u201D, poi scansiona tutte le pagine (i TC si sommano).</div>'; return; }
+    if(!Array.isArray(cfg.tcfolders)) cfg.tcfolders=[];
+    if(curFolder!=null && !folderById(curFolder)) curFolder=null;
+    const btns=$('tc_libbtns');
+
+    if(curFolder!=null){
+      if(btns) btns.style.display='none';
+      const f=folderById(curFolder);
+      let h='<div class="tc-folderbar"><button class="tdm-back" id="tc_folderback">\u2190</button>'
+        +'<input class="tdm-tabname" id="tc_foldername" value="'+esc(f.name||'')+'">'
+        +'<button class="tc-del" id="tc_folderdel" title="Elimina cartella">\uD83D\uDDD1</button></div>';
+      const inside=[]; cfg.tcards.forEach((e,i)=>{ if(e.folder===curFolder) inside.push(tableRow(e,i)); });
+      h+= inside.length? inside.join('') : '<div class="tdm-empty">Cartella vuota. Sposta qui una tabella con \uD83D\uDCC1.</div>';
+      list.innerHTML=h;
+      return;
+    }
+
+    if(btns) btns.style.display='';
     let h='';
-    cfg.tcards.forEach((e,i)=>{
-      const n=(e.card&&e.card.legs&&e.card.legs.length)||0;
-      const sub=(e.card&&e.card.rally? esc(e.card.rally)+' \u00b7 ':'')+n+' TC'+(e.notify?' \u00b7 \uD83D\uDD14':'');
-      h+='<div class="tdm-row"><div class="tdm-name" data-open="'+i+'">'+esc(e.name||'(senza nome)')+'<small>'+sub+'</small></div>'
-        +'<button class="tc-libbell'+(e.notify?' on':'')+'" data-notif="'+i+'" title="Sveglie">'+(e.notify?'\uD83D\uDD14':'\uD83D\uDD15')+'</button>'
-        +'<button class="del" data-del="'+i+'">\uD83D\uDDD1</button></div>';
+    (cfg.tcfolders||[]).forEach(f=>{
+      const n=cfg.tcards.filter(t=>t.folder===f.id).length;
+      h+='<div class="tdm-row folderrow"><div class="tdm-name" data-openf="'+esc(f.id)+'">\uD83D\uDCC1 '+esc(f.name||'')+'<small>'+n+' tabelle</small></div>'
+        +'<button class="del" data-delf="'+esc(f.id)+'">\uD83D\uDDD1</button></div>';
     });
+    const loose=[]; cfg.tcards.forEach((e,i)=>{ if(!e.folder || !folderById(e.folder)) loose.push(tableRow(e,i)); });
+    h+=loose.join('');
+    if(!(cfg.tcfolders||[]).length && !loose.length){
+      h='<div class="tdm-empty">Nessuna tabella salvata.<br>Tocca \u201C+ Nuova tabella di marcia\u201D, poi scansiona tutte le pagine (i TC si sommano).</div>';
+    }
     list.innerHTML=h;
+  }
+
+  function newFolder(){ askName('', function(name){ if(!Array.isArray(cfg.tcfolders)) cfg.tcfolders=[]; cfg.tcfolders.push({ id:'f'+Date.now(), name:name }); saveCfg(); renderLib(); }); }
+
+  function deleteFolder(id){
+    const f=folderById(id); if(!f) return;
+    showConfirm('Eliminare la cartella \u201C'+(f.name||'')+'\u201D? Le tabelle non si perdono, tornano sciolte.', function(){
+      cfg.tcards.forEach(t=>{ if(t.folder===id) t.folder=null; });
+      cfg.tcfolders=cfg.tcfolders.filter(x=>x.id!==id);
+      if(curFolder===id) curFolder=null;
+      saveCfg(); renderLib();
+    });
+  }
+
+  function moveTable(i){
+    const e=cfg.tcards[i]; if(!e) return;
+    const ov=document.createElement('div'); ov.className='tc-emodal';
+    let opts='<button class="tc-mvopt" data-f="">\uD83D\uDCC4 Nessuna cartella (sciolta)</button>';
+    (cfg.tcfolders||[]).forEach(f=>{ opts+='<button class="tc-mvopt" data-f="'+esc(f.id)+'">\uD83D\uDCC1 '+esc(f.name||'')+'</button>'; });
+    opts+='<button class="tc-mvopt newf" data-f="__new">\u2795 Nuova cartella\u2026</button>';
+    ov.innerHTML='<div class="tc-ebox"><div class="tc-etitle">Sposta \u201C'+esc(e.name||'')+'\u201D</div><div class="tc-mvlist">'+opts+'</div><div class="tc-ebtns"><button class="tc-ecancel">Annulla</button></div></div>';
+    document.body.appendChild(ov);
+    function close(){ try{ document.body.removeChild(ov); }catch(_){} }
+    ov.addEventListener('click', ev=>{ if(ev.target===ov) close(); });
+    ov.querySelector('.tc-ecancel').addEventListener('click', close);
+    ov.querySelectorAll('.tc-mvopt').forEach(btn=> btn.addEventListener('click', ()=>{
+      const f=btn.getAttribute('data-f');
+      if(f==='__new'){ close(); askName('', function(name){ if(!Array.isArray(cfg.tcfolders)) cfg.tcfolders=[]; const id='f'+Date.now(); cfg.tcfolders.push({id:id,name:name}); e.folder=id; saveCfg(); renderLib(); }); return; }
+      e.folder = f||null; saveCfg(); close(); renderLib();
+    }));
   }
 
   function newCard(){
@@ -2996,6 +3080,7 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
   function onChange(e){
     const el=e.target; if(!el) return;
     if(el.id==='tc_name'){ if(curIdx!=null && cfg.tcards[curIdx]){ cfg.tcards[curIdx].name=el.value; persistSoon(); } return; }
+    if(el.id==='tc_foldername'){ const f=folderById(curFolder); if(f){ f.name=el.value; if(e.type==='change') saveCfg(); } return; }
     if(el.id==='tc_minSel'){ tcMin=parseInt(el.value)||5; recompute(); persistSoon(); return; }
     if(el.id==='tc_offSel'){ tcOff=parseInt(el.value)||0; recompute(); persistSoon(); return; }
     if(el.classList && el.classList.contains('tc-alarm')){ const i=el.getAttribute('data-band'); alarmOn[i]=el.checked; if(el.checked) ensurePerm(); scheduleSoon(); persistSoon(); return; }
