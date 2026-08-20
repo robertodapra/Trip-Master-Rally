@@ -595,7 +595,7 @@
 
   <button class="drawer-sec" data-sec="tdm"><span>Tabelle di marcia</span><span class="chev">›</span></button>
   <div class="drawer-body" data-body="tdm">
-    <button class="drawer-item" id="drvTimecard"><span>Scanner tabella di marcia</span></button>
+    <button class="drawer-item" id="drvTimecard"><span data-t="navTimecard"></span></button>
     <button class="drawer-item" id="drvTdm"><span data-t="navTdm"></span></button>
     <button class="drawer-item" id="drvCalc"><span data-t="navCalc"></span></button>
   </div>
@@ -849,15 +849,15 @@
 #tcMenu .arrow{align-self:flex-end;color:#c00;font-size:16px;padding:0 2px 8px}
 </style>
 <div class="overlay" id="tcMenu">
-  <div class="tc-topbar"><h2>Scanner tabella di marcia</h2><button id="tc_close" class="tc-x">&#10005;</button></div>
+  <div class="tc-topbar"><h2 data-t="navTimecard"></h2><button id="tc_close" class="tc-x">&#10005;</button></div>
   <div class="tc-wrap">
     <input type="file" id="tc_file" accept="image/*" style="display:none">
 
     <!-- LIBRERIA tabelle di marcia salvate -->
     <div id="tc_lib">
       <div id="tc_libbtns">
-        <button class="tdm-new" id="tc_new">+ Nuova tabella di marcia</button>
-        <button class="tdm-new alt" id="tc_newfolder">+ Nuova cartella</button>
+        <button class="tdm-new" id="tc_new" data-t="tcNewTable"></button>
+        <button class="tdm-new alt" id="tc_newfolder" data-t="tcNewFolder"></button>
       </div>
       <div id="tc_list"></div>
     </div>
@@ -869,10 +869,10 @@
         <input class="tdm-tabname" id="tc_name" type="text" placeholder="Nome tabella">
         <button class="tc-del" id="tc_delcur" title="Elimina">&#128465;</button>
       </div>
-      <button class="tc-pick" id="tc_pick">📷 Scansiona pagina <small>(si somma)</small></button>
-      <div id="tc_modeRow" style="display:none">Inserimento:
-        <button type="button" class="tc-mbtn on" data-mode="wheel">Rotelle</button>
-        <button type="button" class="tc-mbtn" data-mode="keyboard">Tastiera</button>
+      <button class="tc-pick" id="tc_pick"><span data-t="tcScanPage"></span> <small data-t="tcScanHint"></small></button>
+      <div id="tc_modeRow" style="display:none"><span data-t="tcInsert"></span> 
+        <button type="button" class="tc-mbtn on" data-mode="wheel" data-t="tcWheel"></button>
+        <button type="button" class="tc-mbtn" data-mode="keyboard" data-t="tcKeyboard"></button>
       </div>
       <div id="tc_status"></div>
       <div id="tc_head"></div>
@@ -1012,6 +1012,14 @@
       <option value="light" data-t="themeLight"></option>
     </select>
   </div>
+  <div class="setting-row">
+    <span data-t="soundLabel"></span>
+    <select id="soundSel">
+      <option value="default" data-t="soundDefault"></option>
+      <option value="beep.wav">Beep (doppio)</option>
+    </select>
+  </div>
+  <button id="soundPreview" style="width:100%;padding:11px;border-radius:10px;font-size:14px;font-weight:700;background:var(--btnbg);border:1px solid var(--line);color:var(--text);margin-bottom:14px">▶ <span data-t="soundPlay"></span></button>
 
   <div style="display:flex;flex-direction:column;gap:10px;margin:16px 0 6px">
     <button id="btnExport" style="padding:14px;border-radius:10px;font-size:15px;font-weight:700;background:var(--btnbg);border:2px solid var(--green);color:var(--green)">⬇︎ Esporta backup</button>
@@ -1040,7 +1048,7 @@ it:{introTitle:"Come funziona",
   gTotal:"Distanza totale della prova. Tieni premuto 2 secondi sul riquadro per azzerare (la barra rossa indica l'avanzamento della pressione).",
   gPartial:"Distanza dall'ultima nota. Tocca una volta il riquadro per azzerare. In modalità Radar si azzera da solo a ogni nota superata.",
   gNote:"In modalità Radar: numero della nota, simbolo, testo e km mancanti alla prossima nota del roadbook.",
-  gRb:"Da menu → Inserisci radar aggiungi le note a mano (km totali, simbolo, nota) oppure incolla il testo nel formato km_totali ; tipo ; nota e premi Importa: simboli e note vengono riconosciuti da soli. Salva ogni prova con un nome per ricaricarla al volo.",
+  gRb:"Da menu → Scanner radar aggiungi le note a mano (km totali, simbolo, nota) oppure incolla il testo nel formato km_totali ; tipo ; nota e premi Importa: simboli e note vengono riconosciuti da soli. Salva ogni prova con un nome per ricaricarla al volo.",
   gTunnel:"Sempre attiva: senza segnale GPS (gallerie) l'app continua a contare con l'ultima velocità nota per massimo 60 secondi, poi si ferma.",
   gMenu:"Dal menu scegli la modalità: Pilota (start-stop con parole), Trip (contachilometri e velocità) o Radar (note del roadbook). Da lì riapri anche questa guida.",
   totalShort:"Totale",wordShort:"Parola / Parziale",
@@ -1054,7 +1062,7 @@ it:{introTitle:"Come funziona",
   ready:"Pronto",running:"In misurazione…",stopped:"Fermo — premi per ripartire da 0",
   drawerTitle:"Menu",drvPilot:"Pilota",drvNav:"Navigatore",drvSet:"Impostazioni generali",
   activeTag:"Attiva",
-  navTrip:"Trip",navRadar:"Inserisci radar",
+  navTrip:"Trip",navRadar:"Scanner radar",
   pmTitle:"Pilota",actPilot:"Usa modalità Pilota",
   wordsTitle:"Tabella parole",
   setDesc:"La parola appare quando il parziale è tra i due valori (Da incluso, A escluso). Lascia vuoto \"A\" per non avere limite.",
@@ -1111,7 +1119,44 @@ it:{introTitle:"Come funziona",
   themeLabel:"Tema",themeDark:"Scuro",themeLight:"Chiaro",
   tunnelLabel:"Modalità galleria",tunnelSmall:"Senza segnale GPS continua a contare con l'ultima velocità (max 60 s)",
   close:"Chiudi e salva",
-  legTitle:"Segnale GPS",legGreen:"Verde: ottimo (meno di 6 m)",legBlue:"Blu: buono (6–10 m)",legRed:"Rosso: debole (oltre 10 m)"},
+  legTitle:"Segnale GPS",legGreen:"Verde: ottimo (meno di 6 m)",legBlue:"Blu: buono (6–10 m)",legRed:"Rosso: debole (oltre 10 m)",
+  navTimecard:"Scanner tabella di marcia",
+  tcNewTable:"+ Nuova tabella di marcia",
+  tcNewFolder:"+ Nuova cartella",
+  tcScanPage:"📷 Scansiona pagina",
+  tcScanHint:"(si somma)",
+  tcInsert:"Inserimento:",
+  tcWheel:"Rotelle",
+  tcKeyboard:"Tastiera",
+  tcEmptyLib:"Nessuna tabella salvata. Tocca “+ Nuova tabella di marcia”, poi scansiona tutte le pagine (i TC si sommano).",
+  tcEmptyCard:"Ancora nessun TC. Tocca “📷 Scansiona pagina” e fotografa la time card. Ogni pagina in più si somma.",
+  tcFolderEmpty:"Cartella vuota. Sposta qui una tabella con 📁.",
+  tcEdit:"✏️ Modifica",
+  tcMove:"Sposta",
+  tcMoveLoose:"📄 Nessuna cartella (sciolta)",
+  tcMoveNew:"➕ Nuova cartella…",
+  tcCancel:"Annulla",
+  tcConfirm:"Conferma",
+  tcCorrectTitle:"Correggi tempo imposto",
+  tcCorrectRead:"letto dallo scanner:",
+  tcCorrectHint:"Correggi solo se lo scanner ha letto male. Ore:minuti, es. 01:03.",
+  tcDelTable:"Eliminare la tabella",
+  tcDelFolder:"Eliminare la cartella",
+  tcDelFolderNote:"Le tabelle non si perdono, tornano sciolte.",
+  tcTablesN:"tabelle",
+  tcScanFirst:"Scansiona la prima pagina della time card.",
+  tcReading:"⏳ Leggo la pagina…",
+  tcNoData:"⚠️ Nessun dato letto in questa pagina.",
+  tcConnErr:"⚠️ Errore di connessione: ",
+  tcPageRead:"✅ Pagina letta:",
+  tcTot:"totale",
+  tcAlarm:"Sveglia",
+  tcMinBefore:"min prima",
+  tcStartSs:"Start SS: timbro +",
+  tcMinU:"min",
+  soundLabel:"Suono notifica",
+  soundDefault:"Predefinito",
+  soundPlay:"Ascolta"},
 en:{introTitle:"How it works",
   intro1:"At the top: the clock and the TOTAL distance — hold it for 2 seconds to reset.",
   intro2:"DRIVER MODE: partial in metres with start-stop (tap the big area or press your Bluetooth button). In the table you can set words that appear within metre ranges.",
@@ -1137,7 +1182,7 @@ en:{introTitle:"How it works",
   ready:"Ready",running:"Measuring…",stopped:"Stopped — press to restart from 0",
   drawerTitle:"Menu",drvPilot:"Driver",drvNav:"Co-driver",drvSet:"General settings",
   activeTag:"Active",
-  navTrip:"Trip",navRadar:"Enter road book",
+  navTrip:"Trip",navRadar:"Radar scanner",
   pmTitle:"Driver",actPilot:"Use Driver mode",
   wordsTitle:"Word table",
   setDesc:"The word shows when the partial is between the two values (From included, To excluded). Leave \"To\" empty for no limit.",
@@ -1194,7 +1239,44 @@ en:{introTitle:"How it works",
   themeLabel:"Theme",themeDark:"Dark",themeLight:"Light",
   tunnelLabel:"Tunnel mode",tunnelSmall:"Without GPS signal keeps counting at the last speed (max 60 s)",
   close:"Save and close",
-  legTitle:"GPS signal",legGreen:"Green: excellent (under 6 m)",legBlue:"Blue: good (6–10 m)",legRed:"Red: weak (over 10 m)"},
+  legTitle:"GPS signal",legGreen:"Green: excellent (under 6 m)",legBlue:"Blue: good (6–10 m)",legRed:"Red: weak (over 10 m)",
+  navTimecard:"Time card scanner",
+  tcNewTable:"+ New time card",
+  tcNewFolder:"+ New folder",
+  tcScanPage:"📷 Scan page",
+  tcScanHint:"(adds up)",
+  tcInsert:"Input:",
+  tcWheel:"Wheels",
+  tcKeyboard:"Keyboard",
+  tcEmptyLib:"No time card saved. Tap “+ New time card”, then scan all the pages (the TCs add up).",
+  tcEmptyCard:"No TC yet. Tap “📷 Scan page” and photograph the time card. Each extra page adds up.",
+  tcFolderEmpty:"Empty folder. Move a card here with 📁.",
+  tcEdit:"✏️ Edit",
+  tcMove:"Move",
+  tcMoveLoose:"📄 No folder (loose)",
+  tcMoveNew:"➕ New folder…",
+  tcCancel:"Cancel",
+  tcConfirm:"Confirm",
+  tcCorrectTitle:"Fix imposed time",
+  tcCorrectRead:"read by scanner:",
+  tcCorrectHint:"Fix only if the scanner misread. Hours:minutes, e.g. 01:03.",
+  tcDelTable:"Delete the time card",
+  tcDelFolder:"Delete the folder",
+  tcDelFolderNote:"The cards are not lost, they become loose.",
+  tcTablesN:"cards",
+  tcScanFirst:"Scan the first page of the time card.",
+  tcReading:"⏳ Reading the page…",
+  tcNoData:"⚠️ No data read on this page.",
+  tcConnErr:"⚠️ Connection error: ",
+  tcPageRead:"✅ Page read:",
+  tcTot:"total",
+  tcAlarm:"Alarm",
+  tcMinBefore:"min before",
+  tcStartSs:"SS start: stamp +",
+  tcMinU:"min",
+  soundLabel:"Notification sound",
+  soundDefault:"Default",
+  soundPlay:"Play"},
 fr:{introTitle:"Comment ça marche",
   intro1:"En haut : l'horloge et la distance TOTALE — maintenez 2 secondes pour remettre à zéro.",
   intro2:"MODE PILOTE : partiel en mètres avec start-stop (touchez la grande zone ou le bouton Bluetooth). Dans le tableau, définissez des mots qui apparaissent dans certains intervalles.",
@@ -1220,7 +1302,7 @@ fr:{introTitle:"Comment ça marche",
   ready:"Prêt",running:"Mesure en cours…",stopped:"Arrêté — appuyez pour repartir de 0",
   drawerTitle:"Menu",drvPilot:"Pilote",drvNav:"Copilote",drvSet:"Réglages généraux",
   activeTag:"Actif",
-  navTrip:"Trip",navRadar:"Saisir le road book",
+  navTrip:"Trip",navRadar:"Scanner radar",
   pmTitle:"Pilote",actPilot:"Utiliser le mode Pilote",
   wordsTitle:"Tableau des mots",
   setDesc:"Le mot s'affiche quand le partiel est entre les deux valeurs (De inclus, À exclu). Laissez \"À\" vide pour aucune limite.",
@@ -1282,7 +1364,44 @@ fr:{introTitle:"Comment ça marche",
   scanTop:"Bord haut",
   ssAskName:"Nom de la spéciale (ex. ES1 Larciano) :",
   ssDelAsk:"Supprimer la spéciale",
-  storeFull:"Mémoire pleine : supprime une spéciale enregistrée"},
+  storeFull:"Mémoire pleine : supprime une spéciale enregistrée",
+  navTimecard:"Scanner carnet de contrôle",
+  tcNewTable:"+ Nouveau carnet",
+  tcNewFolder:"+ Nouveau dossier",
+  tcScanPage:"📷 Scanner la page",
+  tcScanHint:"(s’additionne)",
+  tcInsert:"Saisie :",
+  tcWheel:"Molettes",
+  tcKeyboard:"Clavier",
+  tcEmptyLib:"Aucun carnet enregistré. Touche « + Nouveau carnet », puis scanne toutes les pages (les CH s’additionnent).",
+  tcEmptyCard:"Aucun CH pour l’instant. Touche « 📷 Scanner la page » et photographie le carnet. Chaque page en plus s’additionne.",
+  tcFolderEmpty:"Dossier vide. Déplace un carnet ici avec 📁.",
+  tcEdit:"✏️ Modifier",
+  tcMove:"Déplacer",
+  tcMoveLoose:"📄 Aucun dossier (libre)",
+  tcMoveNew:"➕ Nouveau dossier…",
+  tcCancel:"Annuler",
+  tcConfirm:"Confirmer",
+  tcCorrectTitle:"Corriger le temps imparti",
+  tcCorrectRead:"lu par le scanner :",
+  tcCorrectHint:"Corrige seulement si le scanner a mal lu. Heures:minutes, ex. 01:03.",
+  tcDelTable:"Supprimer le carnet",
+  tcDelFolder:"Supprimer le dossier",
+  tcDelFolderNote:"Les carnets ne sont pas perdus, ils redeviennent libres.",
+  tcTablesN:"carnets",
+  tcScanFirst:"Scanne la première page du carnet.",
+  tcReading:"⏳ Lecture de la page…",
+  tcNoData:"⚠️ Aucune donnée lue sur cette page.",
+  tcConnErr:"⚠️ Erreur de connexion : ",
+  tcPageRead:"✅ Page lue :",
+  tcTot:"total",
+  tcAlarm:"Alerte",
+  tcMinBefore:"min avant",
+  tcStartSs:"Départ ES : pointage +",
+  tcMinU:"min",
+  soundLabel:"Son de notification",
+  soundDefault:"Par défaut",
+  soundPlay:"Écouter"},
 es:{introTitle:"Cómo funciona",
   intro1:"Arriba: el reloj y la distancia TOTAL — mantén pulsado 2 segundos para poner a cero.",
   intro2:"MODO PILOTO: parcial en metros con start-stop (toca la zona grande o el botón Bluetooth). En la tabla puedes definir palabras que aparecen en ciertos intervalos.",
@@ -1308,7 +1427,7 @@ es:{introTitle:"Cómo funciona",
   ready:"Listo",running:"Midiendo…",stopped:"Parado — pulsa para reiniciar desde 0",
   drawerTitle:"Menú",drvPilot:"Piloto",drvNav:"Copiloto",drvSet:"Ajustes generales",
   activeTag:"Activo",
-  navTrip:"Trip",navRadar:"Introducir road book",
+  navTrip:"Trip",navRadar:"Escáner radar",
   pmTitle:"Piloto",actPilot:"Usar modo Piloto",
   wordsTitle:"Tabla de palabras",
   setDesc:"La palabra aparece cuando el parcial está entre los dos valores (Desde incluido, Hasta excluido). Deja \"Hasta\" vacío para sin límite.",
@@ -1370,7 +1489,44 @@ es:{introTitle:"Cómo funciona",
   scanTop:"Borde superior",
   ssAskName:"Nombre del tramo (ej. PS1 Larciano):",
   ssDelAsk:"¿Eliminar el tramo",
-  storeFull:"Memoria llena: elimina algún tramo guardado"},
+  storeFull:"Memoria llena: elimina algún tramo guardado",
+  navTimecard:"Escáner de carné de control",
+  tcNewTable:"+ Nuevo carné",
+  tcNewFolder:"+ Nueva carpeta",
+  tcScanPage:"📷 Escanear página",
+  tcScanHint:"(se suma)",
+  tcInsert:"Entrada:",
+  tcWheel:"Ruedas",
+  tcKeyboard:"Teclado",
+  tcEmptyLib:"No hay carnés guardados. Toca «+ Nuevo carné» y escanea todas las páginas (los CH se suman).",
+  tcEmptyCard:"Aún no hay CH. Toca «📷 Escanear página» y fotografía el carné. Cada página más se suma.",
+  tcFolderEmpty:"Carpeta vacía. Mueve un carné aquí con 📁.",
+  tcEdit:"✏️ Editar",
+  tcMove:"Mover",
+  tcMoveLoose:"📄 Sin carpeta (suelto)",
+  tcMoveNew:"➕ Nueva carpeta…",
+  tcCancel:"Cancelar",
+  tcConfirm:"Confirmar",
+  tcCorrectTitle:"Corregir tiempo impuesto",
+  tcCorrectRead:"leído por el escáner:",
+  tcCorrectHint:"Corrige solo si el escáner leyó mal. Horas:minutos, ej. 01:03.",
+  tcDelTable:"Eliminar el carné",
+  tcDelFolder:"Eliminar la carpeta",
+  tcDelFolderNote:"Los carnés no se pierden, quedan sueltos.",
+  tcTablesN:"carnés",
+  tcScanFirst:"Escanea la primera página del carné.",
+  tcReading:"⏳ Leyendo la página…",
+  tcNoData:"⚠️ No se leyó ningún dato en esta página.",
+  tcConnErr:"⚠️ Error de conexión: ",
+  tcPageRead:"✅ Página leída:",
+  tcTot:"total",
+  tcAlarm:"Alarma",
+  tcMinBefore:"min antes",
+  tcStartSs:"Salida TC: sello +",
+  tcMinU:"min",
+  soundLabel:"Sonido de notificación",
+  soundDefault:"Predeterminado",
+  soundPlay:"Escuchar"},
 de:{introTitle:"So funktioniert es",
   intro1:"Oben: die Uhr und die GESAMTdistanz — 2 Sekunden gedrückt halten zum Nullstellen.",
   intro2:"FAHRER-MODUS: Teildistanz in Metern mit Start-Stopp (großen Bereich antippen oder Bluetooth-Taste). In der Tabelle kannst du Wörter für Meterbereiche festlegen.",
@@ -1396,7 +1552,7 @@ de:{introTitle:"So funktioniert es",
   ready:"Bereit",running:"Messung läuft…",stopped:"Gestoppt — drücken für Neustart ab 0",
   drawerTitle:"Menü",drvPilot:"Fahrer",drvNav:"Beifahrer",drvSet:"Allgemeine Einstellungen",
   activeTag:"Aktiv",
-  navTrip:"Trip",navRadar:"Roadbook eingeben",
+  navTrip:"Trip",navRadar:"Radar-Scanner",
   pmTitle:"Fahrer",actPilot:"Fahrer-Modus verwenden",
   wordsTitle:"Worttabelle",
   setDesc:"Das Wort erscheint, wenn die Teildistanz zwischen den Werten liegt (Von inklusive, Bis exklusive). \"Bis\" leer lassen für kein Limit.",
@@ -1458,7 +1614,44 @@ de:{introTitle:"So funktioniert es",
   scanTop:"Oberer Rand",
   ssAskName:"Name der Prüfung (z. B. WP1 Larciano):",
   ssDelAsk:"Prüfung löschen",
-  storeFull:"Speicher voll: lösche einige gespeicherte Prüfungen"},
+  storeFull:"Speicher voll: lösche einige gespeicherte Prüfungen",
+  navTimecard:"Bordkarten-Scanner",
+  tcNewTable:"+ Neue Bordkarte",
+  tcNewFolder:"+ Neuer Ordner",
+  tcScanPage:"📷 Seite scannen",
+  tcScanHint:"(wird addiert)",
+  tcInsert:"Eingabe:",
+  tcWheel:"Räder",
+  tcKeyboard:"Tastatur",
+  tcEmptyLib:"Keine Bordkarte gespeichert. Tippe auf „+ Neue Bordkarte“ und scanne alle Seiten (die ZK werden addiert).",
+  tcEmptyCard:"Noch keine ZK. Tippe auf „📷 Seite scannen“ und fotografiere die Bordkarte. Jede weitere Seite wird addiert.",
+  tcFolderEmpty:"Leerer Ordner. Verschiebe eine Karte mit 📁 hierher.",
+  tcEdit:"✏️ Bearbeiten",
+  tcMove:"Verschieben",
+  tcMoveLoose:"📄 Kein Ordner (lose)",
+  tcMoveNew:"➕ Neuer Ordner…",
+  tcCancel:"Abbrechen",
+  tcConfirm:"Bestätigen",
+  tcCorrectTitle:"Sollzeit korrigieren",
+  tcCorrectRead:"vom Scanner gelesen:",
+  tcCorrectHint:"Nur korrigieren, wenn der Scanner falsch gelesen hat. Stunden:Minuten, z. B. 01:03.",
+  tcDelTable:"Bordkarte löschen",
+  tcDelFolder:"Ordner löschen",
+  tcDelFolderNote:"Die Karten gehen nicht verloren, sie werden wieder lose.",
+  tcTablesN:"Karten",
+  tcScanFirst:"Scanne die erste Seite der Bordkarte.",
+  tcReading:"⏳ Seite wird gelesen…",
+  tcNoData:"⚠️ Auf dieser Seite keine Daten gelesen.",
+  tcConnErr:"⚠️ Verbindungsfehler: ",
+  tcPageRead:"✅ Seite gelesen:",
+  tcTot:"gesamt",
+  tcAlarm:"Wecker",
+  tcMinBefore:"Min vorher",
+  tcStartSs:"WP-Start: Stempel +",
+  tcMinU:"Min",
+  soundLabel:"Benachrichtigungston",
+  soundDefault:"Standard",
+  soundPlay:"Anhören"},
 pt:{introTitle:"Como funciona",
   intro1:"No topo: o relógio e a distância TOTAL — mantenha premido 2 segundos para zerar.",
   intro2:"MODO PILOTO: parcial em metros com start-stop (toque na área grande ou no botão Bluetooth). Na tabela pode definir palavras que aparecem em certos intervalos.",
@@ -1484,7 +1677,7 @@ pt:{introTitle:"Como funciona",
   ready:"Pronto",running:"A medir…",stopped:"Parado — pressione para recomeçar do 0",
   drawerTitle:"Menu",drvPilot:"Piloto",drvNav:"Navegador",drvSet:"Definições gerais",
   activeTag:"Ativo",
-  navTrip:"Trip",navRadar:"Introduzir road book",
+  navTrip:"Trip",navRadar:"Scanner radar",
   pmTitle:"Piloto",actPilot:"Usar modo Piloto",
   wordsTitle:"Tabela de palavras",
   setDesc:"A palavra aparece quando o parcial está entre os dois valores (De incluído, Até excluído). Deixe \"Até\" vazio para sem limite.",
@@ -1546,7 +1739,44 @@ pt:{introTitle:"Como funciona",
   scanTop:"Bordo superior",
   ssAskName:"Nome da prova (ex. PE1 Larciano):",
   ssDelAsk:"Eliminar a prova",
-  storeFull:"Memória cheia: elimina alguma prova guardada"},
+  storeFull:"Memória cheia: elimina alguma prova guardada",
+  navTimecard:"Scanner do cartão de controlo",
+  tcNewTable:"+ Novo cartão",
+  tcNewFolder:"+ Nova pasta",
+  tcScanPage:"📷 Digitalizar página",
+  tcScanHint:"(soma-se)",
+  tcInsert:"Introdução:",
+  tcWheel:"Rodas",
+  tcKeyboard:"Teclado",
+  tcEmptyLib:"Nenhum cartão guardado. Toca em «+ Novo cartão» e digitaliza todas as páginas (os CH somam-se).",
+  tcEmptyCard:"Ainda sem CH. Toca em «📷 Digitalizar página» e fotografa o cartão. Cada página a mais soma-se.",
+  tcFolderEmpty:"Pasta vazia. Move um cartão para aqui com 📁.",
+  tcEdit:"✏️ Editar",
+  tcMove:"Mover",
+  tcMoveLoose:"📄 Sem pasta (solto)",
+  tcMoveNew:"➕ Nova pasta…",
+  tcCancel:"Cancelar",
+  tcConfirm:"Confirmar",
+  tcCorrectTitle:"Corrigir tempo imposto",
+  tcCorrectRead:"lido pelo scanner:",
+  tcCorrectHint:"Corrige só se o scanner leu mal. Horas:minutos, ex. 01:03.",
+  tcDelTable:"Eliminar o cartão",
+  tcDelFolder:"Eliminar a pasta",
+  tcDelFolderNote:"Os cartões não se perdem, ficam soltos.",
+  tcTablesN:"cartões",
+  tcScanFirst:"Digitaliza a primeira página do cartão.",
+  tcReading:"⏳ A ler a página…",
+  tcNoData:"⚠️ Nenhum dado lido nesta página.",
+  tcConnErr:"⚠️ Erro de ligação: ",
+  tcPageRead:"✅ Página lida:",
+  tcTot:"total",
+  tcAlarm:"Alarme",
+  tcMinBefore:"min antes",
+  tcStartSs:"Partida PE: carimbo +",
+  tcMinU:"min",
+  soundLabel:"Som de notificação",
+  soundDefault:"Predefinido",
+  soundPlay:"Ouvir"},
 ja:{introTitle:"使い方",
   intro1:"上部:時計と合計距離 — 2秒長押しでリセット。",
   intro2:"ドライバーモード:メートル単位の区間距離をスタート・ストップ(大きなエリアをタップ、またはBluetoothボタン)。テーブルで範囲ごとの言葉を設定できます。",
@@ -1572,7 +1802,7 @@ ja:{introTitle:"使い方",
   ready:"準備完了",running:"計測中…",stopped:"停止 — 押すと0から再開",
   drawerTitle:"メニュー",drvPilot:"ドライバー",drvNav:"ナビゲーター",drvSet:"一般設定",
   activeTag:"使用中",
-  navTrip:"トリップ",navRadar:"ロードブック入力",
+  navTrip:"トリップ",navRadar:"レーダースキャナー",
   pmTitle:"ドライバー",actPilot:"ドライバーモードを使う",
   wordsTitle:"言葉テーブル",
   setDesc:"区間距離が2つの値の間にあるとき言葉が表示されます(「から」含む、「まで」含まない)。「まで」を空欄にすると上限なし。",
@@ -1634,7 +1864,44 @@ ja:{introTitle:"使い方",
   scanTop:"上の枠",
   ssAskName:"ステージ名（例：SS1 Larciano）：",
   ssDelAsk:"ステージを削除しますか",
-  storeFull:"メモリがいっぱいです：保存したステージを削除してください"},
+  storeFull:"メモリがいっぱいです：保存したステージを削除してください",
+  navTimecard:"タイムカード・スキャナー",
+  tcNewTable:"＋ 新しいタイムカード",
+  tcNewFolder:"＋ 新しいフォルダ",
+  tcScanPage:"📷 ページをスキャン",
+  tcScanHint:"（加算されます）",
+  tcInsert:"入力：",
+  tcWheel:"ホイール",
+  tcKeyboard:"キーボード",
+  tcEmptyLib:"保存されたタイムカードはありません。「＋ 新しいタイムカード」をタップし、全ページをスキャンしてください（TCは加算されます）。",
+  tcEmptyCard:"まだTCがありません。「📷 ページをスキャン」をタップしてタイムカードを撮影してください。追加のページは加算されます。",
+  tcFolderEmpty:"空のフォルダです。📁 でカードをここに移動してください。",
+  tcEdit:"✏️ 編集",
+  tcMove:"移動",
+  tcMoveLoose:"📄 フォルダなし",
+  tcMoveNew:"➕ 新しいフォルダ…",
+  tcCancel:"キャンセル",
+  tcConfirm:"確定",
+  tcCorrectTitle:"指定時間を修正",
+  tcCorrectRead:"スキャナーの読み取り：",
+  tcCorrectHint:"スキャナーが誤読した場合のみ修正してください。時:分、例 01:03。",
+  tcDelTable:"タイムカードを削除しますか",
+  tcDelFolder:"フォルダを削除しますか",
+  tcDelFolderNote:"カードは失われず、フォルダなしに戻ります。",
+  tcTablesN:"枚",
+  tcScanFirst:"タイムカードの最初のページをスキャンしてください。",
+  tcReading:"⏳ ページを読み取り中…",
+  tcNoData:"⚠️ このページからデータを読み取れませんでした。",
+  tcConnErr:"⚠️ 接続エラー：",
+  tcPageRead:"✅ ページを読み取りました：",
+  tcTot:"合計",
+  tcAlarm:"アラーム",
+  tcMinBefore:"分前",
+  tcStartSs:"SSスタート：押印 +",
+  tcMinU:"分",
+  soundLabel:"通知音",
+  soundDefault:"デフォルト",
+  soundPlay:"再生"},
 cs:{introTitle:"Jak to funguje",
   intro1:"Nahoře: hodiny a CELKOVÁ vzdálenost — podržte 2 sekundy pro vynulování.",
   intro2:"REŽIM ŘIDIČ: dílčí vzdálenost v metrech se start-stop (klepněte na velkou oblast nebo Bluetooth tlačítko). V tabulce můžete nastavit slova pro rozsahy metrů.",
@@ -1660,7 +1927,7 @@ cs:{introTitle:"Jak to funguje",
   ready:"Připraveno",running:"Měření…",stopped:"Zastaveno — stiskněte pro restart od 0",
   drawerTitle:"Menu",drvPilot:"Řidič",drvNav:"Navigátor",drvSet:"Obecná nastavení",
   activeTag:"Aktivní",
-  navTrip:"Trip",navRadar:"Zadat roadbook",
+  navTrip:"Trip",navRadar:"Skener radaru",
   pmTitle:"Řidič",actPilot:"Použít režim Řidič",
   wordsTitle:"Tabulka slov",
   setDesc:"Slovo se zobrazí, když je dílčí vzdálenost mezi hodnotami (Od včetně, Do vyjma). Nechte \"Do\" prázdné pro bez limitu.",
@@ -1722,7 +1989,44 @@ cs:{introTitle:"Jak to funguje",
   scanTop:"Horní okraj",
   ssAskName:"Název zkoušky (např. RZ1 Larciano):",
   ssDelAsk:"Smazat zkoušku",
-  storeFull:"Plná paměť: smaž nějakou uloženou zkoušku"}
+  storeFull:"Plná paměť: smaž nějakou uloženou zkoušku",
+  navTimecard:"Skener jízdního výkazu",
+  tcNewTable:"+ Nový výkaz",
+  tcNewFolder:"+ Nová složka",
+  tcScanPage:"📷 Naskenovat stránku",
+  tcScanHint:"(sčítá se)",
+  tcInsert:"Zadávání:",
+  tcWheel:"Kolečka",
+  tcKeyboard:"Klávesnice",
+  tcEmptyLib:"Žádný výkaz uložen. Klepni na „+ Nový výkaz“ a naskenuj všechny stránky (ČK se sčítají).",
+  tcEmptyCard:"Zatím žádné ČK. Klepni na „📷 Naskenovat stránku“ a vyfoť výkaz. Každá další stránka se přičte.",
+  tcFolderEmpty:"Prázdná složka. Přesuň sem výkaz pomocí 📁.",
+  tcEdit:"✏️ Upravit",
+  tcMove:"Přesunout",
+  tcMoveLoose:"📄 Bez složky (volné)",
+  tcMoveNew:"➕ Nová složka…",
+  tcCancel:"Zrušit",
+  tcConfirm:"Potvrdit",
+  tcCorrectTitle:"Opravit stanovený čas",
+  tcCorrectRead:"přečteno skenerem:",
+  tcCorrectHint:"Oprav jen když skener přečetl špatně. Hodiny:minuty, např. 01:03.",
+  tcDelTable:"Smazat výkaz",
+  tcDelFolder:"Smazat složku",
+  tcDelFolderNote:"Výkazy se neztratí, vrátí se jako volné.",
+  tcTablesN:"výkazů",
+  tcScanFirst:"Naskenuj první stránku výkazu.",
+  tcReading:"⏳ Čtu stránku…",
+  tcNoData:"⚠️ Na této stránce nebyla přečtena žádná data.",
+  tcConnErr:"⚠️ Chyba připojení: ",
+  tcPageRead:"✅ Stránka přečtena:",
+  tcTot:"celkem",
+  tcAlarm:"Budík",
+  tcMinBefore:"min před",
+  tcStartSs:"Start RZ: razítko +",
+  tcMinU:"min",
+  soundLabel:"Zvuk oznámení",
+  soundDefault:"Výchozí",
+  soundPlay:"Přehrát"}
 };
 const LOCALES = {it:'it-IT',en:'en-US',fr:'fr-FR',es:'es-ES',de:'de-DE',pt:'pt-PT',ja:'ja-JP',cs:'cs-CZ'};
 
@@ -1780,6 +2084,7 @@ let cfg = {
   units: 'metric',
   tunnel: true,
   theme: 'dark',
+  notifSound: 'default',
   h24: true
 };
 
@@ -1793,6 +2098,7 @@ try{
     if(!Array.isArray(cfg.tdm)) cfg.tdm = [];
     if(!Array.isArray(cfg.tcards)) cfg.tcards = [];
     if(!Array.isArray(cfg.tcfolders)) cfg.tcfolders = [];
+    if(typeof cfg.notifSound !== 'string') cfg.notifSound = 'default';
     // migrazione tipi timbro vecchi -> nuovi (CO->TC, PS->SS, RIO->Regroup out, PARCO->Service in, CT->TC, ARR->Finish)
     var TDM_MAP = {CO:'TC', PS:'SS', RIO:'RGO', PARCO:'SVI', CT:'TC', ARR:'FIN'};
     cfg.tdm = cfg.tdm.map(function(tab){
@@ -1832,6 +2138,10 @@ function applyLang(){
   document.querySelectorAll('[data-t]').forEach(el=>{
     el.textContent = t(el.dataset.t);
   });
+  document.querySelectorAll('[data-thtml]').forEach(el=>{
+    el.innerHTML = t(el.dataset.thtml);
+  });
+  if(window.tcRelang) window.tcRelang();
   updateStateText();
 }
 function applyTheme(){
@@ -2291,6 +2601,7 @@ $('drvSet').addEventListener('click', ()=>{
   updateFontPreview();
   $('timeSel').value = cfg.h24 ? '24' : '12';
   $('themeSel').value = cfg.theme;
+  if($('soundSel')) $('soundSel').value = cfg.notifSound || 'default';
   $('genMenu').classList.add('open');
 });
 $('drvInfo').addEventListener('click', ()=>{
@@ -2447,6 +2758,7 @@ $('closeGen').addEventListener('click', ()=>{
   cfg.numFont = $('fontSel').value;
   cfg.h24 = ($('timeSel').value === '24');
   cfg.theme = $('themeSel').value;
+  if($('soundSel')) cfg.notifSound = $('soundSel').value;
   applyLang(); applyTheme(); applyUnits(); applyLayout();
   saveCfg();
   $('genMenu').classList.remove('open');
@@ -2456,6 +2768,11 @@ function updateFontPreview(){
   const p=$('fontPreview'), s=$('fontSel'); if(!p||!s) return; p.style.fontFamily=FONTS[s.value]||FONTS.jb;
 }
 $('fontSel').addEventListener('change', updateFontPreview);
+$('soundPreview') && $('soundPreview').addEventListener('click', ()=>{
+  const v=$('soundSel')?$('soundSel').value:'default';
+  if(!v || v==='default'){ return; }
+  try{ const a=new Audio(v); a.play().catch(()=>{}); }catch(e){}
+});
 
 /* ================= BACKUP / RIPRISTINO ================= */
 async function exportData(){
@@ -2769,7 +3086,7 @@ applyLayout();
 requestAnimationFrame(frame);
 
 /* ===== PONTE verso la schermata Scanner (IIFE separato) ===== */
-window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askName:askName, showConfirm:showConfirm };
+window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askName:askName, showConfirm:showConfirm, t:t };
 })();
 </script>
 <script>
@@ -2780,6 +3097,7 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
   const saveCfg = __b.saveCfg || function(){};
   const askName = __b.askName || function(p,cb){ if(cb) cb(''); };
   const showConfirm = __b.showConfirm || function(m,cb){ if(cb) cb(); };
+  const t = __b.t || function(k){ return k; };
   if(!cfg.tcards || !Array.isArray(cfg.tcards)) cfg.tcards = [];
   const API='https://rally-scan.roberto-dapra5858.workers.dev';
   const $=id=>document.getElementById(id);
@@ -2792,6 +3110,7 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
   function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
   window.tcShowLib = function(){ curFolder=null; showLib(); };
+  window.tcRelang = function(){ const r=$('tcMenu'); if(r && r.classList.contains('open')){ if(curIdx!=null && lastCard) render(lastCard); else renderLib(); } };
   ['input','change'].forEach(ev=> root().addEventListener(ev, onChange));
   root().addEventListener('click', function(e){
     const t=e.target; if(!t||!t.closest) return;
@@ -2808,7 +3127,7 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
     if(t.closest('#tc_delcur')){ deleteCur(); return; }
     const o=t.closest('[data-open]'); if(o){ openCard(+o.getAttribute('data-open')); return; }
     const nb=t.closest('[data-notif]'); if(nb){ toggleNotif(+nb.getAttribute('data-notif')); return; }
-    const d=t.closest('[data-del]'); if(d){ const i=+d.getAttribute('data-del'); const nm=(cfg.tcards[i]&&cfg.tcards[i].name)||''; showConfirm('Eliminare la tabella \u201C'+nm+'\u201D?', function(){ const e=cfg.tcards[i]; if(e){ e.notify=false; scheduleEntry(e); } cfg.tcards.splice(i,1); saveCfg(); renderLib(); }); return; }
+    const d=t.closest('[data-del]'); if(d){ const i=+d.getAttribute('data-del'); const nm=(cfg.tcards[i]&&cfg.tcards[i].name)||''; showConfirm(t('tcDelTable')+' \u201C'+nm+'\u201D?', function(){ const e=cfg.tcards[i]; if(e){ e.notify=false; scheduleEntry(e); } cfg.tcards.splice(i,1); saveCfg(); renderLib(); }); return; }
     const mb=t.closest('.tc-mbtn'); if(mb){ INPUT_MODE=mb.dataset.mode; root().querySelectorAll('.tc-mbtn').forEach(x=>x.classList.toggle('on', x.dataset.mode===INPUT_MODE)); if(lastCard) render(lastCard); return; }
     if(t.closest('#tc_editbtn')){ toggleEdit(); return; }
     const tg=t.closest('.tgt[data-tgt]'); if(tg){ if(editMode) editTarget(+tg.getAttribute('data-tgt')); return; }
@@ -2851,7 +3170,7 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
         +'<input class="tdm-tabname" id="tc_foldername" value="'+esc(f.name||'')+'">'
         +'<button class="tc-del" id="tc_folderdel" title="Elimina cartella">\uD83D\uDDD1</button></div>';
       const inside=[]; cfg.tcards.forEach((e,i)=>{ if(e.folder===curFolder) inside.push(tableRow(e,i)); });
-      h+= inside.length? inside.join('') : '<div class="tdm-empty">Cartella vuota. Sposta qui una tabella con \uD83D\uDCC1.</div>';
+      h+= inside.length? inside.join('') : '<div class="tdm-empty">'+t('tcFolderEmpty')+'</div>';
       list.innerHTML=h;
       return;
     }
@@ -2860,13 +3179,13 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
     let h='';
     (cfg.tcfolders||[]).forEach(f=>{
       const n=cfg.tcards.filter(t=>t.folder===f.id).length;
-      h+='<div class="tdm-row folderrow"><div class="tdm-name" data-openf="'+esc(f.id)+'">\uD83D\uDCC1 '+esc(f.name||'')+'<small>'+n+' tabelle</small></div>'
+      h+='<div class="tdm-row folderrow"><div class="tdm-name" data-openf="'+esc(f.id)+'">\uD83D\uDCC1 '+esc(f.name||'')+'<small>'+n+' '+t('tcTablesN')+'</small></div>'
         +'<button class="del" data-delf="'+esc(f.id)+'">\uD83D\uDDD1</button></div>';
     });
     const loose=[]; cfg.tcards.forEach((e,i)=>{ if(!e.folder || !folderById(e.folder)) loose.push(tableRow(e,i)); });
     h+=loose.join('');
     if(!(cfg.tcfolders||[]).length && !loose.length){
-      h='<div class="tdm-empty">Nessuna tabella salvata.<br>Tocca \u201C+ Nuova tabella di marcia\u201D, poi scansiona tutte le pagine (i TC si sommano).</div>';
+      h='<div class="tdm-empty">'+t('tcEmptyLib')+'</div>';
     }
     list.innerHTML=h;
   }
@@ -2875,7 +3194,7 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
 
   function deleteFolder(id){
     const f=folderById(id); if(!f) return;
-    showConfirm('Eliminare la cartella \u201C'+(f.name||'')+'\u201D? Le tabelle non si perdono, tornano sciolte.', function(){
+    showConfirm(t('tcDelFolder')+' \u201C'+(f.name||'')+'\u201D? '+t('tcDelFolderNote'), function(){
       cfg.tcards.forEach(t=>{ if(t.folder===id) t.folder=null; });
       cfg.tcfolders=cfg.tcfolders.filter(x=>x.id!==id);
       if(curFolder===id) curFolder=null;
@@ -2886,10 +3205,10 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
   function moveTable(i){
     const e=cfg.tcards[i]; if(!e) return;
     const ov=document.createElement('div'); ov.className='tc-emodal';
-    let opts='<button class="tc-mvopt" data-f="">\uD83D\uDCC4 Nessuna cartella (sciolta)</button>';
+    let opts='<button class="tc-mvopt" data-f="">'+t('tcMoveLoose')+'</button>';
     (cfg.tcfolders||[]).forEach(f=>{ opts+='<button class="tc-mvopt" data-f="'+esc(f.id)+'">\uD83D\uDCC1 '+esc(f.name||'')+'</button>'; });
-    opts+='<button class="tc-mvopt newf" data-f="__new">\u2795 Nuova cartella\u2026</button>';
-    ov.innerHTML='<div class="tc-ebox"><div class="tc-etitle">Sposta \u201C'+esc(e.name||'')+'\u201D</div><div class="tc-mvlist">'+opts+'</div><div class="tc-ebtns"><button class="tc-ecancel">Annulla</button></div></div>';
+    opts+='<button class="tc-mvopt newf" data-f="__new">'+t('tcMoveNew')+'</button>';
+    ov.innerHTML='<div class="tc-ebox"><div class="tc-etitle">'+t('tcMove')+' \u201C'+esc(e.name||'')+'\u201D</div><div class="tc-mvlist">'+opts+'</div><div class="tc-ebtns"><button class="tc-ecancel">'+t('tcCancel')+'</button></div></div>';
     document.body.appendChild(ov);
     function close(){ try{ document.body.removeChild(ov); }catch(_){} }
     ov.addEventListener('click', ev=>{ if(ev.target===ov) close(); });
@@ -2906,7 +3225,7 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
       cfg.tcards.push({ name:name, card:{rally:'',section:'',date:'',legs:[]}, vals:{}, alarms:{}, min:5, off:3 });
       saveCfg();
       openCard(cfg.tcards.length-1);
-      setTxt('Scansiona la prima pagina della time card.');
+      setTxt(t('tcScanFirst'));
     });
   }
 
@@ -2931,7 +3250,7 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
   function deleteCur(){
     if(curIdx==null) return;
     const nm=(cfg.tcards[curIdx]&&cfg.tcards[curIdx].name)||'';
-    showConfirm('Eliminare la tabella \u201C'+nm+'\u201D?', function(){ cfg.tcards.splice(curIdx,1); saveCfg(); showLib(); });
+    showConfirm(t('tcDelTable')+' \u201C'+nm+'\u201D?', function(){ cfg.tcards.splice(curIdx,1); saveCfg(); showLib(); });
   }
 
   function persist(){
@@ -2961,19 +3280,19 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
 
   async function scan(src){
     if(curIdx==null) return;
-    setTxt('\u23F3 Leggo la pagina\u2026');
+    setTxt(t('tcReading'));
     try{
       const b64=toB64(src,1800);
       const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:b64,mode:'timecard'})});
       const data=await res.json();
       if(data.error){ setTxt('\u26A0\uFE0F '+data.error); return; }
-      if(!data.card){ setTxt('\u26A0\uFE0F Nessun dato letto in questa pagina.'); return; }
+      if(!data.card){ setTxt(t('tcNoData')); return; }
       const added=mergeCard(data.card);
       persist();
       const tot=(lastCard.legs&&lastCard.legs.length)||0;
-      setTxt('\u2705 Pagina letta: +'+added+' TC (totale '+tot+'). Fotografa le altre pagine oppure metti l\u2019Actual start.');
+      setTxt(t('tcPageRead')+' +'+added+' TC ('+t('tcTot')+' '+tot+').');
       render(lastCard);
-    }catch(err){ setTxt('\u26A0\uFE0F Errore di connessione: '+err); }
+    }catch(err){ setTxt(t('tcConnErr')+err); }
   }
 
   function opts(max){ let o='<option value=""></option>'; for(let x=0;x<=max;x++){ o+='<option value="'+x+'">'+(x<10?'0':'')+x+'</option>'; } return o; }
@@ -3006,11 +3325,11 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
     const cur=leg.target||'';
     const ov=document.createElement('div'); ov.className='tc-emodal';
     ov.innerHTML='<div class="tc-ebox">'
-      +'<div class="tc-etitle">Correggi tempo imposto</div>'
-      +'<div class="tc-esub">'+esc(code)+' \u00b7 letto dallo scanner: <b>'+esc(cur||'--:--')+'</b></div>'
+      +'<div class="tc-etitle">'+t('tcCorrectTitle')+'</div>'
+      +'<div class="tc-esub">'+esc(code)+' \u00b7 '+t('tcCorrectRead')+' <b>'+esc(cur||'--:--')+'</b></div>'
       +'<input class="tc-einput" inputmode="numeric" placeholder="hh:mm" value="'+esc(cur)+'">'
-      +'<div class="tc-ehint">Correggi solo se lo scanner ha letto male. Ore:minuti, es. 01:03.</div>'
-      +'<div class="tc-ebtns"><button class="tc-ecancel">Annulla</button><button class="tc-eok">Conferma</button></div>'
+      +'<div class="tc-ehint">'+t('tcCorrectHint')+'</div>'
+      +'<div class="tc-ebtns"><button class="tc-ecancel">'+t('tcCancel')+'</button><button class="tc-eok">'+t('tcConfirm')+'</button></div>'
       +'</div>';
     document.body.appendChild(ov);
     const inp=ov.querySelector('.tc-einput');
@@ -3032,7 +3351,7 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
     if(!legs.length){
       const mr=$('tc_modeRow'); if(mr) mr.style.display='none';
       const hd=$('tc_head'); if(hd) hd.textContent='';
-      const ou=$('tc_out'); if(ou) ou.innerHTML='<div class="tdm-empty">Ancora nessun TC.<br>Tocca \u201C\uD83D\uDCF7 Scansiona pagina\u201D e fotografa la time card. Ogni pagina in pi\u00f9 si somma.</div>';
+      const ou=$('tc_out'); if(ou) ou.innerHTML='<div class="tdm-empty">'+t('tcEmptyCard')+'</div>';
       return;
     }
     const mr=$('tc_modeRow'); if(mr) mr.style.display='flex';
@@ -3047,7 +3366,7 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
 
     let minOpts=''; for(let m=1;m<=30;m++){ minOpts+='<option value="'+m+'"'+(m===tcMin?' selected':'')+'>'+m+'</option>'; }
     let offOpts=''; for(let m=0;m<=20;m++){ offOpts+='<option value="'+m+'"'+(m===tcOff?' selected':'')+'>'+m+'</option>'; }
-    let h='<div class="tc-set">\uD83D\uDD14 Sveglia <select id="tc_minSel">'+minOpts+'</select> min prima \u00b7 Start SS: timbro +<select id="tc_offSel">'+offOpts+'</select> min<button id="tc_editbtn" class="tc-editbtn'+(editMode?' on':'')+'">\u270F\uFE0F Modifica</button></div>';
+    let h='<div class="tc-set">\uD83D\uDD14 '+t('tcAlarm')+' <select id="tc_minSel">'+minOpts+'</select> '+t('tcMinBefore')+' \u00b7 '+t('tcStartSs')+'<select id="tc_offSel">'+offOpts+'</select> '+t('tcMinU')+'<button id="tc_editbtn" class="tc-editbtn'+(editMode?' on':'')+'">'+t('tcEdit')+'</button></div>';
     h+='<div class="card">';
     controls.forEach((b,i)=>{
       h+='<div class="blk" data-band="'+i+'"><div class="blkhead"><span class="tcc">'+esc(b.code||'\u2014')+'</span>'
@@ -3141,7 +3460,7 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
       if(fire.getTime() <= now.getTime()+3000) return;
       const id=base+(+s.band);
       e.sids.push(id);
-      notifs.push({ id:id, title:'iRally \u2014 sveglia timbro', body:'Tra '+mins+' min: '+s.code+' \u2014 timbri alle '+fmt(s.due), sound:'default', schedule:{ at: fire } });
+      notifs.push({ id:id, title:'iRally \u2014 sveglia timbro', body:'Tra '+mins+' min: '+s.code+' \u2014 timbri alle '+fmt(s.due), sound:(cfg.notifSound && cfg.notifSound!=='default') ? cfg.notifSound : 'default', schedule:{ at: fire } });
     });
     if(notifs.length){ try{ await ln.schedule({notifications:notifs}); }catch(_){} }
     saveCfg();
