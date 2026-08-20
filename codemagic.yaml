@@ -31,13 +31,13 @@ workflows:
         script: |
           cd "$CM_BUILD_DIR/ios/App"
           agvtool new-version -all "$BUILD_NUMBER"
-      - name: Suono notifica nel bundle iOS
+      - name: Suoni notifica nel bundle iOS
         script: |
           cd "$CM_BUILD_DIR"
-          cp beep.wav ios/App/App/beep.wav
+          for w in *.wav; do [ -f "$w" ] && cp "$w" "ios/App/App/$w"; done
           cd ios/App
           gem list xcodeproj -i >/dev/null 2>&1 || gem install xcodeproj --no-document
-          ruby -e "require 'xcodeproj'; p=Xcodeproj::Project.open('App.xcodeproj'); t=p.targets.find{|x| x.name=='App'}; g=p.main_group.find_subpath('App',true); s='beep.wav'; r=g.files.find{|f| f.path==s}||g.new_file(s); t.add_resources([r]) unless t.resources_build_phase.files.any?{|b| b.file_ref==r}; p.save; puts 'suono notifica aggiunto al progetto'"
+          ruby -e "require 'xcodeproj'; p=Xcodeproj::Project.open('App.xcodeproj'); t=p.targets.find{|x| x.name=='App'}; g=p.main_group.find_subpath('App',true); Dir.glob('App/*.wav').map{|f| File.basename(f)}.each{|s| r=g.files.find{|f| f.path==s}||g.new_file(s); t.add_resources([r]) unless t.resources_build_phase.files.any?{|b| b.file_ref==r}}; p.save; puts 'suoni notifica aggiunti al progetto'"
       - name: Compila IPA
         script: |
           cd "$CM_BUILD_DIR/ios/App"
