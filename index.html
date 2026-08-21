@@ -794,9 +794,10 @@
 #tcMenu #tc_modeRow{align-items:center;gap:8px;font-size:13px;color:var(--muted);margin-bottom:10px}
 #tcMenu .tc-mbtn{padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--muted);font-size:13px;font-weight:700}
 #tcMenu .tc-mbtn.on{border-color:var(--green);color:var(--green)}
-#tcMenu .tc-set{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin-bottom:10px;flex-wrap:wrap}
+#tcMenu .tc-set{margin-bottom:8px}
+#tcMenu .tc-setrow{display:flex;align-items:center;gap:7px;flex-wrap:nowrap;font-size:13px;color:var(--muted);margin-bottom:6px;white-space:nowrap}
 #tcMenu .tc-set select{padding:6px 8px;border-radius:8px;border:1px solid var(--amber);background:var(--panel);color:var(--amber);font-size:15px;font-weight:800}
-#tcMenu .tc-editbtn{margin-left:auto;padding:6px 11px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--muted);font-size:13px;font-weight:700}
+#tcMenu .tc-editbtn{display:block;width:100%;box-sizing:border-box;padding:10px;border-radius:9px;border:1px solid var(--line);background:var(--panel);color:var(--muted);font-size:14px;font-weight:700;margin-bottom:12px}
 #tcMenu .tc-editbtn.on{border-color:var(--amber);color:var(--amber)}
 #tcMenu #tc_libbtns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
 #tcMenu #tc_libbtns .tdm-new{margin-bottom:0}
@@ -1133,7 +1134,7 @@ it:{introTitle:"Come funziona",
   tcEmptyLib:"Nessuna tabella salvata. Tocca “+ Nuova tabella di marcia”, poi scansiona tutte le pagine (i TC si sommano).",
   tcEmptyCard:"Ancora nessun TC. Tocca “📷 Scansiona pagina” e fotografa la time card. Ogni pagina in più si somma.",
   tcFolderEmpty:"Cartella vuota. Sposta qui una tabella con 📁.",
-  tcEdit:"✏️ Modifica",
+  tcEdit:"✏️ Modifica target time",
   tcMove:"Sposta",
   tcMoveLoose:"📄 Nessuna cartella (sciolta)",
   tcMoveNew:"➕ Nuova cartella…",
@@ -1253,7 +1254,7 @@ en:{introTitle:"How it works",
   tcEmptyLib:"No time card saved. Tap “+ New time card”, then scan all the pages (the TCs add up).",
   tcEmptyCard:"No TC yet. Tap “📷 Scan page” and photograph the time card. Each extra page adds up.",
   tcFolderEmpty:"Empty folder. Move a card here with 📁.",
-  tcEdit:"✏️ Edit",
+  tcEdit:"✏️ Edit target time",
   tcMove:"Move",
   tcMoveLoose:"📄 No folder (loose)",
   tcMoveNew:"➕ New folder…",
@@ -1378,7 +1379,7 @@ fr:{introTitle:"Comment ça marche",
   tcEmptyLib:"Aucun carnet enregistré. Touche « + Nouveau carnet », puis scanne toutes les pages (les CH s’additionnent).",
   tcEmptyCard:"Aucun CH pour l’instant. Touche « 📷 Scanner la page » et photographie le carnet. Chaque page en plus s’additionne.",
   tcFolderEmpty:"Dossier vide. Déplace un carnet ici avec 📁.",
-  tcEdit:"✏️ Modifier",
+  tcEdit:"✏️ Modifier target time",
   tcMove:"Déplacer",
   tcMoveLoose:"📄 Aucun dossier (libre)",
   tcMoveNew:"➕ Nouveau dossier…",
@@ -1503,7 +1504,7 @@ es:{introTitle:"Cómo funciona",
   tcEmptyLib:"No hay carnés guardados. Toca «+ Nuevo carné» y escanea todas las páginas (los CH se suman).",
   tcEmptyCard:"Aún no hay CH. Toca «📷 Escanear página» y fotografía el carné. Cada página más se suma.",
   tcFolderEmpty:"Carpeta vacía. Mueve un carné aquí con 📁.",
-  tcEdit:"✏️ Editar",
+  tcEdit:"✏️ Editar target time",
   tcMove:"Mover",
   tcMoveLoose:"📄 Sin carpeta (suelto)",
   tcMoveNew:"➕ Nueva carpeta…",
@@ -1628,7 +1629,7 @@ de:{introTitle:"So funktioniert es",
   tcEmptyLib:"Keine Bordkarte gespeichert. Tippe auf „+ Neue Bordkarte“ und scanne alle Seiten (die ZK werden addiert).",
   tcEmptyCard:"Noch keine ZK. Tippe auf „📷 Seite scannen“ und fotografiere die Bordkarte. Jede weitere Seite wird addiert.",
   tcFolderEmpty:"Leerer Ordner. Verschiebe eine Karte mit 📁 hierher.",
-  tcEdit:"✏️ Bearbeiten",
+  tcEdit:"✏️ Target time bearbeiten",
   tcMove:"Verschieben",
   tcMoveLoose:"📄 Kein Ordner (lose)",
   tcMoveNew:"➕ Neuer Ordner…",
@@ -1753,7 +1754,7 @@ pt:{introTitle:"Como funciona",
   tcEmptyLib:"Nenhum cartão guardado. Toca em «+ Novo cartão» e digitaliza todas as páginas (os CH somam-se).",
   tcEmptyCard:"Ainda sem CH. Toca em «📷 Digitalizar página» e fotografa o cartão. Cada página a mais soma-se.",
   tcFolderEmpty:"Pasta vazia. Move um cartão para aqui com 📁.",
-  tcEdit:"✏️ Editar",
+  tcEdit:"✏️ Editar target time",
   tcMove:"Mover",
   tcMoveLoose:"📄 Sem pasta (solto)",
   tcMoveNew:"➕ Nova pasta…",
@@ -1878,7 +1879,7 @@ ja:{introTitle:"使い方",
   tcEmptyLib:"保存されたタイムカードはありません。「＋ 新しいタイムカード」をタップし、全ページをスキャンしてください（TCは加算されます）。",
   tcEmptyCard:"まだTCがありません。「📷 ページをスキャン」をタップしてタイムカードを撮影してください。追加のページは加算されます。",
   tcFolderEmpty:"空のフォルダです。📁 でカードをここに移動してください。",
-  tcEdit:"✏️ 編集",
+  tcEdit:"✏️ Target time を編集",
   tcMove:"移動",
   tcMoveLoose:"📄 フォルダなし",
   tcMoveNew:"➕ 新しいフォルダ…",
@@ -2003,7 +2004,7 @@ cs:{introTitle:"Jak to funguje",
   tcEmptyLib:"Žádný výkaz uložen. Klepni na „+ Nový výkaz“ a naskenuj všechny stránky (ČK se sčítají).",
   tcEmptyCard:"Zatím žádné ČK. Klepni na „📷 Naskenovat stránku“ a vyfoť výkaz. Každá další stránka se přičte.",
   tcFolderEmpty:"Prázdná složka. Přesuň sem výkaz pomocí 📁.",
-  tcEdit:"✏️ Upravit",
+  tcEdit:"✏️ Upravit target time",
   tcMove:"Přesunout",
   tcMoveLoose:"📄 Bez složky (volné)",
   tcMoveNew:"➕ Nová složka…",
@@ -3368,7 +3369,7 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
 
     let minOpts=''; for(let m=1;m<=30;m++){ minOpts+='<option value="'+m+'"'+(m===tcMin?' selected':'')+'>'+m+'</option>'; }
     let offOpts=''; for(let m=0;m<=20;m++){ offOpts+='<option value="'+m+'"'+(m===tcOff?' selected':'')+'>'+m+'</option>'; }
-    let h='<div class="tc-set">\uD83D\uDD14 '+t('tcAlarm')+' <select id="tc_minSel">'+minOpts+'</select> '+t('tcMinBefore')+' \u00b7 '+t('tcStartSs')+'<select id="tc_offSel">'+offOpts+'</select> '+t('tcMinU')+'<button id="tc_editbtn" class="tc-editbtn'+(editMode?' on':'')+'">'+t('tcEdit')+'</button></div>';
+    let h='<div class="tc-set">'+'<div class="tc-setrow">\uD83D\uDD14 '+t('tcAlarm')+' <select id="tc_minSel">'+minOpts+'</select> '+t('tcMinBefore')+'</div>'+'<div class="tc-setrow">'+t('tcStartSs')+' <select id="tc_offSel">'+offOpts+'</select> '+t('tcMinU')+'</div>'+'</div>'+'<button id="tc_editbtn" class="tc-editbtn'+(editMode?' on':'')+'">'+t('tcEdit')+'</button>';
     h+='<div class="card">';
     controls.forEach((b,i)=>{
       h+='<div class="blk" data-band="'+i+'"><div class="blkhead"><span class="tcc">'+esc(b.code||'\u2014')+'</span>'
