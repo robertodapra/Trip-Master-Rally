@@ -125,16 +125,18 @@
   /* ====== LAYOUT NAVIGATORE / TRIP ====== */
   body[data-mode="nav"] #app{
     grid-template-columns:1.3fr 1fr;
-    grid-template-rows:1fr 1fr;
+    grid-template-rows:auto 1fr 1fr;
     grid-template-areas:
+      "freebar freebar"
       "partial total"
       "partial speed";
   }
   @media (orientation:portrait){
     body[data-mode="nav"] #app{
       grid-template-columns:1fr;
-      grid-template-rows:1.7fr 1fr 0.8fr;
+      grid-template-rows:auto 1.7fr 1fr 0.8fr;
       grid-template-areas:
+        "freebar"
         "partial"
         "total"
         "speed";
@@ -471,7 +473,25 @@
   .gsec-b ul{margin:8px 0 0;padding-left:20px}
   .gsec-b li{margin:6px 0}
   .gsec-b .tip{color:var(--muted);font-style:italic;margin-top:10px;font-size:13px}
-  .font-preview{margin:-6px 0 14px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--inputbg);color:var(--green);font-size:26px;font-weight:800;text-align:center;letter-spacing:.06em;font-variant-numeric:tabular-nums;overflow:hidden;white-space:nowrap}
+  #navFree{display:none;grid-area:freebar;align-items:center;gap:9px;padding:4px 16px 2px;min-height:0}
+#navFreeTrack{flex:1;height:6px;border-radius:4px;background:var(--line);overflow:hidden}
+#navFreeFill{height:100%;width:0;background:var(--green);transition:width .3s linear}
+#navFreeTxt{font-family:var(--mono,monospace);font-size:12px;font-weight:700;color:var(--muted);min-width:52px;text-align:right}
+.pw-body{padding:4px 4px 20px}
+#paywall .tc-topbar{display:flex;align-items:center;justify-content:space-between;padding:2px 0 12px}
+#paywall .tc-topbar h2{margin-bottom:0}
+#paywall .tc-x{background:var(--btnbg);border:1px solid var(--line);color:var(--text);border-radius:50%;width:38px;height:38px;font-size:17px;font-weight:700;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+.pw-sub{color:var(--muted);font-size:14px;line-height:1.5;margin:0 0 16px}
+.pw-plan{display:block;width:100%;text-align:left;background:var(--panel);border:1.5px solid var(--line);border-radius:14px;padding:15px 16px;margin-bottom:12px;position:relative;color:var(--text)}
+.pw-plan.best{border-color:var(--green);box-shadow:0 0 0 3px rgba(37,224,168,.10)}
+.pw-badge{position:absolute;top:-10px;left:14px;background:var(--green);color:#04121b;font-size:11px;font-weight:800;padding:3px 9px;border-radius:20px;letter-spacing:.02em}
+.pw-plan-tt{font-size:15px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.pw-price{font-size:30px;font-weight:800;margin-top:2px}
+.pw-price span{font-size:15px;color:var(--muted);font-weight:600}
+.pw-note{font-size:12px;color:var(--muted);margin-top:3px}
+.pw-restore{display:block;width:100%;background:transparent;border:0;color:var(--muted);font-size:14px;font-weight:600;padding:12px;margin-top:2px;text-decoration:underline}
+.pw-legal{font-size:11px;color:var(--muted);line-height:1.5;text-align:center;margin:10px 4px 0}
+.font-preview{margin:-6px 0 14px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--inputbg);color:var(--green);font-size:26px;font-weight:800;text-align:center;letter-spacing:.06em;font-variant-numeric:tabular-nums;overflow:hidden;white-space:nowrap}
 
   #rbImport{
     width:100%;min-height:110px;
@@ -532,6 +552,7 @@
 </div>
 
 <div id="app">
+  <div id="navFree"><div id="navFreeTrack"><div id="navFreeFill"></div></div><span id="navFreeTxt"></span></div>
   <div class="zone" id="zoneWord">
     <span class="zlabel" data-t="wordShort"></span>
     <div id="wordVal" class="numeric">0</div>
@@ -1023,6 +1044,7 @@
     </select>
   </div>
   <button id="soundPreview" style="width:100%;padding:11px;border-radius:10px;font-size:14px;font-weight:700;background:var(--btnbg);border:1px solid var(--line);color:var(--text);margin-bottom:14px">▶ <span data-t="soundPlay"></span></button>
+  <button id="testPro" style="width:100%;padding:11px;border-radius:10px;font-size:13px;font-weight:700;background:transparent;border:1px dashed var(--muted);color:var(--muted);margin-bottom:14px">TEST Pro (solo per prove)</button>
 
   <div style="display:flex;flex-direction:column;gap:10px;margin:16px 0 6px">
     <button id="btnExport" style="padding:14px;border-radius:10px;font-size:15px;font-weight:700;background:var(--btnbg);border:2px solid var(--green);color:var(--green)">⬇︎ Esporta backup</button>
@@ -1034,9 +1056,49 @@
   <button class="okbtn" id="closeGen" data-t="close"></button>
 </div>
 
+<div class="overlay" id="paywall">
+  <div class="tc-topbar"><h2>iRally Pro</h2><button id="pw_close" class="tc-x">&#10005;</button></div>
+  <div class="pw-body">
+    <p class="pw-sub">Scansiona radar e tabelle di marcia con l'AI, sveglie sui timbri, cartelle. <b>Prova 7 giorni gratis.</b></p>
+    <button class="pw-plan best" data-plan="year">
+      <div class="pw-badge">Consigliato &middot; risparmi ~20&euro;</div>
+      <div class="pw-plan-tt">Annuale</div>
+      <div class="pw-price">99,99&euro; <span>/anno</span></div>
+      <div class="pw-note">7 giorni gratis, poi 99,99&euro;/anno</div>
+    </button>
+    <button class="pw-plan" data-plan="month">
+      <div class="pw-plan-tt">Mensile</div>
+      <div class="pw-price">9,99&euro; <span>/mese</span></div>
+      <div class="pw-note">7 giorni gratis, poi 9,99&euro;/mese</div>
+    </button>
+    <button class="pw-restore" id="pw_restore">Ripristina acquisti</button>
+    <p class="pw-legal">Rinnovo automatico. Disdici quando vuoi dalle impostazioni Apple. I prezzi possono variare per paese.</p>
+  </div>
+</div>
 <script>
 (function(){
 'use strict';
+/* --- chiave app + ID dispositivo per il worker (tetto per utente) --- */
+window.__rallyAuth = (function(){
+  var d; try{ d = localStorage.getItem('rally_device'); }catch(e){}
+  if(!d){ d = 'dev-' + Date.now().toString(36) + Math.random().toString(36).slice(2,10); try{ localStorage.setItem('rally_device', d); }catch(e){} }
+  return { key: 'iRallyK3y9Xq7SdP2vLm2026', device: d };
+})();
+/* --- iRally Pro: stato abbonamento + paywall --- */
+window.__rcPro = false; // verra' impostato da RevenueCat (entitlement "pro") dopo l'integrazione
+window.__rallyPro = { isPro: function(){ try{ if(localStorage.getItem('irally_pro')==='1') return true; }catch(e){} return window.__rcPro===true; } };
+window.__rallyShowPaywall = function(){ var p=document.getElementById('paywall'); if(p) p.classList.add('open'); };
+window.__rallyBuy = function(plan){ if(typeof showMsg==='function') showMsg("L'abbonamento sara' attivo quando l'app e' pubblicata sull'App Store.\n\nPer provarla adesso: Impostazioni \u2192 \u201CTEST Pro\u201D.", 'iRally Pro'); };
+window.__rallyRestore = function(){ if(typeof showMsg==='function') showMsg("Il ripristino acquisti sara' disponibile alla pubblicazione.", 'iRally Pro'); };
+function proGate(){ if(window.__rallyPro && window.__rallyPro.isPro()) return true; window.__rallyShowPaywall(); return false; }
+/* --- Navigatore: km gratis a settimana (reset il martedi') --- */
+var FREE_KM_WEEK = 50;
+function navWeekKey(){ var d=new Date(); var diff=(d.getDay()-2+7)%7; var t=new Date(d.getFullYear(),d.getMonth(),d.getDate()-diff); return t.getFullYear()+'-'+(t.getMonth()+1)+'-'+t.getDate(); }
+function navUsedM(){ try{ if(localStorage.getItem('nav_week')!==navWeekKey()){ localStorage.setItem('nav_week',navWeekKey()); localStorage.setItem('nav_used','0'); } return parseFloat(localStorage.getItem('nav_used')||'0')||0; }catch(e){ return 0; } }
+function navRemainM(){ return Math.max(0, FREE_KM_WEEK*1000 - navUsedM()); }
+var navPaywallShown=false;
+function navAllow(d){ if(window.__rallyPro && window.__rallyPro.isPro()) return true; if(navRemainM()<=0){ if(!navPaywallShown){ navPaywallShown=true; window.__rallyShowPaywall(); } return false; } try{ localStorage.setItem('nav_used', String(navUsedM()+d)); }catch(e){} return true; }
+function updateNavFree(){ var el=document.getElementById('navFree'); if(!el) return; var pro=window.__rallyPro&&window.__rallyPro.isPro(); if(cfg.mode==='nav' && !pro){ el.style.display='flex'; var frac=Math.max(0,Math.min(1, navUsedM()/(FREE_KM_WEEK*1000))); var f=document.getElementById('navFreeFill'); if(f){ f.style.width=(frac*100).toFixed(1)+'%'; f.style.background = frac<0.7?'var(--green)':(frac<0.9?'var(--amber)':'var(--red)'); } var rem=navRemainM()/1000; var tx=document.getElementById('navFreeTxt'); if(tx) tx.textContent=(rem<10?rem.toFixed(1):Math.round(rem))+' km'; } else { el.style.display='none'; } }
 
 /* ================= TRADUZIONI ================= */
 const T = {
@@ -2243,8 +2305,7 @@ function onFix(pos){
       const d = haversine(lastPos.latitude, lastPos.longitude, c.latitude, c.longitude);
       const noiseFloor = Math.max(2, acc * 0.5);
       if(d >= noiseFloor && d < 500){
-        total += d;
-        if(partialActive()) partial += d;
+        if(!(cfg.mode==='nav') || navAllow(d)){ total += d; if(partialActive()) partial += d; }
       }
     }
     curSpeed = 0;
@@ -2396,12 +2457,12 @@ function frame(){
   const counting = curSpeed > 0 && lastGoodFix > 0 && sinceFix < maxGap;
   if(counting && dtF > 0 && dtF < 1){
     const d = curSpeed * dtF;
-    total += d;
-    if(partialActive()) partial += d;
+    if(!(cfg.mode==='nav') || navAllow(d)){ total += d; if(partialActive()) partial += d; }
   }
 
   totalVal.textContent = fmtDist(total);
   partialVal.textContent = cfg.mode === 'pilot' ? fmtM(partial) : fmtDist(partial);
+  updateNavFree();
 
   if(cfg.mode === 'nav'){
     const target = counting ? curSpeed : 0;
@@ -2579,9 +2640,9 @@ function setMode(m){
   saveCfg();
   closeDrawer();
 }
-$('drvPilot').addEventListener('click', ()=> setMode('pilot'));
+$('drvPilot').addEventListener('click', ()=>{ if(!proGate()) return; setMode('pilot'); });
 $('drvTrip').addEventListener('click', ()=> setMode('nav'));
-$('drvRadar').addEventListener('click', ()=> setMode('radar'));
+$('drvRadar').addEventListener('click', ()=>{ if(!proGate()) return; setMode('radar'); });
 
 /* configurazione */
 $('drvWords').addEventListener('click', ()=>{
@@ -2601,11 +2662,11 @@ $('drvSet').addEventListener('click', ()=>{
   $('unitSel').value = cfg.units;
   $('numSel').value = String(cfg.numSize);
   $('fontSel').value = cfg.numFont;
-  updateFontPreview();
   $('timeSel').value = cfg.h24 ? '24' : '12';
   $('themeSel').value = cfg.theme;
   if($('soundSel')) $('soundSel').value = cfg.notifSound || 'default';
   $('genMenu').classList.add('open');
+  updateFontPreview();
 });
 $('drvInfo').addEventListener('click', ()=>{
   closeDrawer();
@@ -2713,7 +2774,7 @@ function showStageDetail(i){
   });
   const bw=document.createElement('div'); bw.style.cssText='display:flex;flex-direction:column;gap:8px;margin-top:14px';
   const lo=document.createElement('button'); lo.textContent=t('ssLoad'); lo.style.cssText='padding:12px;border-radius:10px;background:var(--green,#39d353);border:none;color:#000;font-weight:800'; lo.addEventListener('click',()=>{ uiClose(ov); loadStage(i); });
-  const ad=document.createElement('button'); ad.textContent='+ '+t('rbAddScan'); ad.style.cssText='padding:12px;border-radius:10px;background:var(--btnbg,#222);border:2px solid var(--amber);color:var(--amber);font-weight:800'; ad.addEventListener('click',()=>{ uiClose(ov); pendingStageName=ss.name; pendingAppend=true; $('aiFile').click(); });
+  const ad=document.createElement('button'); ad.textContent='+ '+t('rbAddScan'); ad.style.cssText='padding:12px;border-radius:10px;background:var(--btnbg,#222);border:2px solid var(--amber);color:var(--amber);font-weight:800'; ad.addEventListener('click',()=>{ if(!proGate()) return; uiClose(ov); pendingStageName=ss.name; pendingAppend=true; $('aiFile').click(); });
   const cl=document.createElement('button'); cl.textContent=t('close'); cl.style.cssText='padding:12px;border-radius:10px;background:var(--btnbg,#222);border:1px solid var(--line,#333);color:var(--text,#eee)'; cl.addEventListener('click',()=>uiClose(ov));
   bw.appendChild(lo); bw.appendChild(ad); bw.appendChild(cl); box.appendChild(bw);
 }
@@ -2744,6 +2805,7 @@ let pendingStageName = null;
 let pendingAppend = false;
 
 $('ssNew').addEventListener('click', ()=>{
+  if(!proGate()) return;
   askName('', (name)=>{ pendingStageName=name; pendingAppend=false; $('aiFile').click(); });
 });
 
@@ -2754,6 +2816,15 @@ $('closeNav').addEventListener('click', ()=>{
   $('navMenu').classList.remove('open');
 });
 
+$('pw_close') && $('pw_close').addEventListener('click', ()=>{ $('paywall').classList.remove('open'); });
+$('pw_restore') && $('pw_restore').addEventListener('click', ()=> window.__rallyRestore());
+document.querySelectorAll('#paywall .pw-plan').forEach(function(b){ b.addEventListener('click', function(){ window.__rallyBuy(b.getAttribute('data-plan')); }); });
+$('testPro') && $('testPro').addEventListener('click', ()=>{
+  var on;
+  try{ on = localStorage.getItem('irally_pro')==='1'; }catch(e){ on=false; }
+  try{ localStorage.setItem('irally_pro', on?'0':'1'); }catch(e){}
+  showMsg(on ? 'Pro DISATTIVATO (modalita\' prova). Ora lo scanner e\' bloccato.' : 'Pro ATTIVATO (modalita\' prova). Ora lo scanner e\' sbloccato.', 'TEST Pro');
+});
 $('closeGen').addEventListener('click', ()=>{
   cfg.lang = $('langSel').value;
   cfg.units = $('unitSel').value;
@@ -2769,7 +2840,12 @@ $('closeGen').addEventListener('click', ()=>{
 function updateFontPreview(){
   const FONTS={jb:"'JetBrains Mono',ui-monospace,monospace",share:"'Share Tech Mono',ui-monospace,monospace",orbitron:"'Orbitron',ui-monospace,monospace",system:"ui-monospace,Menlo,Consolas,monospace"};
   const p=$('fontPreview'), s=$('fontSel'); if(!p||!s) return; p.style.fontFamily=FONTS[s.value]||FONTS.jb;
+  /* adatta la dimensione: parte da 26px e scende finché il testo sta tutto dentro */
+  let fs=26; p.style.fontSize=fs+'px';
+  if(p.clientWidth>0){ while(fs>12 && p.scrollWidth>p.clientWidth){ fs-=1; p.style.fontSize=fs+'px'; } }
 }
+window.addEventListener('resize', updateFontPreview);
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(updateFontPreview);
 $('fontSel').addEventListener('change', updateFontPreview);
 $('soundPreview') && $('soundPreview').addEventListener('click', ()=>{
   const v=$('soundSel')?$('soundSel').value:'default';
@@ -2945,7 +3021,7 @@ $('tdmBody').addEventListener('change', e=>{
   else if(a==='imp'||a==='real'||a==='rstart'||a==='setstart'){ saveCfg(); td_refresh(); }
 });
 
-$('drvTdm').addEventListener('click', ()=>{
+$('drvTdm').addEventListener('click', ()=>{ if(!proGate()) return;
   closeDrawer();
   tdmOpenIdx=null;
   renderTdm();
@@ -3020,8 +3096,8 @@ async function scanAIRun(img){
     const b64 = imgToB64(img, 1800);
     const res = await fetch(SCAN_API, {
       method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ image: b64 })
+      headers: {'Content-Type':'application/json', 'X-App-Key': window.__rallyAuth.key},
+      body: JSON.stringify({ image: b64, device: window.__rallyAuth.device })
     });
     const data = await res.json();
     if(data.error){ showMsg('\u26A0\uFE0F ' + data.error); return; }
@@ -3084,6 +3160,7 @@ if('serviceWorker' in navigator){
 }
 
 applyTheme();
+if(!(window.__rallyPro && window.__rallyPro.isPro()) && cfg.mode!=='nav') cfg.mode='nav';
 applyMode();
 applyLayout();
 requestAnimationFrame(frame);
@@ -3118,7 +3195,7 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
   root().addEventListener('click', function(e){
     const t=e.target; if(!t||!t.closest) return;
     if(t.closest('#tc_close')){ persist(); root().classList.remove('open'); return; }
-    if(t.closest('#tc_pick')){ const f=$('tc_file'); if(f) f.click(); return; }
+    if(t.closest('#tc_pick')){ if(!(window.__rallyPro&&window.__rallyPro.isPro())){ if(window.__rallyShowPaywall) window.__rallyShowPaywall(); return; } const f=$('tc_file'); if(f) f.click(); return; }
     if(t.closest('#tc_new')){ newCard(); return; }
     if(t.closest('#tc_newfolder')){ newFolder(); return; }
     if(t.closest('#tc_folderback')){ curFolder=null; renderLib(); return; }
@@ -3286,7 +3363,7 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
     setTxt(t('tcReading'));
     try{
       const b64=toB64(src,1800);
-      const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:b64,mode:'timecard'})});
+      const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','X-App-Key':window.__rallyAuth.key},body:JSON.stringify({image:b64,mode:'timecard',device:window.__rallyAuth.device})});
       const data=await res.json();
       if(data.error){ setTxt('\u26A0\uFE0F '+data.error); return; }
       if(!data.card){ setTxt(t('tcNoData')); return; }
