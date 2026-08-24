@@ -7,12 +7,12 @@
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Rally Trip">
+<meta name="apple-mobile-web-app-title" content="iRally">
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Orbitron:wght@600;800&family=Share+Tech+Mono&display=swap">
-<title>Rally Trip</title>
+<title>iRally</title>
 <style>
   :root{
     --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
@@ -479,7 +479,7 @@
 #navFreeTxt{font-family:var(--mono,monospace);font-size:12px;font-weight:700;color:var(--muted);min-width:52px;text-align:right}
 .pw-body{padding:4px 4px 20px}
 #paywall .tc-topbar{display:flex;align-items:center;justify-content:space-between;padding:2px 0 12px}
-#paywall .tc-topbar h2{margin-bottom:0}
+#paywall .tc-topbar h2{margin-bottom:0;text-transform:none;letter-spacing:.06em}
 #paywall .tc-x{background:var(--btnbg);border:1px solid var(--line);color:var(--text);border-radius:50%;width:38px;height:38px;font-size:17px;font-weight:700;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
 .pw-sub{color:var(--muted);font-size:14px;line-height:1.5;margin:0 0 16px}
 .pw-plan{display:block;width:100%;text-align:left;background:var(--panel);border:1.5px solid var(--line);border-radius:14px;padding:15px 16px;margin-bottom:12px;position:relative;color:var(--text)}
@@ -1088,8 +1088,88 @@ window.__rallyAuth = (function(){
 window.__rcPro = false; // verra' impostato da RevenueCat (entitlement "pro") dopo l'integrazione
 window.__rallyPro = { isPro: function(){ try{ if(localStorage.getItem('irally_pro')==='1') return true; }catch(e){} return window.__rcPro===true; } };
 window.__rallyShowPaywall = function(){ var p=document.getElementById('paywall'); if(p) p.classList.add('open'); };
-window.__rallyBuy = function(plan){ if(typeof showMsg==='function') showMsg("L'abbonamento sara' attivo quando l'app e' pubblicata sull'App Store.\n\nPer provarla adesso: Impostazioni \u2192 \u201CTEST Pro\u201D.", 'iRally Pro'); };
-window.__rallyRestore = function(){ if(typeof showMsg==='function') showMsg("Il ripristino acquisti sara' disponibile alla pubblicazione.", 'iRally Pro'); };
+/* --- RevenueCat: acquisti veri (attivi dentro l'app iOS; sul web restano i messaggi) --- */
+var RC_KEY = 'appl_qWGygZKkYncucSMVrHIzItFkWUQ';
+var rcPkgs = { year:null, month:null };
+var rcBusy = false;
+function rcSay(t,ti){ if(typeof showMsg==='function') showMsg(t,ti); }
+function rcPlugin(){ try{ return (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Purchases) || null; }catch(e){ return null; } }
+function rcInfoOf(r){ return r && (r.customerInfo || r.purchaserInfo || r); }
+function rcHasPro(info){ try{ return !!(info && info.entitlements && info.entitlements.active && info.entitlements.active['pro']); }catch(e){ return false; } }
+function rcApply(info){
+  var was = window.__rcPro;
+  window.__rcPro = rcHasPro(info);
+  if(window.__rcPro && !was){ var p=document.getElementById('paywall'); if(p) p.classList.remove('open'); }
+  try{ if(typeof updateNavFree==='function') updateNavFree(); }catch(e){}
+}
+function rcIsCancel(e){
+  if(!e) return false;
+  if(e.userCancelled===true) return true;
+  var c=String(e.code||'');
+  if(c==='1'||c==='PURCHASE_CANCELLED') return true;
+  return /cancel/i.test(String(e.message||''));
+}
+function rcPickPkg(off, type, idPart){
+  if(!off || !off.availablePackages) return null;
+  var a=off.availablePackages, i, pk, prod;
+  for(i=0;i<a.length;i++){ pk=a[i]; if(String(pk.packageType||'').toUpperCase()===type) return pk; }
+  for(i=0;i<a.length;i++){ pk=a[i]; prod=pk.product||pk.storeProduct||{}; if(String(prod.identifier||'').indexOf(idPart)>=0) return pk; }
+  return null;
+}
+function rcPrice(pk){ var pr=pk&&(pk.product||pk.storeProduct); return pr&&(pr.priceString||pr.price_string)||''; }
+function rcUpdatePrices(){
+  try{
+    var y=rcPrice(rcPkgs.year), m=rcPrice(rcPkgs.month);
+    if(y){ var e1=document.querySelector('#paywall [data-plan="year"] .pw-price'); if(e1) e1.innerHTML=y+' <span>/anno</span>';
+           var n1=document.querySelector('#paywall [data-plan="year"] .pw-note'); if(n1) n1.textContent='7 giorni gratis, poi '+y+'/anno'; }
+    if(m){ var e2=document.querySelector('#paywall [data-plan="month"] .pw-price'); if(e2) e2.innerHTML=m+' <span>/mese</span>';
+           var n2=document.querySelector('#paywall [data-plan="month"] .pw-note'); if(n2) n2.textContent='7 giorni gratis, poi '+m+'/mese'; }
+  }catch(e){}
+}
+function rcLoadOfferings(P){
+  return P.getOfferings().then(function(o){
+    var cur = (o && (o.current || (o.all && (o.all['main']||o.all['default'])))) || null;
+    if(cur){ rcPkgs.year = rcPickPkg(cur,'ANNUAL','year'); rcPkgs.month = rcPickPkg(cur,'MONTHLY','month'); rcUpdatePrices(); }
+    return cur;
+  });
+}
+(function rcInit(tries){
+  var P = rcPlugin();
+  if(!P){ if(tries<20) setTimeout(function(){ rcInit(tries+1); }, 600); return; }
+  Promise.resolve(P.configure({ apiKey: RC_KEY })).then(function(){
+    try{ P.addCustomerInfoUpdateListener(function(d){ rcApply(rcInfoOf(d)); }); }catch(e){}
+    P.getCustomerInfo().then(function(r){ rcApply(rcInfoOf(r)); }).catch(function(){});
+    rcLoadOfferings(P).catch(function(){});
+  }).catch(function(){});
+})(0);
+window.__rallyBuy = function(plan){
+  var P = rcPlugin();
+  if(!P){ rcSay("L'abbonamento sara' attivo quando l'app e' pubblicata sull'App Store.\n\nPer provarla adesso: Impostazioni \u2192 \u201CTEST Pro\u201D.", 'iRally Pro'); return; }
+  if(rcBusy) return; rcBusy = true;
+  var ready = (plan==='year'? rcPkgs.year : rcPkgs.month) ? Promise.resolve() : rcLoadOfferings(P);
+  ready.then(function(){
+    var pkg = plan==='year'? rcPkgs.year : rcPkgs.month;
+    if(!pkg) throw new Error('Prodotti non disponibili, riprova tra poco.');
+    return P.purchasePackage({ aPackage: pkg });
+  }).then(function(r){
+    rcBusy=false; rcApply(rcInfoOf(r));
+    if(window.__rcPro) rcSay('Benvenuto in iRally Pro! Prova gratuita attiva: tutte le funzioni sono sbloccate.', 'iRally Pro');
+  }).catch(function(e){
+    rcBusy=false;
+    if(rcIsCancel(e)) return;
+    rcSay('Acquisto non riuscito: '+((e&&e.message)||'riprova piu\u2019 tardi.'), 'iRally Pro');
+  });
+};
+window.__rallyRestore = function(){
+  var P = rcPlugin();
+  if(!P){ rcSay("Il ripristino acquisti sara' disponibile alla pubblicazione.", 'iRally Pro'); return; }
+  P.restorePurchases().then(function(r){
+    rcApply(rcInfoOf(r));
+    rcSay(window.__rcPro ? 'Acquisti ripristinati: iRally Pro e\u2019 attivo su questo dispositivo.' : 'Nessun abbonamento attivo trovato su questo Apple ID.', 'Ripristina acquisti');
+  }).catch(function(e){
+    rcSay('Ripristino non riuscito: '+((e&&e.message)||'controlla la connessione.'), 'Ripristina acquisti');
+  });
+};
 function proGate(){ if(window.__rallyPro && window.__rallyPro.isPro()) return true; window.__rallyShowPaywall(); return false; }
 /* --- Navigatore: km gratis a settimana (reset il martedi') --- */
 var FREE_KM_WEEK = 50;
