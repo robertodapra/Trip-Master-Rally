@@ -483,7 +483,11 @@
 #paywall .tc-x{background:var(--btnbg);border:1px solid var(--line);color:var(--text);border-radius:50%;width:38px;height:38px;font-size:17px;font-weight:700;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
 .pw-sub{color:var(--muted);font-size:14px;line-height:1.5;margin:0 0 16px}
 .pw-plan{display:block;width:100%;text-align:left;background:var(--panel);border:1.5px solid var(--line);border-radius:14px;padding:15px 16px;margin-bottom:12px;position:relative;color:var(--text)}
-.pw-plan.best{border-color:var(--green);box-shadow:0 0 0 3px rgba(37,224,168,.10)}
+.pw-plan.sel{border-color:var(--green);box-shadow:0 0 0 3px rgba(37,224,168,.10)}
+.pw-plan .pw-check{position:absolute;top:14px;right:14px;width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:transparent}
+.pw-plan.sel .pw-check{border-color:var(--green);background:var(--green);color:#04121b}
+.pw-cta{display:block;width:100%;background:var(--green);border:0;color:#04121b;font-size:16px;font-weight:800;padding:15px;border-radius:14px;margin-top:4px}
+.pw-cta:active{opacity:.85}
 .pw-badge{position:absolute;top:-10px;left:14px;background:var(--green);color:#04121b;font-size:11px;font-weight:800;padding:3px 9px;border-radius:20px;letter-spacing:.02em}
 .pw-plan-tt{font-size:15px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
 .pw-price{font-size:30px;font-weight:800;margin-top:2px}
@@ -738,6 +742,7 @@
     </div>
 
   </div>
+  <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all">ID assistenza: <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
 </div>
@@ -1044,7 +1049,6 @@
     </select>
   </div>
   <button id="soundPreview" style="width:100%;padding:11px;border-radius:10px;font-size:14px;font-weight:700;background:var(--btnbg);border:1px solid var(--line);color:var(--text);margin-bottom:14px">▶ <span data-t="soundPlay"></span></button>
-  <button id="testPro" style="width:100%;padding:11px;border-radius:10px;font-size:13px;font-weight:700;background:transparent;border:1px dashed var(--muted);color:var(--muted);margin-bottom:14px">TEST Pro (solo per prove)</button>
 
   <div style="display:flex;flex-direction:column;gap:10px;margin:16px 0 6px">
     <button id="btnExport" style="padding:14px;border-radius:10px;font-size:15px;font-weight:700;background:var(--btnbg);border:2px solid var(--green);color:var(--green)">⬇︎ Esporta backup</button>
@@ -1060,17 +1064,20 @@
   <div class="tc-topbar"><h2>iRally Pro</h2><button id="pw_close" class="tc-x">&#10005;</button></div>
   <div class="pw-body">
     <p class="pw-sub">Scansiona radar e tabelle di marcia con l'AI, sveglie sui timbri, cartelle. <b>Prova 7 giorni gratis.</b></p>
-    <button class="pw-plan best" data-plan="year">
+    <button class="pw-plan sel" data-plan="year">
       <div class="pw-badge">Consigliato &middot; risparmi ~20&euro;</div>
+      <div class="pw-check">&#10003;</div>
       <div class="pw-plan-tt">Annuale</div>
       <div class="pw-price">99,99&euro; <span>/anno</span></div>
       <div class="pw-note">7 giorni gratis, poi 99,99&euro;/anno</div>
     </button>
     <button class="pw-plan" data-plan="month">
+      <div class="pw-check">&#10003;</div>
       <div class="pw-plan-tt">Mensile</div>
       <div class="pw-price">9,99&euro; <span>/mese</span></div>
       <div class="pw-note">7 giorni gratis, poi 9,99&euro;/mese</div>
     </button>
+    <button class="pw-cta" id="pw_cta">Inizia 7 giorni gratis</button>
     <button class="pw-restore" id="pw_restore">Ripristina acquisti</button>
     <p class="pw-legal">Rinnovo automatico. Disdici quando vuoi dalle impostazioni Apple. I prezzi possono variare per paese.</p>
   </div>
@@ -1086,7 +1093,7 @@ window.__rallyAuth = (function(){
 })();
 /* --- iRally Pro: stato abbonamento + paywall --- */
 window.__rcPro = false; // verra' impostato da RevenueCat (entitlement "pro") dopo l'integrazione
-window.__rallyPro = { isPro: function(){ try{ if(localStorage.getItem('irally_pro')==='1') return true; }catch(e){} return window.__rcPro===true; } };
+window.__rallyPro = { isPro: function(){ return window.__rcPro===true; } };
 window.__rallyShowPaywall = function(){ rcBusy=false; var p=document.getElementById('paywall'); if(p) p.classList.add('open'); };
 /* --- RevenueCat: acquisti veri (attivi dentro l'app iOS; sul web restano i messaggi) --- */
 var RC_KEY = 'appl_qWGygZKkYncucSMVrHIzItFkWUQ';
@@ -1102,6 +1109,24 @@ function rcApply(info){
   if(window.__rcPro && !was){ var p=document.getElementById('paywall'); if(p) p.classList.remove('open'); }
   try{ if(typeof updateNavFree==='function') updateNavFree(); }catch(e){}
 }
+function rcShowUserId(){
+  try{
+    var v=document.getElementById('supCodeVal');
+    var id = window.__rcUserId || (window.__rallyAuth && window.__rallyAuth.device) || '';
+    if(v && id) v.textContent = id;
+    var row=document.getElementById('supCode');
+    if(row && !row.__wired){ row.__wired=true; row.addEventListener('click', function(){
+      var t=(document.getElementById('supCodeVal')||{}).textContent||'';
+      if(!t || t==='\u2014') return;
+      try{ if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(t); rcSay('ID assistenza copiato.', 'Info'); return; } }catch(e){}
+      try{
+        var ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select();
+        document.execCommand('copy'); document.body.removeChild(ta); rcSay('ID assistenza copiato.', 'Info');
+      }catch(e){}
+    }); }
+  }catch(e){}
+}
+try{ document.addEventListener('DOMContentLoaded', rcShowUserId); }catch(e){}
 function rcIsCancel(e){
   if(!e) return false;
   if(e.userCancelled===true) return true;
@@ -1140,11 +1165,12 @@ function rcLoadOfferings(P){
     try{ P.addCustomerInfoUpdateListener(function(d){ rcApply(rcInfoOf(d)); }); }catch(e){}
     P.getCustomerInfo().then(function(r){ rcApply(rcInfoOf(r)); }).catch(function(){});
     rcLoadOfferings(P).catch(function(){});
+    try{ P.getAppUserID().then(function(r){ window.__rcUserId = (r && (r.appUserID || r.appUserId)) || null; rcShowUserId(); }).catch(function(){}); }catch(e){}
   }).catch(function(){});
 })(0);
 window.__rallyBuy = function(plan){
   var P = rcPlugin();
-  if(!P){ rcSay("L'abbonamento sara' attivo quando l'app e' pubblicata sull'App Store.\n\nPer provarla adesso: Impostazioni \u2192 \u201CTEST Pro\u201D.", 'iRally Pro'); return; }
+  if(!P){ rcSay("Gli acquisti sono disponibili solo nell'app installata da App Store/TestFlight.", 'iRally Pro'); return; }
   if(rcBusy) return; rcBusy = true;
   var ready = (plan==='year'? rcPkgs.year : rcPkgs.month) ? Promise.resolve() : rcLoadOfferings(P);
   ready.then(function(){
@@ -2898,13 +2924,12 @@ $('closeNav').addEventListener('click', ()=>{
 
 $('pw_close') && $('pw_close').addEventListener('click', ()=>{ $('paywall').classList.remove('open'); });
 $('pw_restore') && $('pw_restore').addEventListener('click', ()=> window.__rallyRestore());
-document.querySelectorAll('#paywall .pw-plan').forEach(function(b){ b.addEventListener('click', function(){ window.__rallyBuy(b.getAttribute('data-plan')); }); });
-$('testPro') && $('testPro').addEventListener('click', ()=>{
-  var on;
-  try{ on = localStorage.getItem('irally_pro')==='1'; }catch(e){ on=false; }
-  try{ localStorage.setItem('irally_pro', on?'0':'1'); }catch(e){}
-  showMsg(on ? 'Pro DISATTIVATO (modalita\' prova). Ora lo scanner e\' bloccato.' : 'Pro ATTIVATO (modalita\' prova). Ora lo scanner e\' sbloccato.', 'TEST Pro');
-});
+var pwPlan = 'year';
+document.querySelectorAll('#paywall .pw-plan').forEach(function(b){ b.addEventListener('click', function(){
+  pwPlan = b.getAttribute('data-plan') || 'year';
+  document.querySelectorAll('#paywall .pw-plan').forEach(function(x){ x.classList.toggle('sel', x===b); });
+}); });
+$('pw_cta') && $('pw_cta').addEventListener('click', function(){ window.__rallyBuy(pwPlan); });
 $('closeGen').addEventListener('click', ()=>{
   cfg.lang = $('langSel').value;
   cfg.units = $('unitSel').value;
