@@ -1087,7 +1087,7 @@ window.__rallyAuth = (function(){
 /* --- iRally Pro: stato abbonamento + paywall --- */
 window.__rcPro = false; // verra' impostato da RevenueCat (entitlement "pro") dopo l'integrazione
 window.__rallyPro = { isPro: function(){ try{ if(localStorage.getItem('irally_pro')==='1') return true; }catch(e){} return window.__rcPro===true; } };
-window.__rallyShowPaywall = function(){ var p=document.getElementById('paywall'); if(p) p.classList.add('open'); };
+window.__rallyShowPaywall = function(){ rcBusy=false; var p=document.getElementById('paywall'); if(p) p.classList.add('open'); };
 /* --- RevenueCat: acquisti veri (attivi dentro l'app iOS; sul web restano i messaggi) --- */
 var RC_KEY = 'appl_qWGygZKkYncucSMVrHIzItFkWUQ';
 var rcPkgs = { year:null, month:null };
