@@ -21,6 +21,9 @@ workflows:
       - name: Installa dipendenze npm
         script: |
           npm install
+      - name: Plugin RevenueCat (acquisti in-app)
+        script: |
+          npm install @revenuecat/purchases-capacitor --save
       - name: Sincronizza Capacitor iOS
         script: |
           npx cap sync ios
@@ -31,6 +34,10 @@ workflows:
         script: |
           cd "$CM_BUILD_DIR/ios/App"
           agvtool new-version -all "$BUILD_NUMBER"
+      - name: Nome app "iRally"
+        script: |
+          cd "$CM_BUILD_DIR/ios/App/App"
+          plutil -replace CFBundleDisplayName -string "iRally" Info.plist
       - name: Suoni notifica nel bundle iOS
         script: |
           cd "$CM_BUILD_DIR"
