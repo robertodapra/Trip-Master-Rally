@@ -11,23 +11,23 @@
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Orbitron:wght@600;800&family=Share+Tech+Mono&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Rajdhani:wght@600;700&family=Orbitron:wght@600;800&family=Share+Tech+Mono&display=swap">
 <title>iRally</title>
 <style>
   :root{
     --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
-    --bg:#000;
-    --panel:#111417;
-    --line:#2a2f36;
-    --amber:#ffb400;
-    --amber-dim:#8a6200;
+    --bg:#17181A;
+    --panel:#25272B;
+    --line:#2C2F34;
+    --amber:#E8FF3D;
+    --amber-dim:#7a8a1e;
     --green:#39d353;
     --blue:#3b9dff;
     --red:#ff4d4d;
     --text:#f2f4f7;
     --muted:#8b949e;
     --btnbg:rgba(255,255,255,.06);
-    --inputbg:#1a1f25;
+    --inputbg:#1E2023;
   }
   body[data-theme="light"]{
     --bg:#f4f5f7;
@@ -603,33 +603,25 @@
 <!-- ============ MENU LATERALE ============ -->
 <div id="drawerBg"></div>
 <div id="drawer">
-  <h2 data-t="drawerTitle"></h2>
+  <div class="dwr-head"><span class="wm"><i>i</i>Rally</span><span class="dotmark"></span></div>
 
-  <button class="drawer-sec" data-sec="pilot"><span data-t="grpPilot"></span><span class="chev">›</span></button>
-  <div class="drawer-body" data-body="pilot">
-    <button class="drawer-item" id="drvPilot"><span data-t="drvPilot"></span><span class="di-tag" data-t="activeTag"></span></button>
-    <button class="drawer-item" id="drvWords"><span data-t="wordsTitle"></span></button>
-  </div>
+  <div class="hlabel">Configurazione</div>
+  <button class="hrow" id="drvWords"><span class="hic"><svg viewBox="0 0 24 24"><path d="M20 12.5a6.5 6.5 0 0 1-6.5 6.5H8l-4 2.5V12.5A6.5 6.5 0 0 1 10.5 6h3A6.5 6.5 0 0 1 20 12.5Z"/><path d="M9 12.5h6"/></svg></span><span class="htx"><span class="htt" data-t="wordsTitle"></span><span class="hsub">Parole e note sui metri</span></span><span class="hgo">&rsaquo;</span></button>
+  <button class="hrow" id="drvRb"><span class="hic"><svg viewBox="0 0 24 24"><rect x="4.5" y="3.5" width="15" height="17" rx="1.8"/><path d="M8 8.5h6M8 11.5h4"/><circle cx="15.5" cy="15.5" r=".9" fill="currentColor" stroke="none"/><path d="M13.3 15.5a2.2 2.2 0 0 1 4.4 0"/><path d="M11.8 15.5a3.7 3.7 0 0 1 7.4 0"/></svg></span><span class="htx"><span class="htt" data-t="navRadar"></span><span class="hsub">Road book e prove</span></span><span class="hgo">&rsaquo;</span></button>
 
-  <button class="drawer-sec" data-sec="nav"><span data-t="grpNav"></span><span class="chev">›</span></button>
-  <div class="drawer-body" data-body="nav">
-    <button class="drawer-item" id="drvTrip"><span data-t="navTrip"></span><span class="di-tag" data-t="activeTag"></span></button>
-    <button class="drawer-item" id="drvRadar"><span>Radar</span><span class="di-tag" data-t="activeTag"></span></button>
-    <button class="drawer-item" id="drvRb"><span data-t="navRadar"></span></button>
-  </div>
+  <div class="hlabel">Strumenti</div>
+  <button class="hrow" id="drvTdm"><span class="hic"><svg viewBox="0 0 24 24"><rect x="4" y="4.5" width="16" height="15" rx="2"/><path d="M4 9.5h16M4 14.5h16M12 9.5v10"/></svg></span><span class="htx"><span class="htt" data-t="navTdm"></span><span class="hsub">Tabella di marcia scritta a mano</span></span><span class="hgo">&rsaquo;</span></button>
+  <button class="hrow" id="drvCalc"><span class="hic"><svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M8.5 7.5h7M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 15.5h.01M12 15.5h.01M15.5 15.5h.01"/></svg></span><span class="htx"><span class="htt" data-t="navCalc"></span><span class="hsub">Conti rapidi</span></span><span class="hgo">&rsaquo;</span></button>
 
-  <button class="drawer-sec" data-sec="tdm"><span>Tabelle di marcia</span><span class="chev">›</span></button>
-  <div class="drawer-body" data-body="tdm">
-    <button class="drawer-item" id="drvTimecard"><span data-t="navTimecard"></span></button>
-    <button class="drawer-item" id="drvTdm"><span data-t="navTdm"></span></button>
-    <button class="drawer-item" id="drvCalc"><span data-t="navCalc"></span></button>
-  </div>
+  <div class="hlabel">Applicazione</div>
+  <button class="hrow" id="drvSet"><span class="hic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M4.2 7l2.6 1.5M17.2 15.5l2.6 1.5M4.2 17l2.6-1.5M17.2 8.5l2.6-1.5"/></svg></span><span class="htx"><span class="htt" data-t="drvSet"></span><span class="hsub">Lingua, tema, suoni e backup</span></span><span class="hgo">&rsaquo;</span></button>
+  <button class="hrow" id="drvInfo"><span class="hic"><svg viewBox="0 0 24 24"><path d="M12 5c-2-1.3-4.5-1.5-7-1v14c2.5-.5 5-.3 7 1 2-1.3 4.5-1.5 7-1V4c-2.5-.5-5-.3-7 1Z"/><path d="M12 5v14"/></svg></span><span class="htx"><span class="htt" data-t="guideMenu"></span><span class="hsub">Come funziona ogni sezione</span></span><span class="hgo">&rsaquo;</span></button>
 
-  <button class="drawer-sec" data-sec="gen"><span data-t="grpGen"></span><span class="chev">›</span></button>
-  <div class="drawer-body" data-body="gen">
-    <button class="drawer-item" id="drvSet"><span data-t="drvSet"></span></button>
-    <button class="drawer-item" id="drvInfo"><span data-t="guideMenu"></span></button>
-  </div>
+  <!-- spostati nella barra in basso: tenuti nascosti perche' il codice li usa -->
+  <button class="drawer-item" id="drvPilot" hidden><span data-t="drvPilot"></span></button>
+  <button class="drawer-item" id="drvTrip" hidden><span data-t="navTrip"></span></button>
+  <button class="drawer-item" id="drvRadar" hidden><span>Radar</span></button>
+  <button class="drawer-item" id="drvTimecard" hidden><span data-t="navTimecard"></span></button>
 </div>
 
 <!-- ============ GUIDA ============ -->
@@ -983,6 +975,42 @@
 .tc-sslab2{margin-top:10px}
 .tdm-offrow{display:flex;justify-content:flex-end;align-items:center;gap:6px;margin:0 2px 12px;font-size:12px;color:var(--muted)}
 .tdm-offrow .tdm-offsel{margin:0 2px}
+
+/* ===== REDESIGN: sfondo sfumato, barra in basso, pannello Altro ===== */
+body[data-theme="dark"]{background:linear-gradient(180deg,#1B1C1F 0%,#0A0A0B 100%);background-attachment:fixed}
+:root{--tabh:60px}
+body[data-tabbar="1"] #app{height:calc(100dvh - var(--tabh) - env(safe-area-inset-bottom))}
+body[data-tabbar="1"] #btnMenu{display:none}
+#tabbar{position:fixed;left:0;right:0;bottom:0;z-index:12;display:none;
+  height:calc(var(--tabh) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);
+  background:var(--panel);border-top:1px solid var(--line)}
+body[data-tabbar="1"] #tabbar{display:flex}
+#tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  background:none;border:0;color:var(--muted);padding:0;font:inherit}
+#tabbar button svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+#tabbar button .tlbl{font-size:10px;font-weight:700}
+#tabbar button.on{color:var(--amber)}
+#drawer [hidden]{display:none!important}
+#drawer .dwr-head{display:flex;align-items:center;gap:8px;padding:2px 2px 12px;border-bottom:1px solid var(--line);margin-bottom:14px}
+#drawer .wm{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:22px;color:var(--text)}
+#drawer .wm i{font-style:normal}
+#drawer .dotmark{width:6px;height:6px;border-radius:2px;background:var(--amber);margin-top:7px}
+#drawer .hlabel{font-size:12px;font-weight:600;color:var(--muted);margin:16px 2px 8px}
+#drawer .hrow{display:flex;align-items:center;gap:13px;width:100%;text-align:left;background:var(--btnbg);
+  border:0;border-radius:14px;padding:13px 14px;margin-bottom:9px;color:var(--text)}
+#drawer .hic{width:40px;height:40px;border-radius:11px;background:var(--panel);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#drawer .hic svg{width:20px;height:20px;stroke:var(--text);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+#drawer .htx{display:flex;flex-direction:column;min-width:0}
+#drawer .htt{font-size:14.5px;font-weight:600}
+#drawer .hsub{font-size:12px;color:var(--muted);margin-top:1px}
+#drawer .hgo{margin-left:auto;color:var(--muted);font-size:18px}
+
+/* ===== PAYWALL: unico colore acceso = bordo giallo sul piano scelto ===== */
+#paywall .tc-topbar h2{color:var(--text)}
+.pw-plan.sel{border-color:var(--amber);box-shadow:none}
+.pw-plan.sel .pw-check{border-color:var(--text);background:var(--text);color:var(--bg)}
+.pw-cta{background:var(--text);color:#0A0A0B}
+.pw-badge{background:var(--bg);border:1px solid var(--text);color:var(--text)}
 </style>
 <div class="overlay" id="genMenu">
   <h2 data-t="gsTitle"></h2>
@@ -1063,7 +1091,7 @@
 <div class="overlay" id="paywall">
   <div class="tc-topbar"><h2>iRally Pro</h2><button id="pw_close" class="tc-x">&#10005;</button></div>
   <div class="pw-body">
-    <p class="pw-sub">Scansiona radar e tabelle di marcia con l'AI, sveglie sui timbri, cartelle. <b>Prova 7 giorni gratis.</b></p>
+    <p class="pw-sub">Scanner AI per tabelle di marcia e road book, sveglie automatiche sui timbri di controllo orario.</p>
     <button class="pw-plan sel" data-plan="year">
       <div class="pw-badge">Consigliato &middot; risparmi ~20&euro;</div>
       <div class="pw-check">&#10003;</div>
@@ -3650,6 +3678,49 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
     if(notifs.length){ try{ await ln.schedule({notifications:notifs}); }catch(_){} }
     saveCfg();
   }
+})();
+</script>
+
+<nav id="tabbar">
+  <button data-tab="pilot" class="on"><svg viewBox="0 0 24 24"><path d="M4.5 13C4.5 8 8.2 4.3 13 4.3c3.8 0 6.7 2.7 6.7 6.3 0 2.6-1.6 4-4.2 4.5l-3.3.6c-3.2.6-7-.2-7.7-2.7Z"/><path d="M5.3 10c2.7 1.5 9 1.6 13.7-1"/></svg><span class="tlbl">Pilota</span></button>
+  <button data-tab="nav"><svg viewBox="0 0 24 24"><path d="M9 4.5c5.5 0 5.5 5 0 6.5-5.5 1.5-5.5 6.5 0 6.5"/><circle cx="9" cy="4.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="9" cy="17.5" r="1.3" fill="currentColor" stroke="none"/></svg><span class="tlbl">Trip</span></button>
+  <button data-tab="radar"><svg viewBox="0 0 24 24"><rect x="4.5" y="3.5" width="15" height="17" rx="1.8"/><path d="M8 8.5h6M8 11.5h4"/><circle cx="15.5" cy="15.5" r=".9" fill="currentColor" stroke="none"/><path d="M13.3 15.5a2.2 2.2 0 0 1 4.4 0"/><path d="M11.8 15.5a3.7 3.7 0 0 1 7.4 0"/></svg><span class="tlbl">Radar</span></button>
+  <button data-tab="tdm"><svg viewBox="0 0 24 24"><path d="M4 7.2A1.7 1.7 0 0 1 5.7 5.5h4l1.6 2.1h8A1.7 1.7 0 0 1 21 9.3v8A1.7 1.7 0 0 1 19.3 19H5.7A1.7 1.7 0 0 1 4 17.3Z"/></svg><span class="tlbl">Tabelle</span></button>
+  <button data-tab="altro"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="18" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg><span class="tlbl">Altro</span></button>
+</nav>
+
+<script>
+/* ===== BARRA IN BASSO: Pilota / Trip / Radar / Tabelle / Altro =====
+   Nota: il codice dell'app sta dentro una IIFE, quindi le sue funzioni non
+   sono globali. Qui non le chiamiamo: simuliamo il tocco sui pulsanti che
+   l'app ha gia' collegato (restano nel DOM, solo nascosti). */
+(function(){
+  var bar=document.getElementById('tabbar'); if(!bar) return;
+  function el(id){ return document.getElementById(id); }
+  var tcSeen=false;
+  var MAP={ pilot:'drvPilot', nav:'drvTrip', radar:'drvRadar' };
+  function sync(){
+    var m=document.body.getAttribute('data-mode');
+    var btns=bar.querySelectorAll('button');
+    for(var i=0;i<btns.length;i++){ btns[i].classList.toggle('on', btns[i].getAttribute('data-tab')===m); }
+  }
+  bar.addEventListener('click', function(e){
+    var b=e.target.closest ? e.target.closest('button') : null; if(!b) return;
+    var tab=b.getAttribute('data-tab');
+    try{
+      if(tab==='altro'){ var m=el('btnMenu'); if(m) m.click(); return; }
+      if(tab==='tdm'){
+        var tc=el('tcMenu');
+        if(tcSeen && tc){ tc.classList.add('open'); }      /* riprende dov'era */
+        else { var d=el('drvTimecard'); if(d){ d.click(); tcSeen=true; } }
+        return;
+      }
+      var target=el(MAP[tab]); if(target) target.click();
+      setTimeout(sync,0);
+    }catch(err){ console.error('tabbar:', err && err.message); }
+  });
+  sync();
+  document.body.setAttribute('data-tabbar','1');
 })();
 </script>
 </body>
