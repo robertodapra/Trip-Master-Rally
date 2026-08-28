@@ -11,23 +11,23 @@
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Rajdhani:wght@600;700&family=Orbitron:wght@600;800&family=Share+Tech+Mono&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Orbitron:wght@600;800&family=Share+Tech+Mono&display=swap">
 <title>iRally</title>
 <style>
   :root{
     --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
-    --bg:#17181A;
-    --panel:#25272B;
-    --line:#2C2F34;
-    --amber:#E8FF3D;
-    --amber-dim:#7a8a1e;
+    --bg:#000;
+    --panel:#111417;
+    --line:#2a2f36;
+    --amber:#ffb400;
+    --amber-dim:#8a6200;
     --green:#39d353;
     --blue:#3b9dff;
     --red:#ff4d4d;
     --text:#f2f4f7;
     --muted:#8b949e;
     --btnbg:rgba(255,255,255,.06);
-    --inputbg:#1E2023;
+    --inputbg:#1a1f25;
   }
   body[data-theme="light"]{
     --bg:#f4f5f7;
@@ -45,9 +45,10 @@
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%}
-  body{--numscale:.95}
-  body[data-numsize="0"]{--numscale:.85}
-  body[data-numsize="2"]{--numscale:1.2}
+  body{--numscale:1}
+  body[data-numsize="0"]{--numscale:.78}
+  body[data-numsize="1"]{--numscale:1}
+  body[data-numsize="2"]{--numscale:1.3}
   body[data-numfont="share"]{--mono:'Share Tech Mono',ui-monospace,Menlo,Consolas,monospace}
   body[data-numfont="orbitron"]{--mono:'Orbitron',ui-monospace,Menlo,Consolas,monospace}
   body[data-numfont="system"]{--mono:ui-monospace,Menlo,Consolas,monospace}
@@ -245,6 +246,7 @@
 
   .zone{
     display:flex;flex-direction:column;justify-content:center;align-items:center;
+    padding:26px 8px 10px;
     border:1px solid var(--line);
     border-radius:18px;
     margin:8px;
@@ -603,138 +605,41 @@
 <!-- ============ MENU LATERALE ============ -->
 <div id="drawerBg"></div>
 <div id="drawer">
-  <div class="dwr-head"><span class="wm"><i>i</i>Rally</span><span class="dotmark"></span></div>
+  <h2 data-t="drawerTitle"></h2>
 
-  <div class="hlabel">Configurazione</div>
-  <button class="hrow" id="drvWords"><span class="hic"><svg viewBox="0 0 24 24"><path d="M20 12.5a6.5 6.5 0 0 1-6.5 6.5H8l-4 2.5V12.5A6.5 6.5 0 0 1 10.5 6h3A6.5 6.5 0 0 1 20 12.5Z"/><path d="M9 12.5h6"/></svg></span><span class="htx"><span class="htt" data-t="wordsTitle"></span><span class="hsub">Parole e note sui metri</span></span><span class="hgo">&rsaquo;</span></button>
-  <button class="hrow" id="drvRb"><span class="hic"><svg viewBox="0 0 24 24"><rect x="4.5" y="3.5" width="15" height="17" rx="1.8"/><path d="M8 8.5h6M8 11.5h4"/><circle cx="15.5" cy="15.5" r=".9" fill="currentColor" stroke="none"/><path d="M13.3 15.5a2.2 2.2 0 0 1 4.4 0"/><path d="M11.8 15.5a3.7 3.7 0 0 1 7.4 0"/></svg></span><span class="htx"><span class="htt" data-t="navRadar"></span><span class="hsub">Road book e prove</span></span><span class="hgo">&rsaquo;</span></button>
+  <button class="drawer-sec" data-sec="pilot"><span data-t="grpPilot"></span><span class="chev">›</span></button>
+  <div class="drawer-body" data-body="pilot">
+    <button class="drawer-item" id="drvPilot"><span data-t="drvPilot"></span><span class="di-tag" data-t="activeTag"></span></button>
+    <button class="drawer-item" id="drvWords"><span data-t="wordsTitle"></span></button>
+  </div>
 
-  <div class="hlabel">Strumenti</div>
-  <button class="hrow" id="drvTdm"><span class="hic"><svg viewBox="0 0 24 24"><rect x="4" y="4.5" width="16" height="15" rx="2"/><path d="M4 9.5h16M4 14.5h16M12 9.5v10"/></svg></span><span class="htx"><span class="htt" data-t="navTdm"></span><span class="hsub">Tabella di marcia scritta a mano</span></span><span class="hgo">&rsaquo;</span></button>
-  <button class="hrow" id="drvCalc"><span class="hic"><svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M8.5 7.5h7M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 15.5h.01M12 15.5h.01M15.5 15.5h.01"/></svg></span><span class="htx"><span class="htt" data-t="navCalc"></span><span class="hsub">Conti rapidi</span></span><span class="hgo">&rsaquo;</span></button>
+  <button class="drawer-sec" data-sec="nav"><span data-t="grpNav"></span><span class="chev">›</span></button>
+  <div class="drawer-body" data-body="nav">
+    <button class="drawer-item" id="drvTrip"><span data-t="navTrip"></span><span class="di-tag" data-t="activeTag"></span></button>
+    <button class="drawer-item" id="drvRadar"><span>Radar</span><span class="di-tag" data-t="activeTag"></span></button>
+    <button class="drawer-item" id="drvRb"><span data-t="navRadar"></span></button>
+  </div>
 
-  <div class="hlabel">Applicazione</div>
-  <button class="hrow" id="drvSet"><span class="hic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M4.2 7l2.6 1.5M17.2 15.5l2.6 1.5M4.2 17l2.6-1.5M17.2 8.5l2.6-1.5"/></svg></span><span class="htx"><span class="htt" data-t="drvSet"></span><span class="hsub">Lingua, tema, suoni e backup</span></span><span class="hgo">&rsaquo;</span></button>
-  <button class="hrow" id="drvInfo"><span class="hic"><svg viewBox="0 0 24 24"><path d="M12 5c-2-1.3-4.5-1.5-7-1v14c2.5-.5 5-.3 7 1 2-1.3 4.5-1.5 7-1V4c-2.5-.5-5-.3-7 1Z"/><path d="M12 5v14"/></svg></span><span class="htx"><span class="htt" data-t="guideMenu"></span><span class="hsub">Come funziona ogni sezione</span></span><span class="hgo">&rsaquo;</span></button>
+  <button class="drawer-sec" data-sec="tdm"><span>Tabelle di marcia</span><span class="chev">›</span></button>
+  <div class="drawer-body" data-body="tdm">
+    <button class="drawer-item" id="drvTimecard"><span data-t="navTimecard"></span></button>
+    <button class="drawer-item" id="drvTdm"><span data-t="navTdm"></span></button>
+    <button class="drawer-item" id="drvCalc"><span data-t="navCalc"></span></button>
+  </div>
 
-  <!-- spostati nella barra in basso: tenuti nascosti perche' il codice li usa -->
-  <button class="drawer-item" id="drvPilot" hidden><span data-t="drvPilot"></span></button>
-  <button class="drawer-item" id="drvTrip" hidden><span data-t="navTrip"></span></button>
-  <button class="drawer-item" id="drvRadar" hidden><span>Radar</span></button>
-  <button class="drawer-item" id="drvTimecard" hidden><span data-t="navTimecard"></span></button>
+  <button class="drawer-sec" data-sec="gen"><span data-t="grpGen"></span><span class="chev">›</span></button>
+  <div class="drawer-body" data-body="gen">
+    <button class="drawer-item" id="drvSet"><span data-t="drvSet"></span></button>
+    <button class="drawer-item" id="drvInfo"><span data-t="guideMenu"></span></button>
+  </div>
 </div>
 
 <!-- ============ GUIDA ============ -->
 <div class="overlay" id="intro">
   <h2 data-t="introTitle"></h2>
-  <p class="g-lead">Tutto quello che serve, diviso per sezione. Tocca un titolo per aprirlo.</p>
-  <div id="guideAcc">
-
-    <div class="gsec open">
-      <button class="gsec-h">☰ Menu e modalità</button>
-      <div class="gsec-b">
-        Tocca <b>☰</b> in alto per aprire il menu. Da lì scegli cosa usare:
-        <ul>
-          <li><b>Pilota</b> — legge parole/note ai metri che imposti.</li>
-          <li><b>Navigatore (Trip)</b> — contachilometri parziale e velocità.</li>
-          <li><b>Radar</b> — note del road book, con scansione.</li>
-          <li><b>Scanner tabella di marcia</b> — le time card, fotografate e con le sveglie.</li>
-          <li><b>Tabella di marcia manuale</b> — la stessa cosa, ma scritta a mano.</li>
-          <li><b>Impostazioni</b> e <b>Guida</b> (questa).</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="gsec">
-      <button class="gsec-h">🏁 Pilota</button>
-      <div class="gsec-b">
-        Nella tabella imposti una <b>parola o nota</b> e il <b>range di metri</b> in cui deve comparire.
-        Durante il tratto, quando il contametri entra nel range, l'app mostra la nota (e la <b>legge a voce</b> se attivi l'interruttore).
-        Azzera il contatore alla partenza del tratto.
-        <div class="tip">Se hai un telecomando Bluetooth compatibile puoi dare il parziale senza toccare lo schermo.</div>
-      </div>
-    </div>
-
-    <div class="gsec">
-      <button class="gsec-h">🧭 Navigatore / Trip</button>
-      <div class="gsec-b">
-        Mostra un <b>parziale sempre attivo</b>, la <b>velocità</b> e la <b>qualità del GPS</b>.
-        In galleria attiva la <b>modalità Tunnel</b>: l'app continua a stimare la distanza anche senza segnale.
-        Tieni premuto sul parziale per azzerarlo.
-      </div>
-    </div>
-
-    <div class="gsec">
-      <button class="gsec-h">📡 Radar (road book)</button>
-      <div class="gsec-b">
-        <ul>
-          <li>Tocca <b>+</b> per creare una prova: scrivi il nome, fotografa la pagina del radar e l'app la legge e la salva da sola.</li>
-          <li>Tocca una prova salvata per <b>caricarla</b>.</li>
-          <li>In gara <b>azzera il TOTALE</b> alla partenza (tieni premuto 2 secondi).</li>
-          <li>Tieni premuto sul <b>PARZIALE</b> per azzerare i metri e passare <b>subito al simbolo successivo</b> (azzera i metri mancanti o in più).</li>
-          <li>Per ogni riferimento vedi <b>numero</b>, <b>foto</b> del tratto e <b>metri mancanti</b> al successivo. Le frecce scorrono senza toccare il totale.</li>
-        </ul>
-        <div class="tip">Fotografa la pagina dritta e ben illuminata.</div>
-      </div>
-    </div>
-
-    <div class="gsec">
-      <button class="gsec-h">📋 Scanner tabella di marcia</button>
-      <div class="gsec-b">
-        <ul>
-          <li>Tocca <b>+ Nuova tabella di marcia</b> e dai il <b>nome che vuoi</b>.</li>
-          <li>Fotografa <b>tutte le pagine</b>: i <b>TC si sommano</b>. Così a inizio gara scansioni tutto e controlli che ci siano tutti i controlli.</li>
-          <li>Metti l'<b>Actual start</b> (ora reale di partenza): i tempi <b>teorici si calcolano da soli</b>.</li>
-          <li>Se una PS parte in ritardo, i <b>timbri successivi si spostano</b> in automatico.</li>
-          <li>Attiva la <b>🔔</b> sui controlli che vuoi come sveglia e scegli i <b>minuti prima</b>.</li>
-          <li>In gara apri solo il <b>file col nome</b>: ritrovi tutto già pronto.</li>
-        </ul>
-        <div class="tip">Tutto è salvato nel telefono ed è incluso nel backup.</div>
-      </div>
-    </div>
-
-    <div class="gsec">
-      <button class="gsec-h">✍️ Tabella di marcia manuale</button>
-      <div class="gsec-b">
-        Come sopra, ma la costruisci a mano quando non puoi scansionare.
-        <ul>
-          <li>Tocca <b>+</b>, dai un nome (una tabella per sezione).</li>
-          <li>Imposta l'orario di partenza e aggiungi i timbri con <b>+ Aggiungi timbro</b>.</li>
-          <li>Per ogni timbro scegli tipo, località e minuti di tempo imposto: l'ora teorica si somma da sola.</li>
-          <li>In gara scrivi l'ora reale a cui timbri: l'app calcola il ritardo e sposta i teorici successivi.</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="gsec">
-      <button class="gsec-h">🔔 Sveglie e notifiche</button>
-      <div class="gsec-b">
-        Quando attivi la 🔔 su un controllo, è <b>iOS</b> a tenere la sveglia: suona anche a <b>schermo spento</b> e ad <b>app chiusa</b>.
-        <ul>
-          <li>Serve il <b>permesso notifiche</b> attivo (l'app lo chiede la prima volta).</li>
-          <li>Le sveglie si (ri)programmano <b>quando l'app è aperta</b>: se ci sono ritardi che spostano i timbri, <b>riapri un attimo l'app</b> così si aggiornano.</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="gsec">
-      <button class="gsec-h">💾 Backup (importante)</button>
-      <div class="gsec-b">
-        I dati stanno nel telefono e iOS <b>può cancellarli</b> se ha bisogno di spazio.
-        Prima delle gare fai <b>Impostazioni → Esporta</b> e salva il file. Per rimetterli usa <b>Importa</b>.
-        Il backup contiene <b>tutto</b>: prove radar, tabelle, sveglie e impostazioni.
-      </div>
-    </div>
-
-    <div class="gsec">
-      <button class="gsec-h">⚙️ Impostazioni</button>
-      <div class="gsec-b">
-        Da qui cambi <b>lingua</b>, <b>unità</b> (km/mi), <b>stile e dimensione dei numeri</b> (con anteprima dal vivo), <b>tema</b> e formato orario 12/24.
-      </div>
-    </div>
-
-  </div>
-  <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all">ID assistenza: <span id="supCodeVal">&mdash;</span></div>
+  <p class="g-lead" id="gLead"></p>
+  <div id="guideAcc"></div>
+  <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
 </div>
@@ -976,41 +881,12 @@
 .tdm-offrow{display:flex;justify-content:flex-end;align-items:center;gap:6px;margin:0 2px 12px;font-size:12px;color:var(--muted)}
 .tdm-offrow .tdm-offsel{margin:0 2px}
 
-/* ===== REDESIGN: sfondo sfumato, barra in basso, pannello Altro ===== */
-body[data-theme="dark"]{background:linear-gradient(180deg,#1B1C1F 0%,#0A0A0B 100%);background-attachment:fixed}
-:root{--tabh:60px}
-body[data-tabbar="1"] #app{height:calc(100dvh - var(--tabh) - env(safe-area-inset-bottom))}
-body[data-tabbar="1"] #btnMenu{display:none}
-#tabbar{position:fixed;left:0;right:0;bottom:0;z-index:12;display:none;
-  height:calc(var(--tabh) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);
-  background:var(--panel);border-top:1px solid var(--line)}
-body[data-tabbar="1"] #tabbar{display:flex}
-#tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
-  background:none;border:0;color:var(--muted);padding:0;font:inherit}
-#tabbar button svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-#tabbar button .tlbl{font-size:10px;font-weight:700}
-#tabbar button.on{color:var(--amber)}
-#drawer [hidden]{display:none!important}
-#drawer .dwr-head{display:flex;align-items:center;gap:8px;padding:2px 2px 12px;border-bottom:1px solid var(--line);margin-bottom:14px}
-#drawer .wm{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:22px;color:var(--text)}
-#drawer .wm i{font-style:normal}
-#drawer .dotmark{width:6px;height:6px;border-radius:2px;background:var(--amber);margin-top:7px}
-#drawer .hlabel{font-size:12px;font-weight:600;color:var(--muted);margin:16px 2px 8px}
-#drawer .hrow{display:flex;align-items:center;gap:13px;width:100%;text-align:left;background:var(--btnbg);
-  border:0;border-radius:14px;padding:13px 14px;margin-bottom:9px;color:var(--text)}
-#drawer .hic{width:40px;height:40px;border-radius:11px;background:var(--panel);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-#drawer .hic svg{width:20px;height:20px;stroke:var(--text);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-#drawer .htx{display:flex;flex-direction:column;min-width:0}
-#drawer .htt{font-size:14.5px;font-weight:600}
-#drawer .hsub{font-size:12px;color:var(--muted);margin-top:1px}
-#drawer .hgo{margin-left:auto;color:var(--muted);font-size:18px}
-
-/* ===== PAYWALL: unico colore acceso = bordo giallo sul piano scelto ===== */
-#paywall .tc-topbar h2{color:var(--text)}
-.pw-plan.sel{border-color:var(--amber);box-shadow:none}
-.pw-plan.sel .pw-check{border-color:var(--text);background:var(--text);color:var(--bg)}
-.pw-cta{background:var(--text);color:#0A0A0B}
-.pw-badge{background:var(--bg);border:1px solid var(--text);color:var(--text)}
+/* ===== trama carbonio discreta ===== */
+:root{--carbon:repeating-linear-gradient(45deg,rgba(255,255,255,.020) 0 2px,transparent 2px 4px),repeating-linear-gradient(-45deg,rgba(255,255,255,.020) 0 2px,transparent 2px 4px)}
+body[data-theme="dark"]{background-image:var(--carbon);background-attachment:fixed}
+body[data-theme="dark"] .zone,
+body[data-theme="dark"] .overlay,
+body[data-theme="dark"] #drawer{background-image:var(--carbon)}
 </style>
 <div class="overlay" id="genMenu">
   <h2 data-t="gsTitle"></h2>
@@ -1091,9 +967,9 @@ body[data-tabbar="1"] #tabbar{display:flex}
 <div class="overlay" id="paywall">
   <div class="tc-topbar"><h2>iRally Pro</h2><button id="pw_close" class="tc-x">&#10005;</button></div>
   <div class="pw-body">
-    <p class="pw-sub">Scanner AI per tabelle di marcia e road book, sveglie automatiche sui timbri di controllo orario.</p>
+    <p class="pw-sub" data-t="pwSub"></p>
     <button class="pw-plan sel" data-plan="year">
-      <div class="pw-badge">Consigliato &middot; risparmi ~20&euro;</div>
+      <div class="pw-badge" data-t="pwSave"></div>
       <div class="pw-check">&#10003;</div>
       <div class="pw-plan-tt">Annuale</div>
       <div class="pw-price">99,99&euro; <span>/anno</span></div>
@@ -1237,6 +1113,9 @@ function updateNavFree(){ var el=document.getElementById('navFree'); if(!el) ret
 /* ================= TRADUZIONI ================= */
 const T = {
 it:{introTitle:"Come funziona",
+  askStageName:"Nome prova",askTableName:"Nome tabella",askFolderName:"Nome cartella",
+  pwSub:"Con iRally Pro sblocchi tutta l'app: modalità Pilota, scanner delle tabelle di marcia e scanner dei radar, con tutte le loro funzioni.",
+  pwSave:"Risparmi ~20€",
   intro1:"In alto c'è l'orologio e la distanza TOTALE: tienila premuta 2 secondi per azzerarla.",
   intro2:"MODALITÀ PILOTA: parziale in metri con start-stop (tocca la zona grande o premi il tasto Bluetooth). Nella tabella puoi impostare parole che appaiono in certi intervalli di metri.",
   intro5:"MODALITÀ NAVIGATORE: il parziale conta sempre — ogni tocco lo azzera. In più puoi caricare il radar: 50 m prima di ogni riferimento appare il simbolo con la nota.",
@@ -1357,6 +1236,9 @@ it:{introTitle:"Come funziona",
   soundDefault:"Predefinito",
   soundPlay:"Ascolta"},
 en:{introTitle:"How it works",
+  askStageName:"Stage name",askTableName:"Table name",askFolderName:"Folder name",
+  pwSub:"iRally Pro unlocks the whole app: Driver mode, the time card scanner and the road book scanner, with all their features.",
+  pwSave:"Save ~€20",
   intro1:"At the top: the clock and the TOTAL distance — hold it for 2 seconds to reset.",
   intro2:"DRIVER MODE: partial in metres with start-stop (tap the big area or press your Bluetooth button). In the table you can set words that appear within metre ranges.",
   intro5:"CO-DRIVER MODE: the partial always counts — each tap resets it. You can also load the road book: 50 m before each reference the symbol and note appear.",
@@ -1477,6 +1359,9 @@ en:{introTitle:"How it works",
   soundDefault:"Default",
   soundPlay:"Play"},
 fr:{introTitle:"Comment ça marche",
+  askStageName:"Nom de la spéciale",askTableName:"Nom du tableau",askFolderName:"Nom du dossier",
+  pwSub:"iRally Pro débloque toute l'application : mode Pilote, scanner des tableaux de marche et scanner du road book, avec toutes leurs fonctions.",
+  pwSave:"Économisez ~20 €",
   intro1:"En haut : l'horloge et la distance TOTALE — maintenez 2 secondes pour remettre à zéro.",
   intro2:"MODE PILOTE : partiel en mètres avec start-stop (touchez la grande zone ou le bouton Bluetooth). Dans le tableau, définissez des mots qui apparaissent dans certains intervalles.",
   intro5:"MODE COPILOTE : le partiel compte toujours — chaque touche le remet à zéro. Vous pouvez aussi charger le road book : 50 m avant chaque repère, le symbole et la note s'affichent.",
@@ -1602,6 +1487,9 @@ fr:{introTitle:"Comment ça marche",
   soundDefault:"Par défaut",
   soundPlay:"Écouter"},
 es:{introTitle:"Cómo funciona",
+  askStageName:"Nombre del tramo",askTableName:"Nombre de la tabla",askFolderName:"Nombre de la carpeta",
+  pwSub:"iRally Pro desbloquea toda la app: modo Piloto, escáner de tablas de marcha y escáner del road book, con todas sus funciones.",
+  pwSave:"Ahorras ~20 €",
   intro1:"Arriba: el reloj y la distancia TOTAL — mantén pulsado 2 segundos para poner a cero.",
   intro2:"MODO PILOTO: parcial en metros con start-stop (toca la zona grande o el botón Bluetooth). En la tabla puedes definir palabras que aparecen en ciertos intervalos.",
   intro5:"MODO COPILOTO: el parcial cuenta siempre — cada toque lo pone a cero. Además puedes cargar el road book: 50 m antes de cada referencia aparece el símbolo con la nota.",
@@ -1727,6 +1615,9 @@ es:{introTitle:"Cómo funciona",
   soundDefault:"Predeterminado",
   soundPlay:"Escuchar"},
 de:{introTitle:"So funktioniert es",
+  askStageName:"Name der Prüfung",askTableName:"Name der Tabelle",askFolderName:"Name des Ordners",
+  pwSub:"iRally Pro schaltet die ganze App frei: Fahrer-Modus, Scanner für Bordkarten und Roadbook-Scanner, mit allen Funktionen.",
+  pwSave:"Spare ~20 €",
   intro1:"Oben: die Uhr und die GESAMTdistanz — 2 Sekunden gedrückt halten zum Nullstellen.",
   intro2:"FAHRER-MODUS: Teildistanz in Metern mit Start-Stopp (großen Bereich antippen oder Bluetooth-Taste). In der Tabelle kannst du Wörter für Meterbereiche festlegen.",
   intro5:"BEIFAHRER-MODUS: die Teildistanz zählt immer — Antippen stellt sie auf null. Zudem kannst du das Roadbook laden: 50 m vor jedem Bezugspunkt erscheint das Symbol mit der Notiz.",
@@ -1852,6 +1743,9 @@ de:{introTitle:"So funktioniert es",
   soundDefault:"Standard",
   soundPlay:"Anhören"},
 pt:{introTitle:"Como funciona",
+  askStageName:"Nome da especial",askTableName:"Nome da tabela",askFolderName:"Nome da pasta",
+  pwSub:"O iRally Pro desbloqueia toda a app: modo Piloto, scanner das tabelas de marcha e scanner do road book, com todas as funções.",
+  pwSave:"Poupa ~20 €",
   intro1:"No topo: o relógio e a distância TOTAL — mantenha premido 2 segundos para zerar.",
   intro2:"MODO PILOTO: parcial em metros com start-stop (toque na área grande ou no botão Bluetooth). Na tabela pode definir palavras que aparecem em certos intervalos.",
   intro5:"MODO NAVEGADOR: o parcial conta sempre — cada toque zera. Além disso pode carregar o road book: 50 m antes de cada referência aparece o símbolo com a nota.",
@@ -1977,6 +1871,9 @@ pt:{introTitle:"Como funciona",
   soundDefault:"Predefinido",
   soundPlay:"Ouvir"},
 ja:{introTitle:"使い方",
+  askStageName:"ステージ名",askTableName:"テーブル名",askFolderName:"フォルダ名",
+  pwSub:"iRally Pro ではアプリのすべてが使えます: ドライバーモード、タイムカードのスキャナー、ロードブックのスキャナーとその全機能。",
+  pwSave:"約20ユーロお得",
   intro1:"上部:時計と合計距離 — 2秒長押しでリセット。",
   intro2:"ドライバーモード:メートル単位の区間距離をスタート・ストップ(大きなエリアをタップ、またはBluetoothボタン)。テーブルで範囲ごとの言葉を設定できます。",
   intro5:"ナビゲーターモード:区間距離は常にカウント — タップでゼロに。ロードブックも登録可能:各基準点の50m手前で記号とメモが表示されます。",
@@ -2102,6 +1999,9 @@ ja:{introTitle:"使い方",
   soundDefault:"デフォルト",
   soundPlay:"再生"},
 cs:{introTitle:"Jak to funguje",
+  askStageName:"Název rychlostní zkoušky",askTableName:"Název tabulky",askFolderName:"Název složky",
+  pwSub:"iRally Pro odemkne celou aplikaci: režim Pilot, skener časových tabulek a skener road booku se všemi funkcemi.",
+  pwSave:"Ušetříte ~20 €",
   intro1:"Nahoře: hodiny a CELKOVÁ vzdálenost — podržte 2 sekundy pro vynulování.",
   intro2:"REŽIM ŘIDIČ: dílčí vzdálenost v metrech se start-stop (klepněte na velkou oblast nebo Bluetooth tlačítko). V tabulce můžete nastavit slova pro rozsahy metrů.",
   intro5:"REŽIM NAVIGÁTOR: dílčí vzdálenost počítá stále — klepnutí ji vynuluje. Navíc můžete nahrát roadbook: 50 m před každým bodem se zobrazí symbol s poznámkou.",
@@ -2332,7 +2232,122 @@ function saveCfg(){
 
 /* ================= LINGUA / TEMA ================= */
 function t(k){ return (T[cfg.lang]||T.en)[k] || T.en[k] || k; }
+var GUIDE_LEAD={
+it:"Tutto quello che serve, diviso per sezione. Tocca un titolo per aprirlo.",
+en:"Everything you need, section by section. Tap a title to open it.",
+fr:"Tout ce qu'il faut, section par section. Touchez un titre pour l'ouvrir.",
+es:"Todo lo que necesitas, por secciones. Toca un título para abrirlo.",
+de:"Alles Wichtige, nach Bereichen. Tippe auf einen Titel, um ihn zu öffnen.",
+pt:"Tudo o que precisas, por secções. Toca num título para o abrir.",
+ja:"必要なことをセクションごとにまとめています。タイトルをタップすると開きます。",
+cs:"Vše potřebné po sekcích. Klepnutím na nadpis jej otevřete."
+};
+var GUIDE_SUP={it:"ID assistenza:",en:"Support ID:",fr:"ID d'assistance :",es:"ID de soporte:",de:"Support-ID:",pt:"ID de apoio:",ja:"サポートID:",cs:"ID podpory:"};
+var GUIDE={
+it:[
+["☰","Menu e modalità","Tocca <b>☰</b> in alto per aprire il menu e scegliere cosa usare: <b>Pilota</b> (legge le note ai metri), <b>Navigatore / Trip</b> (parziale e velocità), <b>Radar</b> (road book), <b>Scanner tabella di marcia</b>, <b>Tabella di marcia manuale</b>, <b>Impostazioni</b> e <b>Guida</b>."],
+["🏁","Pilota","Imposti una <b>parola o nota</b> e il <b>range di metri</b> in cui deve comparire. Durante il tratto, quando il contametri entra nel range, la nota compare e viene <b>letta a voce</b> se attivi l'interruttore. Azzera il contatore alla partenza.<div class=\"tip\">Con un telecomando Bluetooth compatibile dai il parziale senza toccare lo schermo.</div>"],
+["🧭","Navigatore / Trip","<b>Parziale sempre attivo</b>, <b>velocità</b> e <b>qualità del GPS</b>. In galleria attiva la <b>modalità Tunnel</b>: la distanza continua a essere stimata anche senza segnale. Tieni premuto sul parziale per azzerarlo."],
+["📡","Radar (road book)","<ul><li>Tocca <b>+</b> per creare una prova: scrivi il nome, fotografa la pagina e l'app la legge e la salva da sola.</li><li>Tocca una prova salvata per <b>caricarla</b>.</li><li>In gara <b>azzera il TOTALE</b> alla partenza (tieni premuto 2 secondi).</li><li>Tieni premuto sul <b>PARZIALE</b> per azzerare i metri e passare <b>subito al riferimento successivo</b>.</li><li>Per ogni riferimento vedi <b>numero</b>, <b>foto</b> e <b>metri mancanti</b>. Le frecce scorrono senza toccare il totale.</li></ul><div class=\"tip\">Fotografa la pagina dritta e ben illuminata.</div>"],
+["📋","Scanner tabella di marcia","<ul><li>Tocca <b>+</b> e dai il nome che vuoi.</li><li>Fotografa <b>tutte le pagine</b>: i <b>controlli si sommano</b>, così verifichi che ci siano tutti.</li><li>Metti l'<b>ora reale di partenza</b>: i tempi teorici si calcolano da soli.</li><li>Se una prova parte in ritardo, i <b>timbri successivi si spostano</b> in automatico.</li><li>Attiva la <b>🔔</b> sui controlli che vuoi e scegli i <b>minuti prima</b>.</li><li>In gara apri il file col nome: ritrovi tutto pronto.</li></ul><div class=\"tip\">Tutto è salvato nel telefono ed è incluso nel backup.</div>"],
+["✍️","Tabella di marcia manuale","Come sopra, ma la costruisci a mano quando non puoi scansionare.<ul><li>Tocca <b>+</b> e dai un nome (una tabella per sezione).</li><li>Imposta l'orario di partenza e aggiungi i timbri.</li><li>Per ogni timbro scegli tipo, località e minuti di tempo imposto: l'ora teorica si somma da sola.</li><li>In gara scrivi l'ora reale del timbro: l'app calcola il ritardo e sposta i teorici successivi.</li></ul>"],
+["🔔","Sveglie e notifiche","Quando attivi la 🔔 su un controllo è <b>iOS</b> a tenere la sveglia: suona anche a <b>schermo spento</b> e ad <b>app chiusa</b>.<ul><li>Serve il <b>permesso notifiche</b> attivo (l'app lo chiede la prima volta).</li><li>Le sveglie si riprogrammano <b>quando l'app è aperta</b>: dopo un ritardo riapri un attimo l'app per aggiornarle.</li></ul>"],
+["💾","Backup (importante)","I dati stanno nel telefono e iOS <b>può cancellarli</b> se serve spazio. Prima delle gare fai <b>Impostazioni → Esporta</b> e salva il file; per rimetterli usa <b>Importa</b>. Il backup contiene tutto: prove radar, tabelle, sveglie e impostazioni."],
+["⚙️","Impostazioni","Da qui cambi <b>lingua</b>, <b>unità</b> (km/mi), <b>stile e dimensione dei numeri</b> con anteprima dal vivo, <b>tema</b> e formato orario 12/24."]
+],
+en:[
+["☰","Menu and modes","Tap <b>☰</b> at the top to open the menu and pick what to use: <b>Driver</b> (reads notes at set distances), <b>Co-driver / Trip</b> (partial and speed), <b>Radar</b> (road book), <b>Time card scanner</b>, <b>Manual time card</b>, <b>Settings</b> and <b>Guide</b>."],
+["🏁","Driver","Set a <b>word or note</b> and the <b>metre range</b> where it should appear. During the stage, when the counter enters the range the note shows up and is <b>read aloud</b> if you turn the switch on. Reset the counter at the start.<div class=\"tip\">With a compatible Bluetooth remote you can reset the partial without touching the screen.</div>"],
+["🧭","Co-driver / Trip","<b>Always-on partial</b>, <b>speed</b> and <b>GPS quality</b>. In a tunnel turn on <b>Tunnel mode</b>: distance keeps being estimated even without signal. Hold the partial to reset it."],
+["📡","Radar (road book)","<ul><li>Tap <b>+</b> to create a stage: type a name, photograph the page and the app reads and saves it on its own.</li><li>Tap a saved stage to <b>load</b> it.</li><li>In the race <b>reset the TOTAL</b> at the start (hold 2 seconds).</li><li>Hold the <b>PARTIAL</b> to zero the metres and jump <b>straight to the next reference</b>.</li><li>For each reference you see <b>number</b>, <b>photo</b> and <b>metres to go</b>. The arrows scroll without touching the total.</li></ul><div class=\"tip\">Photograph the page straight and well lit.</div>"],
+["📋","Time card scanner","<ul><li>Tap <b>+</b> and give it any name.</li><li>Photograph <b>every page</b>: the <b>controls add up</b>, so you can check none are missing.</li><li>Enter the <b>actual start time</b>: due times are worked out automatically.</li><li>If a stage starts late, the <b>following controls shift</b> by themselves.</li><li>Turn on the <b>🔔</b> on the controls you want and choose <b>how many minutes before</b>.</li><li>During the race just open the file by name: everything is ready.</li></ul><div class=\"tip\">Everything is stored on the phone and included in the backup.</div>"],
+["✍️","Manual time card","Same as above, but built by hand when you cannot scan.<ul><li>Tap <b>+</b> and give it a name (one card per section).</li><li>Set the start time and add the controls.</li><li>For each control pick type, location and allowed minutes: the due time adds up on its own.</li><li>During the race write the real time you stamped: the app works out the delay and shifts the following due times.</li></ul>"],
+["🔔","Alarms and notifications","When you turn on the 🔔 for a control, <b>iOS</b> holds the alarm: it rings with the <b>screen off</b> and the <b>app closed</b>.<ul><li>The <b>notification permission</b> must be on (the app asks the first time).</li><li>Alarms are rescheduled <b>while the app is open</b>: after a delay, reopen the app briefly so they update.</li></ul>"],
+["💾","Backup (important)","Data lives on the phone and iOS <b>can delete it</b> if it needs space. Before an event use <b>Settings → Export</b> and save the file; use <b>Import</b> to put it back. The backup holds everything: radar stages, time cards, alarms and settings."],
+["⚙️","Settings","Here you change <b>language</b>, <b>units</b> (km/mi), <b>number style and size</b> with a live preview, <b>theme</b> and 12/24-hour format."]
+],
+fr:[
+["☰","Menu et modes","Touchez <b>☰</b> en haut pour ouvrir le menu et choisir : <b>Pilote</b> (lit les notes aux mètres réglés), <b>Copilote / Trip</b> (partiel et vitesse), <b>Radar</b> (carnet de route), <b>Scanner du carnet de contrôle</b>, <b>Carnet de contrôle manuel</b>, <b>Réglages</b> et <b>Guide</b>."],
+["🏁","Pilote","Vous réglez un <b>mot ou une note</b> et la <b>plage de mètres</b> où il doit apparaître. Pendant la spéciale, quand le compteur entre dans la plage, la note s'affiche et est <b>lue à voix haute</b> si vous activez l'interrupteur. Remettez le compteur à zéro au départ.<div class=\"tip\">Avec une télécommande Bluetooth compatible, vous remettez le partiel à zéro sans toucher l'écran.</div>"],
+["🧭","Copilote / Trip","<b>Partiel toujours actif</b>, <b>vitesse</b> et <b>qualité du GPS</b>. En tunnel, activez le <b>mode Tunnel</b> : la distance continue d'être estimée sans signal. Appui long sur le partiel pour le remettre à zéro."],
+["📡","Radar (carnet de route)","<ul><li>Touchez <b>+</b> pour créer une spéciale : saisissez le nom, photographiez la page et l'application la lit et l'enregistre seule.</li><li>Touchez une spéciale enregistrée pour la <b>charger</b>.</li><li>En course, <b>remettez le TOTAL à zéro</b> au départ (appui long 2 secondes).</li><li>Appui long sur le <b>PARTIEL</b> pour remettre les mètres à zéro et passer <b>directement au repère suivant</b>.</li><li>Pour chaque repère : <b>numéro</b>, <b>photo</b> et <b>mètres restants</b>. Les flèches défilent sans toucher au total.</li></ul><div class=\"tip\">Photographiez la page bien droite et bien éclairée.</div>"],
+["📋","Scanner du carnet de contrôle","<ul><li>Touchez <b>+</b> et donnez le nom que vous voulez.</li><li>Photographiez <b>toutes les pages</b> : les <b>contrôles s'additionnent</b>, vous vérifiez qu'il n'en manque aucun.</li><li>Saisissez l'<b>heure réelle de départ</b> : les heures théoriques se calculent seules.</li><li>Si une spéciale part en retard, les <b>contrôles suivants se décalent</b> automatiquement.</li><li>Activez la <b>🔔</b> sur les contrôles voulus et choisissez <b>combien de minutes avant</b>.</li><li>En course, ouvrez simplement le fichier par son nom : tout est prêt.</li></ul><div class=\"tip\">Tout est enregistré dans le téléphone et inclus dans la sauvegarde.</div>"],
+["✍️","Carnet de contrôle manuel","Comme ci-dessus, mais construit à la main quand le scan est impossible.<ul><li>Touchez <b>+</b> et donnez un nom (un carnet par section).</li><li>Réglez l'heure de départ et ajoutez les contrôles.</li><li>Pour chaque contrôle : type, lieu et minutes imparties ; l'heure théorique s'additionne seule.</li><li>En course, saisissez l'heure réelle de pointage : l'application calcule le retard et décale les heures suivantes.</li></ul>"],
+["🔔","Alarmes et notifications","Quand vous activez la 🔔 sur un contrôle, c'est <b>iOS</b> qui tient l'alarme : elle sonne <b>écran éteint</b> et <b>application fermée</b>.<ul><li>L'<b>autorisation de notifications</b> doit être active (demandée la première fois).</li><li>Les alarmes sont reprogrammées <b>quand l'application est ouverte</b> : après un retard, rouvrez-la un instant.</li></ul>"],
+["💾","Sauvegarde (important)","Les données sont dans le téléphone et iOS <b>peut les supprimer</b> s'il manque de place. Avant les courses, faites <b>Réglages → Exporter</b> et gardez le fichier ; utilisez <b>Importer</b> pour les restaurer. La sauvegarde contient tout : spéciales radar, carnets, alarmes et réglages."],
+["⚙️","Réglages","Ici vous changez la <b>langue</b>, les <b>unités</b> (km/mi), le <b>style et la taille des chiffres</b> avec aperçu en direct, le <b>thème</b> et le format 12/24 h."]
+],
+es:[
+["☰","Menú y modos","Toca <b>☰</b> arriba para abrir el menú y elegir: <b>Piloto</b> (lee las notas en los metros que marques), <b>Copiloto / Trip</b> (parcial y velocidad), <b>Radar</b> (road book), <b>Escáner de carné de control</b>, <b>Carné de control manual</b>, <b>Ajustes</b> y <b>Guía</b>."],
+["🏁","Piloto","Defines una <b>palabra o nota</b> y el <b>rango de metros</b> donde debe aparecer. Durante el tramo, cuando el contador entra en el rango, la nota aparece y se <b>lee en voz alta</b> si activas el interruptor. Pon el contador a cero en la salida.<div class=\"tip\">Con un mando Bluetooth compatible pones el parcial a cero sin tocar la pantalla.</div>"],
+["🧭","Copiloto / Trip","<b>Parcial siempre activo</b>, <b>velocidad</b> y <b>calidad del GPS</b>. En túnel activa el <b>modo Túnel</b>: la distancia se sigue estimando sin señal. Mantén pulsado el parcial para ponerlo a cero."],
+["📡","Radar (road book)","<ul><li>Toca <b>+</b> para crear un tramo: escribe el nombre, fotografía la página y la app la lee y la guarda sola.</li><li>Toca un tramo guardado para <b>cargarlo</b>.</li><li>En carrera <b>pon el TOTAL a cero</b> en la salida (mantén 2 segundos).</li><li>Mantén pulsado el <b>PARCIAL</b> para poner los metros a cero y pasar <b>directo a la referencia siguiente</b>.</li><li>De cada referencia ves <b>número</b>, <b>foto</b> y <b>metros que faltan</b>. Las flechas avanzan sin tocar el total.</li></ul><div class=\"tip\">Fotografía la página recta y bien iluminada.</div>"],
+["📋","Escáner de carné de control","<ul><li>Toca <b>+</b> y ponle el nombre que quieras.</li><li>Fotografía <b>todas las páginas</b>: los <b>controles se suman</b>, así compruebas que no falte ninguno.</li><li>Pon la <b>hora real de salida</b>: los tiempos teóricos se calculan solos.</li><li>Si un tramo sale con retraso, los <b>controles siguientes se desplazan</b> automáticamente.</li><li>Activa la <b>🔔</b> en los controles que quieras y elige <b>cuántos minutos antes</b>.</li><li>En carrera abre el archivo por su nombre: está todo listo.</li></ul><div class=\"tip\">Todo se guarda en el teléfono y entra en la copia de seguridad.</div>"],
+["✍️","Carné de control manual","Igual que arriba, pero construido a mano cuando no puedes escanear.<ul><li>Toca <b>+</b> y ponle nombre (un carné por sección).</li><li>Define la hora de salida y añade los controles.</li><li>De cada control eliges tipo, localidad y minutos concedidos: la hora teórica se suma sola.</li><li>En carrera escribe la hora real del sello: la app calcula el retraso y desplaza las siguientes.</li></ul>"],
+["🔔","Alarmas y notificaciones","Cuando activas la 🔔 en un control, es <b>iOS</b> quien mantiene la alarma: suena con la <b>pantalla apagada</b> y la <b>app cerrada</b>.<ul><li>Hace falta el <b>permiso de notificaciones</b> activo (la app lo pide la primera vez).</li><li>Las alarmas se reprograman <b>con la app abierta</b>: tras un retraso, ábrela un momento para actualizarlas.</li></ul>"],
+["💾","Copia de seguridad (importante)","Los datos están en el teléfono y iOS <b>puede borrarlos</b> si necesita espacio. Antes de las carreras usa <b>Ajustes → Exportar</b> y guarda el archivo; para recuperarlos usa <b>Importar</b>. La copia contiene todo: tramos de radar, carnés, alarmas y ajustes."],
+["⚙️","Ajustes","Aquí cambias <b>idioma</b>, <b>unidades</b> (km/mi), <b>estilo y tamaño de los números</b> con vista previa en directo, <b>tema</b> y formato de hora 12/24."]
+],
+de:[
+["☰","Menü und Modi","Tippe oben auf <b>☰</b>, um das Menü zu öffnen und zu wählen: <b>Fahrer</b> (liest Notizen bei den eingestellten Metern), <b>Beifahrer / Trip</b> (Teilstrecke und Tempo), <b>Radar</b> (Roadbook), <b>Bordkarten-Scanner</b>, <b>Bordkarte manuell</b>, <b>Einstellungen</b> und <b>Anleitung</b>."],
+["🏁","Fahrer","Du legst ein <b>Wort oder eine Notiz</b> und den <b>Meterbereich</b> fest, in dem sie erscheinen soll. Auf der Prüfung erscheint die Notiz, sobald der Zähler in den Bereich kommt, und wird <b>vorgelesen</b>, wenn du den Schalter aktivierst. Setze den Zähler am Start zurück.<div class=\"tip\">Mit einer kompatiblen Bluetooth-Fernbedienung setzt du die Teilstrecke zurück, ohne den Bildschirm zu berühren.</div>"],
+["🧭","Beifahrer / Trip","<b>Teilstrecke immer aktiv</b>, <b>Geschwindigkeit</b> und <b>GPS-Qualität</b>. Im Tunnel den <b>Tunnel-Modus</b> einschalten: die Distanz wird auch ohne Signal geschätzt. Lange auf die Teilstrecke drücken, um sie zurückzusetzen."],
+["📡","Radar (Roadbook)","<ul><li>Tippe auf <b>+</b>, um eine Prüfung anzulegen: Namen eingeben, Seite fotografieren – die App liest und speichert sie selbst.</li><li>Tippe eine gespeicherte Prüfung an, um sie zu <b>laden</b>.</li><li>Im Rennen am Start den <b>GESAMTWERT zurücksetzen</b> (2 Sekunden halten).</li><li>Die <b>TEILSTRECKE</b> gedrückt halten, um die Meter zu nullen und <b>direkt zum nächsten Punkt</b> zu springen.</li><li>Zu jedem Punkt siehst du <b>Nummer</b>, <b>Foto</b> und <b>Restmeter</b>. Die Pfeile blättern, ohne den Gesamtwert zu ändern.</li></ul><div class=\"tip\">Fotografiere die Seite gerade und gut beleuchtet.</div>"],
+["📋","Bordkarten-Scanner","<ul><li>Tippe auf <b>+</b> und vergib einen beliebigen Namen.</li><li>Fotografiere <b>alle Seiten</b>: die <b>Kontrollen summieren sich</b>, so siehst du, dass keine fehlt.</li><li>Trage die <b>echte Startzeit</b> ein: die Sollzeiten werden automatisch berechnet.</li><li>Startet eine Prüfung später, <b>verschieben sich die folgenden Kontrollen</b> von selbst.</li><li>Schalte die <b>🔔</b> bei den gewünschten Kontrollen ein und wähle <b>wie viele Minuten vorher</b>.</li><li>Im Rennen einfach die Datei mit dem Namen öffnen: alles ist bereit.</li></ul><div class=\"tip\">Alles wird im Telefon gespeichert und ist im Backup enthalten.</div>"],
+["✍️","Bordkarte manuell","Wie oben, aber von Hand erstellt, wenn Scannen nicht geht.<ul><li>Tippe auf <b>+</b> und vergib einen Namen (eine Karte pro Abschnitt).</li><li>Startzeit einstellen und Kontrollen hinzufügen.</li><li>Pro Kontrolle Typ, Ort und Sollminuten wählen: die Sollzeit addiert sich selbst.</li><li>Im Rennen die echte Stempelzeit eintragen: die App berechnet den Verzug und verschiebt die folgenden Sollzeiten.</li></ul>"],
+["🔔","Wecker und Mitteilungen","Wenn du die 🔔 bei einer Kontrolle aktivierst, hält <b>iOS</b> den Wecker: er klingelt auch bei <b>ausgeschaltetem Bildschirm</b> und <b>geschlossener App</b>.<ul><li>Die <b>Mitteilungsberechtigung</b> muss aktiv sein (die App fragt beim ersten Mal).</li><li>Wecker werden neu geplant, <b>während die App offen ist</b>: nach einer Verzögerung die App kurz öffnen.</li></ul>"],
+["💾","Backup (wichtig)","Die Daten liegen im Telefon und iOS <b>kann sie löschen</b>, wenn Platz fehlt. Mache vor dem Rennen <b>Einstellungen → Exportieren</b> und sichere die Datei; mit <b>Importieren</b> holst du sie zurück. Das Backup enthält alles: Radar-Prüfungen, Bordkarten, Wecker und Einstellungen."],
+["⚙️","Einstellungen","Hier änderst du <b>Sprache</b>, <b>Einheiten</b> (km/mi), <b>Stil und Größe der Zahlen</b> mit Live-Vorschau, <b>Design</b> und 12/24-Stunden-Format."]
+],
+pt:[
+["☰","Menu e modos","Toca em <b>☰</b> em cima para abrir o menu e escolher: <b>Piloto</b> (lê as notas aos metros definidos), <b>Navegador / Trip</b> (parcial e velocidade), <b>Radar</b> (road book), <b>Scanner do cartão de controlo</b>, <b>Cartão de controlo manual</b>, <b>Definições</b> e <b>Guia</b>."],
+["🏁","Piloto","Defines uma <b>palavra ou nota</b> e o <b>intervalo de metros</b> em que deve aparecer. Durante o troço, quando o contador entra no intervalo, a nota aparece e é <b>lida em voz alta</b> se ligares o interruptor. Põe o contador a zero na partida.<div class=\"tip\">Com um comando Bluetooth compatível zeras o parcial sem tocar no ecrã.</div>"],
+["🧭","Navegador / Trip","<b>Parcial sempre ativo</b>, <b>velocidade</b> e <b>qualidade do GPS</b>. Em túnel liga o <b>modo Túnel</b>: a distância continua a ser estimada sem sinal. Mantém premido o parcial para o zerar."],
+["📡","Radar (road book)","<ul><li>Toca em <b>+</b> para criar um troço: escreve o nome, fotografa a página e a app lê e guarda sozinha.</li><li>Toca num troço guardado para o <b>carregar</b>.</li><li>Em prova <b>zera o TOTAL</b> na partida (mantém 2 segundos).</li><li>Mantém premido o <b>PARCIAL</b> para zerar os metros e passar <b>já para a referência seguinte</b>.</li><li>Em cada referência vês <b>número</b>, <b>foto</b> e <b>metros em falta</b>. As setas avançam sem mexer no total.</li></ul><div class=\"tip\">Fotografa a página direita e bem iluminada.</div>"],
+["📋","Scanner do cartão de controlo","<ul><li>Toca em <b>+</b> e dá o nome que quiseres.</li><li>Fotografa <b>todas as páginas</b>: os <b>controlos somam-se</b>, assim confirmas que não falta nenhum.</li><li>Introduz a <b>hora real de partida</b>: os tempos teóricos calculam-se sozinhos.</li><li>Se um troço partir atrasado, os <b>controlos seguintes deslocam-se</b> automaticamente.</li><li>Liga a <b>🔔</b> nos controlos que quiseres e escolhe <b>quantos minutos antes</b>.</li><li>Em prova abre o ficheiro pelo nome: está tudo pronto.</li></ul><div class=\"tip\">Fica tudo guardado no telemóvel e incluído na cópia de segurança.</div>"],
+["✍️","Cartão de controlo manual","Como acima, mas feito à mão quando não dá para digitalizar.<ul><li>Toca em <b>+</b> e dá um nome (um cartão por secção).</li><li>Define a hora de partida e acrescenta os controlos.</li><li>Em cada controlo escolhes tipo, localidade e minutos concedidos: a hora teórica soma-se sozinha.</li><li>Em prova escreve a hora real do carimbo: a app calcula o atraso e desloca as seguintes.</li></ul>"],
+["🔔","Alarmes e notificações","Quando ligas a 🔔 num controlo, é o <b>iOS</b> que guarda o alarme: toca com o <b>ecrã desligado</b> e a <b>app fechada</b>.<ul><li>É preciso a <b>permissão de notificações</b> ativa (a app pede na primeira vez).</li><li>Os alarmes são reprogramados <b>com a app aberta</b>: depois de um atraso, abre-a um momento.</li></ul>"],
+["💾","Cópia de segurança (importante)","Os dados estão no telemóvel e o iOS <b>pode apagá-los</b> se precisar de espaço. Antes das provas faz <b>Definições → Exportar</b> e guarda o ficheiro; usa <b>Importar</b> para os repor. A cópia contém tudo: troços de radar, cartões, alarmes e definições."],
+["⚙️","Definições","Aqui mudas <b>idioma</b>, <b>unidades</b> (km/mi), <b>estilo e tamanho dos números</b> com pré-visualização, <b>tema</b> e formato de hora 12/24."]
+],
+ja:[
+["☰","メニューとモード","上部の <b>☰</b> をタップしてメニューを開き、使うものを選びます: <b>ドライバー</b>（設定した距離でノートを読み上げ）、<b>ナビゲーター / トリップ</b>（区間距離と速度）、<b>レーダー</b>（ロードブック）、<b>タイムカード・スキャナー</b>、<b>タイムカード（手動）</b>、<b>設定</b>、<b>ガイド</b>。"],
+["🏁","ドライバー","<b>単語やノート</b>と、それを表示する<b>距離の範囲</b>を設定します。走行中、距離計がその範囲に入るとノートが表示され、スイッチを入れておけば<b>読み上げ</b>られます。スタート時にカウンターをリセットしてください。<div class=\"tip\">対応する Bluetooth リモコンがあれば、画面に触れずに区間距離をリセットできます。</div>"],
+["🧭","ナビゲーター / トリップ","<b>常時作動の区間距離</b>、<b>速度</b>、<b>GPSの精度</b>を表示します。トンネルでは<b>トンネルモード</b>をオンに: 電波がなくても距離を推定し続けます。区間距離を長押しでリセット。"],
+["📡","レーダー（ロードブック）","<ul><li><b>+</b> をタップしてステージを作成: 名前を入力してページを撮影すると、アプリが自動で読み取り保存します。</li><li>保存済みのステージをタップして<b>読み込み</b>。</li><li>競技ではスタート時に<b>合計をリセット</b>（2秒長押し）。</li><li><b>区間距離</b>を長押しすると距離がゼロになり、<b>次のポイントへ即座に</b>進みます。</li><li>各ポイントで<b>番号</b>、<b>写真</b>、<b>残り距離</b>を表示。矢印は合計に影響せず送れます。</li></ul><div class=\"tip\">ページはまっすぐ、明るい場所で撮影してください。</div>"],
+["📋","タイムカード・スキャナー","<ul><li><b>+</b> をタップして好きな名前を付けます。</li><li><b>すべてのページ</b>を撮影: <b>コントロールは合算</b>されるので、抜けがないか確認できます。</li><li><b>実際のスタート時刻</b>を入力すると、規定時刻は自動計算されます。</li><li>ステージが遅れて出発した場合、<b>以降のコントロールも自動でずれます</b>。</li><li>必要なコントロールで <b>🔔</b> をオンにし、<b>何分前</b>かを選びます。</li><li>競技中は名前でファイルを開くだけ。すべて準備済みです。</li></ul><div class=\"tip\">データは端末内に保存され、バックアップにも含まれます。</div>"],
+["✍️","タイムカード（手動）","上と同じですが、スキャンできないときに手で作成します。<ul><li><b>+</b> をタップして名前を付けます（区間ごとに1枚）。</li><li>スタート時刻を設定し、コントロールを追加します。</li><li>各コントロールで種類・場所・規定時間（分）を選ぶと、規定時刻が自動で加算されます。</li><li>競技中は実際の押印時刻を入力: アプリが遅れを計算し、以降の規定時刻をずらします。</li></ul>"],
+["🔔","アラームと通知","コントロールで 🔔 をオンにすると、アラームは <b>iOS</b> が管理します。<b>画面オフ</b>でも<b>アプリを閉じていても</b>鳴ります。<ul><li><b>通知の許可</b>が必要です（初回にアプリが確認します）。</li><li>アラームは<b>アプリを開いているとき</b>に再設定されます。遅れが出たら一度アプリを開いてください。</li></ul>"],
+["💾","バックアップ（重要）","データは端末内にあり、空き容量が不足すると iOS が<b>削除することがあります</b>。競技前に<b>設定 → 書き出し</b>でファイルを保存し、戻すときは<b>読み込み</b>を使います。バックアップにはレーダーのステージ、タイムカード、アラーム、設定のすべてが含まれます。"],
+["⚙️","設定","ここで<b>言語</b>、<b>単位</b>（km/mi）、<b>数字のスタイルと大きさ</b>（プレビュー付き）、<b>テーマ</b>、12/24時間表示を変更できます。"]
+],
+cs:[
+["☰","Menu a režimy","Klepnutím na <b>☰</b> nahoře otevřete menu a vyberete: <b>Řidič</b> (čte poznámky na nastavených metrech), <b>Navigátor / Trip</b> (mezisoučet a rychlost), <b>Radar</b> (road book), <b>Skener jízdního výkazu</b>, <b>Ruční jízdní výkaz</b>, <b>Nastavení</b> a <b>Nápověda</b>."],
+["🏁","Řidič","Nastavíte <b>slovo nebo poznámku</b> a <b>rozsah metrů</b>, kde se má objevit. Během zkoušky se poznámka zobrazí, jakmile počítadlo vstoupí do rozsahu, a je <b>přečtena nahlas</b>, pokud zapnete přepínač. Na startu počítadlo vynulujte.<div class=\"tip\">S kompatibilním Bluetooth ovladačem vynulujete mezisoučet bez dotyku displeje.</div>"],
+["🧭","Navigátor / Trip","<b>Stále aktivní mezisoučet</b>, <b>rychlost</b> a <b>kvalita GPS</b>. V tunelu zapněte <b>režim Tunel</b>: vzdálenost se odhaduje i bez signálu. Podržením mezisoučtu jej vynulujete."],
+["📡","Radar (road book)","<ul><li>Klepnutím na <b>+</b> vytvoříte zkoušku: napište název, vyfoťte stránku a aplikace ji sama načte a uloží.</li><li>Klepnutím na uloženou zkoušku ji <b>načtete</b>.</li><li>V soutěži na startu <b>vynulujte CELKEM</b> (podržte 2 sekundy).</li><li>Podržením <b>MEZISOUČTU</b> vynulujete metry a přejdete <b>rovnou na další bod</b>.</li><li>U každého bodu vidíte <b>číslo</b>, <b>foto</b> a <b>zbývající metry</b>. Šipky posouvají bez zásahu do celku.</li></ul><div class=\"tip\">Stránku foťte rovně a dobře osvětlenou.</div>"],
+["📋","Skener jízdního výkazu","<ul><li>Klepněte na <b>+</b> a zadejte libovolný název.</li><li>Vyfoťte <b>všechny stránky</b>: <b>kontroly se sčítají</b>, takže ověříte, že žádná nechybí.</li><li>Zadejte <b>skutečný čas startu</b>: teoretické časy se spočítají samy.</li><li>Pokud zkouška odstartuje se zpožděním, <b>následující kontroly se posunou</b> automaticky.</li><li>U vybraných kontrol zapněte <b>🔔</b> a zvolte, <b>kolik minut předem</b>.</li><li>V soutěži stačí otevřít soubor podle názvu: vše je připraveno.</li></ul><div class=\"tip\">Vše je uloženo v telefonu a je součástí zálohy.</div>"],
+["✍️","Ruční jízdní výkaz","Stejné jako výše, ale vytvořené ručně, když nelze skenovat.<ul><li>Klepněte na <b>+</b> a zadejte název (jeden výkaz na sekci).</li><li>Nastavte čas startu a přidejte kontroly.</li><li>U každé kontroly zvolte typ, místo a povolené minuty: teoretický čas se sčítá sám.</li><li>V soutěži zapište skutečný čas razítka: aplikace spočítá zpoždění a posune následující časy.</li></ul>"],
+["🔔","Budíky a oznámení","Když u kontroly zapnete 🔔, budík drží <b>iOS</b>: zazvoní i při <b>vypnutém displeji</b> a <b>zavřené aplikaci</b>.<ul><li>Musí být zapnuté <b>oprávnění pro oznámení</b> (aplikace se zeptá napoprvé).</li><li>Budíky se přeplánují, <b>když je aplikace otevřená</b>: po zpoždění ji na chvíli otevřete.</li></ul>"],
+["💾","Záloha (důležité)","Data jsou v telefonu a iOS je <b>může smazat</b>, když potřebuje místo. Před soutěží použijte <b>Nastavení → Export</b> a soubor uložte; zpět je vrátíte přes <b>Import</b>. Záloha obsahuje vše: zkoušky radaru, výkazy, budíky i nastavení."],
+["⚙️","Nastavení","Zde měníte <b>jazyk</b>, <b>jednotky</b> (km/mi), <b>styl a velikost čísel</b> s živým náhledem, <b>vzhled</b> a formát času 12/24."]
+]
+};
+
+function renderGuide(){
+  var L=(GUIDE[cfg.lang]?cfg.lang:'en');
+  var acc=document.getElementById('guideAcc'); if(!acc) return;
+  var gl=document.getElementById('gLead'); if(gl) gl.textContent=GUIDE_LEAD[L]||GUIDE_LEAD.en;
+  var gs=document.getElementById('gSup'); if(gs) gs.textContent=GUIDE_SUP[L]||GUIDE_SUP.en;
+  var h='';
+  GUIDE[L].forEach(function(sec){
+    h+='<div class="gsec"><button class="gsec-h">'+sec[0]+' '+sec[1]+'</button><div class="gsec-b">'+sec[2]+'</div></div>';
+  });
+  acc.innerHTML=h;   /* sempre tutte chiuse */
+}
+
 function applyLang(){
+  try{ renderGuide(); }catch(e){}
   document.documentElement.lang = cfg.lang;
   document.querySelectorAll('[data-t]').forEach(el=>{
     el.textContent = t(el.dataset.t);
@@ -2864,13 +2879,13 @@ function showConfirm(text,onYes,yesLabel,yesColor){
   const {ov,box}=uiBox();
   const pp=document.createElement('div'); pp.style.cssText='font-size:15px;line-height:1.5;margin-bottom:16px'; pp.textContent=text; box.appendChild(pp);
   const rb=document.createElement('div'); rb.style.cssText='display:flex;gap:10px';
-  const no=document.createElement('button'); no.textContent='Annulla'; no.style.cssText='flex:1;padding:12px;border-radius:10px;background:var(--btnbg,#222);border:1px solid var(--line,#333);color:var(--text,#eee)'; no.addEventListener('click',()=>uiClose(ov));
+  const no=document.createElement('button'); no.textContent=t('tcCancel'); no.style.cssText='flex:1;padding:12px;border-radius:10px;background:var(--btnbg,#222);border:1px solid var(--line,#333);color:var(--text,#eee)'; no.addEventListener('click',()=>uiClose(ov));
   const ye=document.createElement('button'); ye.textContent=yesLabel||'Elimina'; ye.style.cssText='flex:1;padding:12px;border-radius:10px;background:'+(yesColor||'var(--red,#e5484d)')+';border:none;color:#fff;font-weight:800'; ye.addEventListener('click',()=>{uiClose(ov);onYes();});
   rb.appendChild(no); rb.appendChild(ye); box.appendChild(rb);
 }
-function askName(preset,onOk){
+function askName(preset,onOk,labelKey){
   const {ov,box}=uiBox();
-  const h=document.createElement('div'); h.style.cssText='font-weight:800;color:var(--amber);margin-bottom:10px'; h.textContent=t('ssAskName'); box.appendChild(h);
+  const h=document.createElement('div'); h.style.cssText='font-weight:800;color:var(--amber);margin-bottom:10px'; h.textContent=t(labelKey||'askStageName'); box.appendChild(h);
   const inp=document.createElement('input'); inp.type='text'; inp.value=preset||''; inp.style.cssText='width:100%;padding:12px;border-radius:10px;border:1px solid var(--line,#333);background:var(--btnbg,#222);color:var(--text,#eee);font-size:16px;margin-bottom:14px'; box.appendChild(inp);
   const rb=document.createElement('div'); rb.style.cssText='display:flex;gap:10px';
   const no=document.createElement('button'); no.textContent='Annulla'; no.style.cssText='flex:1;padding:12px;border-radius:10px;background:var(--btnbg,#222);border:1px solid var(--line,#333);color:var(--text,#eee)'; no.addEventListener('click',()=>uiClose(ov));
@@ -2940,7 +2955,7 @@ let pendingAppend = false;
 
 $('ssNew').addEventListener('click', ()=>{
   if(!proGate()) return;
-  askName('', (name)=>{ pendingStageName=name; pendingAppend=false; $('aiFile').click(); });
+  askName('', (name)=>{ pendingStageName=name; pendingAppend=false; $('aiFile').click(); }, 'askStageName');
 });
 
 $('rbInfo').addEventListener('click', ()=>{ showMsg(t('rbGuide')); });
@@ -2961,7 +2976,7 @@ $('pw_cta') && $('pw_cta').addEventListener('click', function(){ window.__rallyB
 $('closeGen').addEventListener('click', ()=>{
   cfg.lang = $('langSel').value;
   cfg.units = $('unitSel').value;
-  cfg.numSize = parseInt($('numSel').value)||1;
+  cfg.numSize = (function(v){ v=parseInt(v,10); return (v===0||v===1||v===2)?v:1; })($('numSel').value);
   cfg.numFont = $('fontSel').value;
   cfg.h24 = ($('timeSel').value === '24');
   cfg.theme = $('themeSel').value;
@@ -3122,7 +3137,7 @@ $('tdmBody').addEventListener('click', e=>{
   const a=el.dataset.act; const i=el.dataset.i!=null?+el.dataset.i:null;
   if(a==='close'){ saveCfg(); $('tdmMenu').classList.remove('open'); }
   else if(a==='info'){ showMsg(tdmGuide); }
-  else if(a==='newtab'){ askName('', function(name){ cfg.tdm.push({name:name,start:'08:30',offset:3,rows:[]}); saveCfg(); tdmOpenIdx=cfg.tdm.length-1; renderTdm(); }); }
+  else if(a==='newtab'){ askName('', function(name){ cfg.tdm.push({name:name,start:'08:30',offset:3,rows:[]}); saveCfg(); tdmOpenIdx=cfg.tdm.length-1; renderTdm(); }, 'askTableName'); }
   else if(a==='open'){ tdmOpenIdx=i; renderTdm(); }
   else if(a==='deltab'){ const nm=cfg.tdm[i].name; showConfirm('Eliminare la tabella \u201C'+nm+'\u201D?', function(){ cfg.tdm.splice(i,1); saveCfg(); renderTdm(); }); }
   else if(a==='back'){ tdmOpenIdx=null; saveCfg(); renderTdm(); }
@@ -3326,24 +3341,24 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
   window.tcRelang = function(){ const r=$('tcMenu'); if(r && r.classList.contains('open')){ if(curIdx!=null && lastCard) render(lastCard); else renderLib(); } };
   ['input','change'].forEach(ev=> root().addEventListener(ev, onChange));
   root().addEventListener('click', function(e){
-    const t=e.target; if(!t||!t.closest) return;
-    if(t.closest('#tc_close')){ persist(); root().classList.remove('open'); return; }
-    if(t.closest('#tc_pick')){ if(!(window.__rallyPro&&window.__rallyPro.isPro())){ if(window.__rallyShowPaywall) window.__rallyShowPaywall(); return; } const f=$('tc_file'); if(f) f.click(); return; }
-    if(t.closest('#tc_new')){ newCard(); return; }
-    if(t.closest('#tc_newfolder')){ newFolder(); return; }
-    if(t.closest('#tc_folderback')){ curFolder=null; renderLib(); return; }
-    if(t.closest('#tc_folderdel')){ deleteFolder(curFolder); return; }
-    const of=t.closest('[data-openf]'); if(of){ curFolder=of.getAttribute('data-openf'); renderLib(); return; }
-    const df=t.closest('[data-delf]'); if(df){ deleteFolder(df.getAttribute('data-delf')); return; }
-    const mv=t.closest('[data-move]'); if(mv){ moveTable(+mv.getAttribute('data-move')); return; }
-    if(t.closest('#tc_back')){ showLib(); return; }
-    if(t.closest('#tc_delcur')){ deleteCur(); return; }
-    const o=t.closest('[data-open]'); if(o){ openCard(+o.getAttribute('data-open')); return; }
-    const nb=t.closest('[data-notif]'); if(nb){ toggleNotif(+nb.getAttribute('data-notif')); return; }
-    const d=t.closest('[data-del]'); if(d){ const i=+d.getAttribute('data-del'); const nm=(cfg.tcards[i]&&cfg.tcards[i].name)||''; showConfirm(t('tcDelTable')+' \u201C'+nm+'\u201D?', function(){ const e=cfg.tcards[i]; if(e){ e.notify=false; scheduleEntry(e); } cfg.tcards.splice(i,1); saveCfg(); renderLib(); }); return; }
-    const mb=t.closest('.tc-mbtn'); if(mb){ INPUT_MODE=mb.dataset.mode; root().querySelectorAll('.tc-mbtn').forEach(x=>x.classList.toggle('on', x.dataset.mode===INPUT_MODE)); if(lastCard) render(lastCard); return; }
-    if(t.closest('#tc_editbtn')){ toggleEdit(); return; }
-    const tg=t.closest('.tgt[data-tgt]'); if(tg){ if(editMode) editTarget(+tg.getAttribute('data-tgt')); return; }
+    const el0=e.target; if(!el0||!el0.closest) return;
+    if(el0.closest('#tc_close')){ persist(); root().classList.remove('open'); return; }
+    if(el0.closest('#tc_pick')){ if(!(window.__rallyPro&&window.__rallyPro.isPro())){ if(window.__rallyShowPaywall) window.__rallyShowPaywall(); return; } const f=$('tc_file'); if(f) f.click(); return; }
+    if(el0.closest('#tc_new')){ newCard(); return; }
+    if(el0.closest('#tc_newfolder')){ newFolder(); return; }
+    if(el0.closest('#tc_folderback')){ curFolder=null; renderLib(); return; }
+    if(el0.closest('#tc_folderdel')){ deleteFolder(curFolder); return; }
+    const of=el0.closest('[data-openf]'); if(of){ curFolder=of.getAttribute('data-openf'); renderLib(); return; }
+    const df=el0.closest('[data-delf]'); if(df){ deleteFolder(df.getAttribute('data-delf')); return; }
+    const mv=el0.closest('[data-move]'); if(mv){ moveTable(+mv.getAttribute('data-move')); return; }
+    if(el0.closest('#tc_back')){ showLib(); return; }
+    if(el0.closest('#tc_delcur')){ deleteCur(); return; }
+    const o=el0.closest('[data-open]'); if(o){ openCard(+o.getAttribute('data-open')); return; }
+    const nb=el0.closest('[data-notif]'); if(nb){ toggleNotif(+nb.getAttribute('data-notif')); return; }
+    const d=el0.closest('[data-del]'); if(d){ const i=+d.getAttribute('data-del'); const nm=(cfg.tcards[i]&&cfg.tcards[i].name)||''; showConfirm(t('tcDelTable')+' \u201C'+nm+'\u201D?', function(){ const e=cfg.tcards[i]; if(e){ e.notify=false; scheduleEntry(e); } cfg.tcards.splice(i,1); saveCfg(); renderLib(); }); return; }
+    const mb=el0.closest('.tc-mbtn'); if(mb){ INPUT_MODE=mb.dataset.mode; root().querySelectorAll('.tc-mbtn').forEach(x=>x.classList.toggle('on', x.dataset.mode===INPUT_MODE)); if(lastCard) render(lastCard); return; }
+    if(el0.closest('#tc_editbtn')){ toggleEdit(); return; }
+    const tg=el0.closest('.tgt[data-tgt]'); if(tg){ if(editMode) editTarget(+tg.getAttribute('data-tgt')); return; }
   });
 
   /* ===== LIBRERIA (elenco tabelle salvate + editor) ===== */
@@ -3403,7 +3418,7 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
     list.innerHTML=h;
   }
 
-  function newFolder(){ askName('', function(name){ if(!Array.isArray(cfg.tcfolders)) cfg.tcfolders=[]; cfg.tcfolders.push({ id:'f'+Date.now(), name:name }); saveCfg(); renderLib(); }); }
+  function newFolder(){ askName('', function(name){ if(!Array.isArray(cfg.tcfolders)) cfg.tcfolders=[]; cfg.tcfolders.push({ id:'f'+Date.now(), name:name }); saveCfg(); renderLib(); }, 'askFolderName'); }
 
   function deleteFolder(id){
     const f=folderById(id); if(!f) return;
@@ -3428,7 +3443,7 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
     ov.querySelector('.tc-ecancel').addEventListener('click', close);
     ov.querySelectorAll('.tc-mvopt').forEach(btn=> btn.addEventListener('click', ()=>{
       const f=btn.getAttribute('data-f');
-      if(f==='__new'){ close(); askName('', function(name){ if(!Array.isArray(cfg.tcfolders)) cfg.tcfolders=[]; const id='f'+Date.now(); cfg.tcfolders.push({id:id,name:name}); e.folder=id; saveCfg(); renderLib(); }); return; }
+      if(f==='__new'){ close(); askName('', function(name){ if(!Array.isArray(cfg.tcfolders)) cfg.tcfolders=[]; const id='f'+Date.now(); cfg.tcfolders.push({id:id,name:name}); e.folder=id; saveCfg(); renderLib(); }, 'askFolderName'); return; }
       e.folder = f||null; saveCfg(); close(); renderLib();
     }));
   }
@@ -3678,49 +3693,6 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
     if(notifs.length){ try{ await ln.schedule({notifications:notifs}); }catch(_){} }
     saveCfg();
   }
-})();
-</script>
-
-<nav id="tabbar">
-  <button data-tab="pilot" class="on"><svg viewBox="0 0 24 24"><path d="M4.5 13C4.5 8 8.2 4.3 13 4.3c3.8 0 6.7 2.7 6.7 6.3 0 2.6-1.6 4-4.2 4.5l-3.3.6c-3.2.6-7-.2-7.7-2.7Z"/><path d="M5.3 10c2.7 1.5 9 1.6 13.7-1"/></svg><span class="tlbl">Pilota</span></button>
-  <button data-tab="nav"><svg viewBox="0 0 24 24"><path d="M9 4.5c5.5 0 5.5 5 0 6.5-5.5 1.5-5.5 6.5 0 6.5"/><circle cx="9" cy="4.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="9" cy="17.5" r="1.3" fill="currentColor" stroke="none"/></svg><span class="tlbl">Trip</span></button>
-  <button data-tab="radar"><svg viewBox="0 0 24 24"><rect x="4.5" y="3.5" width="15" height="17" rx="1.8"/><path d="M8 8.5h6M8 11.5h4"/><circle cx="15.5" cy="15.5" r=".9" fill="currentColor" stroke="none"/><path d="M13.3 15.5a2.2 2.2 0 0 1 4.4 0"/><path d="M11.8 15.5a3.7 3.7 0 0 1 7.4 0"/></svg><span class="tlbl">Radar</span></button>
-  <button data-tab="tdm"><svg viewBox="0 0 24 24"><path d="M4 7.2A1.7 1.7 0 0 1 5.7 5.5h4l1.6 2.1h8A1.7 1.7 0 0 1 21 9.3v8A1.7 1.7 0 0 1 19.3 19H5.7A1.7 1.7 0 0 1 4 17.3Z"/></svg><span class="tlbl">Tabelle</span></button>
-  <button data-tab="altro"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="18" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg><span class="tlbl">Altro</span></button>
-</nav>
-
-<script>
-/* ===== BARRA IN BASSO: Pilota / Trip / Radar / Tabelle / Altro =====
-   Nota: il codice dell'app sta dentro una IIFE, quindi le sue funzioni non
-   sono globali. Qui non le chiamiamo: simuliamo il tocco sui pulsanti che
-   l'app ha gia' collegato (restano nel DOM, solo nascosti). */
-(function(){
-  var bar=document.getElementById('tabbar'); if(!bar) return;
-  function el(id){ return document.getElementById(id); }
-  var tcSeen=false;
-  var MAP={ pilot:'drvPilot', nav:'drvTrip', radar:'drvRadar' };
-  function sync(){
-    var m=document.body.getAttribute('data-mode');
-    var btns=bar.querySelectorAll('button');
-    for(var i=0;i<btns.length;i++){ btns[i].classList.toggle('on', btns[i].getAttribute('data-tab')===m); }
-  }
-  bar.addEventListener('click', function(e){
-    var b=e.target.closest ? e.target.closest('button') : null; if(!b) return;
-    var tab=b.getAttribute('data-tab');
-    try{
-      if(tab==='altro'){ var m=el('btnMenu'); if(m) m.click(); return; }
-      if(tab==='tdm'){
-        var tc=el('tcMenu');
-        if(tcSeen && tc){ tc.classList.add('open'); }      /* riprende dov'era */
-        else { var d=el('drvTimecard'); if(d){ d.click(); tcSeen=true; } }
-        return;
-      }
-      var target=el(MAP[tab]); if(target) target.click();
-      setTimeout(sync,0);
-    }catch(err){ console.error('tabbar:', err && err.message); }
-  });
-  sync();
-  document.body.setAttribute('data-tabbar','1');
 })();
 </script>
 </body>
