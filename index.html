@@ -659,7 +659,7 @@
 
 <!-- ============ MENU RADAR (editor road book) ============ -->
 <div class="overlay" id="navMenu">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-right:56px">
     <h2 style="margin:0">Radar</h2>
     <button id="rbInfo" style="background:var(--btnbg);border:1px solid var(--line);color:var(--muted);border-radius:50%;width:30px;height:30px;font-size:15px;font-weight:700;flex-shrink:0">i</button>
   </div>
@@ -686,7 +686,7 @@
       <button data-k="clear" class="op">C</button><button data-k="0">0</button><button data-k="00">00</button><button data-k="eq" class="eq">=</button>
     </div>
   </div>
-  <p class="small" style="margin-top:14px;color:var(--muted)">Scrivi l'orario (es. 1335 = 13:35), poi + o − e un altro tempo, infine =.</p>
+  <p class="small" style="margin-top:14px;color:var(--muted)" data-t="calcHint"></p>
 </div>
 <div class="overlay" id="tdmMenu"><div id="tdmBody"></div></div>
 <style>
@@ -928,6 +928,14 @@ body[data-theme="dark"] #drawer .drawer-item{background-color:var(--panel)}
 /* icone piene (casco): seguono il colore della voce */
 #drawer .drawer-item .dic svg .solid{fill:var(--muted);stroke:none}
 #drawer .drawer-item.active .dic svg .solid{fill:var(--amber)}
+
+/* la X non copre piu' titoli e prime voci */
+.ov-x{top:12px;width:36px;height:36px}
+.overlay h2{padding-right:60px;min-height:44px;display:flex;align-items:center}
+#tcMenu .tc-topbar h2,#paywall .tc-topbar h2{padding-right:0;min-height:0;display:block}
+/* anteprima stile numeri: non si taglia in orizzontale */
+.font-preview{line-height:1.35}
+@media (orientation:landscape){ .font-preview{font-size:20px;padding:9px 12px} }
 </style>
 <div class="overlay" id="genMenu">
   <h2 data-t="gsTitle"></h2>
@@ -996,10 +1004,10 @@ body[data-theme="dark"] #drawer .drawer-item{background-color:var(--panel)}
   <button id="soundPreview" style="width:100%;padding:11px;border-radius:10px;font-size:14px;font-weight:700;background:var(--btnbg);border:1px solid var(--line);color:var(--text);margin-bottom:14px">▶ <span data-t="soundPlay"></span></button>
 
   <div style="display:flex;flex-direction:column;gap:10px;margin:16px 0 6px">
-    <button id="btnExport" style="padding:14px;border-radius:10px;font-size:15px;font-weight:700;background:var(--btnbg);border:2px solid var(--green);color:var(--green)">⬇︎ Esporta backup</button>
-    <button id="btnImport" style="padding:14px;border-radius:10px;font-size:15px;font-weight:700;background:var(--btnbg);border:2px solid var(--amber);color:var(--amber)">⬆︎ Importa backup</button>
+    <button id="btnExport" style="padding:14px;border-radius:10px;font-size:15px;font-weight:700;background:var(--btnbg);border:2px solid var(--green);color:var(--green)">⬇︎ <span data-t="bkExport"></span></button>
+    <button id="btnImport" style="padding:14px;border-radius:10px;font-size:15px;font-weight:700;background:var(--btnbg);border:2px solid var(--amber);color:var(--amber)">⬆︎ <span data-t="bkImport"></span></button>
   </div>
-  <p class="small" style="color:var(--muted)">Salva in un file tutte le prove del radar, le tabelle di marcia e le impostazioni — o ripristinale da un backup. Fallo spesso: è la tua rete di sicurezza.</p>
+  <p class="small" style="color:var(--muted)" data-t="bkDesc"></p>
   <input type="file" id="importFile" accept="application/json,.json" style="display:none">
 
   <button class="okbtn" id="closeGen" data-t="close"></button>
@@ -1154,6 +1162,8 @@ function updateNavFree(){ var el=document.getElementById('navFree'); if(!el) ret
 /* ================= TRADUZIONI ================= */
 const T = {
 it:{introTitle:"Come funziona",
+  calcHint:"Scrivi l'orario (es. 1335 = 13:35), poi + o − e un altro tempo, infine =.",bkExport:"Esporta backup",bkImport:"Importa backup",
+  bkDesc:"Salva in un file tutte le prove del radar, le tabelle di marcia e le impostazioni — o ripristinale da un backup. Fallo spesso: è la tua rete di sicurezza.",
   grpTdm:"Tabelle di marcia",
   askStageName:"Nome prova",askTableName:"Nome tabella",askFolderName:"Nome cartella",
   pwSub:"Con iRally Pro sblocchi tutta l'app: modalità Pilota, scanner delle tabelle di marcia e scanner dei radar, con tutte le loro funzioni.",
@@ -1278,6 +1288,8 @@ it:{introTitle:"Come funziona",
   soundDefault:"Predefinito",
   soundPlay:"Ascolta"},
 en:{introTitle:"How it works",
+  calcHint:"Type a time (e.g. 1335 = 13:35), then + or −, another time, then =.",bkExport:"Export backup",bkImport:"Import backup",
+  bkDesc:"Save every radar stage, time card and setting to a file — or restore them from a backup. Do it often: it is your safety net.",
   grpTdm:"Time cards",
   askStageName:"Stage name",askTableName:"Table name",askFolderName:"Folder name",
   pwSub:"iRally Pro unlocks the whole app: Driver mode, the time card scanner and the road book scanner, with all their features.",
@@ -1402,6 +1414,8 @@ en:{introTitle:"How it works",
   soundDefault:"Default",
   soundPlay:"Play"},
 fr:{introTitle:"Comment ça marche",
+  calcHint:"Saisissez une heure (ex. 1335 = 13:35), puis + ou −, une autre durée, puis =.",bkExport:"Exporter la sauvegarde",bkImport:"Importer la sauvegarde",
+  bkDesc:"Enregistrez dans un fichier toutes les spéciales, les carnets et les réglages — ou restaurez-les depuis une sauvegarde. Faites-le souvent : c'est votre filet de sécurité.",
   grpTdm:"Carnets de contrôle",
   askStageName:"Nom de la spéciale",askTableName:"Nom du tableau",askFolderName:"Nom du dossier",
   pwSub:"iRally Pro débloque toute l'application : mode Pilote, scanner des tableaux de marche et scanner du road book, avec toutes leurs fonctions.",
@@ -1531,6 +1545,8 @@ fr:{introTitle:"Comment ça marche",
   soundDefault:"Par défaut",
   soundPlay:"Écouter"},
 es:{introTitle:"Cómo funciona",
+  calcHint:"Escribe la hora (p. ej. 1335 = 13:35), luego + o −, otro tiempo y =.",bkExport:"Exportar copia",bkImport:"Importar copia",
+  bkDesc:"Guarda en un archivo todos los tramos, las tablas y los ajustes — o restaura desde una copia. Hazlo a menudo: es tu red de seguridad.",
   grpTdm:"Carnés de control",
   askStageName:"Nombre del tramo",askTableName:"Nombre de la tabla",askFolderName:"Nombre de la carpeta",
   pwSub:"iRally Pro desbloquea toda la app: modo Piloto, escáner de tablas de marcha y escáner del road book, con todas sus funciones.",
@@ -1660,6 +1676,8 @@ es:{introTitle:"Cómo funciona",
   soundDefault:"Predeterminado",
   soundPlay:"Escuchar"},
 de:{introTitle:"So funktioniert es",
+  calcHint:"Zeit eingeben (z. B. 1335 = 13:35), dann + oder −, eine weitere Zeit, dann =.",bkExport:"Backup exportieren",bkImport:"Backup importieren",
+  bkDesc:"Speichere alle Radar-Prüfungen, Bordkarten und Einstellungen in einer Datei — oder stelle sie aus einem Backup wieder her. Mach das oft: es ist dein Sicherheitsnetz.",
   grpTdm:"Bordkarten",
   askStageName:"Name der Prüfung",askTableName:"Name der Tabelle",askFolderName:"Name des Ordners",
   pwSub:"iRally Pro schaltet die ganze App frei: Fahrer-Modus, Scanner für Bordkarten und Roadbook-Scanner, mit allen Funktionen.",
@@ -1789,6 +1807,8 @@ de:{introTitle:"So funktioniert es",
   soundDefault:"Standard",
   soundPlay:"Anhören"},
 pt:{introTitle:"Como funciona",
+  calcHint:"Escreve a hora (ex. 1335 = 13:35), depois + ou −, outro tempo e =.",bkExport:"Exportar cópia",bkImport:"Importar cópia",
+  bkDesc:"Guarda num ficheiro todos os troços, cartões e definições — ou repõe a partir de uma cópia. Fá-lo com frequência: é a tua rede de segurança.",
   grpTdm:"Cartões de controlo",
   askStageName:"Nome da especial",askTableName:"Nome da tabela",askFolderName:"Nome da pasta",
   pwSub:"O iRally Pro desbloqueia toda a app: modo Piloto, scanner das tabelas de marcha e scanner do road book, com todas as funções.",
@@ -1918,6 +1938,8 @@ pt:{introTitle:"Como funciona",
   soundDefault:"Predefinido",
   soundPlay:"Ouvir"},
 ja:{introTitle:"使い方",
+  calcHint:"時刻を入力し（例 1335 = 13:35）、+ または − と別の時間を入れて = を押します。",bkExport:"バックアップを書き出す",bkImport:"バックアップを読み込む",
+  bkDesc:"レーダーのステージ、タイムカード、設定をファイルに保存できます。バックアップから復元も可能です。こまめに実行してください。",
   grpTdm:"タイムカード",
   askStageName:"ステージ名",askTableName:"テーブル名",askFolderName:"フォルダ名",
   pwSub:"iRally Pro ではアプリのすべてが使えます: ドライバーモード、タイムカードのスキャナー、ロードブックのスキャナーとその全機能。",
@@ -2047,6 +2069,8 @@ ja:{introTitle:"使い方",
   soundDefault:"デフォルト",
   soundPlay:"再生"},
 cs:{introTitle:"Jak to funguje",
+  calcHint:"Zadejte čas (např. 1335 = 13:35), pak + nebo −, další čas a =.",bkExport:"Exportovat zálohu",bkImport:"Importovat zálohu",
+  bkDesc:"Uložte do souboru všechny zkoušky radaru, jízdní výkazy a nastavení — nebo je obnovte ze zálohy. Dělejte to často, je to vaše pojistka.",
   grpTdm:"Jízdní výkazy",
   askStageName:"Název rychlostní zkoušky",askTableName:"Název tabulky",askFolderName:"Název složky",
   pwSub:"iRally Pro odemkne celou aplikaci: režim Pilot, skener časových tabulek a skener road booku se všemi funkcemi.",
