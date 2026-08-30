@@ -919,7 +919,7 @@ body[data-theme="dark"] .zlabel{background-image:var(--carbon)}
 /* righe menu con fondo pieno: la trama resta uguale su tutte */
 body[data-theme="dark"] #drawer .drawer-item{background-color:var(--panel)}
 /* X di chiusura in ogni schermata */
-.ov-x{position:absolute;top:max(14px,env(safe-area-inset-top));right:14px;z-index:30;
+.ov-x{position:absolute;top:calc(max(18px, env(safe-area-inset-top)) + 4px);right:14px;z-index:30;
   width:38px;height:38px;border-radius:50%;background:var(--btnbg);border:1px solid var(--line);
   color:var(--text);font-size:17px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0}
 #intro .ov-x,#pilotMenu .ov-x,#navMenu .ov-x,#genMenu .ov-x,#tdmMenu .ov-x{display:flex}
@@ -930,7 +930,7 @@ body[data-theme="dark"] #drawer .drawer-item{background-color:var(--panel)}
 #drawer .drawer-item.active .dic svg .solid{fill:var(--amber)}
 
 /* la X non copre piu' titoli e prime voci */
-.ov-x{top:12px;width:36px;height:36px}
+.ov-x{top:calc(max(18px, env(safe-area-inset-top)) + 4px);width:36px;height:36px}
 .overlay h2{padding-right:60px;min-height:44px;display:flex;align-items:center}
 #tcMenu .tc-topbar h2,#paywall .tc-topbar h2{padding-right:0;min-height:0;display:block}
 /* anteprima stile numeri: non si taglia in orizzontale */
