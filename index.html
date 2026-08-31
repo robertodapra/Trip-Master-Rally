@@ -265,6 +265,7 @@
     position:absolute;left:0;bottom:0;height:6px;width:0;
     background:var(--red);border-radius:0 3px 3px 0;
   }
+  #holdBarP{background:var(--blue)}
   #toast{
     position:fixed;left:50%;bottom:calc(26px + env(safe-area-inset-bottom));
     transform:translateX(-50%) translateY(16px);
@@ -2570,6 +2571,7 @@ function rbSortKey(r){
 let rbOffset = 0;
 let radNextIdx = -1;
 let radManualIdx = null;   /* riferimento scelto a mano con le frecce/tap */
+let radManualAhead = false; /* true se scelto piu' avanti della posizione attuale */
 let radDisplayIdx = 0;     /* riferimento attualmente mostrato */
 function radT(){ return total + rbOffset; }
 
@@ -2617,8 +2619,12 @@ function radarRender(){
     if(isNaN(d)) continue;
     if(tR < d){ next = i; dM = d; break; }
   }
-  /* il GPS ha raggiunto il riferimento scelto a mano: si torna al flusso automatico */
-  if(radManualIdx !== null && (next === -1 || next >= radManualIdx)) radManualIdx = null;
+  /* si torna al flusso automatico solo quando il GPS raggiunge davvero
+     il riferimento che stavi guardando in avanti; sfogliando indietro resta fermo */
+  if(radManualIdx !== null && radManualAhead){
+    const dSel = parseKm(cfg.rb[radManualIdx].km) * 1000;
+    if(!isNaN(dSel) && tR >= dSel) radManualIdx = null;
+  }
   let idx, key;
   if(radManualIdx !== null){
     idx = radManualIdx;
@@ -2656,7 +2662,11 @@ function radarRender(){
 function rbJump(dir){
   if(!cfg.rb.length) return;
   const cur = Math.max(0, Math.min(cfg.rb.length - 1, radDisplayIdx));
-  radManualIdx = Math.max(0, Math.min(cfg.rb.length - 1, cur + dir));
+  const n = Math.max(0, Math.min(cfg.rb.length - 1, cur + dir));
+  if(n === radDisplayIdx && radManualIdx !== null) return;
+  radManualIdx = n;
+  const dSel = parseKm(cfg.rb[n].km) * 1000;
+  radManualAhead = !isNaN(dSel) && radT() < dSel;
   radShownIdx = -2;
   if(navigator.vibrate) navigator.vibrate(30);
 }
@@ -2778,6 +2788,8 @@ zonePartial.addEventListener('click', ()=>{
     const shown = Math.max(0, Math.min(cfg.rb.length - 1, radDisplayIdx));
     rbPassedIdx = Math.max(rbPassedIdx === null ? -1 : rbPassedIdx, shown);
     radManualIdx = Math.min(cfg.rb.length - 1, shown + 1);
+    const dNext = parseKm(cfg.rb[radManualIdx].km) * 1000;
+    radManualAhead = !isNaN(dNext) && radT() < dNext;
     radShownIdx = -2;
   }
 });
@@ -2796,7 +2808,7 @@ function pStartHold(){
     if(!isNaN(kmM)) rbOffset = kmM - total;
     partial = 0;
     rbPassedIdx = i;
-    radManualIdx = null;
+    radManualIdx = null; radManualAhead = false;
     radShownIdx = -2;
     pResetBar();
     pHoldFired = true;
