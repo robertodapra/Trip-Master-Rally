@@ -261,7 +261,7 @@
   .unit{font-size:14px;color:var(--muted);margin-top:2px;letter-spacing:.1em}
 
   #zoneTotal{grid-area:total;cursor:pointer}
-  #holdBar{
+  #holdBar,#holdBarP{
     position:absolute;left:0;bottom:0;height:6px;width:0;
     background:var(--red);border-radius:0 3px 3px 0;
   }
@@ -590,6 +590,7 @@
     <span class="zlabel" id="partialLbl" data-t="partialLabel"></span>
     <div id="partialVal">0</div>
     <div class="unit" id="partialUnit">m</div>
+    <div id="holdBarP"></div>
   </div>
 
   <div class="zone" id="zoneSpeed">
@@ -2565,9 +2566,11 @@ function rbSortKey(r){
   return isNaN(v) ? 1e9 : v;
 }
 
-/* offset manuale: permette di riancorare il radar al riferimento scelto con le frecce */
+/* offset manuale: permette di riancorare il radar al riferimento scelto */
 let rbOffset = 0;
 let radNextIdx = -1;
+let radManualIdx = null;   /* riferimento scelto a mano con le frecce/tap */
+let radDisplayIdx = 0;     /* riferimento attualmente mostrato */
 function radT(){ return total + rbOffset; }
 
 /* azzeramento automatico del parziale a ogni riferimento superato (modalità Radar) */
@@ -2614,9 +2617,20 @@ function radarRender(){
     if(isNaN(d)) continue;
     if(tR < d){ next = i; dM = d; break; }
   }
-  const idx = next === -1 ? cfg.rb.length - 1 : next;
+  /* il GPS ha raggiunto il riferimento scelto a mano: si torna al flusso automatico */
+  if(radManualIdx !== null && (next === -1 || next >= radManualIdx)) radManualIdx = null;
+  let idx, key;
+  if(radManualIdx !== null){
+    idx = radManualIdx;
+    key = 'm' + idx;
+    dM = parseKm(cfg.rb[idx].km) * 1000;
+    if(isNaN(dM)) dM = tR;
+  } else {
+    idx = next === -1 ? cfg.rb.length - 1 : next;
+    key = next === -1 ? idx + 10000 : next;
+  }
+  radDisplayIdx = idx;
   radNextIdx = next === -1 ? cfg.rb.length : next;
-  const key = next === -1 ? idx + 10000 : next;
   if(radShownIdx !== key){
     const r = cfg.rb[idx];
     radNum.textContent = idx + 1;
@@ -2633,23 +2647,18 @@ function radarRender(){
     }
     radShownIdx = key;
   }
-  const rem = next === -1 ? 0 : Math.max(0, dM - tR);
+  const rem = (radManualIdx === null && next === -1) ? 0 : Math.max(0, dM - tR);
   radDist.textContent = fmtDist(rem) + ' ' + distUnit();
-  radDist.classList.toggle('near', next !== -1 && rem <= 100);
+  radDist.classList.toggle('near', rem > 0 && rem <= 100);
 }
 
-/* frecce: riancora il radar al riferimento scelto e azzera il parziale */
+/* frecce: scorrono i riferimenti avanti/indietro senza toccare la misurazione */
 function rbJump(dir){
   if(!cfg.rb.length) return;
-  const cur = radNextIdx < 0 ? 0 : Math.min(radNextIdx, cfg.rb.length - 1);
-  const n = Math.max(0, Math.min(cfg.rb.length - 1, cur + dir));
-  const prevKm = n > 0 ? ((parseKm(cfg.rb[n-1].km) * 1000) || 0) : 0;
-  rbOffset = prevKm - total;
-  if(cfg.autoReset) partial = 0;
-  rbPassedIdx = n - 1;
-  radNextIdx = n;
+  const cur = Math.max(0, Math.min(cfg.rb.length - 1, radDisplayIdx));
+  radManualIdx = Math.max(0, Math.min(cfg.rb.length - 1, cur + dir));
   radShownIdx = -2;
-  if(navigator.vibrate) navigator.vibrate(40);
+  if(navigator.vibrate) navigator.vibrate(30);
 }
 
 /* ================= CONTEGGIO CONTINUO + RENDER ================= */
@@ -2761,7 +2770,48 @@ function mainAction(){
 }
 
 zoneWord.addEventListener('click', mainAction);
-zonePartial.addEventListener('click', ()=>{ if(cfg.mode !== 'pilot') mainAction(); });
+zonePartial.addEventListener('click', ()=>{
+  if(cfg.mode === 'pilot') return;
+  if(pHoldFired){ pHoldFired = false; return; }
+  mainAction();
+  if(cfg.mode === 'radar' && cfg.rb.length){
+    const shown = Math.max(0, Math.min(cfg.rb.length - 1, radDisplayIdx));
+    rbPassedIdx = Math.max(rbPassedIdx === null ? -1 : rbPassedIdx, shown);
+    radManualIdx = Math.min(cfg.rb.length - 1, shown + 1);
+    radShownIdx = -2;
+  }
+});
+
+/* pressione lunga (1 s) sul parziale in radar: azzera lo scarto col GPS */
+let pHoldTimer = null, pHoldFired = false;
+const holdBarP = $('holdBarP');
+function pResetBar(){ holdBarP.style.transition = 'none'; holdBarP.style.width = '0'; }
+function pStartHold(){
+  if(cfg.mode !== 'radar' || !cfg.rb.length) return;
+  holdBarP.style.transition = 'width 1s linear';
+  holdBarP.style.width = '100%';
+  pHoldTimer = setTimeout(()=>{
+    const i = Math.max(0, Math.min(cfg.rb.length - 1, radDisplayIdx));
+    const kmM = parseKm(cfg.rb[i].km) * 1000;
+    if(!isNaN(kmM)) rbOffset = kmM - total;
+    partial = 0;
+    rbPassedIdx = i;
+    radManualIdx = null;
+    radShownIdx = -2;
+    pResetBar();
+    pHoldFired = true;
+    flash.style.opacity = 1;
+    setTimeout(()=>flash.style.opacity = 0, 200);
+    if(navigator.vibrate) navigator.vibrate([40,40,40]);
+    pHoldTimer = null;
+  }, 1000);
+}
+function pCancelHold(){ pResetBar(); if(pHoldTimer){ clearTimeout(pHoldTimer); pHoldTimer = null; } }
+zonePartial.addEventListener('pointerdown', pStartHold);
+zonePartial.addEventListener('pointerup', pCancelHold);
+zonePartial.addEventListener('pointercancel', pCancelHold);
+zonePartial.addEventListener('pointerleave', pCancelHold);
+zonePartial.addEventListener('contextmenu', e => e.preventDefault());
 
 window.addEventListener('keydown', e => {
   if(anyOverlayOpen()) return;
