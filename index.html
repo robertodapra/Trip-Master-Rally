@@ -2671,6 +2671,10 @@ function rbJump(dir){
   if(navigator.vibrate) navigator.vibrate(30);
 }
 
+/* frecce sopra la foto: collegate qui (prima non lo erano) */
+$('radPrev').addEventListener('click', e => { e.stopPropagation(); rbJump(-1); });
+$('radNext').addEventListener('click', e => { e.stopPropagation(); rbJump(1); });
+
 /* ================= CONTEGGIO CONTINUO + RENDER ================= */
 const loc = () => LOCALES[cfg.lang] || 'en-US';
 function fmtDist(m){
