@@ -667,6 +667,7 @@
   </div>
   <p class="small" data-t="rbListDesc"></p>
   <button id="ssNew" style="width:100%;padding:16px;border-radius:12px;font-size:17px;font-weight:800;background:var(--btnbg);border:2px solid var(--green);color:var(--green);margin-bottom:16px">+ <span data-t="rbNew"></span></button>
+  <button id="ssNewFolder" style="width:100%;padding:13px;border-radius:12px;font-size:15px;font-weight:700;background:var(--btnbg);border:1px solid var(--line);color:var(--text);margin:-6px 0 14px" data-t="tcNewFolder"></button>
   <div id="ssList"></div>
   <div id="ssEmpty" data-t="ssEmpty"></div>
   <input type="file" id="aiFile" accept="image/*" style="display:none">
@@ -938,6 +939,13 @@ body[data-theme="dark"] #drawer .drawer-item{background-color:var(--panel)}
 /* anteprima stile numeri: non si taglia in orizzontale */
 .font-preview{line-height:1.35}
 @media (orientation:landscape){ .font-preview{font-size:20px;padding:9px 12px} }
+
+/* velo di lettura scanner */
+#scanBusy{position:fixed;inset:0;z-index:2147483100;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;padding:24px}
+#scanBusy .sb-box{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 26px;display:flex;flex-direction:column;align-items:center;gap:14px;min-width:220px}
+#scanBusy .sb-spin{width:34px;height:34px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--amber);animation:sbspin .9s linear infinite}
+#scanBusy .sb-txt{font-size:15px;font-weight:700;color:var(--text);text-align:center}
+@keyframes sbspin{to{transform:rotate(360deg)}}
 </style>
 <div class="overlay" id="genMenu">
   <h2 data-t="gsTitle"></h2>
@@ -1022,19 +1030,19 @@ body[data-theme="dark"] #drawer .drawer-item{background-color:var(--panel)}
     <button class="pw-plan sel" data-plan="year">
       <div class="pw-badge" data-t="pwSave"></div>
       <div class="pw-check">&#10003;</div>
-      <div class="pw-plan-tt">Annuale</div>
-      <div class="pw-price">99,99&euro; <span>/anno</span></div>
-      <div class="pw-note">7 giorni gratis, poi 99,99&euro;/anno</div>
+      <div class="pw-plan-tt" data-t="pwYear"></div>
+      <div class="pw-price" data-pwper="year" data-price="99,99&euro;"></div>
+      <div class="pw-note" data-pwper="year" data-price="99,99&euro;"></div>
     </button>
     <button class="pw-plan" data-plan="month">
       <div class="pw-check">&#10003;</div>
-      <div class="pw-plan-tt">Mensile</div>
-      <div class="pw-price">9,99&euro; <span>/mese</span></div>
-      <div class="pw-note">7 giorni gratis, poi 9,99&euro;/mese</div>
+      <div class="pw-plan-tt" data-t="pwMonth"></div>
+      <div class="pw-price" data-pwper="month" data-price="9,99&euro;"></div>
+      <div class="pw-note" data-pwper="month" data-price="9,99&euro;"></div>
     </button>
-    <button class="pw-cta" id="pw_cta">Inizia 7 giorni gratis</button>
-    <button class="pw-restore" id="pw_restore">Ripristina acquisti</button>
-    <p class="pw-legal">Rinnovo automatico. Disdici quando vuoi dalle impostazioni Apple. I prezzi possono variare per paese.</p>
+    <button class="pw-cta" id="pw_cta" data-t="pwCta"></button>
+    <button class="pw-restore" id="pw_restore" data-t="pwRestore"></button>
+    <p class="pw-legal" data-t="pwLegal"></p>
   </div>
 </div>
 <script>
@@ -1053,7 +1061,7 @@ window.__rallyShowPaywall = function(){ rcBusy=false; var p=document.getElementB
 /* --- RevenueCat: acquisti veri (attivi dentro l'app iOS; sul web restano i messaggi) --- */
 var RC_KEY = 'appl_qWGygZKkYncucSMVrHIzItFkWUQ';
 var rcPkgs = { year:null, month:null };
-var rcBusy = false;
+var rcReady=false; var rcBusy = false;
 function rcSay(t,ti){ if(typeof showMsg==='function') showMsg(t,ti); }
 function rcPlugin(){ try{ return (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Purchases) || null; }catch(e){ return null; } }
 function rcInfoOf(r){ return r && (r.customerInfo || r.purchaserInfo || r); }
@@ -1100,10 +1108,11 @@ function rcPrice(pk){ var pr=pk&&(pk.product||pk.storeProduct); return pr&&(pr.p
 function rcUpdatePrices(){
   try{
     var y=rcPrice(rcPkgs.year), m=rcPrice(rcPkgs.month);
-    if(y){ var e1=document.querySelector('#paywall [data-plan="year"] .pw-price'); if(e1) e1.innerHTML=y+' <span>/anno</span>';
-           var n1=document.querySelector('#paywall [data-plan="year"] .pw-note'); if(n1) n1.textContent='7 giorni gratis, poi '+y+'/anno'; }
-    if(m){ var e2=document.querySelector('#paywall [data-plan="month"] .pw-price'); if(e2) e2.innerHTML=m+' <span>/mese</span>';
-           var n2=document.querySelector('#paywall [data-plan="month"] .pw-note'); if(n2) n2.textContent='7 giorni gratis, poi '+m+'/mese'; }
+    if(y){ var e1=document.querySelector('#paywall [data-plan="year"] .pw-price'); if(e1){ e1.setAttribute('data-price',y); }
+           var n1=document.querySelector('#paywall [data-plan="year"] .pw-note'); if(n1) n1.setAttribute('data-price',y); }
+    if(m){ var e2=document.querySelector('#paywall [data-plan="month"] .pw-price'); if(e2){ e2.setAttribute('data-price',m); }
+           var n2=document.querySelector('#paywall [data-plan="month"] .pw-note'); if(n2) n2.setAttribute('data-price',m); }
+    pwRefreshText();
   }catch(e){}
 }
 function rcLoadOfferings(P){
@@ -1117,26 +1126,42 @@ function rcLoadOfferings(P){
   var P = rcPlugin();
   if(!P){ if(tries<20) setTimeout(function(){ rcInit(tries+1); }, 600); return; }
   Promise.resolve(P.configure({ apiKey: RC_KEY })).then(function(){
+    rcReady=true;
     try{ P.addCustomerInfoUpdateListener(function(d){ rcApply(rcInfoOf(d)); }); }catch(e){}
     P.getCustomerInfo().then(function(r){ rcApply(rcInfoOf(r)); }).catch(function(){});
     rcLoadOfferings(P).catch(function(){});
     try{ P.getAppUserID().then(function(r){ window.__rcUserId = (r && (r.appUserID || r.appUserId)) || null; rcShowUserId(); }).catch(function(){}); }catch(e){}
   }).catch(function(){});
 })(0);
+function rcWaitReady(ms){
+  return new Promise(function(res,rej){
+    var t0=Date.now();
+    (function loop(){ if(rcReady) return res(); if(Date.now()-t0>ms) return rej(new Error(t('pwLoading'))); setTimeout(loop,250); })();
+  });
+}
+function rcSetBusy(on){
+  rcBusy=on;
+  var b=document.getElementById('pw_cta');
+  if(b){ b.disabled=on; b.textContent = on ? t('pwWait') : t('pwCta'); b.style.opacity = on ? .6 : 1; }
+}
 window.__rallyBuy = function(plan){
   var P = rcPlugin();
   if(!P){ rcSay("Gli acquisti sono disponibili solo nell'app installata da App Store/TestFlight.", 'iRally Pro'); return; }
-  if(rcBusy) return; rcBusy = true;
-  var ready = (plan==='year'? rcPkgs.year : rcPkgs.month) ? Promise.resolve() : rcLoadOfferings(P);
-  ready.then(function(){
+  if(rcBusy) return; rcSetBusy(true);
+  /* rete di sicurezza: se qualcosa resta appeso il pulsante torna vivo da solo */
+  var guard=setTimeout(function(){ if(rcBusy) rcSetBusy(false); }, 45000);
+  rcWaitReady(10000).then(function(){
+    var have = plan==='year'? rcPkgs.year : rcPkgs.month;
+    return have ? null : rcLoadOfferings(P);
+  }).then(function(){
     var pkg = plan==='year'? rcPkgs.year : rcPkgs.month;
     if(!pkg) throw new Error('Prodotti non disponibili, riprova tra poco.');
     return P.purchasePackage({ aPackage: pkg });
   }).then(function(r){
-    rcBusy=false; rcApply(rcInfoOf(r));
+    clearTimeout(guard); rcSetBusy(false); rcApply(rcInfoOf(r));
     if(window.__rcPro) rcSay('Benvenuto in iRally Pro! Prova gratuita attiva: tutte le funzioni sono sbloccate.', 'iRally Pro');
   }).catch(function(e){
-    rcBusy=false;
+    clearTimeout(guard); rcSetBusy(false);
     if(rcIsCancel(e)) return;
     rcSay('Acquisto non riuscito: '+((e&&e.message)||'riprova piu\u2019 tardi.'), 'iRally Pro');
   });
@@ -1164,6 +1189,7 @@ function updateNavFree(){ var el=document.getElementById('navFree'); if(!el) ret
 /* ================= TRADUZIONI ================= */
 const T = {
 it:{introTitle:"Come funziona",
+  pwYear:"Annuale",pwMonth:"Mensile",pwPerYear:"/anno",pwPerMonth:"/mese",pwNote:"7 giorni gratis, poi {p}",pwCta:"Inizia 7 giorni gratis",pwRestore:"Ripristina acquisti",pwLegal:"Rinnovo automatico. Disdici quando vuoi dalle impostazioni Apple. I prezzi possono variare per paese.",pwWait:"Attendere…",pwLoading:"Prodotti ancora in caricamento, riprova tra qualche secondo.",scanGap:"Lettura incompleta: manca il riferimento {n}. Controlla la pagina e, se serve, riscansionala.",
   calcHint:"Scrivi l'orario (es. 1335 = 13:35), poi + o − e un altro tempo, infine =.",bkExport:"Esporta backup",bkImport:"Importa backup",
   bkDesc:"Salva in un file tutte le prove del radar, le tabelle di marcia e le impostazioni — o ripristinale da un backup. Fallo spesso: è la tua rete di sicurezza.",
   grpTdm:"Tabelle di marcia",
@@ -1290,6 +1316,7 @@ it:{introTitle:"Come funziona",
   soundDefault:"Predefinito",
   soundPlay:"Ascolta"},
 en:{introTitle:"How it works",
+  pwYear:"Annual",pwMonth:"Monthly",pwPerYear:"/year",pwPerMonth:"/month",pwNote:"7 days free, then {p}",pwCta:"Start 7 days free",pwRestore:"Restore purchases",pwLegal:"Auto-renewing. Cancel anytime in your Apple settings. Prices may vary by country.",pwWait:"Please wait…",pwLoading:"Products are still loading, try again in a few seconds.",scanGap:"Incomplete read: reference {n} is missing. Check the page and rescan it if needed.",
   calcHint:"Type a time (e.g. 1335 = 13:35), then + or −, another time, then =.",bkExport:"Export backup",bkImport:"Import backup",
   bkDesc:"Save every radar stage, time card and setting to a file — or restore them from a backup. Do it often: it is your safety net.",
   grpTdm:"Time cards",
@@ -1416,6 +1443,7 @@ en:{introTitle:"How it works",
   soundDefault:"Default",
   soundPlay:"Play"},
 fr:{introTitle:"Comment ça marche",
+  pwYear:"Annuel",pwMonth:"Mensuel",pwPerYear:"/an",pwPerMonth:"/mois",pwNote:"7 jours gratuits, puis {p}",pwCta:"Commencer 7 jours gratuits",pwRestore:"Restaurer les achats",pwLegal:"Renouvellement automatique. Résiliez à tout moment dans les réglages Apple. Les prix peuvent varier selon le pays.",pwWait:"Veuillez patienter…",pwLoading:"Produits en cours de chargement, réessayez dans quelques secondes.",scanGap:"Lecture incomplète : le repère {n} manque. Vérifiez la page et rescannez-la si besoin.",
   calcHint:"Saisissez une heure (ex. 1335 = 13:35), puis + ou −, une autre durée, puis =.",bkExport:"Exporter la sauvegarde",bkImport:"Importer la sauvegarde",
   bkDesc:"Enregistrez dans un fichier toutes les spéciales, les carnets et les réglages — ou restaurez-les depuis une sauvegarde. Faites-le souvent : c'est votre filet de sécurité.",
   grpTdm:"Carnets de contrôle",
@@ -1547,6 +1575,7 @@ fr:{introTitle:"Comment ça marche",
   soundDefault:"Par défaut",
   soundPlay:"Écouter"},
 es:{introTitle:"Cómo funciona",
+  pwYear:"Anual",pwMonth:"Mensual",pwPerYear:"/año",pwPerMonth:"/mes",pwNote:"7 días gratis, luego {p}",pwCta:"Empieza 7 días gratis",pwRestore:"Restaurar compras",pwLegal:"Renovación automática. Cancela cuando quieras en los ajustes de Apple. Los precios pueden variar según el país.",pwWait:"Espera…",pwLoading:"Los productos aún se están cargando, inténtalo en unos segundos.",scanGap:"Lectura incompleta: falta la referencia {n}. Revisa la página y vuelve a escanearla si hace falta.",
   calcHint:"Escribe la hora (p. ej. 1335 = 13:35), luego + o −, otro tiempo y =.",bkExport:"Exportar copia",bkImport:"Importar copia",
   bkDesc:"Guarda en un archivo todos los tramos, las tablas y los ajustes — o restaura desde una copia. Hazlo a menudo: es tu red de seguridad.",
   grpTdm:"Carnés de control",
@@ -1678,6 +1707,7 @@ es:{introTitle:"Cómo funciona",
   soundDefault:"Predeterminado",
   soundPlay:"Escuchar"},
 de:{introTitle:"So funktioniert es",
+  pwYear:"Jährlich",pwMonth:"Monatlich",pwPerYear:"/Jahr",pwPerMonth:"/Monat",pwNote:"7 Tage gratis, dann {p}",pwCta:"7 Tage gratis starten",pwRestore:"Käufe wiederherstellen",pwLegal:"Automatische Verlängerung. Jederzeit in den Apple-Einstellungen kündbar. Preise können je nach Land variieren.",pwWait:"Bitte warten…",pwLoading:"Produkte werden noch geladen, versuche es in ein paar Sekunden erneut.",scanGap:"Unvollständig gelesen: Referenz {n} fehlt. Prüfe die Seite und scanne sie bei Bedarf erneut.",
   calcHint:"Zeit eingeben (z. B. 1335 = 13:35), dann + oder −, eine weitere Zeit, dann =.",bkExport:"Backup exportieren",bkImport:"Backup importieren",
   bkDesc:"Speichere alle Radar-Prüfungen, Bordkarten und Einstellungen in einer Datei — oder stelle sie aus einem Backup wieder her. Mach das oft: es ist dein Sicherheitsnetz.",
   grpTdm:"Bordkarten",
@@ -1809,6 +1839,7 @@ de:{introTitle:"So funktioniert es",
   soundDefault:"Standard",
   soundPlay:"Anhören"},
 pt:{introTitle:"Como funciona",
+  pwYear:"Anual",pwMonth:"Mensal",pwPerYear:"/ano",pwPerMonth:"/mês",pwNote:"7 dias grátis, depois {p}",pwCta:"Começar 7 dias grátis",pwRestore:"Restaurar compras",pwLegal:"Renovação automática. Cancela quando quiseres nas definições Apple. Os preços podem variar por país.",pwWait:"Aguarda…",pwLoading:"Os produtos ainda estão a carregar, tenta de novo daqui a alguns segundos.",scanGap:"Leitura incompleta: falta a referência {n}. Verifica a página e volta a digitalizá-la se for preciso.",
   calcHint:"Escreve a hora (ex. 1335 = 13:35), depois + ou −, outro tempo e =.",bkExport:"Exportar cópia",bkImport:"Importar cópia",
   bkDesc:"Guarda num ficheiro todos os troços, cartões e definições — ou repõe a partir de uma cópia. Fá-lo com frequência: é a tua rede de segurança.",
   grpTdm:"Cartões de controlo",
@@ -1940,6 +1971,7 @@ pt:{introTitle:"Como funciona",
   soundDefault:"Predefinido",
   soundPlay:"Ouvir"},
 ja:{introTitle:"使い方",
+  pwYear:"年額",pwMonth:"月額",pwPerYear:"/年",pwPerMonth:"/月",pwNote:"7日間無料、その後 {p}",pwCta:"7日間無料で始める",pwRestore:"購入を復元",pwLegal:"自動更新。Appleの設定からいつでも解約できます。価格は国によって異なる場合があります。",pwWait:"お待ちください…",pwLoading:"製品を読み込み中です。数秒後にもう一度お試しください。",scanGap:"読み取りが不完全です: 参照 {n} がありません。ページを確認し、必要なら再スキャンしてください。",
   calcHint:"時刻を入力し（例 1335 = 13:35）、+ または − と別の時間を入れて = を押します。",bkExport:"バックアップを書き出す",bkImport:"バックアップを読み込む",
   bkDesc:"レーダーのステージ、タイムカード、設定をファイルに保存できます。バックアップから復元も可能です。こまめに実行してください。",
   grpTdm:"タイムカード",
@@ -2071,6 +2103,7 @@ ja:{introTitle:"使い方",
   soundDefault:"デフォルト",
   soundPlay:"再生"},
 cs:{introTitle:"Jak to funguje",
+  pwYear:"Roční",pwMonth:"Měsíční",pwPerYear:"/rok",pwPerMonth:"/měsíc",pwNote:"7 dní zdarma, poté {p}",pwCta:"Začít 7 dní zdarma",pwRestore:"Obnovit nákupy",pwLegal:"Automatické obnovení. Zrušit lze kdykoli v nastavení Apple. Ceny se mohou lišit podle země.",pwWait:"Čekejte…",pwLoading:"Produkty se ještě načítají, zkuste to za pár sekund.",scanGap:"Neúplné čtení: chybí bod {n}. Zkontrolujte stránku a případně ji naskenujte znovu.",
   calcHint:"Zadejte čas (např. 1335 = 13:35), pak + nebo −, další čas a =.",bkExport:"Exportovat zálohu",bkImport:"Importovat zálohu",
   bkDesc:"Uložte do souboru všechny zkoušky radaru, jízdní výkazy a nastavení — nebo je obnovte ze zálohy. Dělejte to často, je to vaše pojistka.",
   grpTdm:"Jízdní výkazy",
@@ -2409,6 +2442,23 @@ cs:[
 ]
 };
 
+function pwRefreshText(){
+  document.querySelectorAll('#paywall .pw-price[data-pwper]').forEach(function(e){
+    var per = e.getAttribute('data-pwper')==='year' ? t('pwPerYear') : t('pwPerMonth');
+    e.innerHTML = (e.getAttribute('data-price')||'') + ' <span>' + per + '</span>';
+  });
+  document.querySelectorAll('#paywall .pw-note[data-pwper]').forEach(function(n){
+    var per = n.getAttribute('data-pwper')==='year' ? t('pwPerYear') : t('pwPerMonth');
+    n.textContent = t('pwNote').replace('{p}', (n.getAttribute('data-price')||'') + per);
+  });
+}
+/* velo "sto leggendo la pagina": resta finche' la risposta non arriva */
+window.__scanBusy = function(on, txt){
+  var el=document.getElementById('scanBusy');
+  if(!el){ el=document.createElement('div'); el.id='scanBusy'; el.innerHTML='<div class="sb-box"><div class="sb-spin"></div><div class="sb-txt"></div></div>'; document.body.appendChild(el); }
+  el.querySelector('.sb-txt').textContent = txt || t('scanReading');
+  el.style.display = on ? 'flex' : 'none';
+};
 function renderGuide(){
   var L=(GUIDE[cfg.lang]?cfg.lang:'en');
   var acc=document.getElementById('guideAcc'); if(!acc) return;
@@ -2422,7 +2472,7 @@ function renderGuide(){
 }
 
 function applyLang(){
-  try{ renderGuide(); }catch(e){}
+  try{ renderGuide(); pwRefreshText(); }catch(e){}
   document.documentElement.lang = cfg.lang;
   document.querySelectorAll('[data-t]').forEach(el=>{
     el.textContent = t(el.dataset.t);
@@ -2847,6 +2897,7 @@ function startHold(e){
   holdBar.style.width = '100%';
   holdTimer = setTimeout(()=>{
     total = 0;
+    rbOffset = 0; rbPassedIdx = null; radManualIdx = null; radManualAhead = false; radShownIdx = -2;
     rbOffset = 0;
     rbPassedIdx = null;
     radShownIdx = -2;
@@ -3068,26 +3119,78 @@ function showStageDetail(i){
   bw.appendChild(lo); bw.appendChild(ad); bw.appendChild(cl); box.appendChild(bw);
 }
 
+let ssCurFolder = null;
+function ssEsc(x){ return String(x==null?'':x).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function ssFolders(){ if(!Array.isArray(cfg.ssFolders)) cfg.ssFolders=[]; return cfg.ssFolders; }
+function ssRow(ss,i){
+  const row=document.createElement('div'); row.className='ss-row';
+  if(cfg.ssActive===ss.name) row.style.borderColor='var(--green)';
+  const name=document.createElement('span'); name.className='ss-name'; name.style.cursor='pointer';
+  name.textContent=ss.name+(cfg.ssActive===ss.name?' \u2713':'');
+  name.addEventListener('click',()=>showStageDetail(i));
+  const loadBtn=document.createElement('button'); loadBtn.textContent=t('ssLoad'); loadBtn.addEventListener('click',()=>loadStage(i));
+  const mvBtn=document.createElement('button'); mvBtn.textContent='\uD83D\uDCC1'; mvBtn.title=t('tcMove'); mvBtn.addEventListener('click',()=>ssMove(i));
+  const delBtn=document.createElement('button'); delBtn.className='del'; delBtn.textContent='\u2715';
+  delBtn.addEventListener('click',()=>{
+    showConfirm(t('ssDelAsk')+' \u201C'+ss.name+'\u201D?',()=>{
+      if(cfg.ssActive===cfg.ssLib[i].name){ cfg.ssActive=''; cfg.rb=[]; updateSsBadge(); }
+      cfg.ssLib.splice(i,1); saveCfg(); buildSsList();
+    });
+  });
+  row.appendChild(name); row.appendChild(loadBtn); row.appendChild(mvBtn); row.appendChild(delBtn);
+  return row;
+}
 function buildSsList(){
   const list=$('ssList'); list.innerHTML='';
-  $('ssEmpty').style.display=cfg.ssLib.length?'none':'block';
-  cfg.ssLib.forEach((ss,i)=>{
-    const row=document.createElement('div'); row.className='ss-row';
-    if(cfg.ssActive===ss.name) row.style.borderColor='var(--green)';
-    const name=document.createElement('span'); name.className='ss-name'; name.style.cursor='pointer';
-    name.textContent=ss.name+(cfg.ssActive===ss.name?' \u2713':'');
-    name.addEventListener('click',()=>showStageDetail(i));
-    const loadBtn=document.createElement('button'); loadBtn.textContent=t('ssLoad'); loadBtn.addEventListener('click',()=>loadStage(i));
-    const delBtn=document.createElement('button'); delBtn.className='del'; delBtn.textContent='\u2715';
-    delBtn.addEventListener('click',()=>{
-      showConfirm(t('ssDelAsk')+' \u201C'+ss.name+'\u201D?',()=>{
-        if(cfg.ssActive===cfg.ssLib[i].name){ cfg.ssActive=''; cfg.rb=[]; updateSsBadge(); }
-        cfg.ssLib.splice(i,1); saveCfg(); buildSsList();
-      });
+  const folders=ssFolders();
+  const inFolder = ssCurFolder ? folders.find(f=>f.id===ssCurFolder) : null;
+  if(ssCurFolder && !inFolder) ssCurFolder=null;
+  let shown=0;
+  if(inFolder){
+    const hd=document.createElement('div'); hd.className='ss-row'; hd.style.cursor='pointer';
+    hd.innerHTML='<span class="ss-name">\u2039 \uD83D\uDCC1 '+ssEsc(inFolder.name)+'</span>';
+    const delF=document.createElement('button'); delF.className='del'; delF.textContent='\u2715';
+    delF.addEventListener('click',(e)=>{ e.stopPropagation(); showConfirm(t('tcDelFolder')+' \u201C'+inFolder.name+'\u201D?',()=>{
+      cfg.ssLib.forEach(x=>{ if(x.folder===inFolder.id) delete x.folder; });
+      cfg.ssFolders=folders.filter(f=>f.id!==inFolder.id); ssCurFolder=null; saveCfg(); buildSsList();
+    }); });
+    hd.appendChild(delF);
+    hd.addEventListener('click',()=>{ ssCurFolder=null; buildSsList(); });
+    list.appendChild(hd);
+    cfg.ssLib.forEach((ss,i)=>{ if(ss.folder===inFolder.id){ list.appendChild(ssRow(ss,i)); shown++; } });
+  } else {
+    folders.forEach(f=>{
+      const n=cfg.ssLib.filter(x=>x.folder===f.id).length;
+      const row=document.createElement('div'); row.className='ss-row'; row.style.cursor='pointer';
+      row.innerHTML='<span class="ss-name">\uD83D\uDCC1 '+ssEsc(f.name)+' <span style="color:var(--muted);font-weight:400">\u00B7 '+n+'</span></span><span style="color:var(--muted)">\u203A</span>';
+      row.addEventListener('click',()=>{ ssCurFolder=f.id; buildSsList(); });
+      list.appendChild(row); shown++;
     });
-    row.appendChild(name); row.appendChild(loadBtn); row.appendChild(delBtn); list.appendChild(row);
-  });
+    cfg.ssLib.forEach((ss,i)=>{ if(!ss.folder){ list.appendChild(ssRow(ss,i)); shown++; } });
+  }
+  $('ssEmpty').style.display=shown?'none':'block';
 }
+function ssMove(i){
+  const e=cfg.ssLib[i]; if(!e) return;
+  const ov=document.createElement('div'); ov.className='tc-emodal';
+  let opts='<button class="tc-mvopt" data-f="">'+t('tcMoveLoose')+'</button>';
+  ssFolders().forEach(f=>{ opts+='<button class="tc-mvopt" data-f="'+ssEsc(f.id)+'">\uD83D\uDCC1 '+ssEsc(f.name)+'</button>'; });
+  opts+='<button class="tc-mvopt newf" data-f="__new">'+t('tcMoveNew')+'</button>';
+  ov.innerHTML='<div class="tc-ebox"><div class="tc-etitle">'+t('tcMove')+' \u201C'+ssEsc(e.name)+'\u201D</div><div class="tc-mvlist">'+opts+'</div><div class="tc-ebtns"><button class="tc-ecancel">'+t('tcCancel')+'</button></div></div>';
+  document.body.appendChild(ov);
+  function close(){ try{ document.body.removeChild(ov); }catch(_){} }
+  ov.addEventListener('click', ev=>{ if(ev.target===ov) close(); });
+  ov.querySelector('.tc-ecancel').addEventListener('click', close);
+  ov.querySelectorAll('.tc-mvopt').forEach(btn=> btn.addEventListener('click', ()=>{
+    const f=btn.getAttribute('data-f');
+    if(f==='__new'){ close(); askName('', function(name){ const id='r'+Date.now(); ssFolders().push({id:id,name:name}); e.folder=id; saveCfg(); buildSsList(); }, 'askFolderName'); return; }
+    if(f) e.folder=f; else delete e.folder;
+    saveCfg(); close(); buildSsList();
+  }));
+}
+$('ssNewFolder').addEventListener('click', ()=>{
+  askName('', function(name){ ssFolders().push({ id:'r'+Date.now(), name:name }); saveCfg(); buildSsList(); }, 'askFolderName');
+});
 
 /* ================= NUOVA PROVA + INFO ================= */
 let pendingStageName = null;
@@ -3379,7 +3482,7 @@ async function scanAIRun(img){
   const append = pendingAppend;
   pendingStageName = null; pendingAppend = false;
   if(!img || !name) return;
-  showToast('\u23F3 ' + t('scanReading'));
+  window.__scanBusy(true, t('scanReading'));
   try{
     const b64 = imgToB64(img, 1800);
     const res = await fetch(SCAN_API, {
@@ -3388,9 +3491,26 @@ async function scanAIRun(img){
       body: JSON.stringify({ image: b64, device: window.__rallyAuth.device })
     });
     const data = await res.json();
+    window.__scanBusy(false);
     if(data.error){ showMsg('\u26A0\uFE0F ' + data.error); return; }
-    const rows = Array.isArray(data.rows) ? data.rows : [];
+    let rows = Array.isArray(data.rows) ? data.rows : [];
     if(!rows.length){ showMsg('\u26A0\uFE0F ' + t('scanNone')); return; }
+    /* ordino per numero e taglio le strisce tra un quadratino numerato e l'altro:
+       tanti numeri, tante strisce, anche senza riga di separazione */
+    rows = rows.slice().sort((a,b)=> (+a.num||0) - (+b.num||0));
+    const hasNB = rows.every(r => Array.isArray(r.numbox) && r.numbox.length===4);
+    if(hasNB){
+      for(let i=0;i<rows.length;i++){
+        const r=rows[i], nb=r.numbox, prev = i>0 ? rows[i-1].numbox : null;
+        const top = prev ? prev[2] : (Array.isArray(r.box)&&r.box.length===4 ? Math.min(r.box[0], nb[0]) : 0);
+        const bottom = nb[2];
+        const x0 = (Array.isArray(r.box)&&r.box.length===4) ? r.box[1] : 0;
+        const x1 = (Array.isArray(r.box)&&r.box.length===4) ? r.box[3] : 1000;
+        if(bottom - top > 15) r.box = [top, x0, bottom, x1];
+      }
+    }
+    let gap = 0;
+    for(let i=1;i<rows.length;i++){ const a=+rows[i-1].num, b=+rows[i].num; if(a && b && b!==a+1){ gap=a+1; break; } }
     const newRb = [];
     for(const r of rows){
       const km = (r.km == null ? '' : String(r.km)).replace('.', ',').trim();
@@ -3402,7 +3522,7 @@ async function scanAIRun(img){
       newRb.push({ km: km, s: '', n: nota, img: cropped });
     }
     let stage = cfg.ssLib.find(x => x.name === name);
-    if(!stage){ stage = { name: name, rb: [] }; cfg.ssLib.push(stage); }
+    if(!stage){ stage = { name: name, rb: [] }; if(ssCurFolder) stage.folder = ssCurFolder; cfg.ssLib.push(stage); }
     stage.rb = append ? (stage.rb || []).concat(newRb) : newRb;
     stage.rb.sort((a,b)=> (parseKm(a.km)||0) - (parseKm(b.km)||0));
     cfg.rb = JSON.parse(JSON.stringify(stage.rb));
@@ -3411,9 +3531,10 @@ async function scanAIRun(img){
     updateSsBadge();
     const ok = saveCfg();
     buildSsList();
-    if(ok) showToast('\u2705 ' + newRb.length + ' ' + t('scanSaved'));
+    if(ok){ if(gap) showMsg('\u26A0\uFE0F ' + t('scanGap').replace('{n}', gap)); else showToast('\u2705 ' + newRb.length + ' ' + t('scanSaved')); }
     else showMsg('\u26A0\uFE0F ' + t('storeFull'));
   }catch(e){
+    window.__scanBusy(false);
     showMsg('\u26A0\uFE0F ' + t('scanConnErr'));
   }
 }
@@ -3651,7 +3772,8 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
     setTxt(t('tcReading'));
     try{
       const b64=toB64(src,1800);
-      const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','X-App-Key':window.__rallyAuth.key},body:JSON.stringify({image:b64,mode:'timecard',device:window.__rallyAuth.device})});
+      if(window.__scanBusy) window.__scanBusy(true);
+      let res; try{ res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','X-App-Key':window.__rallyAuth.key},body:JSON.stringify({image:b64,mode:'timecard',device:window.__rallyAuth.device})}); } finally { if(window.__scanBusy) window.__scanBusy(false); }
       const data=await res.json();
       if(data.error){ setTxt('\u26A0\uFE0F '+data.error); return; }
       if(!data.card){ setTxt(t('tcNoData')); return; }
