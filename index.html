@@ -3522,8 +3522,10 @@ async function scanOnePage(img){
       else if(cellH) top = Math.max(0, nb[2] - cellH);          /* prima riga: uso l'altezza tipica */
       else top = (Array.isArray(r.box)&&r.box.length===4) ? Math.min(r.box[0], nb[0]) : 0;
       const bottom = nb[2];
-      const x0 = (Array.isArray(r.box)&&r.box.length===4) ? r.box[1] : 0;
-      const x1 = (Array.isArray(r.box)&&r.box.length===4) ? r.box[3] : 1000;
+      /* la striscia parte da sinistra: dentro ci finiscono anche TOT. e PAR. */
+      const rb0 = (Array.isArray(r.rowbox)&&r.rowbox.length===4) ? r.rowbox : null;
+      const x0 = rb0 ? rb0[1] : 0;
+      const x1 = rb0 ? rb0[3] : ((Array.isArray(r.box)&&r.box.length===4) ? r.box[3] : 1000);
       if(bottom - top > 15) r.box = [top, x0, bottom, x1];
     }
   }
