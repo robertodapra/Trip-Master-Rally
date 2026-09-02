@@ -670,7 +670,7 @@
   <button id="ssNewFolder" style="width:100%;padding:13px;border-radius:12px;font-size:15px;font-weight:700;background:var(--btnbg);border:1px solid var(--line);color:var(--text);margin:-6px 0 14px" data-t="tcNewFolder"></button>
   <div id="ssList"></div>
   <div id="ssEmpty" data-t="ssEmpty"></div>
-  <input type="file" id="aiFile" accept="image/*" style="display:none">
+  <input type="file" id="aiFile" accept="image/*" multiple style="display:none">
   <button class="okbtn" id="closeNav" data-t="close"></button>
 </div>
 
@@ -1189,6 +1189,7 @@ function updateNavFree(){ var el=document.getElementById('navFree'); if(!el) ret
 /* ================= TRADUZIONI ================= */
 const T = {
 it:{introTitle:"Come funziona",
+  scanPage:"Pagina {i} di {n}…",scanPagesFail:"Pagine non lette: {list}. Rifalle con \"+ Aggiungi scan\".",scanPagesGap:"Pagine con un numero mancante: {list}. Controllale.",
   pwYear:"Annuale",pwMonth:"Mensile",pwPerYear:"/anno",pwPerMonth:"/mese",pwNote:"7 giorni gratis, poi {p}",pwCta:"Inizia 7 giorni gratis",pwRestore:"Ripristina acquisti",pwLegal:"Rinnovo automatico. Disdici quando vuoi dalle impostazioni Apple. I prezzi possono variare per paese.",pwWait:"Attendere…",pwLoading:"Prodotti ancora in caricamento, riprova tra qualche secondo.",scanGap:"Lettura incompleta: manca il riferimento {n}. Controlla la pagina e, se serve, riscansionala.",
   calcHint:"Scrivi l'orario (es. 1335 = 13:35), poi + o − e un altro tempo, infine =.",bkExport:"Esporta backup",bkImport:"Importa backup",
   bkDesc:"Salva in un file tutte le prove del radar, le tabelle di marcia e le impostazioni — o ripristinale da un backup. Fallo spesso: è la tua rete di sicurezza.",
@@ -1316,6 +1317,7 @@ it:{introTitle:"Come funziona",
   soundDefault:"Predefinito",
   soundPlay:"Ascolta"},
 en:{introTitle:"How it works",
+  scanPage:"Page {i} of {n}…",scanPagesFail:"Pages not read: {list}. Redo them with \"+ Add scan\".",scanPagesGap:"Pages with a missing number: {list}. Check them.",
   pwYear:"Annual",pwMonth:"Monthly",pwPerYear:"/year",pwPerMonth:"/month",pwNote:"7 days free, then {p}",pwCta:"Start 7 days free",pwRestore:"Restore purchases",pwLegal:"Auto-renewing. Cancel anytime in your Apple settings. Prices may vary by country.",pwWait:"Please wait…",pwLoading:"Products are still loading, try again in a few seconds.",scanGap:"Incomplete read: reference {n} is missing. Check the page and rescan it if needed.",
   calcHint:"Type a time (e.g. 1335 = 13:35), then + or −, another time, then =.",bkExport:"Export backup",bkImport:"Import backup",
   bkDesc:"Save every radar stage, time card and setting to a file — or restore them from a backup. Do it often: it is your safety net.",
@@ -1443,6 +1445,7 @@ en:{introTitle:"How it works",
   soundDefault:"Default",
   soundPlay:"Play"},
 fr:{introTitle:"Comment ça marche",
+  scanPage:"Page {i} sur {n}…",scanPagesFail:"Pages non lues : {list}. Refaites-les avec \"+ Ajouter un scan\".",scanPagesGap:"Pages avec un numéro manquant : {list}. Vérifiez-les.",
   pwYear:"Annuel",pwMonth:"Mensuel",pwPerYear:"/an",pwPerMonth:"/mois",pwNote:"7 jours gratuits, puis {p}",pwCta:"Commencer 7 jours gratuits",pwRestore:"Restaurer les achats",pwLegal:"Renouvellement automatique. Résiliez à tout moment dans les réglages Apple. Les prix peuvent varier selon le pays.",pwWait:"Veuillez patienter…",pwLoading:"Produits en cours de chargement, réessayez dans quelques secondes.",scanGap:"Lecture incomplète : le repère {n} manque. Vérifiez la page et rescannez-la si besoin.",
   calcHint:"Saisissez une heure (ex. 1335 = 13:35), puis + ou −, une autre durée, puis =.",bkExport:"Exporter la sauvegarde",bkImport:"Importer la sauvegarde",
   bkDesc:"Enregistrez dans un fichier toutes les spéciales, les carnets et les réglages — ou restaurez-les depuis une sauvegarde. Faites-le souvent : c'est votre filet de sécurité.",
@@ -1575,6 +1578,7 @@ fr:{introTitle:"Comment ça marche",
   soundDefault:"Par défaut",
   soundPlay:"Écouter"},
 es:{introTitle:"Cómo funciona",
+  scanPage:"Página {i} de {n}…",scanPagesFail:"Páginas no leídas: {list}. Repítelas con \"+ Añadir escaneo\".",scanPagesGap:"Páginas con un número que falta: {list}. Revísalas.",
   pwYear:"Anual",pwMonth:"Mensual",pwPerYear:"/año",pwPerMonth:"/mes",pwNote:"7 días gratis, luego {p}",pwCta:"Empieza 7 días gratis",pwRestore:"Restaurar compras",pwLegal:"Renovación automática. Cancela cuando quieras en los ajustes de Apple. Los precios pueden variar según el país.",pwWait:"Espera…",pwLoading:"Los productos aún se están cargando, inténtalo en unos segundos.",scanGap:"Lectura incompleta: falta la referencia {n}. Revisa la página y vuelve a escanearla si hace falta.",
   calcHint:"Escribe la hora (p. ej. 1335 = 13:35), luego + o −, otro tiempo y =.",bkExport:"Exportar copia",bkImport:"Importar copia",
   bkDesc:"Guarda en un archivo todos los tramos, las tablas y los ajustes — o restaura desde una copia. Hazlo a menudo: es tu red de seguridad.",
@@ -1707,6 +1711,7 @@ es:{introTitle:"Cómo funciona",
   soundDefault:"Predeterminado",
   soundPlay:"Escuchar"},
 de:{introTitle:"So funktioniert es",
+  scanPage:"Seite {i} von {n}…",scanPagesFail:"Nicht gelesene Seiten: {list}. Wiederhole sie mit \"+ Scan hinzufügen\".",scanPagesGap:"Seiten mit fehlender Nummer: {list}. Bitte prüfen.",
   pwYear:"Jährlich",pwMonth:"Monatlich",pwPerYear:"/Jahr",pwPerMonth:"/Monat",pwNote:"7 Tage gratis, dann {p}",pwCta:"7 Tage gratis starten",pwRestore:"Käufe wiederherstellen",pwLegal:"Automatische Verlängerung. Jederzeit in den Apple-Einstellungen kündbar. Preise können je nach Land variieren.",pwWait:"Bitte warten…",pwLoading:"Produkte werden noch geladen, versuche es in ein paar Sekunden erneut.",scanGap:"Unvollständig gelesen: Referenz {n} fehlt. Prüfe die Seite und scanne sie bei Bedarf erneut.",
   calcHint:"Zeit eingeben (z. B. 1335 = 13:35), dann + oder −, eine weitere Zeit, dann =.",bkExport:"Backup exportieren",bkImport:"Backup importieren",
   bkDesc:"Speichere alle Radar-Prüfungen, Bordkarten und Einstellungen in einer Datei — oder stelle sie aus einem Backup wieder her. Mach das oft: es ist dein Sicherheitsnetz.",
@@ -1839,6 +1844,7 @@ de:{introTitle:"So funktioniert es",
   soundDefault:"Standard",
   soundPlay:"Anhören"},
 pt:{introTitle:"Como funciona",
+  scanPage:"Página {i} de {n}…",scanPagesFail:"Páginas não lidas: {list}. Repete-as com \"+ Adicionar scan\".",scanPagesGap:"Páginas com um número em falta: {list}. Verifica-as.",
   pwYear:"Anual",pwMonth:"Mensal",pwPerYear:"/ano",pwPerMonth:"/mês",pwNote:"7 dias grátis, depois {p}",pwCta:"Começar 7 dias grátis",pwRestore:"Restaurar compras",pwLegal:"Renovação automática. Cancela quando quiseres nas definições Apple. Os preços podem variar por país.",pwWait:"Aguarda…",pwLoading:"Os produtos ainda estão a carregar, tenta de novo daqui a alguns segundos.",scanGap:"Leitura incompleta: falta a referência {n}. Verifica a página e volta a digitalizá-la se for preciso.",
   calcHint:"Escreve a hora (ex. 1335 = 13:35), depois + ou −, outro tempo e =.",bkExport:"Exportar cópia",bkImport:"Importar cópia",
   bkDesc:"Guarda num ficheiro todos os troços, cartões e definições — ou repõe a partir de uma cópia. Fá-lo com frequência: é a tua rede de segurança.",
@@ -1971,6 +1977,7 @@ pt:{introTitle:"Como funciona",
   soundDefault:"Predefinido",
   soundPlay:"Ouvir"},
 ja:{introTitle:"使い方",
+  scanPage:"{n} ページ中 {i} ページ目…",scanPagesFail:"読み取れなかったページ: {list}。「+ スキャンを追加」でやり直してください。",scanPagesGap:"番号が欠けているページ: {list}。確認してください。",
   pwYear:"年額",pwMonth:"月額",pwPerYear:"/年",pwPerMonth:"/月",pwNote:"7日間無料、その後 {p}",pwCta:"7日間無料で始める",pwRestore:"購入を復元",pwLegal:"自動更新。Appleの設定からいつでも解約できます。価格は国によって異なる場合があります。",pwWait:"お待ちください…",pwLoading:"製品を読み込み中です。数秒後にもう一度お試しください。",scanGap:"読み取りが不完全です: 参照 {n} がありません。ページを確認し、必要なら再スキャンしてください。",
   calcHint:"時刻を入力し（例 1335 = 13:35）、+ または − と別の時間を入れて = を押します。",bkExport:"バックアップを書き出す",bkImport:"バックアップを読み込む",
   bkDesc:"レーダーのステージ、タイムカード、設定をファイルに保存できます。バックアップから復元も可能です。こまめに実行してください。",
@@ -2103,6 +2110,7 @@ ja:{introTitle:"使い方",
   soundDefault:"デフォルト",
   soundPlay:"再生"},
 cs:{introTitle:"Jak to funguje",
+  scanPage:"Strana {i} z {n}…",scanPagesFail:"Nepřečtené strany: {list}. Zopakujte je přes \"+ Přidat sken\".",scanPagesGap:"Strany s chybějícím číslem: {list}. Zkontrolujte je.",
   pwYear:"Roční",pwMonth:"Měsíční",pwPerYear:"/rok",pwPerMonth:"/měsíc",pwNote:"7 dní zdarma, poté {p}",pwCta:"Začít 7 dní zdarma",pwRestore:"Obnovit nákupy",pwLegal:"Automatické obnovení. Zrušit lze kdykoli v nastavení Apple. Ceny se mohou lišit podle země.",pwWait:"Čekejte…",pwLoading:"Produkty se ještě načítají, zkuste to za pár sekund.",scanGap:"Neúplné čtení: chybí bod {n}. Zkontrolujte stránku a případně ji naskenujte znovu.",
   calcHint:"Zadejte čas (např. 1335 = 13:35), pak + nebo −, další čas a =.",bkExport:"Exportovat zálohu",bkImport:"Importovat zálohu",
   bkDesc:"Uložte do souboru všechny zkoušky radaru, jízdní výkazy a nastavení — nebo je obnovte ze zálohy. Dělejte to často, je to vaše pojistka.",
@@ -3477,77 +3485,81 @@ function imgToB64(img, maxDim){
   g.drawImage(img, 0, 0, c.width, c.height);
   return c.toDataURL('image/jpeg', 0.72).split(',')[1];
 }
-async function scanAIRun(img){
+/* legge UNA pagina e restituisce i riferimenti trovati (o lancia un errore) */
+async function scanOnePage(img){
+  const b64 = imgToB64(img, 1800);
+  const res = await fetch(SCAN_API, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json', 'X-App-Key': window.__rallyAuth.key},
+    body: JSON.stringify({ image: b64, device: window.__rallyAuth.device })
+  });
+  const data = await res.json();
+  if(data.error) throw new Error(data.error);
+  let rows = Array.isArray(data.rows) ? data.rows : [];
+  if(!rows.length) return { rb: [], gap: 0 };
+  /* ordino per numero e taglio le strisce tra un quadratino numerato e l'altro:
+     tanti numeri, tante strisce, anche senza riga di separazione */
+  rows = rows.slice().sort((a,b)=> (+a.num||0) - (+b.num||0));
+  const hasNB = rows.every(r => Array.isArray(r.numbox) && r.numbox.length===4);
+  if(hasNB){
+    for(let i=0;i<rows.length;i++){
+      const r=rows[i], nb=r.numbox, prev = i>0 ? rows[i-1].numbox : null;
+      const top = prev ? prev[2] : (Array.isArray(r.box)&&r.box.length===4 ? Math.min(r.box[0], nb[0]) : 0);
+      const bottom = nb[2];
+      const x0 = (Array.isArray(r.box)&&r.box.length===4) ? r.box[1] : 0;
+      const x1 = (Array.isArray(r.box)&&r.box.length===4) ? r.box[3] : 1000;
+      if(bottom - top > 15) r.box = [top, x0, bottom, x1];
+    }
+  }
+  let gap = 0;
+  for(let i=1;i<rows.length;i++){ const a=+rows[i-1].num, b=+rows[i].num; if(a && b && b!==a+1){ gap=a+1; break; } }
+  const rb = [];
+  for(const r of rows){
+    const km = (r.km == null ? '' : String(r.km)).replace('.', ',').trim();
+    const nota = (r.nota || '').trim();
+    let cropped = '';
+    if(Array.isArray(r.box) && r.box.length === 4){ try{ cropped = aiCrop(img, r.box); }catch(e){} }
+    rb.push({ km: km, s: '', n: nota, img: cropped });
+  }
+  return { rb, gap };
+}
+
+/* piu' pagine insieme: una alla volta, poi fuse in un'unica prova ordinata per Totali */
+async function scanAIRunFiles(files){
   const name = pendingStageName;
   const append = pendingAppend;
   pendingStageName = null; pendingAppend = false;
-  if(!img || !name) return;
-  window.__scanBusy(true, t('scanReading'));
-  try{
-    const b64 = imgToB64(img, 1800);
-    const res = await fetch(SCAN_API, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json', 'X-App-Key': window.__rallyAuth.key},
-      body: JSON.stringify({ image: b64, device: window.__rallyAuth.device })
-    });
-    const data = await res.json();
-    window.__scanBusy(false);
-    if(data.error){ showMsg('\u26A0\uFE0F ' + data.error); return; }
-    let rows = Array.isArray(data.rows) ? data.rows : [];
-    if(!rows.length){ showMsg('\u26A0\uFE0F ' + t('scanNone')); return; }
-    /* ordino per numero e taglio le strisce tra un quadratino numerato e l'altro:
-       tanti numeri, tante strisce, anche senza riga di separazione */
-    rows = rows.slice().sort((a,b)=> (+a.num||0) - (+b.num||0));
-    const hasNB = rows.every(r => Array.isArray(r.numbox) && r.numbox.length===4);
-    if(hasNB){
-      for(let i=0;i<rows.length;i++){
-        const r=rows[i], nb=r.numbox, prev = i>0 ? rows[i-1].numbox : null;
-        const top = prev ? prev[2] : (Array.isArray(r.box)&&r.box.length===4 ? Math.min(r.box[0], nb[0]) : 0);
-        const bottom = nb[2];
-        const x0 = (Array.isArray(r.box)&&r.box.length===4) ? r.box[1] : 0;
-        const x1 = (Array.isArray(r.box)&&r.box.length===4) ? r.box[3] : 1000;
-        if(bottom - top > 15) r.box = [top, x0, bottom, x1];
-      }
-    }
-    let gap = 0;
-    for(let i=1;i<rows.length;i++){ const a=+rows[i-1].num, b=+rows[i].num; if(a && b && b!==a+1){ gap=a+1; break; } }
-    const newRb = [];
-    for(const r of rows){
-      const km = (r.km == null ? '' : String(r.km)).replace('.', ',').trim();
-      const nota = (r.nota || '').trim();
-      let cropped = '';
-      if(Array.isArray(r.box) && r.box.length === 4){
-        try{ cropped = aiCrop(img, r.box); }catch(e){}
-      }
-      newRb.push({ km: km, s: '', n: nota, img: cropped });
-    }
-    let stage = cfg.ssLib.find(x => x.name === name);
-    if(!stage){ stage = { name: name, rb: [] }; if(ssCurFolder) stage.folder = ssCurFolder; cfg.ssLib.push(stage); }
-    stage.rb = append ? (stage.rb || []).concat(newRb) : newRb;
-    stage.rb.sort((a,b)=> (parseKm(a.km)||0) - (parseKm(b.km)||0));
-    cfg.rb = JSON.parse(JSON.stringify(stage.rb));
-    cfg.ssActive = name;
-    rbPassedIdx = null; radShownIdx = -2; rbOffset = 0;
-    updateSsBadge();
-    const ok = saveCfg();
-    buildSsList();
-    if(ok){ if(gap) showMsg('\u26A0\uFE0F ' + t('scanGap').replace('{n}', gap)); else showToast('\u2705 ' + newRb.length + ' ' + t('scanSaved')); }
-    else showMsg('\u26A0\uFE0F ' + t('storeFull'));
-  }catch(e){
-    window.__scanBusy(false);
-    showMsg('\u26A0\uFE0F ' + t('scanConnErr'));
+  if(!files.length || !name) return;
+  const n = files.length;
+  let all = [], failed = [], gaps = [];
+  for(let i=0;i<n;i++){
+    window.__scanBusy(true, n>1 ? t('scanPage').replace('{i}', i+1).replace('{n}', n) : t('scanReading'));
+    try{
+      const img = await loadImageFile(files[i]);
+      const r = await scanOnePage(img);
+      if(!r.rb.length) failed.push(i+1);
+      else { all = all.concat(r.rb); if(r.gap) gaps.push(i+1); }
+    }catch(e){ failed.push(i+1); }
   }
+  window.__scanBusy(false);
+  if(!all.length){ showMsg('\u26A0\uFE0F ' + (n>1 ? t('scanNone') : t('scanConnErr'))); return; }
+  let stage = cfg.ssLib.find(x => x.name === name);
+  if(!stage){ stage = { name: name, rb: [] }; if(ssCurFolder) stage.folder = ssCurFolder; cfg.ssLib.push(stage); }
+  stage.rb = append ? (stage.rb || []).concat(all) : all;
+  stage.rb.sort((a,b)=> (parseKm(a.km)||0) - (parseKm(b.km)||0));
+  cfg.rb = JSON.parse(JSON.stringify(stage.rb));
+  cfg.ssActive = name;
+  rbPassedIdx = null; radShownIdx = -2; rbOffset = 0; radManualIdx = null; radManualAhead = false;
+  updateSsBadge();
+  const ok = saveCfg();
+  buildSsList();
+  if(!ok){ showMsg('\u26A0\uFE0F ' + t('storeFull')); return; }
+  let warn = '';
+  if(failed.length) warn += t('scanPagesFail').replace('{list}', failed.join(', '));
+  if(gaps.length) warn += (warn ? '\n' : '') + t('scanPagesGap').replace('{list}', gaps.join(', '));
+  if(warn) showMsg('\u26A0\uFE0F ' + all.length + ' ' + t('scanSaved') + '\n' + warn);
+  else showToast('\u2705 ' + all.length + ' ' + t('scanSaved'));
 }
-$('aiFile').addEventListener('change', e=>{
-  const f = e.target.files && e.target.files[0];
-  if(!f){ pendingStageName = null; return; }
-  const url = URL.createObjectURL(f);
-  const im = new Image();
-  im.onload = ()=>{ URL.revokeObjectURL(url); scanAIRun(im); };
-  im.onerror = ()=>{ URL.revokeObjectURL(url); pendingStageName = null; pendingAppend = false; showMsg('\u26A0\uFE0F ' + t('scanPhotoErr')); };
-  im.src = url;
-  e.target.value = '';
-});
 
 /* ================= SCHERMO SEMPRE ACCESO ================= */
 let wakeLock = null;
