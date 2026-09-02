@@ -3510,9 +3510,17 @@ async function scanOnePage(img){
   rows = rows.slice().sort((a,b)=> (+a.num||0) - (+b.num||0));
   const hasNB = rows.every(r => Array.isArray(r.numbox) && r.numbox.length===4);
   if(hasNB){
+    /* altezza tipica di una cella = distanza fra due numerini consecutivi */
+    const hs=[];
+    for(let i=1;i<rows.length;i++){ const d=rows[i].numbox[2]-rows[i-1].numbox[2]; if(d>15) hs.push(d); }
+    hs.sort((a,b)=>a-b);
+    const cellH = hs.length ? hs[Math.floor(hs.length/2)] : 0;
     for(let i=0;i<rows.length;i++){
       const r=rows[i], nb=r.numbox, prev = i>0 ? rows[i-1].numbox : null;
-      const top = prev ? prev[2] : (Array.isArray(r.box)&&r.box.length===4 ? Math.min(r.box[0], nb[0]) : 0);
+      let top;
+      if(prev) top = prev[2];
+      else if(cellH) top = Math.max(0, nb[2] - cellH);          /* prima riga: uso l'altezza tipica */
+      else top = (Array.isArray(r.box)&&r.box.length===4) ? Math.min(r.box[0], nb[0]) : 0;
       const bottom = nb[2];
       const x0 = (Array.isArray(r.box)&&r.box.length===4) ? r.box[1] : 0;
       const x1 = (Array.isArray(r.box)&&r.box.length===4) ? r.box[3] : 1000;
@@ -3539,23 +3547,36 @@ async function scanAIRunFiles(files){
   pendingStageName = null; pendingAppend = false;
   if(!files.length || !name) return;
   const n = files.length;
-  let all = [], failed = [], gaps = [], why = [], info = '';
+  let failed = [], gaps = [], why = [], info = '';
+  const parts = new Array(n).fill(null);
   const t0 = Date.now();
-  let curLabel = '';
-  const tick = setInterval(()=>{ window.__scanBusy(true, curLabel + ' \u00B7 ' + Math.round((Date.now()-t0)/1000) + ' s'); }, 1000);
-  try{
-    for(let i=0;i<n;i++){
-      curLabel = n>1 ? t('scanPage').replace('{i}', i+1).replace('{n}', n) : t('scanReading');
-      window.__scanBusy(true, curLabel);
+  let doneCount = 0;
+  const label = ()=> (n>1 ? t('scanPage').replace('{i}', doneCount).replace('{n}', n) : t('scanReading'));
+  const tick = setInterval(()=>{ window.__scanBusy(true, label() + ' \u00B7 ' + Math.round((Date.now()-t0)/1000) + ' s'); }, 1000);
+  window.__scanBusy(true, label());
+  /* pagine in parallelo, massimo 3 insieme: il tempo totale e' quello della piu' lenta */
+  const MAXP = 3;
+  let cursor = 0;
+  async function worker(){
+    while(true){
+      const i = cursor++;
+      if(i >= n) return;
       try{
         const img = await loadImageFile(files[i]);
         const r = await scanOnePage(img);
-        if(r.model) info = r.model + (r.ms ? ' \u00B7 ' + Math.round(r.ms/1000) + 's' : '');
+        if(r.model && !info) info = r.model + (r.ms ? ' \u00B7 ' + Math.round(r.ms/1000) + 's' : '');
         if(!r.rb.length){ failed.push(i+1); why.push((i+1)+': 0 riferimenti'); }
-        else { all = all.concat(r.rb); if(r.gap) gaps.push(i+1); }
+        else { parts[i] = r.rb; if(r.gap) gaps.push(i+1); }
       }catch(e){ failed.push(i+1); why.push((i+1)+': '+((e&&e.message)||'errore')); }
+      doneCount++;
     }
+  }
+  try{
+    await Promise.all(Array.from({length: Math.min(MAXP, n)}, worker));
   } finally { clearInterval(tick); }
+  failed.sort((a,b)=>a-b); gaps.sort((a,b)=>a-b);
+  let all = [];
+  parts.forEach(rb=>{ if(rb) all = all.concat(rb); });
   if(!all.length){ showMsg('\u26A0\uFE0F ' + (n>1 ? t('scanNone') : t('scanConnErr')) + (why.length ? '\n(' + why.join(' \u00B7 ') + ')' : '')); return; }
   let stage = cfg.ssLib.find(x => x.name === name);
   if(!stage){ stage = { name: name, rb: [] }; if(ssCurFolder) stage.folder = ssCurFolder; cfg.ssLib.push(stage); }
