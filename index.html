@@ -3488,11 +3488,19 @@ function imgToB64(img, maxDim){
 /* legge UNA pagina e restituisce i riferimenti trovati (o lancia un errore) */
 async function scanOnePage(img){
   const b64 = imgToB64(img, 1800);
-  const res = await fetch(SCAN_API, {
-    method: 'POST',
-    headers: {'Content-Type':'application/json', 'X-App-Key': window.__rallyAuth.key},
-    body: JSON.stringify({ image: b64, device: window.__rallyAuth.device })
-  });
+  if(!b64) throw new Error('immagine vuota');
+  const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+  const tm = setTimeout(()=>{ try{ ctrl && ctrl.abort(); }catch(_){} }, 150000);
+  let res;
+  try{
+    res = await fetch(SCAN_API, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', 'X-App-Key': window.__rallyAuth.key},
+      body: JSON.stringify({ image: b64, device: window.__rallyAuth.device }),
+      signal: ctrl ? ctrl.signal : undefined
+    });
+  }catch(e){ clearTimeout(tm); throw new Error(e && e.name === 'AbortError' ? 'tempo scaduto (150 s)' : 'rete'); }
+  clearTimeout(tm);
   const data = await res.json();
   if(data.error) throw new Error(data.error);
   let rows = Array.isArray(data.rows) ? data.rows : [];
@@ -3531,17 +3539,23 @@ async function scanAIRunFiles(files){
   pendingStageName = null; pendingAppend = false;
   if(!files.length || !name) return;
   const n = files.length;
-  let all = [], failed = [], gaps = [];
-  for(let i=0;i<n;i++){
-    window.__scanBusy(true, n>1 ? t('scanPage').replace('{i}', i+1).replace('{n}', n) : t('scanReading'));
-    try{
-      const img = await loadImageFile(files[i]);
-      const r = await scanOnePage(img);
-      if(!r.rb.length) failed.push(i+1);
-      else { all = all.concat(r.rb); if(r.gap) gaps.push(i+1); }
-    }catch(e){ failed.push(i+1); }
-  }
-  if(!all.length){ showMsg('\u26A0\uFE0F ' + (n>1 ? t('scanNone') : t('scanConnErr'))); return; }
+  let all = [], failed = [], gaps = [], why = [];
+  const t0 = Date.now();
+  let curLabel = '';
+  const tick = setInterval(()=>{ window.__scanBusy(true, curLabel + ' \u00B7 ' + Math.round((Date.now()-t0)/1000) + ' s'); }, 1000);
+  try{
+    for(let i=0;i<n;i++){
+      curLabel = n>1 ? t('scanPage').replace('{i}', i+1).replace('{n}', n) : t('scanReading');
+      window.__scanBusy(true, curLabel);
+      try{
+        const img = await loadImageFile(files[i]);
+        const r = await scanOnePage(img);
+        if(!r.rb.length){ failed.push(i+1); why.push((i+1)+': 0 riferimenti'); }
+        else { all = all.concat(r.rb); if(r.gap) gaps.push(i+1); }
+      }catch(e){ failed.push(i+1); why.push((i+1)+': '+((e&&e.message)||'errore')); }
+    }
+  } finally { clearInterval(tick); }
+  if(!all.length){ showMsg('\u26A0\uFE0F ' + (n>1 ? t('scanNone') : t('scanConnErr')) + (why.length ? '\n(' + why.join(' \u00B7 ') + ')' : '')); return; }
   let stage = cfg.ssLib.find(x => x.name === name);
   if(!stage){ stage = { name: name, rb: [] }; if(ssCurFolder) stage.folder = ssCurFolder; cfg.ssLib.push(stage); }
   stage.rb = append ? (stage.rb || []).concat(all) : all;
@@ -3554,7 +3568,7 @@ async function scanAIRunFiles(files){
   buildSsList();
   if(!ok){ showMsg('\u26A0\uFE0F ' + t('storeFull')); return; }
   let warn = '';
-  if(failed.length) warn += t('scanPagesFail').replace('{list}', failed.join(', '));
+  if(failed.length) warn += t('scanPagesFail').replace('{list}', failed.join(', ')) + (why.length ? '\n(' + why.join(' \u00B7 ') + ')' : '');
   if(gaps.length) warn += (warn ? '\n' : '') + t('scanPagesGap').replace('{list}', gaps.join(', '));
   if(warn) showMsg('\u26A0\uFE0F ' + all.length + ' ' + t('scanSaved') + '\n' + warn);
   else showToast('\u2705 ' + all.length + ' ' + t('scanSaved'));
@@ -3563,10 +3577,13 @@ async function scanAIRunFiles(files){
 /* scelta delle foto: parte la lettura (una o piu' pagine) */
 function loadImageFile(f){
   return new Promise((res, rej)=>{
+    let done = false;
     const url = URL.createObjectURL(f);
     const im = new Image();
-    im.onload = ()=>{ URL.revokeObjectURL(url); res(im); };
-    im.onerror = ()=>{ URL.revokeObjectURL(url); rej(new Error('img')); };
+    const finish = (ok, v)=>{ if(done) return; done = true; clearTimeout(tm); try{ URL.revokeObjectURL(url); }catch(_){} ok ? res(v) : rej(v); };
+    const tm = setTimeout(()=> finish(false, new Error('timeout foto')), 25000);
+    im.onload = ()=> finish(true, im);
+    im.onerror = ()=> finish(false, new Error('foto non leggibile'));
     im.src = url;
   });
 }
