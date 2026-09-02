@@ -3541,7 +3541,6 @@ async function scanAIRunFiles(files){
       else { all = all.concat(r.rb); if(r.gap) gaps.push(i+1); }
     }catch(e){ failed.push(i+1); }
   }
-  window.__scanBusy(false);
   if(!all.length){ showMsg('\u26A0\uFE0F ' + (n>1 ? t('scanNone') : t('scanConnErr'))); return; }
   let stage = cfg.ssLib.find(x => x.name === name);
   if(!stage){ stage = { name: name, rb: [] }; if(ssCurFolder) stage.folder = ssCurFolder; cfg.ssLib.push(stage); }
@@ -3560,6 +3559,24 @@ async function scanAIRunFiles(files){
   if(warn) showMsg('\u26A0\uFE0F ' + all.length + ' ' + t('scanSaved') + '\n' + warn);
   else showToast('\u2705 ' + all.length + ' ' + t('scanSaved'));
 }
+
+/* scelta delle foto: parte la lettura (una o piu' pagine) */
+function loadImageFile(f){
+  return new Promise((res, rej)=>{
+    const url = URL.createObjectURL(f);
+    const im = new Image();
+    im.onload = ()=>{ URL.revokeObjectURL(url); res(im); };
+    im.onerror = ()=>{ URL.revokeObjectURL(url); rej(new Error('img')); };
+    im.src = url;
+  });
+}
+$('aiFile').addEventListener('change', e=>{
+  const files = Array.from(e.target.files || []);
+  if(!files.length){ e.target.value = ''; pendingStageName = null; pendingAppend = false; return; }
+  window.__scanBusy(true, t('scanReading'));   /* rotellina subito, prima ancora di aprire le foto */
+  scanAIRunFiles(files).catch(function(err){ showMsg('\u26A0\uFE0F ' + t('scanConnErr')); })
+    .finally(function(){ window.__scanBusy(false); try{ $('aiFile').value = ''; }catch(_){} });
+});
 
 /* ================= SCHERMO SEMPRE ACCESO ================= */
 let wakeLock = null;
