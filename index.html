@@ -3529,7 +3529,7 @@ async function scanOnePage(img){
     if(Array.isArray(r.box) && r.box.length === 4){ try{ cropped = aiCrop(img, r.box); }catch(e){} }
     rb.push({ km: km, s: '', n: nota, img: cropped });
   }
-  return { rb, gap };
+  return { rb, gap, model: data.model || '', ms: data.ms || 0 };
 }
 
 /* piu' pagine insieme: una alla volta, poi fuse in un'unica prova ordinata per Totali */
@@ -3539,7 +3539,7 @@ async function scanAIRunFiles(files){
   pendingStageName = null; pendingAppend = false;
   if(!files.length || !name) return;
   const n = files.length;
-  let all = [], failed = [], gaps = [], why = [];
+  let all = [], failed = [], gaps = [], why = [], info = '';
   const t0 = Date.now();
   let curLabel = '';
   const tick = setInterval(()=>{ window.__scanBusy(true, curLabel + ' \u00B7 ' + Math.round((Date.now()-t0)/1000) + ' s'); }, 1000);
@@ -3550,6 +3550,7 @@ async function scanAIRunFiles(files){
       try{
         const img = await loadImageFile(files[i]);
         const r = await scanOnePage(img);
+        if(r.model) info = r.model + (r.ms ? ' \u00B7 ' + Math.round(r.ms/1000) + 's' : '');
         if(!r.rb.length){ failed.push(i+1); why.push((i+1)+': 0 riferimenti'); }
         else { all = all.concat(r.rb); if(r.gap) gaps.push(i+1); }
       }catch(e){ failed.push(i+1); why.push((i+1)+': '+((e&&e.message)||'errore')); }
@@ -3571,7 +3572,7 @@ async function scanAIRunFiles(files){
   if(failed.length) warn += t('scanPagesFail').replace('{list}', failed.join(', ')) + (why.length ? '\n(' + why.join(' \u00B7 ') + ')' : '');
   if(gaps.length) warn += (warn ? '\n' : '') + t('scanPagesGap').replace('{list}', gaps.join(', '));
   if(warn) showMsg('\u26A0\uFE0F ' + all.length + ' ' + t('scanSaved') + '\n' + warn);
-  else showToast('\u2705 ' + all.length + ' ' + t('scanSaved'));
+  else showToast('\u2705 ' + all.length + ' ' + t('scanSaved') + (info ? ' \u00B7 ' + info : ''));
 }
 
 /* scelta delle foto: parte la lettura (una o piu' pagine) */
