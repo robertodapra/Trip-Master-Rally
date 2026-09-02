@@ -3485,6 +3485,39 @@ function imgToB64(img, maxDim){
   g.drawImage(img, 0, 0, c.width, c.height);
   return c.toDataURL('image/jpeg', 0.72).split(',')[1];
 }
+/* trova le linee della tabella sui pixel: righe (bande) e colonne, in px di un canvas 900 di larghezza */
+function detectTable(img){
+  try{
+    const W=900, sc=W/img.naturalWidth, H=Math.max(1, Math.round(img.naturalHeight*sc));
+    const c=document.createElement('canvas'); c.width=W; c.height=H;
+    const cx=c.getContext('2d'); cx.drawImage(img,0,0,W,H);
+    const d=cx.getImageData(0,0,W,H).data;
+    const dark=new Uint8Array(W*H), rowr=new Float32Array(H), colc=new Float32Array(W);
+    for(let y=0;y<H;y++){ let n=0; for(let x=0;x<W;x++){ const i=(y*W+x)*4; const l=(d[i]*299+d[i+1]*587+d[i+2]*114)/1000; if(l<150){ dark[y*W+x]=1; n++; } } rowr[y]=n/W; }
+    const med=a=>{ const t=Array.from(a).sort((p,q)=>p-q); return t.length? t[Math.floor(t.length/2)] : 0; };
+    const thr=Math.max(0.5, med(rowr)+0.35);
+    let hl=[], inl=false, st=0;
+    for(let y=0;y<=H;y++){ const on=y<H && rowr[y]>thr; if(on&&!inl){ inl=true; st=y; } if(!on&&inl){ inl=false; hl.push((st+y-1)/2); } }
+    const cl=[]; hl.forEach(y=>{ if(cl.length && y-cl[cl.length-1] < H*0.012) cl[cl.length-1]=(cl[cl.length-1]+y)/2; else cl.push(y); });
+    if(cl.length<2) return null;
+    const y0=Math.round(cl[0]), y1=Math.round(cl[cl.length-1]);
+    for(let x=0;x<W;x++){ let n=0; for(let y=y0;y<y1;y++) n+=dark[y*W+x]; colc[x]=n/Math.max(1,y1-y0); }
+    const thr2=Math.max(0.5, med(colc)+0.35);
+    let vl=[]; inl=false;
+    for(let x=0;x<=W;x++){ const on=x<W && colc[x]>thr2; if(on&&!inl){ inl=true; st=x; } if(!on&&inl){ inl=false; vl.push((st+x-1)/2); } }
+    const vc=[]; vl.forEach(x=>{ if(vc.length && x-vc[vc.length-1] < W*0.02) vc[vc.length-1]=(vc[vc.length-1]+x)/2; else vc.push(x); });
+    const bands=[]; for(let i=0;i<cl.length-1;i++) bands.push([cl[i], cl[i+1]]);
+    let x0=null, x1=null;
+    if(vc.length>=2){
+      const tw=vc[vc.length-1]-vc[0], lw=(vc[vc.length-1]-vc[vc.length-2])/tw;
+      x0=vc[0];
+      /* l'ultima colonna stretta (5-22%) e' la distanza regressiva: resta fuori */
+      x1=(vc.length>=3 && lw>=0.05 && lw<=0.22) ? vc[vc.length-2] : vc[vc.length-1];
+    }
+    return { W, H, bands, x0, x1 };
+  }catch(e){ return null; }
+}
+
 /* legge UNA pagina e restituisce i riferimenti trovati (o lancia un errore) */
 async function scanOnePage(img){
   const b64 = imgToB64(img, 1800);
@@ -3508,7 +3541,47 @@ async function scanOnePage(img){
   rows = rows.slice().sort((a,b)=> (+a.num||0) - (+b.num||0));
   const cols = (data.cols && typeof data.cols === 'object') ? data.cols : null;
   const okBox = b => Array.isArray(b) && b.length===4 && b.every(v => typeof v === 'number' && !isNaN(v));
-  const hasRow = rows.every(r => okBox(r.rowbox));
+  const tbl = detectTable(img);
+  let snapped = false;
+  if(tbl && tbl.bands.length){
+    const M = rows.length;
+    const maxH = Math.max.apply(null, tbl.bands.map(b=>b[1]-b[0]));
+    const bands = tbl.bands.filter(b => (b[1]-b[0]) >= 0.28*maxH);   /* via le righe sottili di intestazione */
+    const cyOf = r => okBox(r.rowbox) ? (r.rowbox[0]+r.rowbox[2])/2 : (okBox(r.box) ? (r.box[0]+r.box[2])/2 : (okBox(r.numbox) ? r.numbox[0] : null));
+    const cys = rows.map(r => { const v=cyOf(r); return v==null ? null : v*tbl.H/1000; });
+    let pick = null;
+    if(bands.length >= M && cys.every(v => v!=null)){
+      /* M bande consecutive che meglio combaciano con i centri stimati dal modello */
+      let best=null;
+      for(let st=0; st+M<=bands.length; st++){
+        const run = bands.slice(st, st+M);
+        const rh = run.map(b=>b[1]-b[0]).sort((a,b)=>a-b), mh = rh[Math.floor(rh.length/2)];
+        let cost=0;
+        for(let i=0;i<M;i++){ const b=run[i]; cost += Math.abs(cys[i] - (b[0]+b[1])/2); }
+        /* le righe vere hanno altezze uguali: una serie con altezze diverse e' quasi certamente sbagliata */
+        run.forEach(b => { cost += 1.5*Math.abs((b[1]-b[0]) - mh); });
+        if(best===null || cost<best.cost) best={st, cost, mh};
+      }
+      if(best && best.cost/M < 0.9*best.mh) pick = rows.map((r,i)=> bands[best.st+i]);
+    }
+    if(!pick && cys.every(v => v!=null)){
+      /* ripiego: ogni riga nella banda che contiene il suo centro, senza tornare indietro */
+      pick=[]; let last=-1;
+      for(let i=0;i<M;i++){
+        let k = bands.findIndex(b => cys[i]>=b[0] && cys[i]<b[1]);
+        if(k<=last) k = last+1;
+        if(k<0 || k>=bands.length){ pick=null; break; }
+        pick.push(bands[k]); last=k;
+      }
+    }
+    if(pick){
+      const X0 = tbl.x0!=null ? tbl.x0*1000/tbl.W : ((cols && typeof cols.left==='number') ? cols.left : 0);
+      const X1 = tbl.x1!=null ? tbl.x1*1000/tbl.W : ((cols && typeof cols.infoEnd==='number') ? cols.infoEnd : 1000);
+      rows.forEach((r,i)=>{ r.box = [pick[i][0]*1000/tbl.H, X0, pick[i][1]*1000/tbl.H, X1]; });
+      snapped = true;
+    }
+  }
+  const hasRow = !snapped && rows.every(r => okBox(r.rowbox));
   if(hasRow){
     /* 1) altezza tipica di una riga (mediana): serve a riconoscere righe "doppie" */
     const hs = rows.map(r => r.rowbox[2]-r.rowbox[0]).filter(h=>h>10).sort((a,b)=>a-b);
@@ -3525,7 +3598,7 @@ async function scanOnePage(img){
       rows[i].rowbox = [y0, X0!==null ? X0 : x0, y1, X1!==null ? X1 : x1];
     }
     rows.forEach(r => { r.box = r.rowbox.slice(); });
-  } else {
+  } else if(!snapped){
     /* fallback: vecchio metodo basato sui numerini */
     const hasNB = rows.every(r => okBox(r.numbox));
     if(hasNB){
