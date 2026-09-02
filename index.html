@@ -3492,28 +3492,32 @@ function detectTable(img){
     const c=document.createElement('canvas'); c.width=W; c.height=H;
     const cx=c.getContext('2d'); cx.drawImage(img,0,0,W,H);
     const d=cx.getImageData(0,0,W,H).data;
-    const dark=new Uint8Array(W*H), rowr=new Float32Array(H), colc=new Float32Array(W);
-    for(let y=0;y<H;y++){ let n=0; for(let x=0;x<W;x++){ const i=(y*W+x)*4; const l=(d[i]*299+d[i+1]*587+d[i+2]*114)/1000; if(l<150){ dark[y*W+x]=1; n++; } } rowr[y]=n/W; }
+    const dark=new Uint8Array(W*H), colc=new Float32Array(W);
+    for(let y=0;y<H;y++){ for(let x=0;x<W;x++){ const i=(y*W+x)*4; const l=(d[i]*299+d[i+1]*587+d[i+2]*114)/1000; if(l<165){ dark[y*W+x]=1; colc[x]+=1; } } }
+    for(let x=0;x<W;x++) colc[x]/=H;
     const med=a=>{ const t=Array.from(a).sort((p,q)=>p-q); return t.length? t[Math.floor(t.length/2)] : 0; };
-    const thr=Math.max(0.5, med(rowr)+0.35);
-    let hl=[], inl=false, st=0;
-    for(let y=0;y<=H;y++){ const on=y<H && rowr[y]>thr; if(on&&!inl){ inl=true; st=y; } if(!on&&inl){ inl=false; hl.push((st+y-1)/2); } }
-    const cl=[]; hl.forEach(y=>{ if(cl.length && y-cl[cl.length-1] < H*0.012) cl[cl.length-1]=(cl[cl.length-1]+y)/2; else cl.push(y); });
-    if(cl.length<2) return null;
-    const y0=Math.round(cl[0]), y1=Math.round(cl[cl.length-1]);
-    for(let x=0;x<W;x++){ let n=0; for(let y=y0;y<y1;y++) n+=dark[y*W+x]; colc[x]=n/Math.max(1,y1-y0); }
-    const thr2=Math.max(0.5, med(colc)+0.35);
-    let vl=[]; inl=false;
-    for(let x=0;x<=W;x++){ const on=x<W && colc[x]>thr2; if(on&&!inl){ inl=true; st=x; } if(!on&&inl){ inl=false; vl.push((st+x-1)/2); } }
-    const vc=[]; vl.forEach(x=>{ if(vc.length && x-vc[vc.length-1] < W*0.02) vc[vc.length-1]=(vc[vc.length-1]+x)/2; else vc.push(x); });
-    const bands=[]; for(let i=0;i<cl.length-1;i++) bands.push([cl[i], cl[i+1]]);
-    let x0=null, x1=null;
-    if(vc.length>=2){
-      const tw=vc[vc.length-1]-vc[0], lw=(vc[vc.length-1]-vc[vc.length-2])/tw;
-      x0=vc[0];
-      /* l'ultima colonna stretta (5-22%) e' la distanza regressiva: resta fuori */
-      x1=(vc.length>=3 && lw>=0.05 && lw<=0.22) ? vc[vc.length-2] : vc[vc.length-1];
-    }
+    const runs=(mask, n, mind, keep)=>{
+      const ls=[]; let inl=false, st=0;
+      for(let i=0;i<=n;i++){ const on=i<n && mask(i); if(on&&!inl){ inl=true; st=i; } if(!on&&inl){ inl=false; if(!keep || keep(st,i)) ls.push((st+i-1)/2); } }
+      const cl=[]; ls.forEach(v=>{ if(cl.length && v-cl[cl.length-1]<mind) cl[cl.length-1]=(cl[cl.length-1]+v)/2; else cl.push(v); });
+      return cl;
+    };
+    /* 1) colonne: linee verticali su tutta l'altezza -> estensione della tabella */
+    const thrC=Math.max(0.35, med(colc)+0.25);
+    const vc=runs(x=>colc[x]>thrC, W, W*0.02);
+    if(vc.length<2) return null;
+    const xL=Math.round(vc[0]), xR=Math.round(vc[vc.length-1]), tw=xR-xL;
+    const leftEnd = vc.length>=4 ? Math.round(vc[2]) : Math.round(xL+0.2*tw);
+    /* 2) righe: linea piena su tutta la tabella, oppure linea sottile nelle colonne delle distanze */
+    const full=new Float32Array(H), left=new Float32Array(H);
+    for(let y=0;y<H;y++){ let nf=0, nl=0; const o=y*W; for(let x=xL;x<=xR;x++){ if(dark[o+x]){ nf++; if(x<=leftEnd) nl++; } } full[y]=nf/Math.max(1,tw+1); left[y]=nl/Math.max(1,leftEnd-xL+1); }
+    const hc=runs(y=> (full[y]>0.6 || left[y]>0.7), H, H*0.012, (s,e)=>{ if(e-s<=H*0.008) return true; let m=0; for(let y=s;y<e;y++) m+=full[y]; return m/(e-s)>0.6; });
+    if(hc.length<2) return null;
+    const bands=[]; for(let i=0;i<hc.length-1;i++) bands.push([hc[i], hc[i+1]]);
+    /* 3) larghezza: dal bordo sinistro a prima dell'ultima colonna stretta (distanza regressiva) */
+    const lw=(vc[vc.length-1]-vc[vc.length-2])/tw;
+    const x0=vc[0];
+    const x1=(vc.length>=3 && lw>=0.05 && lw<=0.22) ? vc[vc.length-2] : vc[vc.length-1];
     return { W, H, bands, x0, x1 };
   }catch(e){ return null; }
 }
@@ -3538,7 +3542,7 @@ async function scanOnePage(img){
   if(data.error) throw new Error(data.error);
   let rows = Array.isArray(data.rows) ? data.rows : [];
   if(!rows.length) return { rb: [], gap: 0 };
-  rows = rows.slice().sort((a,b)=> (+a.num||0) - (+b.num||0));
+  rows = rows.slice().sort((a,b)=> (parseInt(a.num,10)||0) - (parseInt(b.num,10)||0));
   const cols = (data.cols && typeof data.cols === 'object') ? data.cols : null;
   const okBox = b => Array.isArray(b) && b.length===4 && b.every(v => typeof v === 'number' && !isNaN(v));
   const tbl = detectTable(img);
@@ -3620,7 +3624,7 @@ async function scanOnePage(img){
     }
   }
   let gap = 0;
-  for(let i=1;i<rows.length;i++){ const a=+rows[i-1].num, b=+rows[i].num; if(a && b && b!==a+1){ gap=a+1; break; } }
+  for(let i=1;i<rows.length;i++){ const a=parseInt(rows[i-1].num,10), b=parseInt(rows[i].num,10); if(a && b && b>a+1){ gap=a+1; break; } }
   const rb = [];
   for(const r of rows){
     const km = (r.km == null ? '' : String(r.km)).replace('.', ',').trim();
