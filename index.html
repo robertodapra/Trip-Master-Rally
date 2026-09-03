@@ -2347,6 +2347,30 @@ function saveCfg(){
 }
 
 /* ================= LINGUA / TEMA ================= */
+/* ===== TABELLE DI MARCIA NASCOSTE (scanner + manuale) =====
+   Per riattivarle basta mettere HIDE_TIMECARDS = false. */
+const HIDE_TIMECARDS = true;
+const PW_SUB_LITE = {
+  it:"Con iRally Pro sblocchi tutta l'app: modalità Pilota e scanner dei radar, con tutte le loro funzioni.",
+  en:"iRally Pro unlocks the whole app: Driver mode and the road book scanner, with all their features.",
+  fr:"iRally Pro débloque toute l'application : mode Pilote et scanner du road book, avec toutes leurs fonctions.",
+  es:"iRally Pro desbloquea toda la app: modo Piloto y escáner del road book, con todas sus funciones.",
+  de:"iRally Pro schaltet die ganze App frei: Fahrer-Modus und Roadbook-Scanner, mit allen Funktionen.",
+  pt:"O iRally Pro desbloqueia toda a app: modo Piloto e scanner do road book, com todas as funções.",
+  ja:"iRally Pro ではアプリのすべてが使えます: ドライバーモードとロードブックのスキャナーとその全機能。",
+  cs:"iRally Pro odemkne celou aplikaci: režim Pilot a skener road booku se všemi funkcemi."
+};
+const GUIDE_MENU_LITE = {
+  it:"Tocca <b>☰</b> in alto per aprire il menu e scegliere cosa usare: <b>Pilota</b> (legge le note ai metri), <b>Navigatore / Trip</b> (parziale e velocità), <b>Radar</b> (road book), <b>Calcolatrice</b>, <b>Impostazioni</b> e <b>Guida</b>.",
+  en:"Tap <b>☰</b> at the top to open the menu and pick what to use: <b>Driver</b> (reads notes at set distances), <b>Co-driver / Trip</b> (partial and speed), <b>Radar</b> (road book), <b>Time calculator</b>, <b>Settings</b> and <b>Guide</b>.",
+  fr:"Touchez <b>☰</b> en haut pour ouvrir le menu et choisir : <b>Pilote</b> (lit les notes aux mètres réglés), <b>Copilote / Trip</b> (partiel et vitesse), <b>Radar</b> (carnet de route), <b>Calculatrice</b>, <b>Réglages</b> et <b>Guide</b>.",
+  es:"Toca <b>☰</b> arriba para abrir el menú y elegir: <b>Piloto</b> (lee las notas en los metros que marques), <b>Copiloto / Trip</b> (parcial y velocidad), <b>Radar</b> (road book), <b>Calculadora</b>, <b>Ajustes</b> y <b>Guía</b>.",
+  de:"Tippe oben auf <b>☰</b>, um das Menü zu öffnen und zu wählen: <b>Fahrer</b> (liest Notizen bei den eingestellten Metern), <b>Beifahrer / Trip</b> (Teilstrecke und Tempo), <b>Radar</b> (Roadbook), <b>Zeitrechner</b>, <b>Einstellungen</b> und <b>Anleitung</b>.",
+  pt:"Toca em <b>☰</b> em cima para abrir o menu e escolher: <b>Piloto</b> (lê as notas aos metros definidos), <b>Navegador / Trip</b> (parcial e velocidade), <b>Radar</b> (road book), <b>Calculadora</b>, <b>Definições</b> e <b>Guia</b>.",
+  ja:"上部の <b>☰</b> をタップしてメニューを開き、使うものを選びます: <b>ドライバー</b>（設定した距離でノートを読み上げ）、<b>ナビゲーター / トリップ</b>（区間距離と速度）、<b>レーダー</b>（ロードブック）、<b>計算機</b>、<b>設定</b>、<b>ガイド</b>。",
+  cs:"Klepnutím na <b>☰</b> nahoře otevřete menu a vyberete: <b>Řidič</b> (čte poznámky na nastavených metrech), <b>Navigátor / Trip</b> (mezisoučet a rychlost), <b>Radar</b> (road book), <b>Kalkulačka</b>, <b>Nastavení</b> a <b>Nápověda</b>."
+};
+if(HIDE_TIMECARDS){ Object.keys(PW_SUB_LITE).forEach(function(l){ if(T[l]) T[l].pwSub = PW_SUB_LITE[l]; }); }
 function t(k){ return (T[cfg.lang]||T.en)[k] || T.en[k] || k; }
 var GUIDE_LEAD={
 it:"Tutto quello che serve, diviso per sezione. Tocca un titolo per aprirlo.",
@@ -2473,8 +2497,10 @@ function renderGuide(){
   var gl=document.getElementById('gLead'); if(gl) gl.textContent=GUIDE_LEAD[L]||GUIDE_LEAD.en;
   var gs=document.getElementById('gSup'); if(gs) gs.textContent=GUIDE_SUP[L]||GUIDE_SUP.en;
   var h='';
-  GUIDE[L].forEach(function(sec){
-    h+='<div class="gsec"><button class="gsec-h">'+sec[0]+' '+sec[1]+'</button><div class="gsec-b">'+sec[2]+'</div></div>';
+  GUIDE[L].forEach(function(sec, i){
+    if(HIDE_TIMECARDS && (i===4 || i===5 || i===6)) return;   /* scanner tabella, manuale, sveglie */
+    var body = (HIDE_TIMECARDS && i===0) ? (GUIDE_MENU_LITE[L]||GUIDE_MENU_LITE.en) : sec[2];
+    h+='<div class="gsec"><button class="gsec-h">'+sec[0]+' '+sec[1]+'</button><div class="gsec-b">'+body+'</div></div>';
   });
   acc.innerHTML=h;   /* sempre tutte chiuse */
 }
@@ -2964,6 +2990,12 @@ $('btnArr').addEventListener('click', e=>{
   saveCfg();
 });
 $('drawerBg').addEventListener('click', closeDrawer);
+if(HIDE_TIMECARDS){
+  ['drvTimecard','drvTdm'].forEach(function(id){ var e=$(id); if(e) e.hidden=true; });
+  var gt=document.querySelector('#drawer .dgrp[data-t="grpTdm"]'); if(gt) gt.hidden=true;
+  var gg=document.querySelector('#drawer .dgrp[data-t="grpGen"]'), calcBtn=$('drvCalc');
+  if(gg && calcBtn) gg.insertAdjacentElement('afterend', calcBtn);
+}
 
 /* menu a sezioni che si aprono (una alla volta) */
 document.querySelectorAll('.drawer-sec').forEach(sec=>{
