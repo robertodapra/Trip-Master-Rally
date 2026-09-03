@@ -2349,7 +2349,7 @@ function saveCfg(){
 /* ================= LINGUA / TEMA ================= */
 /* ===== TABELLE DI MARCIA NASCOSTE (scanner + manuale) =====
    Per riattivarle basta mettere HIDE_TIMECARDS = false. */
-const HIDE_TIMECARDS = true;
+const HIDE_TIMECARDS = false;
 const PW_SUB_LITE = {
   it:"Con iRally Pro sblocchi tutta l'app: modalità Pilota e scanner dei radar, con tutte le loro funzioni.",
   en:"iRally Pro unlocks the whole app: Driver mode and the road book scanner, with all their features.",
@@ -3962,7 +3962,18 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
     (Array.isArray(nc.legs)?nc.legs:[]).forEach(L=>{ const s=sig(L); if(!have[s]){ lastCard.legs.push(L); have[s]=1; added++; } });
     return added;
   }
-  $('tc_file').addEventListener('change', async e=>{ const f=e.target.files&&e.target.files[0]; e.target.value=''; if(!f) return; setTxt('\u23F3 Carico la foto\u2026'); try{ const src=await loadImage(f); await scan(src); }catch(err){ setTxt('\u26A0\uFE0F Foto non leggibile: '+err); } });
+  /* ===== SCANNER TABELLA DISATTIVATO (versione di prova): mostra la rotella, poi "non riuscito", non legge mai =====
+     Per riattivarlo mettere TC_SCAN_OFF = false. */
+  const TC_SCAN_OFF = true;
+  $('tc_file').addEventListener('change', async e=>{
+    const f=e.target.files&&e.target.files[0]; e.target.value=''; if(!f) return;
+    if(TC_SCAN_OFF){
+      if(window.__scanBusy) window.__scanBusy(true);
+      setTimeout(function(){ if(window.__scanBusy) window.__scanBusy(false); setTxt('\u26A0\uFE0F '+t('scanConnErr')); }, 9000);
+      return;
+    }
+    setTxt('\u23F3 Carico la foto\u2026'); try{ const src=await loadImage(f); await scan(src); }catch(err){ setTxt('\u26A0\uFE0F Foto non leggibile: '+err); }
+  });
   root().querySelectorAll('.tc-mbtn').forEach(b=> b.addEventListener('click', ()=>{ INPUT_MODE=b.dataset.mode; root().querySelectorAll('.tc-mbtn').forEach(x=>x.classList.toggle('on', x.dataset.mode===INPUT_MODE)); if(lastCard) render(lastCard); }));
 
   async function loadImage(f){ if(window.createImageBitmap){ try{ return await createImageBitmap(f); }catch(e){} } return await new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=()=>rej('decodifica'); im.src=r.result; }; r.onerror=()=>rej('lettura'); r.readAsDataURL(f); }); }
