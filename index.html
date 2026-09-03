@@ -3504,10 +3504,15 @@ function detectTable(img){
     };
     /* 1) colonne: linee verticali su tutta l'altezza -> estensione della tabella */
     const thrC=Math.max(0.35, med(colc)+0.25);
-    const vc=runs(x=>colc[x]>thrC, W, W*0.02);
+    let vc=runs(x=>colc[x]>thrC, W, W*0.02);
     if(vc.length<2) return null;
+    /* i bordi dell'immagine possono sembrare linee: una colonna senza inchiostro e' un margine, non una colonna */
+    const ink=(a,b)=>{ let n=0, c=0; for(let x=Math.round(a)+3;x<=Math.round(b)-3;x++){ for(let y=0;y<H;y++){ n+=dark[y*W+x]; c++; } } return c? n/c : 0; };
+    while(vc.length>=3 && ink(vc[0],vc[1])<0.005) vc.shift();
+    while(vc.length>=3 && ink(vc[vc.length-2],vc[vc.length-1])<0.005) vc.pop();
     const xL=Math.round(vc[0]), xR=Math.round(vc[vc.length-1]), tw=xR-xL;
-    const leftEnd = vc.length>=4 ? Math.round(vc[2]) : Math.round(xL+0.2*tw);
+    /* la prima colonna vera (TOT.): li' ci sono solo numeri e linee, e ogni separatore la attraversa */
+    const leftEnd = vc.length>=3 ? Math.round(vc[1]) : Math.round(xL+0.12*tw);
     /* 2) righe: linea piena su tutta la tabella, oppure linea sottile nelle colonne delle distanze */
     const full=new Float32Array(H), left=new Float32Array(H);
     for(let y=0;y<H;y++){ let nf=0, nl=0; const o=y*W; for(let x=xL;x<=xR;x++){ if(dark[o+x]){ nf++; if(x<=leftEnd) nl++; } } full[y]=nf/Math.max(1,tw+1); left[y]=nl/Math.max(1,leftEnd-xL+1); }
