@@ -979,6 +979,14 @@ body[data-theme="dark"] #drawer .drawer-item{background-color:var(--panel)}
     </select>
   </div>
   <div class="setting-row">
+    <span data-t="rbAdvLabel"></span>
+    <select id="rbAdvSel">
+      <option value="auto" data-t="rbAdvAuto"></option>
+      <option value="manual" data-t="rbAdvManual"></option>
+    </select>
+  </div>
+  <p class="small" style="color:var(--muted);margin:-4px 0 10px" data-t="rbAdvSmall"></p>
+  <div class="setting-row">
     <span data-t="fontLabel"></span>
     <select id="fontSel">
       <option value="jb">JetBrains Mono</option>
@@ -1189,6 +1197,8 @@ function updateNavFree(){ var el=document.getElementById('navFree'); if(!el) ret
 /* ================= TRADUZIONI ================= */
 const T = {
 it:{introTitle:"Come funziona",
+  rbAdvLabel:"Scorrimento simboli radar",rbAdvAuto:"Automatico",rbAdvManual:"Manuale (tocco sul parziale)",
+  rbAdvSmall:"Automatico: al chilometraggio del riferimento il simbolo passa al successivo e il parziale si azzera da solo. Manuale: il simbolo cambia solo quando tocchi il parziale o usi le frecce; i metri corrono comunque.",
   scanPage:"Pagina {i} di {n}…",scanPagesFail:"Pagine non lette: {list}. Rifalle con \"+ Aggiungi scan\".",scanPagesGap:"Pagine con un numero mancante: {list}. Controllale.",
   pwYear:"Annuale",pwMonth:"Mensile",pwPerYear:"/anno",pwPerMonth:"/mese",pwNote:"7 giorni gratis, poi {p}",pwCta:"Inizia 7 giorni gratis",pwRestore:"Ripristina acquisti",pwLegal:"Rinnovo automatico. Disdici quando vuoi dalle impostazioni Apple. I prezzi possono variare per paese.",pwWait:"Attendere…",pwLoading:"Prodotti ancora in caricamento, riprova tra qualche secondo.",scanGap:"Lettura incompleta: manca il riferimento {n}. Controlla la pagina e, se serve, riscansionala.",
   calcHint:"Scrivi l'orario (es. 1335 = 13:35), poi + o − e un altro tempo, infine =.",bkExport:"Esporta backup",bkImport:"Importa backup",
@@ -1317,6 +1327,8 @@ it:{introTitle:"Come funziona",
   soundDefault:"Predefinito",
   soundPlay:"Ascolta"},
 en:{introTitle:"How it works",
+  rbAdvLabel:"Road book symbol advance",rbAdvAuto:"Automatic",rbAdvManual:"Manual (tap the partial)",
+  rbAdvSmall:"Automatic: at the reference distance the symbol moves to the next one and the partial resets by itself. Manual: the symbol changes only when you tap the partial or use the arrows; the metres keep counting anyway.",
   scanPage:"Page {i} of {n}…",scanPagesFail:"Pages not read: {list}. Redo them with \"+ Add scan\".",scanPagesGap:"Pages with a missing number: {list}. Check them.",
   pwYear:"Annual",pwMonth:"Monthly",pwPerYear:"/year",pwPerMonth:"/month",pwNote:"7 days free, then {p}",pwCta:"Start 7 days free",pwRestore:"Restore purchases",pwLegal:"Auto-renewing. Cancel anytime in your Apple settings. Prices may vary by country.",pwWait:"Please wait…",pwLoading:"Products are still loading, try again in a few seconds.",scanGap:"Incomplete read: reference {n} is missing. Check the page and rescan it if needed.",
   calcHint:"Type a time (e.g. 1335 = 13:35), then + or −, another time, then =.",bkExport:"Export backup",bkImport:"Import backup",
@@ -1445,6 +1457,8 @@ en:{introTitle:"How it works",
   soundDefault:"Default",
   soundPlay:"Play"},
 fr:{introTitle:"Comment ça marche",
+  rbAdvLabel:"Défilement des repères radar",rbAdvAuto:"Automatique",rbAdvManual:"Manuel (touche sur le partiel)",
+  rbAdvSmall:"Automatique : au kilométrage du repère, le symbole passe au suivant et le partiel repart de zéro. Manuel : le symbole change seulement quand vous touchez le partiel ou les flèches ; les mètres défilent quand même.",
   scanPage:"Page {i} sur {n}…",scanPagesFail:"Pages non lues : {list}. Refaites-les avec \"+ Ajouter un scan\".",scanPagesGap:"Pages avec un numéro manquant : {list}. Vérifiez-les.",
   pwYear:"Annuel",pwMonth:"Mensuel",pwPerYear:"/an",pwPerMonth:"/mois",pwNote:"7 jours gratuits, puis {p}",pwCta:"Commencer 7 jours gratuits",pwRestore:"Restaurer les achats",pwLegal:"Renouvellement automatique. Résiliez à tout moment dans les réglages Apple. Les prix peuvent varier selon le pays.",pwWait:"Veuillez patienter…",pwLoading:"Produits en cours de chargement, réessayez dans quelques secondes.",scanGap:"Lecture incomplète : le repère {n} manque. Vérifiez la page et rescannez-la si besoin.",
   calcHint:"Saisissez une heure (ex. 1335 = 13:35), puis + ou −, une autre durée, puis =.",bkExport:"Exporter la sauvegarde",bkImport:"Importer la sauvegarde",
@@ -1578,6 +1592,8 @@ fr:{introTitle:"Comment ça marche",
   soundDefault:"Par défaut",
   soundPlay:"Écouter"},
 es:{introTitle:"Cómo funciona",
+  rbAdvLabel:"Avance de símbolos del radar",rbAdvAuto:"Automático",rbAdvManual:"Manual (toque en el parcial)",
+  rbAdvSmall:"Automático: al llegar al kilometraje de la referencia, el símbolo pasa al siguiente y el parcial se pone a cero solo. Manual: el símbolo cambia solo cuando tocas el parcial o usas las flechas; los metros siguen corriendo.",
   scanPage:"Página {i} de {n}…",scanPagesFail:"Páginas no leídas: {list}. Repítelas con \"+ Añadir escaneo\".",scanPagesGap:"Páginas con un número que falta: {list}. Revísalas.",
   pwYear:"Anual",pwMonth:"Mensual",pwPerYear:"/año",pwPerMonth:"/mes",pwNote:"7 días gratis, luego {p}",pwCta:"Empieza 7 días gratis",pwRestore:"Restaurar compras",pwLegal:"Renovación automática. Cancela cuando quieras en los ajustes de Apple. Los precios pueden variar según el país.",pwWait:"Espera…",pwLoading:"Los productos aún se están cargando, inténtalo en unos segundos.",scanGap:"Lectura incompleta: falta la referencia {n}. Revisa la página y vuelve a escanearla si hace falta.",
   calcHint:"Escribe la hora (p. ej. 1335 = 13:35), luego + o −, otro tiempo y =.",bkExport:"Exportar copia",bkImport:"Importar copia",
@@ -1711,6 +1727,8 @@ es:{introTitle:"Cómo funciona",
   soundDefault:"Predeterminado",
   soundPlay:"Escuchar"},
 de:{introTitle:"So funktioniert es",
+  rbAdvLabel:"Roadbook-Symbolwechsel",rbAdvAuto:"Automatisch",rbAdvManual:"Manuell (Tippen auf Teilstrecke)",
+  rbAdvSmall:"Automatisch: am Kilometerstand des Bezugspunkts wechselt das Symbol zum nächsten und die Teilstrecke wird zurückgesetzt. Manuell: das Symbol wechselt nur beim Tippen auf die Teilstrecke oder mit den Pfeilen; die Meter laufen trotzdem weiter.",
   scanPage:"Seite {i} von {n}…",scanPagesFail:"Nicht gelesene Seiten: {list}. Wiederhole sie mit \"+ Scan hinzufügen\".",scanPagesGap:"Seiten mit fehlender Nummer: {list}. Bitte prüfen.",
   pwYear:"Jährlich",pwMonth:"Monatlich",pwPerYear:"/Jahr",pwPerMonth:"/Monat",pwNote:"7 Tage gratis, dann {p}",pwCta:"7 Tage gratis starten",pwRestore:"Käufe wiederherstellen",pwLegal:"Automatische Verlängerung. Jederzeit in den Apple-Einstellungen kündbar. Preise können je nach Land variieren.",pwWait:"Bitte warten…",pwLoading:"Produkte werden noch geladen, versuche es in ein paar Sekunden erneut.",scanGap:"Unvollständig gelesen: Referenz {n} fehlt. Prüfe die Seite und scanne sie bei Bedarf erneut.",
   calcHint:"Zeit eingeben (z. B. 1335 = 13:35), dann + oder −, eine weitere Zeit, dann =.",bkExport:"Backup exportieren",bkImport:"Backup importieren",
@@ -1844,6 +1862,8 @@ de:{introTitle:"So funktioniert es",
   soundDefault:"Standard",
   soundPlay:"Anhören"},
 pt:{introTitle:"Como funciona",
+  rbAdvLabel:"Avanço dos símbolos do radar",rbAdvAuto:"Automático",rbAdvManual:"Manual (toque no parcial)",
+  rbAdvSmall:"Automático: ao quilómetro da referência o símbolo passa ao seguinte e o parcial zera sozinho. Manual: o símbolo muda só quando tocas no parcial ou usas as setas; os metros continuam a contar.",
   scanPage:"Página {i} de {n}…",scanPagesFail:"Páginas não lidas: {list}. Repete-as com \"+ Adicionar scan\".",scanPagesGap:"Páginas com um número em falta: {list}. Verifica-as.",
   pwYear:"Anual",pwMonth:"Mensal",pwPerYear:"/ano",pwPerMonth:"/mês",pwNote:"7 dias grátis, depois {p}",pwCta:"Começar 7 dias grátis",pwRestore:"Restaurar compras",pwLegal:"Renovação automática. Cancela quando quiseres nas definições Apple. Os preços podem variar por país.",pwWait:"Aguarda…",pwLoading:"Os produtos ainda estão a carregar, tenta de novo daqui a alguns segundos.",scanGap:"Leitura incompleta: falta a referência {n}. Verifica a página e volta a digitalizá-la se for preciso.",
   calcHint:"Escreve a hora (ex. 1335 = 13:35), depois + ou −, outro tempo e =.",bkExport:"Exportar cópia",bkImport:"Importar cópia",
@@ -1977,6 +1997,8 @@ pt:{introTitle:"Como funciona",
   soundDefault:"Predefinido",
   soundPlay:"Ouvir"},
 ja:{introTitle:"使い方",
+  rbAdvLabel:"ロードブック記号の切替",rbAdvAuto:"自動",rbAdvManual:"手動（区間距離をタップ）",
+  rbAdvSmall:"自動: 基準点の距離に達すると記号が次に進み、区間距離は自動でリセットされます。手動: 区間距離をタップするか矢印を使ったときだけ記号が変わります。距離は常に進み続けます。",
   scanPage:"{n} ページ中 {i} ページ目…",scanPagesFail:"読み取れなかったページ: {list}。「+ スキャンを追加」でやり直してください。",scanPagesGap:"番号が欠けているページ: {list}。確認してください。",
   pwYear:"年額",pwMonth:"月額",pwPerYear:"/年",pwPerMonth:"/月",pwNote:"7日間無料、その後 {p}",pwCta:"7日間無料で始める",pwRestore:"購入を復元",pwLegal:"自動更新。Appleの設定からいつでも解約できます。価格は国によって異なる場合があります。",pwWait:"お待ちください…",pwLoading:"製品を読み込み中です。数秒後にもう一度お試しください。",scanGap:"読み取りが不完全です: 参照 {n} がありません。ページを確認し、必要なら再スキャンしてください。",
   calcHint:"時刻を入力し（例 1335 = 13:35）、+ または − と別の時間を入れて = を押します。",bkExport:"バックアップを書き出す",bkImport:"バックアップを読み込む",
@@ -2110,6 +2132,8 @@ ja:{introTitle:"使い方",
   soundDefault:"デフォルト",
   soundPlay:"再生"},
 cs:{introTitle:"Jak to funguje",
+  rbAdvLabel:"Posun symbolů road booku",rbAdvAuto:"Automaticky",rbAdvManual:"Ručně (klepnutí na mezisoučet)",
+  rbAdvSmall:"Automaticky: na kilometru bodu přejde symbol na další a mezisoučet se sám vynuluje. Ručně: symbol se změní jen po klepnutí na mezisoučet nebo šipkami; metry běží dál.",
   scanPage:"Strana {i} z {n}…",scanPagesFail:"Nepřečtené strany: {list}. Zopakujte je přes \"+ Přidat sken\".",scanPagesGap:"Strany s chybějícím číslem: {list}. Zkontrolujte je.",
   pwYear:"Roční",pwMonth:"Měsíční",pwPerYear:"/rok",pwPerMonth:"/měsíc",pwNote:"7 dní zdarma, poté {p}",pwCta:"Začít 7 dní zdarma",pwRestore:"Obnovit nákupy",pwLegal:"Automatické obnovení. Zrušit lze kdykoli v nastavení Apple. Ceny se mohou lišit podle země.",pwWait:"Čekejte…",pwLoading:"Produkty se ještě načítají, zkuste to za pár sekund.",scanGap:"Neúplné čtení: chybí bod {n}. Zkontrolujte stránku a případně ji naskenujte znovu.",
   calcHint:"Zadejte čas (např. 1335 = 13:35), pak + nebo −, další čas a =.",bkExport:"Exportovat zálohu",bkImport:"Importovat zálohu",
@@ -2334,7 +2358,7 @@ if(cfg.mode !== 'pilot' && cfg.mode !== 'nav' && cfg.mode !== 'radar') cfg.mode 
 if(cfg.units !== 'metric' && cfg.units !== 'imperial') cfg.units = 'metric';
 if(cfg.theme !== 'dark' && cfg.theme !== 'light') cfg.theme = 'dark';
 if(typeof cfg.tunnel !== 'boolean') cfg.tunnel = true;
-cfg.autoReset = true;
+if(typeof cfg.autoReset !== 'boolean') cfg.autoReset = true;
 if(typeof cfg.h24 !== 'boolean') cfg.h24 = true;
 if(typeof cfg.ssActive !== 'string') cfg.ssActive = '';
 if(!cfg.lay || typeof cfg.lay !== 'object') cfg.lay = {arr:'top'};
@@ -2705,9 +2729,14 @@ function radarRender(){
   }
   /* si torna al flusso automatico solo quando il GPS raggiunge davvero
      il riferimento che stavi guardando in avanti; sfogliando indietro resta fermo */
-  if(radManualIdx !== null && radManualAhead){
-    const dSel = parseKm(cfg.rb[radManualIdx].km) * 1000;
-    if(!isNaN(dSel) && tR >= dSel) radManualIdx = null;
+  if(cfg.autoReset){
+    if(radManualIdx !== null && radManualAhead){
+      const dSel = parseKm(cfg.rb[radManualIdx].km) * 1000;
+      if(!isNaN(dSel) && tR >= dSel) radManualIdx = null;
+    }
+  } else {
+    /* manuale: il simbolo mostrato lo decidi tu; l'app lo aggancia solo la prima volta */
+    if(radManualIdx === null) radManualIdx = (next === -1 ? cfg.rb.length - 1 : next);
   }
   let idx, key;
   if(radManualIdx !== null){
@@ -3040,6 +3069,7 @@ $('drvSet').addEventListener('click', ()=>{
   $('langSel').value = cfg.lang;
   $('unitSel').value = cfg.units;
   $('numSel').value = String(cfg.numSize);
+  if($('rbAdvSel')) $('rbAdvSel').value = cfg.autoReset ? 'auto' : 'manual';
   $('fontSel').value = cfg.numFont;
   $('timeSel').value = cfg.h24 ? '24' : '12';
   $('themeSel').value = cfg.theme;
@@ -3260,6 +3290,7 @@ $('closeGen').addEventListener('click', ()=>{
   cfg.lang = $('langSel').value;
   cfg.units = $('unitSel').value;
   cfg.numSize = (function(v){ v=parseInt(v,10); return (v===0||v===1||v===2)?v:1; })($('numSel').value);
+  if($('rbAdvSel')) cfg.autoReset = ($('rbAdvSel').value !== 'manual');
   cfg.numFont = $('fontSel').value;
   cfg.h24 = ($('timeSel').value === '24');
   cfg.theme = $('themeSel').value;
