@@ -24,9 +24,46 @@ workflows:
       - name: Plugin RevenueCat (acquisti in-app)
         script: |
           npm install @revenuecat/purchases-capacitor --save
+      - name: Plugin per aprire i file .irally da altre app
+        script: |
+          npm install @capacitor/app @capacitor/filesystem --save
       - name: Sincronizza Capacitor iOS
         script: |
           npx cap sync ios
+      - name: Tipo di file iRally (Apri in iRally da WhatsApp, Mail, File)
+        script: |
+          cd "$CM_BUILD_DIR/ios/App/App"
+          cat > /tmp/irally_doctype.py <<'PYEOF'
+          import plistlib
+          d = plistlib.load(open('Info.plist','rb'))
+          d['UTExportedTypeDeclarations'] = [{
+              'UTTypeIdentifier': 'com.dapra.rallytrip.data',
+              'UTTypeDescription': 'iRally data',
+              'UTTypeConformsTo': ['public.data', 'public.content'],
+              'UTTypeTagSpecification': {
+                  'public.filename-extension': ['irally'],
+                  'public.mime-type': ['application/x-irally'],
+              },
+          }]
+          d['CFBundleDocumentTypes'] = [{
+              'CFBundleTypeName': 'iRally data',
+              'CFBundleTypeRole': 'Editor',
+              'CFBundleTypeIconSystemGenerated': 1,
+              'LSHandlerRank': 'Owner',
+              'LSItemContentTypes': ['com.dapra.rallytrip.data'],
+          }]
+          d['LSSupportsOpeningDocumentsInPlace'] = True
+          d['UIFileSharingEnabled'] = True
+          plistlib.dump(d, open('Info.plist','wb'))
+          print('--- VERIFICA tipo di file iRally ---')
+          chk = plistlib.load(open('Info.plist','rb'))
+          print('CFBundleDocumentTypes  :', chk.get('CFBundleDocumentTypes'))
+          print('UTExportedTypeDecl     :', chk.get('UTExportedTypeDeclarations'))
+          print('OpeningDocumentsInPlace:', chk.get('LSSupportsOpeningDocumentsInPlace'))
+          print('------------------------------------')
+          PYEOF
+          sed 's/^          //' /tmp/irally_doctype.py > /tmp/irally_doctype_clean.py
+          python3 /tmp/irally_doctype_clean.py
       - name: Prepara la firma
         script: |
           xcode-project use-profiles
