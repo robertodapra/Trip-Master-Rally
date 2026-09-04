@@ -633,6 +633,7 @@
   <h2 data-t="introTitle"></h2>
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
+  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-04.1</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -3555,38 +3556,80 @@ function detectTable(img){
     const c=document.createElement('canvas'); c.width=W; c.height=H;
     const cx=c.getContext('2d'); cx.drawImage(img,0,0,W,H);
     const d=cx.getImageData(0,0,W,H).data;
-    const dark=new Uint8Array(W*H), colc=new Float32Array(W);
-    for(let y=0;y<H;y++){ for(let x=0;x<W;x++){ const i=(y*W+x)*4; const l=(d[i]*299+d[i+1]*587+d[i+2]*114)/1000; if(l<165){ dark[y*W+x]=1; colc[x]+=1; } } }
-    for(let x=0;x<W;x++) colc[x]/=H;
+    const dark=new Uint8Array(W*H);
+    for(let y=0;y<H;y++){ for(let x=0;x<W;x++){ const i=(y*W+x)*4; const l=(d[i]*299+d[i+1]*587+d[i+2]*114)/1000; if(l<165) dark[y*W+x]=1; } }
     const med=a=>{ const t=Array.from(a).sort((p,q)=>p-q); return t.length? t[Math.floor(t.length/2)] : 0; };
-    const runs=(mask, n, mind, keep)=>{
+    const runs=(mask, n, mind)=>{
       const ls=[]; let inl=false, st=0;
-      for(let i=0;i<=n;i++){ const on=i<n && mask(i); if(on&&!inl){ inl=true; st=i; } if(!on&&inl){ inl=false; if(!keep || keep(st,i)) ls.push((st+i-1)/2); } }
+      for(let i=0;i<=n;i++){ const on=i<n && mask(i); if(on&&!inl){ inl=true; st=i; } if(!on&&inl){ inl=false; ls.push((st+i-1)/2); } }
       const cl=[]; ls.forEach(v=>{ if(cl.length && v-cl[cl.length-1]<mind) cl[cl.length-1]=(cl[cl.length-1]+v)/2; else cl.push(v); });
       return cl;
     };
-    /* 1) colonne: linee verticali su tutta l'altezza -> estensione della tabella */
-    const thrC=Math.max(0.35, med(colc)+0.25);
-    let vc=runs(x=>colc[x]>thrC, W, W*0.02);
-    if(vc.length<2) return null;
-    /* i bordi dell'immagine possono sembrare linee: una colonna senza inchiostro e' un margine, non una colonna */
-    const ink=(a,b)=>{ let n=0, c=0; for(let x=Math.round(a)+3;x<=Math.round(b)-3;x++){ for(let y=0;y<H;y++){ n+=dark[y*W+x]; c++; } } return c? n/c : 0; };
-    while(vc.length>=3 && ink(vc[0],vc[1])<0.005) vc.shift();
-    while(vc.length>=3 && ink(vc[vc.length-2],vc[vc.length-1])<0.005) vc.pop();
-    const xL=Math.round(vc[0]), xR=Math.round(vc[vc.length-1]), tw=xR-xL;
-    /* la prima colonna vera (TOT.): li' ci sono solo numeri e linee, e ogni separatore la attraversa */
-    const leftEnd = vc.length>=3 ? Math.round(vc[1]) : Math.round(xL+0.12*tw);
-    /* 2) righe: linea piena su tutta la tabella, oppure linea sottile nelle colonne delle distanze */
-    const full=new Float32Array(H), left=new Float32Array(H);
-    for(let y=0;y<H;y++){ let nf=0, nl=0; const o=y*W; for(let x=xL;x<=xR;x++){ if(dark[o+x]){ nf++; if(x<=leftEnd) nl++; } } full[y]=nf/Math.max(1,tw+1); left[y]=nl/Math.max(1,leftEnd-xL+1); }
-    const hc=runs(y=> (full[y]>0.6 || left[y]>0.7), H, H*0.012, (s,e)=>{ if(e-s<=H*0.008) return true; let m=0; for(let y=s;y<e;y++) m+=full[y]; return m/(e-s)>0.6; });
-    if(hc.length<2) return null;
-    const bands=[]; for(let i=0;i<hc.length-1;i++) bands.push([hc[i], hc[i+1]]);
-    /* 3) larghezza: dal bordo sinistro a prima dell'ultima colonna stretta (distanza regressiva) */
-    const lw=(vc[vc.length-1]-vc[vc.length-2])/tw;
-    const x0=vc[0];
-    const x1=(vc.length>=3 && lw>=0.05 && lw<=0.22) ? vc[vc.length-2] : vc[vc.length-1];
-    return { W, H, bands, x0, x1 };
+    /* --- 1) linee orizzontali su tutta la larghezza --- */
+    const rowr=new Float32Array(H);
+    for(let y=0;y<H;y++){ let n=0; const o=y*W; for(let x=0;x<W;x++) n+=dark[o+x]; rowr[y]=n/W; }
+    const hAll=runs(y=>rowr[y]>Math.max(0.42, med(rowr)+0.3), H, H*0.010);
+    if(hAll.length<2) return null;
+    let bands=[]; for(let i=0;i<hAll.length-1;i++) bands.push([hAll[i], hAll[i+1]]);
+
+    /* --- 2) SOLO le righe dei riferimenti: hanno tutte la stessa altezza ---
+       Cerco l'altezza piu' rappresentata (per estensione totale) e tengo quelle. */
+    const hs=bands.map(b=>b[1]-b[0]).filter(h=>h>H*0.02);
+    if(!hs.length) return null;
+    let modeH=0, bestCov=0;
+    hs.forEach(h=>{ let cov=0; hs.forEach(k=>{ if(Math.abs(k-h)<=h*0.10) cov+=k; });
+      if(cov>bestCov || (cov===bestCov && h>modeH)){ bestCov=cov; modeH=h; } });
+    const keep=[];
+    bands.forEach(b=>{
+      const h=b[1]-b[0];
+      if(Math.abs(h-modeH)<=modeH*0.12){ keep.push(b); return; }
+      /* riga doppia o tripla: separatore non stampato -> la divido in parti uguali */
+      for(let k=2;k<=3;k++){
+        if(Math.abs(h-k*modeH)<=modeH*0.16){
+          for(let j=0;j<k;j++) keep.push([b[0]+h*j/k, b[0]+h*(j+1)/k]);
+          return;
+        }
+      }
+    });
+    if(!keep.length) return null;
+    keep.sort((p,q)=>p[0]-q[0]);
+    const yTop=keep[0][0], yBot=keep[keep.length-1][1];
+
+    /* --- 3) bordi della tabella = lunghezza delle linee di separazione fra le righe.
+       E' la misura piu' diretta: i bordi dello screenshot non c'entrano. */
+    const lineExtent=(y)=>{
+      const yy=Math.round(y); let best=null, st=-1;
+      for(let x=0;x<=W;x++){
+        let on=false;
+        if(x<W){ for(let k=-1;k<=1;k++){ const yk=yy+k; if(yk>=0 && yk<H && dark[yk*W+x]){ on=true; break; } } }
+        if(on && st<0) st=x;
+        if(!on && st>=0){ if(!best || (x-st)>(best[1]-best[0])) best=[st, x-1]; st=-1; }
+      }
+      return best;
+    };
+    const st=[], en=[];
+    keep.forEach(b=>{ [b[0], b[1]].forEach(y=>{ const e=lineExtent(y); if(e && (e[1]-e[0])>W*0.4){ st.push(e[0]); en.push(e[1]); } }); });
+    if(!st.length) return null;
+    const pick=(arr)=>{ const t=arr.slice().sort((p,q)=>p-q); return t[Math.floor(t.length/2)]; };
+    const tabL=pick(st), tabR=pick(en);
+
+    /* --- 4) scarto le bande che non sono righe della tabella:
+       una riga vera ha il bordo verticale sinistro nero per quasi tutta la sua altezza --- */
+    const colDark=(x, y0, y1)=>{ let n=0,c=0; for(let y=Math.round(y0)+2;y<Math.round(y1)-2;y++){ let on=0; for(let k=-2;k<=2;k++){ const xx=Math.round(x)+k; if(xx>=0&&xx<W&&dark[y*W+xx]){ on=1; break; } } n+=on; c++; } return c? n/c : 0; };
+    const rows2=keep.filter(b => colDark(tabL, b[0], b[1])>0.7 && colDark(tabR, b[0], b[1])>0.7);
+    const finalRows = rows2.length ? rows2 : keep;
+
+    /* --- 5) colonne dentro la tabella: tolgo l'ultima stretta (distanza regressiva) --- */
+    const yA=finalRows[0][0], yB=finalRows[finalRows.length-1][1];
+    const colc=new Float32Array(W); const hSpan=Math.max(1, Math.round(yB-yA));
+    for(let x=0;x<W;x++){ let n=0; for(let y=Math.round(yA);y<Math.round(yB);y++) n+=dark[y*W+x]; colc[x]=n/hSpan; }
+    const vc=runs(x=>colc[x]>0.82 && x>=tabL-2 && x<=tabR+2, W, W*0.015);
+    let x0=tabL, x1=tabR;
+    if(vc.length>=3){
+      const tw=tabR-tabL, lw=(tabR-vc[vc.length-2])/tw;
+      if(lw>=0.05 && lw<=0.22) x1=vc[vc.length-2];
+    }
+    return { W, H, bands: finalRows, x0, x1 };
   }catch(e){ return null; }
 }
 
@@ -3617,34 +3660,29 @@ async function scanOnePage(img){
   let snapped = false;
   if(tbl && tbl.bands.length){
     const M = rows.length;
-    const maxH = Math.max.apply(null, tbl.bands.map(b=>b[1]-b[0]));
-    const bands = tbl.bands.filter(b => (b[1]-b[0]) >= 0.28*maxH);   /* via le righe sottili di intestazione */
+    const bands = tbl.bands;   /* gia' filtrate: solo righe dei riferimenti */
     const cyOf = r => okBox(r.rowbox) ? (r.rowbox[0]+r.rowbox[2])/2 : (okBox(r.box) ? (r.box[0]+r.box[2])/2 : (okBox(r.numbox) ? r.numbox[0] : null));
     const cys = rows.map(r => { const v=cyOf(r); return v==null ? null : v*tbl.H/1000; });
     let pick = null;
-    if(bands.length >= M && cys.every(v => v!=null)){
-      /* M bande consecutive che meglio combaciano con i centri stimati dal modello */
+    if(bands.length === M){
+      /* tante righe quante ne ha lette l'AI: nessun dubbio, si usano in ordine */
+      pick = bands.slice();
+    } else if(bands.length > M){
+      /* piu' righe che riferimenti: scelgo la finestra di M righe consecutive
+         piu' vicina a quello che ha letto l'AI (se ha dato coordinate utili) */
       let best=null;
       for(let st=0; st+M<=bands.length; st++){
-        const run = bands.slice(st, st+M);
-        const rh = run.map(b=>b[1]-b[0]).sort((a,b)=>a-b), mh = rh[Math.floor(rh.length/2)];
         let cost=0;
-        for(let i=0;i<M;i++){ const b=run[i]; cost += Math.abs(cys[i] - (b[0]+b[1])/2); }
-        /* le righe vere hanno altezze uguali: una serie con altezze diverse e' quasi certamente sbagliata */
-        run.forEach(b => { cost += 1.5*Math.abs((b[1]-b[0]) - mh); });
-        if(best===null || cost<best.cost) best={st, cost, mh};
+        for(let i=0;i<M;i++){ const b=bands[st+i]; cost += (cys[i]==null? 0 : Math.abs(cys[i]-(b[0]+b[1])/2)); }
+        if(best===null || cost<best.cost) best={st, cost};
       }
-      if(best && best.cost/M < 0.9*best.mh) pick = rows.map((r,i)=> bands[best.st+i]);
-    }
-    if(!pick && cys.every(v => v!=null)){
-      /* ripiego: ogni riga nella banda che contiene il suo centro, senza tornare indietro */
-      pick=[]; let last=-1;
-      for(let i=0;i<M;i++){
-        let k = bands.findIndex(b => cys[i]>=b[0] && cys[i]<b[1]);
-        if(k<=last) k = last+1;
-        if(k<0 || k>=bands.length){ pick=null; break; }
-        pick.push(bands[k]); last=k;
-      }
+      pick = bands.slice(best.st, best.st+M);
+    } else if(bands.length){
+      /* meno righe che riferimenti (foto con due pagine, o riga in piu' letta dall'AI):
+         uso le righe trovate e per le eccedenti proseguo con la stessa altezza */
+      const h = bands[bands.length-1][1] - bands[bands.length-1][0];
+      pick = bands.slice();
+      while(pick.length < M){ const last = pick[pick.length-1]; pick.push([last[1], last[1]+h]); }
     }
     if(pick){
       const X0 = tbl.x0!=null ? tbl.x0*1000/tbl.W : ((cols && typeof cols.left==='number') ? cols.left : 0);
