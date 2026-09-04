@@ -669,6 +669,14 @@
   <p class="small" data-t="rbListDesc"></p>
   <button id="ssNew" style="width:100%;padding:16px;border-radius:12px;font-size:17px;font-weight:800;background:var(--btnbg);border:2px solid var(--green);color:var(--green);margin-bottom:16px">+ <span data-t="rbNew"></span></button>
   <button id="ssNewFolder" style="width:100%;padding:13px;border-radius:12px;font-size:15px;font-weight:700;background:var(--btnbg);border:1px solid var(--line);color:var(--text);margin:-6px 0 14px" data-t="tcNewFolder"></button>
+  <div class="setting-row" style="margin-bottom:4px">
+    <span data-t="rbAdvLabel"></span>
+    <select id="rbAdvSel">
+      <option value="auto" data-t="rbAdvAuto"></option>
+      <option value="manual" data-t="rbAdvManual"></option>
+    </select>
+  </div>
+  <p class="small" style="color:var(--muted);margin:0 0 14px" data-t="rbAdvSmall"></p>
   <div id="ssList"></div>
   <div id="ssEmpty" data-t="ssEmpty"></div>
   <input type="file" id="aiFile" accept="image/*" multiple style="display:none">
@@ -979,14 +987,7 @@ body[data-theme="dark"] #drawer .drawer-item{background-color:var(--panel)}
       <option value="2" data-t="numLarge"></option>
     </select>
   </div>
-  <div class="setting-row">
-    <span data-t="rbAdvLabel"></span>
-    <select id="rbAdvSel">
-      <option value="auto" data-t="rbAdvAuto"></option>
-      <option value="manual" data-t="rbAdvManual"></option>
-    </select>
-  </div>
-  <p class="small" style="color:var(--muted);margin:-4px 0 10px" data-t="rbAdvSmall"></p>
+
   <div class="setting-row">
     <span data-t="fontLabel"></span>
     <select id="fontSel">
@@ -1198,6 +1199,7 @@ function updateNavFree(){ var el=document.getElementById('navFree'); if(!el) ret
 /* ================= TRADUZIONI ================= */
 const T = {
 it:{introTitle:"Come funziona",
+  rbDelRef:"Eliminare il riferimento {n}?",rbDelOk:"Elimina",
   rbAdvLabel:"Scorrimento simboli radar",rbAdvAuto:"Automatico",rbAdvManual:"Manuale (tocco sul parziale)",
   rbAdvSmall:"Automatico: al chilometraggio del riferimento il simbolo passa al successivo e il parziale si azzera da solo. Manuale: il simbolo cambia solo quando tocchi il parziale o usi le frecce; i metri corrono comunque.",
   scanPage:"Pagina {i} di {n}…",scanPagesFail:"Pagine non lette: {list}. Rifalle con \"+ Aggiungi scan\".",scanPagesGap:"Pagine con un numero mancante: {list}. Controllale.",
@@ -1328,6 +1330,7 @@ it:{introTitle:"Come funziona",
   soundDefault:"Predefinito",
   soundPlay:"Ascolta"},
 en:{introTitle:"How it works",
+  rbDelRef:"Delete reference {n}?",rbDelOk:"Delete",
   rbAdvLabel:"Road book symbol advance",rbAdvAuto:"Automatic",rbAdvManual:"Manual (tap the partial)",
   rbAdvSmall:"Automatic: at the reference distance the symbol moves to the next one and the partial resets by itself. Manual: the symbol changes only when you tap the partial or use the arrows; the metres keep counting anyway.",
   scanPage:"Page {i} of {n}…",scanPagesFail:"Pages not read: {list}. Redo them with \"+ Add scan\".",scanPagesGap:"Pages with a missing number: {list}. Check them.",
@@ -1458,6 +1461,7 @@ en:{introTitle:"How it works",
   soundDefault:"Default",
   soundPlay:"Play"},
 fr:{introTitle:"Comment ça marche",
+  rbDelRef:"Supprimer le repère {n} ?",rbDelOk:"Supprimer",
   rbAdvLabel:"Défilement des repères radar",rbAdvAuto:"Automatique",rbAdvManual:"Manuel (touche sur le partiel)",
   rbAdvSmall:"Automatique : au kilométrage du repère, le symbole passe au suivant et le partiel repart de zéro. Manuel : le symbole change seulement quand vous touchez le partiel ou les flèches ; les mètres défilent quand même.",
   scanPage:"Page {i} sur {n}…",scanPagesFail:"Pages non lues : {list}. Refaites-les avec \"+ Ajouter un scan\".",scanPagesGap:"Pages avec un numéro manquant : {list}. Vérifiez-les.",
@@ -1593,6 +1597,7 @@ fr:{introTitle:"Comment ça marche",
   soundDefault:"Par défaut",
   soundPlay:"Écouter"},
 es:{introTitle:"Cómo funciona",
+  rbDelRef:"¿Eliminar la referencia {n}?",rbDelOk:"Eliminar",
   rbAdvLabel:"Avance de símbolos del radar",rbAdvAuto:"Automático",rbAdvManual:"Manual (toque en el parcial)",
   rbAdvSmall:"Automático: al llegar al kilometraje de la referencia, el símbolo pasa al siguiente y el parcial se pone a cero solo. Manual: el símbolo cambia solo cuando tocas el parcial o usas las flechas; los metros siguen corriendo.",
   scanPage:"Página {i} de {n}…",scanPagesFail:"Páginas no leídas: {list}. Repítelas con \"+ Añadir escaneo\".",scanPagesGap:"Páginas con un número que falta: {list}. Revísalas.",
@@ -1728,6 +1733,7 @@ es:{introTitle:"Cómo funciona",
   soundDefault:"Predeterminado",
   soundPlay:"Escuchar"},
 de:{introTitle:"So funktioniert es",
+  rbDelRef:"Referenz {n} löschen?",rbDelOk:"Löschen",
   rbAdvLabel:"Roadbook-Symbolwechsel",rbAdvAuto:"Automatisch",rbAdvManual:"Manuell (Tippen auf Teilstrecke)",
   rbAdvSmall:"Automatisch: am Kilometerstand des Bezugspunkts wechselt das Symbol zum nächsten und die Teilstrecke wird zurückgesetzt. Manuell: das Symbol wechselt nur beim Tippen auf die Teilstrecke oder mit den Pfeilen; die Meter laufen trotzdem weiter.",
   scanPage:"Seite {i} von {n}…",scanPagesFail:"Nicht gelesene Seiten: {list}. Wiederhole sie mit \"+ Scan hinzufügen\".",scanPagesGap:"Seiten mit fehlender Nummer: {list}. Bitte prüfen.",
@@ -1863,6 +1869,7 @@ de:{introTitle:"So funktioniert es",
   soundDefault:"Standard",
   soundPlay:"Anhören"},
 pt:{introTitle:"Como funciona",
+  rbDelRef:"Eliminar a referência {n}?",rbDelOk:"Eliminar",
   rbAdvLabel:"Avanço dos símbolos do radar",rbAdvAuto:"Automático",rbAdvManual:"Manual (toque no parcial)",
   rbAdvSmall:"Automático: ao quilómetro da referência o símbolo passa ao seguinte e o parcial zera sozinho. Manual: o símbolo muda só quando tocas no parcial ou usas as setas; os metros continuam a contar.",
   scanPage:"Página {i} de {n}…",scanPagesFail:"Páginas não lidas: {list}. Repete-as com \"+ Adicionar scan\".",scanPagesGap:"Páginas com um número em falta: {list}. Verifica-as.",
@@ -1998,6 +2005,7 @@ pt:{introTitle:"Como funciona",
   soundDefault:"Predefinido",
   soundPlay:"Ouvir"},
 ja:{introTitle:"使い方",
+  rbDelRef:"参照 {n} を削除しますか?",rbDelOk:"削除",
   rbAdvLabel:"ロードブック記号の切替",rbAdvAuto:"自動",rbAdvManual:"手動（区間距離をタップ）",
   rbAdvSmall:"自動: 基準点の距離に達すると記号が次に進み、区間距離は自動でリセットされます。手動: 区間距離をタップするか矢印を使ったときだけ記号が変わります。距離は常に進み続けます。",
   scanPage:"{n} ページ中 {i} ページ目…",scanPagesFail:"読み取れなかったページ: {list}。「+ スキャンを追加」でやり直してください。",scanPagesGap:"番号が欠けているページ: {list}。確認してください。",
@@ -2133,6 +2141,7 @@ ja:{introTitle:"使い方",
   soundDefault:"デフォルト",
   soundPlay:"再生"},
 cs:{introTitle:"Jak to funguje",
+  rbDelRef:"Smazat bod {n}?",rbDelOk:"Smazat",
   rbAdvLabel:"Posun symbolů road booku",rbAdvAuto:"Automaticky",rbAdvManual:"Ručně (klepnutí na mezisoučet)",
   rbAdvSmall:"Automaticky: na kilometru bodu přejde symbol na další a mezisoučet se sám vynuluje. Ručně: symbol se změní jen po klepnutí na mezisoučet nebo šipkami; metry běží dál.",
   scanPage:"Strana {i} z {n}…",scanPagesFail:"Nepřečtené strany: {list}. Zopakujte je přes \"+ Přidat sken\".",scanPagesGap:"Strany s chybějícím číslem: {list}. Zkontrolujte je.",
@@ -2366,6 +2375,54 @@ if(!cfg.lay || typeof cfg.lay !== 'object') cfg.lay = {arr:'top'};
 if(!['top','left','right'].includes(cfg.lay.arr)) cfg.lay.arr = 'top';
 if(![0,1,2].includes(cfg.numSize)) cfg.numSize = 1;
 if(!['jb','share','orbitron','system'].includes(cfg.numFont)) cfg.numFont = 'jb';
+/* ===== Archivio immagini (IndexedDB): le strisce non stanno piu' nei 5 MB
+   dell'archivio del browser, cosi' ci sta un mondiale intero. ===== */
+const IMG_STORE = { db:null, mem:Object.create(null), ready:false };
+function idbOpen(){
+  return new Promise((res)=>{
+    try{
+      const rq = indexedDB.open('irally', 1);
+      rq.onupgradeneeded = ()=>{ try{ rq.result.createObjectStore('imgs'); }catch(_){} };
+      rq.onsuccess = ()=>res(rq.result);
+      rq.onerror = ()=>res(null);
+    }catch(e){ res(null); }
+  });
+}
+async function imgInit(){
+  IMG_STORE.db = await idbOpen();
+  if(!IMG_STORE.db){ IMG_STORE.ready = true; return; }
+  await new Promise(res=>{
+    try{
+      const rq = IMG_STORE.db.transaction('imgs','readonly').objectStore('imgs').openCursor();
+      rq.onsuccess = e=>{ const c=e.target.result; if(c){ IMG_STORE.mem[c.key]=c.value; c.continue(); } else res(); };
+      rq.onerror = ()=>res();
+    }catch(e){ res(); }
+  });
+  IMG_STORE.ready = true;
+  try{ radShownIdx = -2; if(typeof buildSsList==='function') buildSsList(); }catch(_){}
+}
+function imgPut(dataURL){
+  if(!dataURL) return '';
+  if(!IMG_STORE.db) return dataURL;
+  const id = 'i' + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+  IMG_STORE.mem[id] = dataURL;
+  try{ IMG_STORE.db.transaction('imgs','readwrite').objectStore('imgs').put(dataURL, id); }catch(e){}
+  return 'idb:' + id;
+}
+function imgGet(ref){
+  if(!ref) return '';
+  if(ref.indexOf('idb:') !== 0) return ref;
+  return IMG_STORE.mem[ref.slice(4)] || '';
+}
+function imgDel(ref){
+  if(!ref || ref.indexOf('idb:') !== 0) return;
+  const id = ref.slice(4);
+  delete IMG_STORE.mem[id];
+  try{ if(IMG_STORE.db) IMG_STORE.db.transaction('imgs','readwrite').objectStore('imgs').delete(id); }catch(e){}
+}
+function imgDelStage(ss){ if(ss && Array.isArray(ss.rb)) ss.rb.forEach(r=>imgDel(r.img)); }
+function imgAdopt(list){ if(Array.isArray(list)) list.forEach(r=>{ if(r && typeof r.img==='string' && r.img.indexOf('data:')===0) r.img = imgPut(r.img); }); }
+
 function saveCfg(){
   try{ localStorage.setItem('rallytrip_cfg', JSON.stringify(cfg)); return true; }
   catch(e){ return false; }
@@ -2754,8 +2811,8 @@ function radarRender(){
   if(radShownIdx !== key){
     const r = cfg.rb[idx];
     radNum.textContent = idx + 1;
-    if(r.img){
-      radImg.src = r.img;
+    if(imgGet(r.img)){
+      radImg.src = imgGet(r.img);
       radImg.style.display = 'block';
       radSym.style.display = 'none';
       radNote.style.display = 'none';
@@ -3060,7 +3117,9 @@ $('drvWords').addEventListener('click', ()=>{
   $('speakToggle').checked = cfg.speak;
   $('pilotMenu').classList.add('open');
 });
+if($('rbAdvSel')) $('rbAdvSel').addEventListener('change', ()=>{ cfg.autoReset = ($('rbAdvSel').value !== 'manual'); saveCfg(); });
 $('drvRb').addEventListener('click', ()=>{
+  if($('rbAdvSel')) $('rbAdvSel').value = cfg.autoReset ? 'auto' : 'manual';
   closeDrawer();
   buildSsList();
   $('navMenu').classList.add('open');
@@ -3070,7 +3129,6 @@ $('drvSet').addEventListener('click', ()=>{
   $('langSel').value = cfg.lang;
   $('unitSel').value = cfg.units;
   $('numSel').value = String(cfg.numSize);
-  if($('rbAdvSel')) $('rbAdvSel').value = cfg.autoReset ? 'auto' : 'manual';
   $('fontSel').value = cfg.numFont;
   $('timeSel').value = cfg.h24 ? '24' : '12';
   $('themeSel').value = cfg.theme;
@@ -3176,11 +3234,23 @@ function showStageDetail(i){
     const rr=document.createElement('div'); rr.style.cssText='display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--line,#333)';
     const nn=document.createElement('div'); nn.style.cssText='min-width:24px;font-weight:800;color:var(--amber)'; nn.textContent=(idx+1); rr.appendChild(nn);
     const km=document.createElement('div'); km.style.cssText='min-width:54px;font-weight:700'; km.textContent=r.km||'\u2014'; rr.appendChild(km);
-    const th=document.createElement('div'); th.style.cssText='flex:0 0 auto';
-    if(r.img){ const im=document.createElement('img'); im.src=r.img; im.style.cssText='height:46px;border-radius:4px;background:#fff'; th.appendChild(im); }
-    else { th.textContent='(no foto)'; th.style.cssText='font-size:11px;color:var(--red,#e5484d)'; }
+    const th=document.createElement('div'); th.style.cssText='flex:1;min-width:0';
+    if(imgGet(r.img)){ const im=document.createElement('img'); im.src=imgGet(r.img); im.style.cssText='max-width:100%;height:auto;border-radius:4px;background:#fff;display:block'; th.appendChild(im); }
+    else { th.textContent='(no foto)'; th.style.cssText='flex:1;font-size:11px;color:var(--red,#e5484d)'; }
     rr.appendChild(th);
-    const nt=document.createElement('div'); nt.style.cssText='flex:1;font-size:12px;color:var(--muted,#aaa)'; nt.textContent=r.n||''; rr.appendChild(nt);
+    /* X per togliere un riferimento sbagliato, con conferma */
+    const dl=document.createElement('button');
+    dl.textContent='\u2715';
+    dl.style.cssText='flex:0 0 auto;width:32px;height:32px;border-radius:8px;background:none;border:1px solid var(--line,#333);color:var(--red,#e5484d);font-size:15px;font-weight:700';
+    dl.addEventListener('click', ()=>{
+      showConfirm(t('rbDelRef').replace('{n}', idx+1), ()=>{
+        imgDel(r.img);
+        ss.rb.splice(idx,1);
+        if(cfg.ssActive===ss.name){ cfg.rb = JSON.parse(JSON.stringify(ss.rb)); radShownIdx=-2; updateSsBadge(); }
+        saveCfg(); uiClose(ov); showStageDetail(i);
+      }, t('rbDelOk'), 'var(--red,#e5484d)');
+    });
+    rr.appendChild(dl);
     box.appendChild(rr);
   });
   const bw=document.createElement('div'); bw.style.cssText='display:flex;flex-direction:column;gap:8px;margin-top:14px';
@@ -3205,6 +3275,7 @@ function ssRow(ss,i){
   delBtn.addEventListener('click',()=>{
     showConfirm(t('ssDelAsk')+' \u201C'+ss.name+'\u201D?',()=>{
       if(cfg.ssActive===cfg.ssLib[i].name){ cfg.ssActive=''; cfg.rb=[]; updateSsBadge(); }
+      imgDelStage(cfg.ssLib[i]);
       cfg.ssLib.splice(i,1); saveCfg(); buildSsList();
     });
   });
@@ -3291,12 +3362,12 @@ $('closeGen').addEventListener('click', ()=>{
   cfg.lang = $('langSel').value;
   cfg.units = $('unitSel').value;
   cfg.numSize = (function(v){ v=parseInt(v,10); return (v===0||v===1||v===2)?v:1; })($('numSel').value);
-  if($('rbAdvSel')) cfg.autoReset = ($('rbAdvSel').value !== 'manual');
   cfg.numFont = $('fontSel').value;
   cfg.h24 = ($('timeSel').value === '24');
   cfg.theme = $('themeSel').value;
   if($('soundSel')) cfg.notifSound = $('soundSel').value;
   applyLang(); applyTheme(); applyUnits(); applyLayout();
+  try{ imgInit(); }catch(e){}
   saveCfg();
   $('genMenu').classList.remove('open');
 });
@@ -3317,8 +3388,15 @@ $('soundPreview') && $('soundPreview').addEventListener('click', ()=>{
 });
 
 /* ================= BACKUP / RIPRISTINO ================= */
+function cfgWithImages(){
+  const c = JSON.parse(JSON.stringify(cfg));
+  const fix = list => { if(Array.isArray(list)) list.forEach(r=>{ if(r && typeof r.img==='string' && r.img.indexOf('idb:')===0) r.img = imgGet(r.img); }); };
+  fix(c.rb);
+  if(Array.isArray(c.ssLib)) c.ssLib.forEach(ss=>fix(ss.rb));
+  return c;
+}
 async function exportData(){
-  const data = localStorage.getItem('rallytrip_cfg') || JSON.stringify(cfg);
+  const data = JSON.stringify(cfgWithImages());
   const d = new Date(); const p = n => (n<10?'0':'')+n;
   const fname = 'iRally-backup-'+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'-'+p(d.getHours())+p(d.getMinutes())+'.json';
   try{
@@ -3353,10 +3431,15 @@ $('importFile').addEventListener('change', e=>{
     const nSt = Array.isArray(parsed.ssLib) ? parsed.ssLib.length : 0;
     const nTab = Array.isArray(parsed.tdm) ? parsed.tdm.length : 0;
     showConfirm('Ripristinare questo backup? Contiene '+nSt+' prove radar e '+nTab+' tabelle. I dati attuali verranno sostituiti.', ()=>{
-      try{
-        localStorage.setItem('rallytrip_cfg', JSON.stringify(parsed));
-        location.reload();
-      }catch(err){ showMsg('Errore durante il ripristino: '+err); }
+      (async ()=>{
+        try{
+          if(!IMG_STORE.ready) await imgInit();
+          imgAdopt(parsed.rb);
+          if(Array.isArray(parsed.ssLib)) parsed.ssLib.forEach(ss=>imgAdopt(ss.rb));
+          localStorage.setItem('rallytrip_cfg', JSON.stringify(parsed));
+          location.reload();
+        }catch(err){ showMsg('Errore durante il ripristino: '+err); }
+      })();
     }, 'Ripristina', 'var(--green,#39d353)');
   };
   reader.onerror = ()=>{ showMsg('Impossibile leggere il file.'); };
@@ -3737,7 +3820,7 @@ async function scanOnePage(img){
     const nota = (r.nota || '').trim();
     let cropped = '';
     if(Array.isArray(r.box) && r.box.length === 4){ try{ cropped = aiCrop(img, r.box); }catch(e){} }
-    rb.push({ km: km, s: '', n: nota, img: cropped });
+    rb.push({ km: km, s: '', n: nota, img: imgPut(cropped) });
   }
   return { rb, gap, model: data.model || '', ms: data.ms || 0 };
 }
