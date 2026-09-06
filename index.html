@@ -633,7 +633,7 @@
   <h2 data-t="introTitle"></h2>
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
-  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-04.1</p>
+  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-04.2</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -4019,6 +4019,7 @@ applyTheme();
 if(!(window.__rallyPro && window.__rallyPro.isPro()) && cfg.mode!=='nav') cfg.mode='nav';
 applyMode();
 applyLayout();
+try{ imgInit(); }catch(e){}
 requestAnimationFrame(frame);
 
 /* ===== PONTE verso la schermata Scanner (IIFE separato) ===== */
@@ -4210,7 +4211,7 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
   }
   /* ===== SCANNER TABELLA DISATTIVATO (versione di prova): mostra la rotella, poi "non riuscito", non legge mai =====
      Per riattivarlo mettere TC_SCAN_OFF = false. */
-  const TC_SCAN_OFF = true;
+  const TC_SCAN_OFF = false;
   $('tc_file').addEventListener('change', async e=>{
     const f=e.target.files&&e.target.files[0]; e.target.value=''; if(!f) return;
     if(TC_SCAN_OFF){
