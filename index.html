@@ -1345,6 +1345,7 @@ it:{introTitle:"Come funziona",
   pdfImpRendering:"Preparo le pagine di \"{name}\" ({i}/{n})…",
   pdfImpDone:"Importazione completata",
   pdfImpErrFile:"Non riesco a leggere questo PDF.",
+  pdfImpUnnamed:"Prova (pag. {a}-{b})",
   pdfImpErrRange:"Intervallo di pagine non valido.",
   navPartialLabel:"Parziale · tocca per azzerare",
   wordLabel:"Parola / Parziale · tocca per start-stop",
@@ -1502,6 +1503,7 @@ en:{introTitle:"How it works",
   pdfImpRendering:"Preparing \"{name}\" pages ({i}/{n})…",
   pdfImpDone:"Import complete",
   pdfImpErrFile:"I can't read this PDF.",
+  pdfImpUnnamed:"Stage (p. {a}-{b})",
   pdfImpErrRange:"Invalid page range.",
   navPartialLabel:"Partial · tap to reset",
   wordLabel:"Word / Partial · tap to start-stop",
@@ -4238,16 +4240,33 @@ const PDF_STAGE_PATTERNS = [
   { re:/P\.?\s?S\.?\s*([\d\-]+)\s*["\u201c]([^"\u201d\n]{2,40})["\u201d]/i, build:(m)=> (m[2]||'').trim()+' (PS '+m[1]+')' },
   { re:/SHAKEDOWN\s*["\u201c]?([^"\u201d\n,\d]{0,40})/i, build:(m)=> ('Shakedown '+(m[1]||'').trim()).trim() }
 ];
+/* parole della tabella che a volte restano attaccate al nome catturato: il nome si ferma qui */
+const PDF_NAME_STOPWORDS = /\b(Average|Target|Total|Distance|Speed|Km|Road|Section|Time|Saturday|Sunday|Monday)\b/i;
 function pdfHeaderKey(text){
   const norm = (text||'').replace(/\s+/g,' ').trim();
   for(const p of PDF_STAGE_PATTERNS){
     const m = norm.match(p.re);
-    if(m) return { key: m[0].replace(/\s+/g,' ').trim(), name: p.build(m).replace(/\s+/g,' ').trim() };
+    if(m){
+      let name = p.build(m).replace(/\s+/g,' ').trim();
+      const cut = name.search(PDF_NAME_STOPWORDS);
+      if(cut > 0) name = name.slice(0, cut).trim();
+      name = name.replace(/[\s,.:;-]+$/,'');
+      if(name) return { key: m[0].replace(/\s+/g,''), name };
+    }
   }
   return null;
 }
+/* alcuni PDF spezzettano il testo lettera per lettera: togliendo tutti gli spazi
+   il confronto fra pagine resta affidabile anche quando il pattern sopra non riconosce nulla */
+function pdfFingerprint(text){ return (text||'').replace(/\s+/g,''); }
+/* una pagina di tabella pace-note ha sempre parecchie distanze tipo "12,34":
+   e' un segnale che non dipende da come l'organizzatore scrive i titoli */
+function pdfLooksLikeTable(text){
+  const m = (text||'').match(/\d{1,3},\d{2}/g);
+  return !!(m && m.length >= 6);
+}
 
-/* Legge il testo di ogni pagina e raggruppa le pagine consecutive con la stessa intestazione */
+/* Legge il testo di ogni pagina e raggruppa le pagine consecutive di tabella con la stessa intestazione */
 async function pdfExtractGroups(pdf, onProgress){
   const n = pdf.numPages;
   const perPage = [];
@@ -4255,16 +4274,22 @@ async function pdfExtractGroups(pdf, onProgress){
     if(onProgress) onProgress(i, n);
     const page = await pdf.getPage(i);
     const tc = await page.getTextContent();
-    const text = tc.items.slice(0, 40).map(it=>it.str).join(' ');
-    perPage.push({ pageNum:i, hit: pdfHeaderKey(text) });
+    const allText = tc.items.map(it=>it.str).join(' ');
+    const topText = tc.items.slice(0, 60).map(it=>it.str).join(' ');
+    perPage.push({
+      pageNum: i,
+      isTable: pdfLooksLikeTable(allText),
+      hit: pdfHeaderKey(topText),
+      fp: pdfFingerprint(topText).slice(0, 120)
+    });
   }
   const groups = [];
   let cur = null;
   for(const p of perPage){
-    const groupKey = p.hit ? p.hit.key : null;
-    if(groupKey && cur && cur.key === groupKey){ cur.pages.push(p.pageNum); }
-    else if(groupKey){ cur = { key:groupKey, name:p.hit.name, pages:[p.pageNum], auto:true }; groups.push(cur); }
-    else { cur = null; }
+    if(!p.isTable){ cur = null; continue; }
+    const groupKey = p.hit ? p.hit.key : p.fp;
+    if(cur && cur.key === groupKey){ cur.pages.push(p.pageNum); }
+    else { cur = { key:groupKey, name: p.hit ? p.hit.name : '', pages:[p.pageNum] }; groups.push(cur); }
   }
   /* scarta i gruppi di 1 sola pagina: quasi sempre un riferimento isolato, non una prova vera */
   return groups.filter(g => g.pages.length >= 2);
@@ -4346,6 +4371,7 @@ async function pdfImpAnalyze(file){
     });
     for(const g of groups){
       g.included = true;
+      if(!g.name) g.name = t('pdfImpUnnamed').replace('{a}', g.pages[0]).replace('{b}', g.pages[g.pages.length-1]);
       try{
         const blob = await pdfRenderPageToBlob(pdf, g.pages[0], 0.5);
         g.thumb = URL.createObjectURL(blob);
