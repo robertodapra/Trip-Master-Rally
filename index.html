@@ -285,6 +285,35 @@
   #radarTutDontShow{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:var(--muted)}
   #radarTutDontShow input{width:16px;height:16px}
 
+  /* ===== Importa Radar da PDF ===== */
+  .pdfGroupCard{
+    display:flex;gap:12px;align-items:flex-start;
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:12px;margin-bottom:10px;
+  }
+  .pdfGroupCard.excluded{opacity:.45}
+  .pdfGroupThumb{
+    width:64px;height:64px;flex-shrink:0;border-radius:8px;object-fit:cover;
+    background:var(--inputbg);border:1px solid var(--line);
+  }
+  .pdfGroupBody{flex:1;min-width:0}
+  .pdfGroupName{
+    width:100%;background:var(--inputbg);border:1px solid var(--line);color:var(--text);
+    border-radius:8px;padding:8px 10px;font-size:14px;font-weight:700;margin-bottom:6px;
+  }
+  .pdfGroupMeta{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .pdfGroupCk{width:20px;height:20px;flex-shrink:0;margin-top:2px}
+  .pdfManualForm{
+    background:var(--panel);border:1px dashed var(--line);border-radius:12px;
+    padding:12px;margin-bottom:10px;
+  }
+  .pdfManualForm input[type="text"], .pdfManualForm input[type="number"]{
+    background:var(--inputbg);border:1px solid var(--line);color:var(--text);
+    border-radius:8px;padding:8px 10px;font-size:14px;margin-bottom:8px;width:100%;
+  }
+  .pdfManualRow{display:flex;gap:8px}
+  .pdfManualRow input{flex:1}
+
   #zoneTotal{grid-area:total;cursor:pointer}
   #holdBar,#holdBarP{
     position:absolute;left:0;bottom:0;height:6px;width:0;
@@ -708,6 +737,7 @@
   </div>
   <p class="small" data-t="rbListDesc"></p>
   <button id="ssNew" style="width:100%;padding:16px;border-radius:12px;font-size:17px;font-weight:800;background:var(--btnbg);border:2px solid var(--green);color:var(--green);margin-bottom:16px">+ <span data-t="rbNew"></span></button>
+  <button id="ssNewPdf" style="width:100%;padding:13px;border-radius:12px;font-size:15px;font-weight:700;background:var(--btnbg);border:2px solid var(--blue);color:var(--blue);margin-bottom:16px" data-t="rbNewPdf"></button>
   <button id="ssNewFolder" style="width:100%;padding:13px;border-radius:12px;font-size:15px;font-weight:700;background:var(--btnbg);border:1px solid var(--line);color:var(--text);margin:-6px 0 14px" data-t="tcNewFolder"></button>
   <div class="setting-row" style="margin-bottom:4px">
     <span data-t="rbAdvLabel"></span>
@@ -720,7 +750,23 @@
   <div id="ssList"></div>
   <div id="ssEmpty" data-t="ssEmpty"></div>
   <input type="file" id="aiFile" accept="image/*" multiple style="display:none">
+  <input type="file" id="pdfFile" accept="application/pdf" style="display:none">
   <button class="okbtn" id="closeNav" data-t="close"></button>
+</div>
+
+<!-- ============ IMPORTA RADAR DA PDF ============ -->
+<div class="overlay" id="pdfImportOv">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+    <h2 style="margin:0" data-t="pdfImpTitle"></h2>
+    <button id="pdfImpClose" style="background:var(--btnbg);border:1px solid var(--line);color:var(--muted);border-radius:50%;width:30px;height:30px;font-size:15px">&#10005;</button>
+  </div>
+  <p class="small" data-t="pdfImpDesc"></p>
+  <div id="pdfImpLoading" style="display:none;text-align:center;padding:40px 10px;color:var(--muted)">
+    <div id="pdfImpLoadingTxt" data-t="pdfImpLoadingTxt"></div>
+  </div>
+  <div id="pdfImpGroups"></div>
+  <button id="pdfImpAddManual" style="width:100%;padding:12px;border-radius:10px;font-size:14px;font-weight:700;background:var(--btnbg);border:1px dashed var(--line);color:var(--muted);margin:6px 0 14px" data-t="pdfImpAddManual"></button>
+  <button class="okbtn" id="pdfImpConfirm" data-t="pdfImpConfirmBtn"></button>
 </div>
 
 <!-- ============ IMPOSTAZIONI GENERALI ============ -->
@@ -1277,6 +1323,23 @@ it:{introTitle:"Come funziona",
   tut4Title:"Tieni premuto il parziale",tut4Text:"Tieni premuto 1 secondo per riallineare lo scarto col GPS e azzerare il parziale.",
   tut5Title:"Tieni premuto il totale",tut5Text:"Tieni premuto 2 secondi per azzerare il totale, ad esempio alla partenza della prova.",
   tutNext:"Avanti",tutFinish:"Fine",tutSkip:"Salta",tutDontShow:"Non mostrare più questa guida",
+  rbNewPdf:"📄 Importa da PDF radar",
+  pdfImpTitle:"Importa da PDF",
+  pdfImpDesc:"Individuo automaticamente le prove nel PDF. Controlla le miniature e i nomi prima di confermare: puoi correggerli o escludere quelle che non ti servono.",
+  pdfImpLoadingTxt:"Analisi del PDF in corso…",
+  pdfImpAddManual:"+ Aggiungi manualmente un intervallo di pagine",
+  pdfImpConfirmBtn:"Importa selezionate",
+  pdfImpNoGroups:"Non ho trovato automaticamente prove riconoscibili. Usa \"Aggiungi manualmente\" per indicare le pagine.",
+  pdfImpPages:"Pagine {a}–{b}",
+  pdfImpNameLbl:"Nome prova",
+  pdfImpFrom:"Da pagina",
+  pdfImpTo:"A pagina",
+  pdfImpAdd:"Aggiungi",
+  pdfImpAnalyzing:"Lettura pagina {i} di {n}…",
+  pdfImpRendering:"Preparo le pagine di \"{name}\" ({i}/{n})…",
+  pdfImpDone:"Importazione completata",
+  pdfImpErrFile:"Non riesco a leggere questo PDF.",
+  pdfImpErrRange:"Intervallo di pagine non valido.",
   navPartialLabel:"Parziale · tocca per azzerare",
   wordLabel:"Parola / Parziale · tocca per start-stop",
   speedLabel:"Velocità",
@@ -1417,6 +1480,23 @@ en:{introTitle:"How it works",
   tut4Title:"Hold the partial",tut4Text:"Hold for 1 second to realign the GPS offset and reset the partial.",
   tut5Title:"Hold the total",tut5Text:"Hold for 2 seconds to reset the total, for example at the start of the stage.",
   tutNext:"Next",tutFinish:"Done",tutSkip:"Skip",tutDontShow:"Don't show this guide again",
+  rbNewPdf:"📄 Import from PDF road book",
+  pdfImpTitle:"Import from PDF",
+  pdfImpDesc:"I'll automatically find the stages in the PDF. Check the thumbnails and names before confirming: you can fix them or exclude the ones you don't need.",
+  pdfImpLoadingTxt:"Analyzing the PDF…",
+  pdfImpAddManual:"+ Manually add a page range",
+  pdfImpConfirmBtn:"Import selected",
+  pdfImpNoGroups:"I couldn't automatically recognize any stages. Use \"Add manually\" to specify the pages.",
+  pdfImpPages:"Pages {a}–{b}",
+  pdfImpNameLbl:"Stage name",
+  pdfImpFrom:"From page",
+  pdfImpTo:"To page",
+  pdfImpAdd:"Add",
+  pdfImpAnalyzing:"Reading page {i} of {n}…",
+  pdfImpRendering:"Preparing \"{name}\" pages ({i}/{n})…",
+  pdfImpDone:"Import complete",
+  pdfImpErrFile:"I can't read this PDF.",
+  pdfImpErrRange:"Invalid page range.",
   navPartialLabel:"Partial · tap to reset",
   wordLabel:"Word / Partial · tap to start-stop",
   speedLabel:"Speed",
@@ -4110,6 +4190,242 @@ $('aiFile').addEventListener('change', e=>{
   window.__scanBusy(true, t('scanReading'));   /* rotellina subito, prima ancora di aprire le foto */
   scanAIRunFiles(files).catch(function(err){ showMsg('\u26A0\uFE0F ' + t('scanConnErr')); })
     .finally(function(){ window.__scanBusy(false); try{ $('aiFile').value = ''; }catch(_){} });
+});
+
+/* ================= IMPORTA RADAR DA PDF ================= */
+let PDFJS_READY = null;
+function ensurePdfJs(){
+  if(PDFJS_READY) return PDFJS_READY;
+  PDFJS_READY = new Promise((resolve, reject)=>{
+    if(window.pdfjsLib){ resolve(window.pdfjsLib); return; }
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js';
+    s.onload = ()=>{
+      try{
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js';
+        resolve(window.pdfjsLib);
+      }catch(e){ reject(e); }
+    };
+    s.onerror = ()=> reject(new Error('pdfjs load failed'));
+    document.head.appendChild(s);
+  });
+  return PDFJS_READY;
+}
+
+/* Pattern noti di intestazione prova (diversi organizzatori scrivono in modo diverso).
+   L'ordine conta: i piu' specifici prima. */
+const PDF_STAGE_PATTERNS = [
+  { re:/SPS\s*(\d+)\s*["\u201c]?([^"\u201d\n,\d]{0,40})/i, build:(m)=> ('SPS'+m[1]+' '+(m[2]||'').trim()).trim() },
+  { re:/SS\s*([\dA-Z]+\/[\dA-Z]+)\s*:?\s*["\u201c]?\s*([^"\u201d\n,\d]{2,40})/i, build:(m)=> (m[2]||'').trim()+' (SS '+m[1]+')' },
+  { re:/P\.?\s?S\.?\s*([\d\-]+)\s*["\u201c]([^"\u201d\n]{2,40})["\u201d]/i, build:(m)=> (m[2]||'').trim()+' (PS '+m[1]+')' },
+  { re:/SHAKEDOWN\s*["\u201c]?([^"\u201d\n,\d]{0,40})/i, build:(m)=> ('Shakedown '+(m[1]||'').trim()).trim() }
+];
+function pdfHeaderKey(text){
+  const norm = (text||'').replace(/\s+/g,' ').trim();
+  for(const p of PDF_STAGE_PATTERNS){
+    const m = norm.match(p.re);
+    if(m) return { key: m[0].replace(/\s+/g,' ').trim(), name: p.build(m).replace(/\s+/g,' ').trim() };
+  }
+  return null;
+}
+
+/* Legge il testo di ogni pagina e raggruppa le pagine consecutive con la stessa intestazione */
+async function pdfExtractGroups(pdf, onProgress){
+  const n = pdf.numPages;
+  const perPage = [];
+  for(let i=1;i<=n;i++){
+    if(onProgress) onProgress(i, n);
+    const page = await pdf.getPage(i);
+    const tc = await page.getTextContent();
+    const text = tc.items.slice(0, 40).map(it=>it.str).join(' ');
+    perPage.push({ pageNum:i, hit: pdfHeaderKey(text) });
+  }
+  const groups = [];
+  let cur = null;
+  for(const p of perPage){
+    const groupKey = p.hit ? p.hit.key : null;
+    if(groupKey && cur && cur.key === groupKey){ cur.pages.push(p.pageNum); }
+    else if(groupKey){ cur = { key:groupKey, name:p.hit.name, pages:[p.pageNum], auto:true }; groups.push(cur); }
+    else { cur = null; }
+  }
+  /* scarta i gruppi di 1 sola pagina: quasi sempre un riferimento isolato, non una prova vera */
+  return groups.filter(g => g.pages.length >= 2);
+}
+
+async function pdfRenderPageToBlob(pdf, pageNum, scale){
+  const page = await pdf.getPage(pageNum);
+  const viewport = page.getViewport({ scale: scale || 2 });
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(viewport.width);
+  canvas.height = Math.round(viewport.height);
+  const ctx = canvas.getContext('2d');
+  await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+  return new Promise(res => canvas.toBlob(b => res(b), 'image/jpeg', 0.92));
+}
+
+let pdfImpDoc = null;
+let pdfImpGroups = [];
+let pdfImpManualSeq = 0;
+
+function pdfImpRenderList(){
+  const wrap = $('pdfImpGroups');
+  wrap.innerHTML = '';
+  if(!pdfImpGroups.length){
+    const p = document.createElement('p');
+    p.className = 'small';
+    p.style.color = 'var(--muted)';
+    p.textContent = t('pdfImpNoGroups');
+    wrap.appendChild(p);
+    return;
+  }
+  pdfImpGroups.forEach((g, idx)=>{
+    const card = document.createElement('div');
+    card.className = 'pdfGroupCard' + (g.included ? '' : ' excluded');
+    const img = document.createElement('img');
+    img.className = 'pdfGroupThumb';
+    img.src = g.thumb || '';
+    card.appendChild(img);
+
+    const body = document.createElement('div');
+    body.className = 'pdfGroupBody';
+
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.className = 'pdfGroupName';
+    nameInput.value = g.name;
+    nameInput.addEventListener('input', ()=>{ g.name = nameInput.value; });
+    body.appendChild(nameInput);
+
+    const meta = document.createElement('div');
+    meta.className = 'pdfGroupMeta';
+    const pagesTxt = document.createElement('span');
+    pagesTxt.textContent = t('pdfImpPages').replace('{a}', g.pages[0]).replace('{b}', g.pages[g.pages.length-1]);
+    meta.appendChild(pagesTxt);
+    const ck = document.createElement('input');
+    ck.type = 'checkbox';
+    ck.className = 'pdfGroupCk';
+    ck.checked = g.included;
+    ck.addEventListener('change', ()=>{ g.included = ck.checked; card.classList.toggle('excluded', !g.included); });
+    meta.appendChild(ck);
+    body.appendChild(meta);
+
+    card.appendChild(body);
+    wrap.appendChild(card);
+  });
+}
+
+async function pdfImpAnalyze(file){
+  $('pdfImpLoading').style.display = 'block';
+  $('pdfImpGroups').innerHTML = '';
+  pdfImpGroups = [];
+  try{
+    const pdfjsLib = await ensurePdfJs();
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    pdfImpDoc = pdf;
+    const groups = await pdfExtractGroups(pdf, (i, n)=>{
+      $('pdfImpLoadingTxt').textContent = t('pdfImpAnalyzing').replace('{i}', i).replace('{n}', n);
+    });
+    for(const g of groups){
+      g.included = true;
+      try{
+        const blob = await pdfRenderPageToBlob(pdf, g.pages[0], 0.5);
+        g.thumb = URL.createObjectURL(blob);
+      }catch(e){ g.thumb = ''; }
+    }
+    pdfImpGroups = groups;
+  }catch(e){
+    showMsg('\u26A0\uFE0F ' + t('pdfImpErrFile'));
+  }
+  $('pdfImpLoading').style.display = 'none';
+  pdfImpRenderList();
+}
+
+function pdfImpOpen(){
+  $('pdfImportOv').classList.add('open');
+}
+function pdfImpCloseOv(){
+  $('pdfImportOv').classList.remove('open');
+  pdfImpGroups.forEach(g=>{ if(g.thumb){ try{ URL.revokeObjectURL(g.thumb); }catch(e){} } });
+  pdfImpGroups = [];
+  pdfImpDoc = null;
+  $('pdfImpGroups').innerHTML = '';
+}
+
+$('ssNewPdf').addEventListener('click', ()=>{
+  if(!proGate()) return;
+  pdfImpOpen();
+  $('pdfFile').click();
+});
+$('pdfFile').addEventListener('change', e=>{
+  const f = (e.target.files || [])[0];
+  e.target.value = '';
+  if(!f) return;
+  pdfImpAnalyze(f);
+});
+$('pdfImpClose').addEventListener('click', pdfImpCloseOv);
+
+$('pdfImpAddManual').addEventListener('click', ()=>{
+  if(!pdfImpDoc){ return; }
+  const wrap = $('pdfImpGroups');
+  const form = document.createElement('div');
+  form.className = 'pdfManualForm';
+  const nameInput = document.createElement('input');
+  nameInput.type = 'text';
+  nameInput.placeholder = t('pdfImpNameLbl');
+  form.appendChild(nameInput);
+  const row = document.createElement('div');
+  row.className = 'pdfManualRow';
+  const fromInput = document.createElement('input');
+  fromInput.type = 'number'; fromInput.min = '1'; fromInput.max = String(pdfImpDoc.numPages);
+  fromInput.placeholder = t('pdfImpFrom');
+  const toInput = document.createElement('input');
+  toInput.type = 'number'; toInput.min = '1'; toInput.max = String(pdfImpDoc.numPages);
+  toInput.placeholder = t('pdfImpTo');
+  row.appendChild(fromInput); row.appendChild(toInput);
+  form.appendChild(row);
+  const addBtn = document.createElement('button');
+  addBtn.textContent = t('pdfImpAdd');
+  addBtn.style.cssText = 'width:100%;padding:10px;border-radius:8px;background:var(--blue);color:#fff;border:none;font-weight:700';
+  addBtn.addEventListener('click', async ()=>{
+    const from = parseInt(fromInput.value, 10), to = parseInt(toInput.value, 10);
+    if(!from || !to || from < 1 || to > pdfImpDoc.numPages || to < from){
+      showMsg('\u26A0\uFE0F ' + t('pdfImpErrRange')); return;
+    }
+    const pages = []; for(let i=from;i<=to;i++) pages.push(i);
+    const g = { key:'manual'+(pdfImpManualSeq++), name: nameInput.value || ('Prova '+from+'-'+to), pages, auto:false, included:true, thumb:'' };
+    try{ const blob = await pdfRenderPageToBlob(pdfImpDoc, from, 0.5); g.thumb = URL.createObjectURL(blob); }catch(e){}
+    pdfImpGroups.push(g);
+    form.remove();
+    pdfImpRenderList();
+  });
+  form.appendChild(addBtn);
+  wrap.appendChild(form);
+});
+
+$('pdfImpConfirm').addEventListener('click', async ()=>{
+  const toImport = pdfImpGroups.filter(g => g.included && g.pages.length);
+  if(!toImport.length || !pdfImpDoc){ pdfImpCloseOv(); return; }
+  const pdf = pdfImpDoc;
+  pdfImpCloseOv();
+  window.__scanBusy(true, t('scanReading'));
+  try{
+    for(const g of toImport){
+      const blobs = [];
+      for(let i=0;i<g.pages.length;i++){
+        window.__scanBusy(true, t('pdfImpRendering').replace('{name}', g.name).replace('{i}', i+1).replace('{n}', g.pages.length));
+        try{ blobs.push(await pdfRenderPageToBlob(pdf, g.pages[i], 2)); }catch(e){}
+      }
+      if(!blobs.length) continue;
+      pendingStageName = g.name || ('Prova ' + g.pages[0]);
+      pendingAppend = false;
+      await scanAIRunFiles(blobs);
+    }
+  }catch(e){
+    showMsg('\u26A0\uFE0F ' + t('scanConnErr'));
+  } finally {
+    window.__scanBusy(false);
+  }
 });
 
 /* ================= SCHERMO SEMPRE ACCESO ================= */
