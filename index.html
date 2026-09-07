@@ -80,6 +80,12 @@
     border-radius:50%;width:22px;height:22px;font-size:12px;margin-left:8px;vertical-align:middle;
   }
   #btnMenu{background:var(--btnbg);border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:7px 14px;font-size:18px}
+  #btnRadarGuide{
+    display:none;
+    background:var(--btnbg);border:1px solid var(--line);color:var(--muted);
+    border-radius:50%;width:30px;height:30px;font-size:14px;font-weight:700;margin-right:8px;
+  }
+  body[data-mode="radar"] #btnRadarGuide{display:inline-block}
   #btnArr{
     display:none;
     background:var(--btnbg);border:1px solid var(--line);color:var(--muted);
@@ -602,7 +608,7 @@
 <div id="statusbar">
   <span><span id="gpsdot" class="r"></span><button id="btnInfo">i</button></span>
   <span id="clock">--:--:--</span>
-  <span><button id="btnArr">⇄</button><button id="btnMenu">☰</button></span>
+  <span><button id="btnRadarGuide">?</button><button id="btnArr">⇄</button><button id="btnMenu">☰</button></span>
 </div>
 
 <div id="legend">
@@ -1317,7 +1323,7 @@ it:{introTitle:"Come funziona",
   editLayout:"Modifica layout",editArr:"Disposizione",editReset:"Ripristina",editDone:"Fine",
   editHint:"Tocca un riquadro per cambiarne la grandezza · Disposizione cambia lo schema in orizzontale",
   totalLabel:"Totale · tieni premuto 2s per azzerare",partialLabel:"Parziale",partialLabelRadar:"Parziale · tieni premuto 1s per riallineare",
-  tut1Title:"Frecce",tut1Text:"Scorrono i riferimenti senza toccare la misurazione: usale per controllare quello che sta arrivando o tornare indietro.",
+  tut1Title:"Frecce",tut1Text:"Utilizzale per scorrere avanti o indietro con i simboli. La misurazione non subirà modifiche né sui parziali né sul totale.",
   tut2Title:"Foto del riferimento",tut2Text:"Per ogni riferimento vedi il numero, la foto della tabella e i metri mancanti al prossimo.",
   tut3Title:"Tocca il parziale",tut3Text:"Un tocco azzera il parziale e passa subito al riferimento successivo.",
   tut4Title:"Tieni premuto il parziale",tut4Text:"Tieni premuto 1 secondo per riallineare lo scarto col GPS e azzerare il parziale.",
@@ -1474,7 +1480,7 @@ en:{introTitle:"How it works",
   editLayout:"Edit layout",editArr:"Arrangement",editReset:"Reset",editDone:"Done",
   editHint:"Tap a box to change its size · Arrangement changes the landscape scheme",
   totalLabel:"Total · hold 2s to reset",partialLabel:"Partial",partialLabelRadar:"Partial · hold 1s to realign",
-  tut1Title:"Arrows",tut1Text:"Scroll through the references without touching the measurement: use them to check what's coming up or go back.",
+  tut1Title:"Arrows",tut1Text:"Use them to scroll forward or back through the symbols. Measurement won't be affected, on either the partial or the total.",
   tut2Title:"Reference photo",tut2Text:"For each reference you see the number, the pace note photo, and the distance to the next one.",
   tut3Title:"Tap the partial",tut3Text:"A tap resets the partial and moves straight to the next reference.",
   tut4Title:"Hold the partial",tut4Text:"Hold for 1 second to realign the GPS offset and reset the partial.",
@@ -3281,8 +3287,8 @@ const radarTutEl = $('radarTut'), radarTutHi = $('radarTutHi'), radarTutBubble =
       radarTutNext = $('radarTutNext'), radarTutSkip = $('radarTutSkip'),
       radarTutDontShowCk = $('radarTutDontShowCk');
 
-function radarTutStart(){
-  if(cfg.radarTutorialSeen) return;
+function radarTutStart(force){
+  if(cfg.radarTutorialSeen && !force) return;
   if(!cfg.rb || !cfg.rb.length) return; /* niente prova caricata: niente da indicare */
   radarTutIdx = 0;
   radarTutEl.classList.add('show');
@@ -3294,17 +3300,17 @@ function radarTutPosition(){
   const el = $(step.el);
   if(!el) return;
   const r = el.getBoundingClientRect();
-  const pad = 8;
-  radarTutHi.style.left = (r.left - pad) + 'px';
-  radarTutHi.style.top = (r.top - pad) + 'px';
-  radarTutHi.style.width = (r.width + pad * 2) + 'px';
-  radarTutHi.style.height = (r.height + pad * 2) + 'px';
+  const pad = 10;
+  radarTutHi.style.left = Math.round(r.left - pad) + 'px';
+  radarTutHi.style.top = Math.round(r.top - pad) + 'px';
+  radarTutHi.style.width = Math.round(r.width + pad * 2) + 'px';
+  radarTutHi.style.height = Math.round(r.height + pad * 2) + 'px';
   const spaceBelow = window.innerHeight - r.bottom;
-  if(spaceBelow > 180){
-    radarTutBubble.style.top = (r.bottom + pad + 14) + 'px';
+  if(spaceBelow > 200){
+    radarTutBubble.style.top = Math.round(r.bottom + pad + 14) + 'px';
     radarTutBubble.style.bottom = 'auto';
   } else {
-    radarTutBubble.style.bottom = (window.innerHeight - r.top + pad + 14) + 'px';
+    radarTutBubble.style.bottom = Math.round(window.innerHeight - r.top + pad + 14) + 'px';
     radarTutBubble.style.top = 'auto';
   }
 }
@@ -3317,6 +3323,7 @@ function radarTutShowStep(){
   radarTutSkip.textContent = t('tutSkip');
   radarTutDontShowCk.nextElementSibling.textContent = t('tutDontShow');
   radarTutPosition();
+  setTimeout(radarTutPosition, 120);
 }
 function radarTutClose(){
   radarTutEl.classList.remove('show');
@@ -3329,6 +3336,15 @@ radarTutNext.addEventListener('click', ()=>{
 });
 radarTutSkip.addEventListener('click', radarTutClose);
 window.addEventListener('resize', ()=>{ if(radarTutEl.classList.contains('show')) radarTutPosition(); });
+window.addEventListener('orientationchange', ()=>{
+  if(!radarTutEl.classList.contains('show')) return;
+  /* il riflusso del layout dopo la rotazione puo' arrivare in ritardo su iOS:
+     ricalcoliamo piu' volte per essere sicuri di prendere le dimensioni finali */
+  setTimeout(radarTutPosition, 50);
+  setTimeout(radarTutPosition, 250);
+  setTimeout(radarTutPosition, 500);
+});
+$('btnRadarGuide').addEventListener('click', e=>{ e.stopPropagation(); radarTutStart(true); });
 
 /* configurazione */
 $('drvWords').addEventListener('click', ()=>{
