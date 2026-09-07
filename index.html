@@ -260,6 +260,31 @@
   }
   .unit{font-size:14px;color:var(--muted);margin-top:2px;letter-spacing:.1em}
 
+  /* ===== Guida interattiva Radar ===== */
+  #radarTut{position:fixed;inset:0;z-index:900;display:none}
+  #radarTut.show{display:block}
+  #radarTutHi{
+    position:fixed;border-radius:14px;
+    box-shadow:0 0 0 9999px rgba(0,0,0,.78);
+    border:2px solid var(--blue);
+    transition:left .25s ease,top .25s ease,width .25s ease,height .25s ease;
+    pointer-events:none;
+  }
+  #radarTutBubble{
+    position:fixed;left:16px;right:16px;
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:16px;box-shadow:0 8px 30px rgba(0,0,0,.5);
+    transition:top .25s ease,bottom .25s ease;
+  }
+  #radarTutStepNum{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--blue);margin-bottom:6px}
+  #radarTutTitle{font-size:16px;font-weight:800;color:var(--text);margin-bottom:6px}
+  #radarTutText{font-size:14px;color:var(--muted);line-height:1.4}
+  #radarTutRow{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+  #radarTutSkip{background:none;border:none;color:var(--muted);font-size:13px;text-decoration:underline;padding:6px 2px}
+  #radarTutNext{background:var(--blue);color:#fff;border:none;border-radius:10px;padding:9px 20px;font-size:14px;font-weight:700}
+  #radarTutDontShow{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:var(--muted)}
+  #radarTutDontShow input{width:16px;height:16px}
+
   #zoneTotal{grid-area:total;cursor:pointer}
   #holdBar,#holdBarP{
     position:absolute;left:0;bottom:0;height:6px;width:0;
@@ -603,6 +628,21 @@
 
 <div id="flash"></div>
 <div id="toast"></div>
+
+<!-- ============ GUIDA INTERATTIVA RADAR ============ -->
+<div id="radarTut">
+  <div id="radarTutHi"></div>
+  <div id="radarTutBubble">
+    <div id="radarTutStepNum"></div>
+    <div id="radarTutTitle"></div>
+    <div id="radarTutText"></div>
+    <div id="radarTutRow">
+      <button id="radarTutSkip"></button>
+      <button id="radarTutNext"></button>
+    </div>
+    <label id="radarTutDontShow"><input type="checkbox" id="radarTutDontShowCk"><span></span></label>
+  </div>
+</div>
 
 <!-- ============ MENU LATERALE ============ -->
 <div id="drawerBg"></div>
@@ -1230,7 +1270,13 @@ it:{introTitle:"Come funziona",
   totalResetMsg:"Totale azzerato",partialResetMsg:"Parziale azzerato",
   editLayout:"Modifica layout",editArr:"Disposizione",editReset:"Ripristina",editDone:"Fine",
   editHint:"Tocca un riquadro per cambiarne la grandezza · Disposizione cambia lo schema in orizzontale",
-  totalLabel:"Totale · tieni premuto 2s per azzerare",partialLabel:"Parziale",
+  totalLabel:"Totale · tieni premuto 2s per azzerare",partialLabel:"Parziale",partialLabelRadar:"Parziale · tieni premuto 1s per riallineare",
+  tut1Title:"Frecce",tut1Text:"Scorrono i riferimenti senza toccare la misurazione: usale per controllare quello che sta arrivando o tornare indietro.",
+  tut2Title:"Foto del riferimento",tut2Text:"Per ogni riferimento vedi il numero, la foto della tabella e i metri mancanti al prossimo.",
+  tut3Title:"Tocca il parziale",tut3Text:"Un tocco azzera il parziale e passa subito al riferimento successivo.",
+  tut4Title:"Tieni premuto il parziale",tut4Text:"Tieni premuto 1 secondo per riallineare lo scarto col GPS e azzerare il parziale.",
+  tut5Title:"Tieni premuto il totale",tut5Text:"Tieni premuto 2 secondi per azzerare il totale, ad esempio alla partenza della prova.",
+  tutNext:"Avanti",tutFinish:"Fine",tutSkip:"Salta",tutDontShow:"Non mostrare più questa guida",
   navPartialLabel:"Parziale · tocca per azzerare",
   wordLabel:"Parola / Parziale · tocca per start-stop",
   speedLabel:"Velocità",
@@ -1364,7 +1410,13 @@ en:{introTitle:"How it works",
   totalResetMsg:"Total reset",partialResetMsg:"Partial reset",
   editLayout:"Edit layout",editArr:"Arrangement",editReset:"Reset",editDone:"Done",
   editHint:"Tap a box to change its size · Arrangement changes the landscape scheme",
-  totalLabel:"Total · hold 2s to reset",partialLabel:"Partial",
+  totalLabel:"Total · hold 2s to reset",partialLabel:"Partial",partialLabelRadar:"Partial · hold 1s to realign",
+  tut1Title:"Arrows",tut1Text:"Scroll through the references without touching the measurement: use them to check what's coming up or go back.",
+  tut2Title:"Reference photo",tut2Text:"For each reference you see the number, the pace note photo, and the distance to the next one.",
+  tut3Title:"Tap the partial",tut3Text:"A tap resets the partial and moves straight to the next reference.",
+  tut4Title:"Hold the partial",tut4Text:"Hold for 1 second to realign the GPS offset and reset the partial.",
+  tut5Title:"Hold the total",tut5Text:"Hold for 2 seconds to reset the total, for example at the start of the stage.",
+  tutNext:"Next",tutFinish:"Done",tutSkip:"Skip",tutDontShow:"Don't show this guide again",
   navPartialLabel:"Partial · tap to reset",
   wordLabel:"Word / Partial · tap to start-stop",
   speedLabel:"Speed",
@@ -1498,7 +1550,7 @@ fr:{introTitle:"Comment ça marche",
   totalResetMsg:"Total remis à zéro",partialResetMsg:"Partiel remis à zéro",
   editLayout:"Modifier la disposition",editArr:"Schéma",editReset:"Réinitialiser",editDone:"Terminé",
   editHint:"Touchez une zone pour changer sa taille · Schéma change la disposition en paysage",
-  totalLabel:"Total · maintenir 2s pour remettre à zéro",partialLabel:"Partiel",
+  totalLabel:"Total · maintenir 2s pour remettre à zéro",partialLabel:"Partiel",partialLabelRadar:"Partiel · maintenir 1s pour recaler",
   navPartialLabel:"Partiel · toucher pour remettre à zéro",
   wordLabel:"Mot / Partiel · toucher pour start-stop",
   speedLabel:"Vitesse",
@@ -1637,7 +1689,7 @@ es:{introTitle:"Cómo funciona",
   totalResetMsg:"Total a cero",partialResetMsg:"Parcial a cero",
   editLayout:"Editar diseño",editArr:"Esquema",editReset:"Restablecer",editDone:"Hecho",
   editHint:"Toca un recuadro para cambiar su tamaño · Esquema cambia la disposición horizontal",
-  totalLabel:"Total · mantén 2s para poner a cero",partialLabel:"Parcial",
+  totalLabel:"Total · mantén 2s para poner a cero",partialLabel:"Parcial",partialLabelRadar:"Parcial · mantén 1s para realinear",
   navPartialLabel:"Parcial · toca para poner a cero",
   wordLabel:"Palabra / Parcial · toca para start-stop",
   speedLabel:"Velocidad",
@@ -1776,7 +1828,7 @@ de:{introTitle:"So funktioniert es",
   totalResetMsg:"Gesamt zurückgesetzt",partialResetMsg:"Teilstrecke zurückgesetzt",
   editLayout:"Layout bearbeiten",editArr:"Anordnung",editReset:"Zurücksetzen",editDone:"Fertig",
   editHint:"Tippe auf ein Feld, um die Größe zu ändern · Anordnung ändert das Querformat-Schema",
-  totalLabel:"Gesamt · 2s halten zum Nullstellen",partialLabel:"Teilstrecke",
+  totalLabel:"Gesamt · 2s halten zum Nullstellen",partialLabel:"Teilstrecke",partialLabelRadar:"Teilstrecke · 1s halten zum Neuausrichten",
   navPartialLabel:"Teilstrecke · tippen zum Nullstellen",
   wordLabel:"Wort / Teilstrecke · tippen für Start-Stopp",
   speedLabel:"Geschwindigkeit",
@@ -1915,7 +1967,7 @@ pt:{introTitle:"Como funciona",
   totalResetMsg:"Total zerado",partialResetMsg:"Parcial zerado",
   editLayout:"Editar layout",editArr:"Disposição",editReset:"Repor",editDone:"Concluir",
   editHint:"Toque numa caixa para mudar o tamanho · Disposição muda o esquema horizontal",
-  totalLabel:"Total · manter 2s para zerar",partialLabel:"Parcial",
+  totalLabel:"Total · manter 2s para zerar",partialLabel:"Parcial",partialLabelRadar:"Parcial · manter 1s para realinhar",
   navPartialLabel:"Parcial · toque para zerar",
   wordLabel:"Palavra / Parcial · toque para start-stop",
   speedLabel:"Velocidade",
@@ -2054,7 +2106,7 @@ ja:{introTitle:"使い方",
   totalResetMsg:"合計をリセットしました",partialResetMsg:"区間をリセットしました",
   editLayout:"レイアウト編集",editArr:"配置",editReset:"リセット",editDone:"完了",
   editHint:"ボックスをタップでサイズ変更 · 配置は横向きのレイアウトを変更します",
-  totalLabel:"合計 · 2秒長押しでリセット",partialLabel:"区間",
+  totalLabel:"合計 · 2秒長押しでリセット",partialLabel:"区間",partialLabelRadar:"区間 · 1秒長押しで再調整",
   navPartialLabel:"区間 · タップでリセット",
   wordLabel:"言葉 / 区間 · タップで開始・停止",
   speedLabel:"速度",
@@ -2193,7 +2245,7 @@ cs:{introTitle:"Jak to funguje",
   totalResetMsg:"Celkem vynulováno",partialResetMsg:"Dílčí vynulováno",
   editLayout:"Upravit rozložení",editArr:"Uspořádání",editReset:"Obnovit",editDone:"Hotovo",
   editHint:"Klepnutím na pole změníte velikost · Uspořádání mění schéma na šířku",
-  totalLabel:"Celkem · podržte 2s pro vynulování",partialLabel:"Dílčí",
+  totalLabel:"Celkem · podržte 2s pro vynulování",partialLabel:"Dílčí",partialLabelRadar:"Dílčí · podržte 1s pro zarovnání",
   navPartialLabel:"Dílčí · klepnutím vynulovat",
   wordLabel:"Slovo / Dílčí · klepnutím start-stop",
   speedLabel:"Rychlost",
@@ -2670,7 +2722,7 @@ function speedUnitStr(){ return isImp() ? 'mph' : 'km/h'; }
 /* pilot = pilota · nav = trip navigatore · radar = display radar */
 function applyMode(){
   document.body.dataset.mode = cfg.mode;
-  partialLbl.dataset.t = 'partialLabel';
+  partialLbl.dataset.t = (cfg.mode === 'radar') ? 'partialLabelRadar' : 'partialLabel';
   applyUnits();
   $('drvPilot').classList.toggle('active', cfg.mode === 'pilot');
   $('drvTrip').classList.toggle('active', cfg.mode === 'nav');
@@ -3129,10 +3181,74 @@ function setMode(m){
   applyMode();
   saveCfg();
   closeDrawer();
+  if(m === 'radar') radarTutStart();
 }
 $('drvPilot').addEventListener('click', ()=>{ if(!proGate()) return; setMode('pilot'); });
 $('drvTrip').addEventListener('click', ()=> setMode('nav'));
 $('drvRadar').addEventListener('click', ()=>{ if(!proGate()) return; setMode('radar'); });
+
+/* ================= GUIDA INTERATTIVA RADAR ================= */
+const RADAR_TUT_STEPS = [
+  { el:'radHead',    titleK:'tut1Title', textK:'tut1Text' },
+  { el:'radImg',     titleK:'tut2Title', textK:'tut2Text' },
+  { el:'zonePartial',titleK:'tut3Title', textK:'tut3Text' },
+  { el:'zonePartial',titleK:'tut4Title', textK:'tut4Text' },
+  { el:'zoneTotal',  titleK:'tut5Title', textK:'tut5Text' }
+];
+let radarTutIdx = 0;
+const radarTutEl = $('radarTut'), radarTutHi = $('radarTutHi'), radarTutBubble = $('radarTutBubble'),
+      radarTutStepNum = $('radarTutStepNum'), radarTutTitle = $('radarTutTitle'), radarTutText = $('radarTutText'),
+      radarTutNext = $('radarTutNext'), radarTutSkip = $('radarTutSkip'),
+      radarTutDontShowCk = $('radarTutDontShowCk');
+
+function radarTutStart(){
+  if(cfg.radarTutorialSeen) return;
+  if(!cfg.rb || !cfg.rb.length) return; /* niente prova caricata: niente da indicare */
+  radarTutIdx = 0;
+  radarTutEl.classList.add('show');
+  radarTutDontShowCk.checked = false;
+  radarTutShowStep();
+}
+function radarTutPosition(){
+  const step = RADAR_TUT_STEPS[radarTutIdx];
+  const el = $(step.el);
+  if(!el) return;
+  const r = el.getBoundingClientRect();
+  const pad = 8;
+  radarTutHi.style.left = (r.left - pad) + 'px';
+  radarTutHi.style.top = (r.top - pad) + 'px';
+  radarTutHi.style.width = (r.width + pad * 2) + 'px';
+  radarTutHi.style.height = (r.height + pad * 2) + 'px';
+  const spaceBelow = window.innerHeight - r.bottom;
+  if(spaceBelow > 180){
+    radarTutBubble.style.top = (r.bottom + pad + 14) + 'px';
+    radarTutBubble.style.bottom = 'auto';
+  } else {
+    radarTutBubble.style.bottom = (window.innerHeight - r.top + pad + 14) + 'px';
+    radarTutBubble.style.top = 'auto';
+  }
+}
+function radarTutShowStep(){
+  const step = RADAR_TUT_STEPS[radarTutIdx];
+  radarTutStepNum.textContent = (radarTutIdx + 1) + ' / ' + RADAR_TUT_STEPS.length;
+  radarTutTitle.textContent = t(step.titleK);
+  radarTutText.textContent = t(step.textK);
+  radarTutNext.textContent = (radarTutIdx === RADAR_TUT_STEPS.length - 1) ? t('tutFinish') : t('tutNext');
+  radarTutSkip.textContent = t('tutSkip');
+  radarTutDontShowCk.nextElementSibling.textContent = t('tutDontShow');
+  radarTutPosition();
+}
+function radarTutClose(){
+  radarTutEl.classList.remove('show');
+  if(radarTutDontShowCk.checked){ cfg.radarTutorialSeen = true; saveCfg(); }
+}
+radarTutNext.addEventListener('click', ()=>{
+  radarTutIdx++;
+  if(radarTutIdx >= RADAR_TUT_STEPS.length){ radarTutClose(); return; }
+  radarTutShowStep();
+});
+radarTutSkip.addEventListener('click', radarTutClose);
+window.addEventListener('resize', ()=>{ if(radarTutEl.classList.contains('show')) radarTutPosition(); });
 
 /* configurazione */
 $('drvWords').addEventListener('click', ()=>{
