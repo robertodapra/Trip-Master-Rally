@@ -319,6 +319,17 @@
   }
   .pdfManualRow{display:flex;gap:8px}
   .pdfManualRow input{flex:1}
+  #pdfImpBar{
+    position:fixed;left:0;right:0;bottom:0;z-index:14;
+    padding:12px 18px calc(12px + env(safe-area-inset-bottom));
+    background:var(--bg);border-top:1px solid var(--line);
+  }
+  #pdfImpConfirm{
+    width:100%;padding:16px;border-radius:12px;font-size:17px;font-weight:800;
+    background:var(--green);color:#000;border:none;
+  }
+  #pdfImpConfirm:disabled{opacity:.4}
+  .pdfGroupTag{font-size:11px;padding:2px 8px;border-radius:6px;background:var(--btnbg);border:1px solid var(--line);color:var(--muted);margin-left:6px}
 
   #zoneTotal{grid-area:total;cursor:pointer}
   #holdBar,#holdBarP{
@@ -771,8 +782,10 @@
     <div id="pdfImpLoadingTxt" data-t="pdfImpLoadingTxt"></div>
   </div>
   <div id="pdfImpGroups"></div>
-  <button id="pdfImpAddManual" style="width:100%;padding:12px;border-radius:10px;font-size:14px;font-weight:700;background:var(--btnbg);border:1px dashed var(--line);color:var(--muted);margin:6px 0 14px" data-t="pdfImpAddManual"></button>
-  <button class="okbtn" id="pdfImpConfirm" data-t="pdfImpConfirmBtn"></button>
+  <button id="pdfImpOthers" style="display:none;width:100%;padding:10px;border-radius:10px;font-size:13px;background:none;border:1px solid var(--line);color:var(--muted);margin:2px 0 10px"></button>
+  <div id="pdfImpOthersList" style="display:none"></div>
+  <button id="pdfImpAddManual" style="width:100%;padding:12px;border-radius:10px;font-size:14px;font-weight:700;background:var(--btnbg);border:1px dashed var(--line);color:var(--muted);margin:6px 0 90px" data-t="pdfImpAddManual"></button>
+  <div id="pdfImpBar"><button id="pdfImpConfirm"></button></div>
 </div>
 
 <!-- ============ IMPOSTAZIONI GENERALI ============ -->
@@ -1346,6 +1359,11 @@ it:{introTitle:"Come funziona",
   pdfImpDone:"Importazione completata",
   pdfImpErrFile:"Non riesco a leggere questo PDF.",
   pdfImpUnnamed:"Prova (pag. {a}-{b})",
+  pdfImpConfirmN:"Importa {n} prove",
+  pdfImpRepeat:"ripetizione",
+  pdfImpShowOthers:"Mostra anche le altre sezioni senza nome ({n})",
+  pdfImpHideOthers:"Nascondi le altre sezioni ({n})",
+  pdfImpDoneN:"{n} prove importate: le trovi qui sotto, pronte per il Radar",
   pdfImpErrRange:"Intervallo di pagine non valido.",
   navPartialLabel:"Parziale · tocca per azzerare",
   wordLabel:"Parola / Parziale · tocca per start-stop",
@@ -1504,6 +1522,11 @@ en:{introTitle:"How it works",
   pdfImpDone:"Import complete",
   pdfImpErrFile:"I can't read this PDF.",
   pdfImpUnnamed:"Stage (p. {a}-{b})",
+  pdfImpConfirmN:"Import {n} stages",
+  pdfImpRepeat:"repeat",
+  pdfImpShowOthers:"Also show the other unnamed sections ({n})",
+  pdfImpHideOthers:"Hide the other sections ({n})",
+  pdfImpDoneN:"{n} stages imported: they are listed below, ready for Radar",
   pdfImpErrRange:"Invalid page range.",
   navPartialLabel:"Partial · tap to reset",
   wordLabel:"Word / Partial · tap to start-stop",
@@ -3607,6 +3630,7 @@ $('ssNewFolder').addEventListener('click', ()=>{
 /* ================= NUOVA PROVA + INFO ================= */
 let pendingStageName = null;
 let pendingAppend = false;
+let pendingMaxKm = null;   /* solo importazione PDF: km della prova letti dal titolo */
 
 $('ssNew').addEventListener('click', ()=>{
   if(!proGate()) return;
@@ -4183,6 +4207,12 @@ async function scanAIRunFiles(files){
   let stage = cfg.ssLib.find(x => x.name === name);
   if(!stage){ stage = { name: name, rb: [] }; if(ssCurFolder) stage.folder = ssCurFolder; cfg.ssLib.push(stage); }
   stage.rb = append ? (stage.rb || []).concat(all) : all;
+  if(pendingMaxKm != null){
+    /* importazione da PDF: il roadbook include spesso il trasferimento dopo il fine prova.
+       Conosciamo i km della prova dal titolo: le righe oltre (con tolleranza) vengono tolte */
+    const maxKm = pendingMaxKm + 0.5; pendingMaxKm = null;
+    stage.rb = stage.rb.filter(r => (parseKm(r.km) || 0) <= maxKm);
+  }
   stage.rb.sort((a,b)=> (parseKm(a.km)||0) - (parseKm(b.km)||0));
   cfg.rb = JSON.parse(JSON.stringify(stage.rb));
   cfg.ssActive = name;
@@ -4238,61 +4268,126 @@ const PDF_STAGE_PATTERNS = [
   { re:/SPS\s*(\d+)\s*["\u201c]?([^"\u201d\n,\d]{0,40})/i, build:(m)=> ('SPS'+m[1]+' '+(m[2]||'').trim()).trim() },
   { re:/SS\s*([\dA-Z]+\/[\dA-Z]+)\s*:?\s*["\u201c]?\s*([^"\u201d\n,\d]{2,40})/i, build:(m)=> (m[2]||'').trim()+' (SS '+m[1]+')' },
   { re:/P\.?\s?S\.?\s*([\d\-]+)\s*["\u201c]([^"\u201d\n]{2,40})["\u201d]/i, build:(m)=> (m[2]||'').trim()+' (PS '+m[1]+')' },
-  { re:/SHAKEDOWN\s*["\u201c]?([^"\u201d\n,\d]{0,40})/i, build:(m)=> ('Shakedown '+(m[1]||'').trim()).trim() }
+  { re:/SHAKEDOWN\s*["\u201c]([^"\u201d\n]{2,40})["\u201d]/i, build:(m)=> 'Shakedown '+(m[1]||'').trim() },
+  { re:/SHAKEDOWN/i, build:()=> 'Shakedown' }
 ];
 /* parole della tabella che a volte restano attaccate al nome catturato: il nome si ferma qui */
-const PDF_NAME_STOPWORDS = /\b(Average|Target|Total|Distance|Speed|Km|Road|Section|Time|Saturday|Sunday|Monday)\b/i;
+const PDF_NAME_STOPWORDS = /\b(Average|Target|Total|Distance|Speed|Km|Road|Section|Time|Start|Stop|Saturday|Sunday|Monday|Service|Park)\b/i;
 function pdfHeaderKey(text){
   const norm = (text||'').replace(/\s+/g,' ').trim();
   for(const p of PDF_STAGE_PATTERNS){
     const m = norm.match(p.re);
-    if(m){
-      let name = p.build(m).replace(/\s+/g,' ').trim();
-      const cut = name.search(PDF_NAME_STOPWORDS);
-      if(cut > 0) name = name.slice(0, cut).trim();
-      name = name.replace(/[\s,.:;-]+$/,'');
-      if(name) return { key: m[0].replace(/\s+/g,''), name };
+    if(!m) continue;
+    let name = p.build(m).replace(/\s+/g,' ').trim();
+    const cut = name.search(PDF_NAME_STOPWORDS);
+    if(cut > 0) name = name.slice(0, cut).trim();
+    name = name.replace(/[\s,.:;-]+$/,'');
+    if(!name) continue;
+    /* km della prova: primo "12,34 km" o "Km 12,34" dopo il titolo,
+       saltando i totali di sezione ("Total Distance 27,78 km") */
+    let km = null;
+    const after = norm.slice(m.index, m.index + 200);
+    const reKm = /(\d{1,3})[,.](\d{2})\s*km\b|km\.?\s*(\d{1,3})[,.](\d{2})/ig;
+    let mk;
+    while((mk = reKm.exec(after))){
+      const before = after.slice(Math.max(0, mk.index - 30), mk.index);
+      if(/total|dist|media|average/i.test(before)) continue;
+      const a = mk[1] || mk[3], b = mk[2] || mk[4];
+      km = Math.round((parseInt(a,10) + parseInt(b,10)/100) * 100) / 100;
+      break;
     }
+    return { key: m[0].replace(/\s+/g,''), name, km };
   }
   return null;
 }
 /* alcuni PDF spezzettano il testo lettera per lettera: togliendo tutti gli spazi
    il confronto fra pagine resta affidabile anche quando il pattern sopra non riconosce nulla */
-function pdfFingerprint(text){ return (text||'').replace(/\s+/g,''); }
+function pdfFingerprint(text){ return (text||'').replace(/\s+/g,'').slice(0, 160); }
+function pdfFpSimilar(a, b){
+  if(!a || !b) return false;
+  const n = Math.min(a.length, b.length);
+  if(n < 20) return a === b;
+  let i = 0; while(i < n && a[i] === b[i]) i++;
+  return i >= n * 0.6;
+}
 /* una pagina di tabella pace-note ha sempre parecchie distanze tipo "12,34":
    e' un segnale che non dipende da come l'organizzatore scrive i titoli */
 function pdfLooksLikeTable(text){
   const m = (text||'').match(/\d{1,3},\d{2}/g);
   return !!(m && m.length >= 6);
 }
+/* Testo della pagina ordinato per POSIZIONE (alto->basso, sinistra->destra), non nell'ordine
+   in cui il PDF lo disegna: molti roadbook disegnano l'intestazione per ultima. */
+async function pdfPageText(page){
+  const tc = await page.getTextContent();
+  const view = page.view || [0,0,595,842];
+  const h = (view[3] - view[1]) || 1, yTop = view[3];
+  const items = [];
+  for(const it of tc.items){
+    if(!it.str || !it.str.trim() || !it.transform) continue;
+    items.push({ str: it.str, x: it.transform[4], y: yTop - it.transform[5] });
+  }
+  items.sort((a,b)=> (Math.round(a.y/3) - Math.round(b.y/3)) || (a.x - b.x));
+  const all = items.map(it=>it.str).join(' ');
+  const head = items.filter(it=> it.y < h * 0.18).map(it=>it.str).join(' ');
+  return { all, head };
+}
 
-/* Legge il testo di ogni pagina e raggruppa le pagine consecutive di tabella con la stessa intestazione */
+/* Legge ogni pagina, individua le tabelle, le raggruppa e da' loro un nome */
 async function pdfExtractGroups(pdf, onProgress){
   const n = pdf.numPages;
-  const perPage = [];
+  const pages = [];
   for(let i=1;i<=n;i++){
     if(onProgress) onProgress(i, n);
     const page = await pdf.getPage(i);
-    const tc = await page.getTextContent();
-    const allText = tc.items.map(it=>it.str).join(' ');
-    const topText = tc.items.slice(0, 60).map(it=>it.str).join(' ');
-    perPage.push({
-      pageNum: i,
-      isTable: pdfLooksLikeTable(allText),
-      hit: pdfHeaderKey(topText),
-      fp: pdfFingerprint(topText).slice(0, 120)
-    });
+    const tx = await pdfPageText(page);
+    pages.push({ num:i, isTable: pdfLooksLikeTable(tx.all), head: tx.head, all: tx.all,
+                 hit: pdfHeaderKey(tx.head), fp: pdfFingerprint(tx.head) });
   }
+  /* 1) gruppi di pagine-tabella consecutive con la stessa intestazione */
   const groups = [];
   let cur = null;
-  for(const p of perPage){
+  for(const p of pages){
     if(!p.isTable){ cur = null; continue; }
-    const groupKey = p.hit ? p.hit.key : p.fp;
-    if(cur && cur.key === groupKey){ cur.pages.push(p.pageNum); }
-    else { cur = { key:groupKey, name: p.hit ? p.hit.name : '', pages:[p.pageNum] }; groups.push(cur); }
+    const sameByHit = cur && p.hit && cur.hitKey && p.hit.key === cur.hitKey;
+    const sameByFp = cur && !p.hit && !cur.hitKey && pdfFpSimilar(p.fp, cur.fp);
+    if(sameByHit || sameByFp){ cur.pages.push(p.num); continue; }
+    cur = { pages:[p.num], hitKey: p.hit ? p.hit.key : null, fp: p.fp, hit: p.hit };
+    groups.push(cur);
   }
-  /* scarta i gruppi di 1 sola pagina: quasi sempre un riferimento isolato, non una prova vera */
-  return groups.filter(g => g.pages.length >= 2);
+  /* 2) nome: dall'intestazione della tabella; altrimenti dalle 1-3 pagine subito prima
+        (mappa / foto della prova, come nei roadbook italiani) */
+  for(const g of groups){
+    let hit = g.hit;
+    if(!hit){
+      /* guarda fino a 3 pagine prima; preferisci quella che riporta anche i km */
+      const first = g.pages[0];
+      let fallback = null;
+      for(let k=1; k<=3; k++){
+        const prev = pages[first - 1 - k];
+        if(!prev || prev.isTable) break;
+        const h = pdfHeaderKey(prev.head) || pdfHeaderKey(prev.all);
+        if(!h) continue;
+        if(h.km != null){ hit = h; break; }
+        if(!fallback) fallback = h;
+      }
+      if(!hit) hit = fallback;
+    }
+    g.name = hit ? hit.name : '';
+    g.km = hit ? hit.km : null;
+    g.isStage = !!hit;
+  }
+  /* 3) scarta i gruppi di 1 sola pagina senza nome; segna le ripetizioni della stessa prova */
+  const seen = {};
+  const out = [];
+  for(const g of groups){
+    if(!g.isStage && g.pages.length < 2) continue;
+    const k = g.name.toLowerCase();
+    g.repeat = !!(g.isStage && seen[k]);
+    if(g.isStage) seen[k] = true;
+    out.push(g);
+  }
+  return out;
 }
 
 async function pdfRenderPageToBlob(pdf, pageNum, scale){
@@ -4310,56 +4405,73 @@ let pdfImpDoc = null;
 let pdfImpGroups = [];
 let pdfImpManualSeq = 0;
 
+function pdfImpCard(g){
+  const card = document.createElement('div');
+  card.className = 'pdfGroupCard' + (g.included ? '' : ' excluded');
+  const img = document.createElement('img');
+  img.className = 'pdfGroupThumb';
+  img.src = g.thumb || '';
+  card.appendChild(img);
+  const body = document.createElement('div');
+  body.className = 'pdfGroupBody';
+  const nameInput = document.createElement('input');
+  nameInput.type = 'text';
+  nameInput.className = 'pdfGroupName';
+  nameInput.value = g.name;
+  nameInput.placeholder = t('pdfImpNameLbl');
+  nameInput.addEventListener('input', ()=>{ g.name = nameInput.value; });
+  body.appendChild(nameInput);
+  const meta = document.createElement('div');
+  meta.className = 'pdfGroupMeta';
+  const info = document.createElement('span');
+  info.textContent = t('pdfImpPages').replace('{a}', g.pages[0]).replace('{b}', g.pages[g.pages.length-1])
+    + (g.km ? ' · ' + g.km.toFixed(2).replace('.', ',') + ' km' : '');
+  if(g.repeat){ const tag = document.createElement('span'); tag.className = 'pdfGroupTag'; tag.textContent = t('pdfImpRepeat'); info.appendChild(tag); }
+  meta.appendChild(info);
+  const ck = document.createElement('input');
+  ck.type = 'checkbox';
+  ck.className = 'pdfGroupCk';
+  ck.checked = g.included;
+  ck.addEventListener('change', ()=>{ g.included = ck.checked; card.classList.toggle('excluded', !g.included); pdfImpUpdateBar(); });
+  meta.appendChild(ck);
+  body.appendChild(meta);
+  card.appendChild(body);
+  return card;
+}
+function pdfImpUpdateBar(){
+  const n = pdfImpGroups.filter(g=>g.included).length;
+  const b = $('pdfImpConfirm');
+  b.textContent = t('pdfImpConfirmN').replace('{n}', n);
+  b.disabled = n === 0;
+}
 function pdfImpRenderList(){
-  const wrap = $('pdfImpGroups');
-  wrap.innerHTML = '';
-  if(!pdfImpGroups.length){
+  const wrap = $('pdfImpGroups'), others = $('pdfImpOthersList'), toggle = $('pdfImpOthers');
+  wrap.innerHTML = ''; others.innerHTML = '';
+  const stages = pdfImpGroups.filter(g => g.isStage);
+  const rest = pdfImpGroups.filter(g => !g.isStage);
+  if(!stages.length){
     const p = document.createElement('p');
-    p.className = 'small';
-    p.style.color = 'var(--muted)';
+    p.className = 'small'; p.style.color = 'var(--muted)';
     p.textContent = t('pdfImpNoGroups');
     wrap.appendChild(p);
-    return;
   }
-  pdfImpGroups.forEach((g, idx)=>{
-    const card = document.createElement('div');
-    card.className = 'pdfGroupCard' + (g.included ? '' : ' excluded');
-    const img = document.createElement('img');
-    img.className = 'pdfGroupThumb';
-    img.src = g.thumb || '';
-    card.appendChild(img);
-
-    const body = document.createElement('div');
-    body.className = 'pdfGroupBody';
-
-    const nameInput = document.createElement('input');
-    nameInput.type = 'text';
-    nameInput.className = 'pdfGroupName';
-    nameInput.value = g.name;
-    nameInput.addEventListener('input', ()=>{ g.name = nameInput.value; });
-    body.appendChild(nameInput);
-
-    const meta = document.createElement('div');
-    meta.className = 'pdfGroupMeta';
-    const pagesTxt = document.createElement('span');
-    pagesTxt.textContent = t('pdfImpPages').replace('{a}', g.pages[0]).replace('{b}', g.pages[g.pages.length-1]);
-    meta.appendChild(pagesTxt);
-    const ck = document.createElement('input');
-    ck.type = 'checkbox';
-    ck.className = 'pdfGroupCk';
-    ck.checked = g.included;
-    ck.addEventListener('change', ()=>{ g.included = ck.checked; card.classList.toggle('excluded', !g.included); });
-    meta.appendChild(ck);
-    body.appendChild(meta);
-
-    card.appendChild(body);
-    wrap.appendChild(card);
-  });
+  stages.forEach(g => wrap.appendChild(pdfImpCard(g)));
+  rest.forEach(g => others.appendChild(pdfImpCard(g)));
+  toggle.style.display = rest.length ? 'block' : 'none';
+  toggle.textContent = (others.style.display === 'none' ? t('pdfImpShowOthers') : t('pdfImpHideOthers')).replace('{n}', rest.length);
+  pdfImpUpdateBar();
 }
+$('pdfImpOthers').addEventListener('click', ()=>{
+  const l = $('pdfImpOthersList');
+  l.style.display = (l.style.display === 'none') ? 'block' : 'none';
+  $('pdfImpOthers').textContent = (l.style.display === 'none' ? t('pdfImpShowOthers') : t('pdfImpHideOthers'))
+    .replace('{n}', pdfImpGroups.filter(g=>!g.isStage).length);
+});
 
 async function pdfImpAnalyze(file){
   $('pdfImpLoading').style.display = 'block';
-  $('pdfImpGroups').innerHTML = '';
+  $('pdfImpGroups').innerHTML = ''; $('pdfImpOthersList').innerHTML = '';
+  $('pdfImpOthers').style.display = 'none';
   pdfImpGroups = [];
   try{
     const pdfjsLib = await ensurePdfJs();
@@ -4370,7 +4482,8 @@ async function pdfImpAnalyze(file){
       $('pdfImpLoadingTxt').textContent = t('pdfImpAnalyzing').replace('{i}', i).replace('{n}', n);
     });
     for(const g of groups){
-      g.included = true;
+      /* preselezionate: solo le prove vere, senza le ripetizioni */
+      g.included = g.isStage && !g.repeat;
       if(!g.name) g.name = t('pdfImpUnnamed').replace('{a}', g.pages[0]).replace('{b}', g.pages[g.pages.length-1]);
       try{
         const blob = await pdfRenderPageToBlob(pdf, g.pages[0], 0.5);
@@ -4387,13 +4500,14 @@ async function pdfImpAnalyze(file){
 
 function pdfImpOpen(){
   $('pdfImportOv').classList.add('open');
+  pdfImpUpdateBar();
 }
 function pdfImpCloseOv(){
   $('pdfImportOv').classList.remove('open');
   pdfImpGroups.forEach(g=>{ if(g.thumb){ try{ URL.revokeObjectURL(g.thumb); }catch(e){} } });
   pdfImpGroups = [];
   pdfImpDoc = null;
-  $('pdfImpGroups').innerHTML = '';
+  $('pdfImpGroups').innerHTML = ''; $('pdfImpOthersList').innerHTML = '';
 }
 
 $('ssNewPdf').addEventListener('click', ()=>{
@@ -4437,7 +4551,7 @@ $('pdfImpAddManual').addEventListener('click', ()=>{
       showMsg('\u26A0\uFE0F ' + t('pdfImpErrRange')); return;
     }
     const pages = []; for(let i=from;i<=to;i++) pages.push(i);
-    const g = { key:'manual'+(pdfImpManualSeq++), name: nameInput.value || ('Prova '+from+'-'+to), pages, auto:false, included:true, thumb:'' };
+    const g = { key:'manual'+(pdfImpManualSeq++), name: nameInput.value || ('Prova '+from+'-'+to), pages, isStage:true, included:true, thumb:'', km:null, repeat:false };
     try{ const blob = await pdfRenderPageToBlob(pdfImpDoc, from, 0.5); g.thumb = URL.createObjectURL(blob); }catch(e){}
     pdfImpGroups.push(g);
     form.remove();
@@ -4453,6 +4567,7 @@ $('pdfImpConfirm').addEventListener('click', async ()=>{
   const pdf = pdfImpDoc;
   pdfImpCloseOv();
   window.__scanBusy(true, t('scanReading'));
+  let done = 0;
   try{
     for(const g of toImport){
       const blobs = [];
@@ -4463,13 +4578,20 @@ $('pdfImpConfirm').addEventListener('click', async ()=>{
       if(!blobs.length) continue;
       pendingStageName = g.name || ('Prova ' + g.pages[0]);
       pendingAppend = false;
+      pendingMaxKm = (typeof g.km === 'number' && g.km > 0) ? g.km : null;
       await scanAIRunFiles(blobs);
+      done++;
     }
   }catch(e){
     showMsg('\u26A0\uFE0F ' + t('scanConnErr'));
   } finally {
+    pendingMaxKm = null;
     window.__scanBusy(false);
   }
+  /* le prove sono gia' nell'elenco Radar (scanAIRunFiles le salva): mostralo */
+  buildSsList();
+  $('navMenu').classList.add('open');
+  if(done) showMsg('\u2705 ' + t('pdfImpDoneN').replace('{n}', done));
 });
 
 /* ================= SCHERMO SEMPRE ACCESO ================= */
