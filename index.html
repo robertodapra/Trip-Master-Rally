@@ -3301,16 +3301,25 @@ function radarTutPosition(){
   if(!el) return;
   const r = el.getBoundingClientRect();
   const pad = 10;
-  radarTutHi.style.left = Math.round(r.left - pad) + 'px';
-  radarTutHi.style.top = Math.round(r.top - pad) + 'px';
-  radarTutHi.style.width = Math.round(r.width + pad * 2) + 'px';
-  radarTutHi.style.height = Math.round(r.height + pad * 2) + 'px';
+  const edge = 3; /* margine minimo dal bordo dello schermo */
+  let left = r.left - pad, top = r.top - pad;
+  let width = r.width + pad * 2, height = r.height + pad * 2;
+  /* tieni il riquadro sempre dentro la viewport, in entrambi gli orientamenti */
+  if(left < edge){ width -= (edge - left); left = edge; }
+  if(top < edge){ height -= (edge - top); top = edge; }
+  if(left + width > window.innerWidth - edge){ width = window.innerWidth - edge - left; }
+  if(top + height > window.innerHeight - edge){ height = window.innerHeight - edge - top; }
+  width = Math.max(width, 20); height = Math.max(height, 20);
+  radarTutHi.style.left = Math.round(left) + 'px';
+  radarTutHi.style.top = Math.round(top) + 'px';
+  radarTutHi.style.width = Math.round(width) + 'px';
+  radarTutHi.style.height = Math.round(height) + 'px';
   const spaceBelow = window.innerHeight - r.bottom;
   if(spaceBelow > 200){
-    radarTutBubble.style.top = Math.round(r.bottom + pad + 14) + 'px';
+    radarTutBubble.style.top = Math.round(Math.min(r.bottom + pad + 14, window.innerHeight - 160)) + 'px';
     radarTutBubble.style.bottom = 'auto';
   } else {
-    radarTutBubble.style.bottom = Math.round(window.innerHeight - r.top + pad + 14) + 'px';
+    radarTutBubble.style.bottom = Math.round(Math.max(window.innerHeight - r.top + pad + 14, 10)) + 'px';
     radarTutBubble.style.top = 'auto';
   }
 }
@@ -4212,18 +4221,11 @@ $('aiFile').addEventListener('change', e=>{
 let PDFJS_READY = null;
 function ensurePdfJs(){
   if(PDFJS_READY) return PDFJS_READY;
-  PDFJS_READY = new Promise((resolve, reject)=>{
-    if(window.pdfjsLib){ resolve(window.pdfjsLib); return; }
-    const s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.js';
-    s.onload = ()=>{
-      try{
-        window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js';
-        resolve(window.pdfjsLib);
-      }catch(e){ reject(e); }
-    };
-    s.onerror = ()=> reject(new Error('pdfjs load failed'));
-    document.head.appendChild(s);
+  const BASE = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/';
+  PDFJS_READY = import(/* @vite-ignore */ BASE + 'pdf.min.mjs').then(function(lib){
+    lib.GlobalWorkerOptions.workerSrc = BASE + 'pdf.worker.min.mjs';
+    window.pdfjsLib = lib;
+    return lib;
   });
   return PDFJS_READY;
 }
