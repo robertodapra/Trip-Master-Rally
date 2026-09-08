@@ -4,7 +4,7 @@ const SUPPORT_EMAIL = "iRallySupport@icloud.com";
 export default {
   async fetch(request, env, ctx) {
     if (new URL(request.url).pathname === "/version") {
-      return new Response("iRally worker v4 (modello fisso gemini-3.6-flash, no-thinking)", { headers: { "content-type": "text/plain" } });
+      return new Response("iRally worker v5 (radar: gemini-3.5-flash-lite - tabella: gemini-3.6-flash, fissi)", { headers: { "content-type": "text/plain" } });
     }
     if (new URL(request.url).pathname === "/usage") {
       const mk = "tok:" + new Date().toISOString().slice(0, 7);
@@ -52,7 +52,7 @@ export default {
 
       // lista modelli ordinata, con CACHE (6 ore) per non richiederla ogni volta -> molto piu' veloce
       let ranked;
-      try { ranked = await getRanked(env); }
+      try { ranked = await getRanked(env, mode); }
       catch (e) { return json({ error: "Lista modelli: " + String(e).slice(0,200) }, 200, cors); }
       if (!ranked || !ranked.length) return json({ error: "Nessun modello adatto disponibile" }, 200, cors);
 
@@ -175,7 +175,7 @@ async function checkLimit(env, ctx, deviceId) {
 }
 
 /* ---- cache della lista modelli (persiste finche' l'isolate resta caldo) ---- */
-let CACHE = { ranked: null, at: 0 };
+let CACHE = { radar: null, timecard: null, at: 0 };   // una cache per tipo di lavoro
 const CACHE_TTL = 6 * 60 * 60 * 1000; // 6 ore
 
 /* ---- MODELLI: ordine deciso da noi, non "il piu' recente che passa" ----
@@ -188,20 +188,32 @@ const CACHE_TTL = 6 * 60 * 60 * 1000; // 6 ore
    risultati cambiavano da un giorno all'altro senza che il codice cambiasse.
    Meglio un errore chiaro ("riprova") che una lettura sbagliata presa per buona.
    Google ha chiuso gemini-2.5-flash ai nuovi utenti: il sostituto indicato e' 3.6-flash. */
-const PREFERRED = [
-  "gemini-3.6-flash",
-];
-const PIN_MODEL = true;   // true = usa solo la lista qui sopra, niente scelta automatica
-async function getRanked(env) {
+/* Modello scelto in base al LAVORO, per avere la qualita' dove serve
+   senza pagarla dove non serve:
+     - radar: 30-40 pagine a gara, ma il compito e' semplice (numeri stampati;
+       il ritaglio vero lo fa detectTable() sui pixel, non l'AI) -> modello lite.
+     - tabella di marcia: 2-3 pagine a gara, ma numeri SCRITTI A MANO e una
+       struttura che se sbagliata manda all'aria tutti i calcoli -> modello pieno.
+   Prezzi (set. 2026, per milione di token in/out):
+     3.5-flash-lite  0,30 / 2,50   ~0,002 $ a pagina
+     3.6-flash       1,50 / 7,50   ~0,008 $ a pagina */
+const PREFERRED_BY_MODE = {
+  radar:    ["gemini-3.5-flash-lite"],
+  timecard: ["gemini-3.6-flash"],
+};
+const PIN_MODEL = true;   // true = usa solo i modelli qui sopra, niente scelta automatica
+async function getRanked(env, mode) {
+  const PREFERRED = PREFERRED_BY_MODE[mode] || PREFERRED_BY_MODE.radar;
   const now = Date.now();
-  if (CACHE.ranked && (now - CACHE.at) < CACHE_TTL) return CACHE.ranked;
+  const ck = mode === "timecard" ? "timecard" : "radar";
+  if (CACHE[ck] && (now - CACHE.at) < CACHE_TTL) return CACHE[ck];
 
   const listRes = await fetch("https://generativelanguage.googleapis.com/v1beta/models", {
     headers: { "x-goog-api-key": env.GEMINI_KEY },
   });
   const listData = await listRes.json();
   if (listData.error) {
-    if (CACHE.ranked) return CACHE.ranked; // se la lista fallisce ma ho una cache, la riuso
+    if (CACHE[ck]) return CACHE[ck]; // se la lista fallisce ma ho una cache, la riuso
     throw new Error(listData.error.message || "lista modelli non disponibile");
   }
 
@@ -231,7 +243,7 @@ async function getRanked(env) {
     );
   }
 
-  if (ranked.length) { CACHE.ranked = ranked; CACHE.at = now; }
+  if (ranked.length) { CACHE[ck] = ranked; CACHE.at = now; }
   return ranked;
 }
 
