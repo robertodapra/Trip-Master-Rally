@@ -4690,8 +4690,9 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
 
   function tableRow(e,i){
     const n=(e.card&&e.card.legs&&e.card.legs.length)||0;
-    /* niente campanella qui: le sveglie si accendono sui singoli controlli
-       dentro la tabella, e ogni tabella salvata e' sempre attiva. */
+    /* BLOCCATO: niente campanella qui. Le sveglie si accendono sui singoli
+       controlli dentro la tabella e ogni tabella salvata e' sempre attiva.
+       Non reintrodurre un interruttore per tabella. */
     const nAl=(e.sched&&e.sched.length)||0;
     const sub=(e.card&&e.card.rally? esc(e.card.rally)+' \u00b7 ':'')+n+' TC'+(nAl?' \u00b7 \uD83D\uDD14 '+nAl:'');
     return '<div class="tdm-row"><div class="tdm-name" data-open="'+i+'">'+esc(e.name||'(senza nome)')+'<small>'+sub+'</small></div>'
@@ -5017,7 +5018,19 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
   /* ===== SVEGLIA: notifiche locali native (Capacitor) ===== */
   function LN(){ return (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications) || null; }
   async function ensurePerm(){ const ln=LN(); if(!ln) return false; if(permAsked) return true; permAsked=true; try{ await ln.requestPermissions(); return true; }catch(e){ return false; } }
-  /* ===== SVEGLIE TIMBRO =====
+  /* ============ SVEGLIE TIMBRO - SISTEMA BLOCCATO, NON RISCRIVERE ============
+     Comportamento confermato da Roberto e verificato il 7 settembre 2026.
+     Regole da NON cambiare senza una sua richiesta esplicita:
+       A. Le sveglie si accendono SOLO dalle caselle dei singoli controlli dentro
+          la tabella. Nell'elenco delle tabelle NON deve esserci nessuna
+          campanella: ogni tabella salvata e' sempre attiva.
+       B. Raffica di 10 squilli distanziati 3 secondi (circa 30 s), identica ad
+          app aperta e ad app chiusa.
+       C. Le sveglie di TUTTE le tabelle vanno messe in fila per orario e
+          programmate insieme, con precedenza alle piu' vicine nel tempo.
+       D. Toccare la casella di un controllo deve chiamare recompute(): senza,
+          l'elenco sveglie non si rifa' e la sveglia non suona mai (era un bug).
+     ==========================================================================
      Una notifica iOS suona UNA volta sola: per avere una sveglia che insiste
      ne programmiamo una raffica. 10 squilli, uno ogni 3 secondi = 30 secondi.
      Appena apri l'app la raffica in corso si ferma (riprogrammiamo, e quelle
