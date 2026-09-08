@@ -1,0 +1,6 @@
+name = "rally-scan"
+main = "worker.js"
+compatibility_date = "2026-09-07"
+
+# La chiave GEMINI_KEY NON va scritta qui: resta un "secret" salvato in
+# Cloudflare (Settings > Variables and Secrets) e sopravvive ai deploy.
