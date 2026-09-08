@@ -260,6 +260,8 @@ La card e' una sequenza di CONTROLLI dall'alto verso il basso. Ogni riga/blocco 
 - CONTROLLO ORARIO: "T.C. 5", "C.O. 5D", "CO 11B", "SETTORE 18" (spesso con lettere A/B/C/D). Puo' avere testo: Riordino, Assistenza, Service, Regroup, Partenza, Arrivo.
 - PROVA SPECIALE: "PS 6", "P.S. 7", "S.S. 9", di solito con nome e distanza in km (es. "PS 12 Moruri 3  12,89 km", "S.S. 9 - Scillato La Generosa 3  14,80 km").
 
+REGOLA BLOCCATA (verificata su Targa Florio, 7 set 2026 - non riscrivere senza rileggerla):
+[REGOLA BLOCCATA - confermata da Roberto il 7 settembre 2026, non modificare]
 Il PRIMO controllo della pagina e' la PARTENZA di sezione: NON creare un leg per lui.
 Lo riconosci perche' ha un orario di partenza (Provisional Start / Actual Start / Partenza / Start Time) e NON ha un tempo imposto in ingresso.
 Compare soltanto come "from" del primo leg: il suo codice (es. "T.C. 0") non deve mai finire in un "to".
