@@ -4,7 +4,7 @@ const SUPPORT_EMAIL = "iRallySupport@icloud.com";
 export default {
   async fetch(request, env, ctx) {
     if (new URL(request.url).pathname === "/version") {
-      return new Response("iRally worker v3 (modello fisso, no-thinking)", { headers: { "content-type": "text/plain" } });
+      return new Response("iRally worker v4 (modello fisso gemini-3.6-flash, no-thinking)", { headers: { "content-type": "text/plain" } });
     }
     if (new URL(request.url).pathname === "/usage") {
       const mk = "tok:" + new Date().toISOString().slice(0, 7);
@@ -60,9 +60,15 @@ export default {
 
       async function callModel(name, noThink) {
         const genUrl = "https://generativelanguage.googleapis.com/v1beta/" + name + ":generateContent";
-        // i modelli 2.5+ "ragionano" prima di rispondere e diventano lentissimi: qui lo spegniamo
-        const genCfg = { temperature: 0.1, responseMimeType: "application/json", maxOutputTokens: 8192 };
-        if (noThink !== false) genCfg.thinkingConfig = { thinkingBudget: 0 };
+        // i modelli 2.5+ "ragionano" prima di rispondere e diventano lentissimi: qui lo spegniamo.
+        // I Gemini 3.x hanno cambiato le regole: temperature e' deprecata e il "budget"
+        // di ragionamento si chiama thinkingLevel. Mandare i parametri vecchi da errore 400.
+        const isG3 = /gemini-[3-9]/i.test(name);
+        const genCfg = { responseMimeType: "application/json", maxOutputTokens: 8192 };
+        if (!isG3) genCfg.temperature = 0.1;
+        if (noThink !== false) {
+          genCfg.thinkingConfig = isG3 ? { thinkingLevel: "low" } : { thinkingBudget: 0 };
+        }
         let gRes;
         const ac = new AbortController();
         const killer = setTimeout(() => { try { ac.abort(); } catch (_) {} }, 22000);
@@ -107,7 +113,7 @@ export default {
         for (let attempt = 0; attempt < 2; attempt++) {
           if (Date.now() - T0 > 70000) break outer;
           let r = await callModel(name);
-          if (!r.text && /thinking|budget/i.test(String(r.error))) r = await callModel(name, false);
+          if (!r.text && /thinking|budget|level|temperature/i.test(String(r.error))) r = await callModel(name, false);
           if (r.text) { resultText = r.text; usedModel = name; break outer; }
           lastErr = "Google (" + name + "): " + String(r.error).slice(0, 200);
           if (TRANSIENT.test(String(r.error)) && attempt === 0) { await sleep(700); continue; }
@@ -181,9 +187,9 @@ const CACHE_TTL = 6 * 60 * 60 * 1000; // 6 ore
    I modelli leggeri leggevano male le tabelle di marcia (un T.C. in piu') e i
    risultati cambiavano da un giorno all'altro senza che il codice cambiasse.
    Meglio un errore chiaro ("riprova") che una lettura sbagliata presa per buona.
-   Da rivedere entro il 16 ottobre 2026 (ritiro dei modelli Gemini 2.5). */
+   Google ha chiuso gemini-2.5-flash ai nuovi utenti: il sostituto indicato e' 3.6-flash. */
 const PREFERRED = [
-  "gemini-2.5-flash",
+  "gemini-3.6-flash",
 ];
 const PIN_MODEL = true;   // true = usa solo la lista qui sopra, niente scelta automatica
 async function getRanked(env) {
@@ -202,7 +208,7 @@ async function getRanked(env) {
   const usable = (listData.models || []).filter(m =>
     (m.supportedGenerationMethods || []).includes("generateContent") &&
     /gemini/i.test(m.name) &&
-    !/(image|tts|audio|live|embedding|aqa|thinking)/i.test(m.name)
+    !/(image|tts|audio|live|embedding|aqa)/i.test(m.name)
   );
   const ver = m => { const x = String(m.name).match(/gemini-(\d+(?:\.\d+)?)/i); return x ? parseFloat(x[1]) : 0; };
   const byNewest = arr => arr.slice().sort((a, b) => ver(b) - ver(a));
