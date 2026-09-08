@@ -719,7 +719,7 @@
   <h2 data-t="introTitle"></h2>
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
-  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-07.1</p>
+  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-07.2</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -4991,14 +4991,20 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
     const start=(readHM(0,'actualStart')!=null)?readHM(0,'actualStart'):readHM(0,'dueStart');
     for(const k in tcDue) delete tcDue[k];
     if(start==null){ BANDS.forEach((b,i)=>{ if(i>0){ setHM(i,'dueTime',null); if(b.kind==='ss') setHM(i,'provStart',null); } }); if(curIdx!=null && cfg.tcards[curIdx]) cfg.tcards[curIdx].sched=[]; scheduleSoon(); return; }
+    /* "ideal" e' la catena teorica pura (dalla partenza, sommando i tempi imposti).
+       "D" e' lo scarto rispetto alla realta': OGNI orario reale che scrivi
+       (partenza effettiva di una PS oppure ORA TIMBRO) lo ridefinisce, in ritardo
+       o in anticipo. Da li' in poi tutti i teorici successivi slittano, sveglie comprese. */
     let ideal=start, D=0;
     for(let i=1;i<BANDS.length;i++){
       const b=BANDS[i]; const tg=tmin(b.target); const t=isNaN(tg)?0:tg;
       if(b.kind==='ss'){
         const ssIdeal=ideal+off; setHM(i,'provStart',ssIdeal+D);
-        const act=readHM(i,'ssStart'); if(act!=null){ const late=act-(ssIdeal+D); if(late>0) D+=late; }
-        ideal=ssIdeal+t; setHM(i,'dueTime',ideal+D); tcDue[i]=ideal+D;
-      } else { ideal=ideal+t; setHM(i,'dueTime',ideal+D); tcDue[i]=ideal+D; }
+        const act=readHM(i,'ssStart'); if(act!=null) D = act - ssIdeal;
+        ideal=ssIdeal+t;
+      } else { ideal=ideal+t; }
+      setHM(i,'dueTime',ideal+D); tcDue[i]=ideal+D;
+      const st=readHM(i,'stamp'); if(st!=null) D = st - ideal;
     }
     if(curIdx!=null && cfg.tcards[curIdx]){
       const sc=[]; BANDS.forEach((b,i)=>{ if(i>0 && alarmOn[i] && tcDue[i]!=null) sc.push({band:i, code:b.code, due:tcDue[i]}); });
