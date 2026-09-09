@@ -4,7 +4,7 @@ const SUPPORT_EMAIL = "iRallySupport@icloud.com";
 export default {
   async fetch(request, env, ctx) {
     if (new URL(request.url).pathname === "/version") {
-      return new Response("iRally worker v5 (radar: gemini-3.5-flash-lite - tabella: gemini-3.6-flash, fissi)", { headers: { "content-type": "text/plain" } });
+      return new Response("iRally worker v6 (gemini-3.6-flash fisso su radar e tabella)", { headers: { "content-type": "text/plain" } });
     }
     if (new URL(request.url).pathname === "/usage") {
       const mk = "tok:" + new Date().toISOString().slice(0, 7);
@@ -198,9 +198,12 @@ const CACHE_TTL = 6 * 60 * 60 * 1000; // 6 ore
      3.5-flash-lite  0,30 / 2,50   ~0,002 $ a pagina
      3.6-flash       1,50 / 7,50   ~0,008 $ a pagina */
 const PREFERRED_BY_MODE = {
-  radar:    ["gemini-3.5-flash-lite"],
+  radar:    ["gemini-3.6-flash"],
   timecard: ["gemini-3.6-flash"],
 };
+/* PROVATO E BOCCIATO (7 set 2026): gemini-3.5-flash-lite sul radar.
+   Costa 4 volte meno ma risponde con JSON non valido -> "Formato non valido",
+   pagine perse a caso. NON rimetterlo senza una prova su piu' road book. */
 const PIN_MODEL = true;   // true = usa solo i modelli qui sopra, niente scelta automatica
 async function getRanked(env, mode) {
   const PREFERRED = PREFERRED_BY_MODE[mode] || PREFERRED_BY_MODE.radar;
