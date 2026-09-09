@@ -1,0 +1,6 @@
+name = "rally-scan-tc"
+main = "worker-tc.js"
+compatibility_date = "2026-09-07"
+
+# La chiave GEMINI_KEY va messa come "secret" su QUESTO worker
+# (Settings > Variables and Secrets), non qui dentro.
