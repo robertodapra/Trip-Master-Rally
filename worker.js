@@ -4,7 +4,7 @@ const SUPPORT_EMAIL = "iRallySupport@icloud.com";
 export default {
   async fetch(request, env, ctx) {
     if (new URL(request.url).pathname === "/version") {
-      return new Response("iRally worker v8 (gemini-3.6-flash fisso, 3 tentativi rapidi)", { headers: { "content-type": "text/plain" } });
+      return new Response("iRally worker v9 (gemini-3.6-flash fisso, thinking minimal)", { headers: { "content-type": "text/plain" } });
     }
     if (new URL(request.url).pathname === "/usage") {
       const mk = "tok:" + new Date().toISOString().slice(0, 7);
@@ -67,7 +67,10 @@ export default {
         const genCfg = { responseMimeType: "application/json", maxOutputTokens: 8192 };
         if (!isG3) genCfg.temperature = 0.1;
         if (noThink !== false) {
-          genCfg.thinkingConfig = isG3 ? { thinkingLevel: "low" } : { thinkingBudget: 0 };
+          /* "minimal" e' l'equivalente di thinkingBudget:0 sui Gemini 3 (migrazione
+             indicata da Google). Con "low" il modello ragiona comunque: risposta
+             lenta e token di ragionamento pagati come output a 7,50$/M. */
+          genCfg.thinkingConfig = isG3 ? { thinkingLevel: "minimal" } : { thinkingBudget: 0 };
         }
         let gRes;
         const ac = new AbortController();
