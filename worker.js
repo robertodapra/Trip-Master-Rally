@@ -4,7 +4,7 @@ const SUPPORT_EMAIL = "iRallySupport@icloud.com";
 export default {
   async fetch(request, env, ctx) {
     if (new URL(request.url).pathname === "/version") {
-      return new Response("iRally worker v7 (gemini-3.6-flash fisso, 5 tentativi su errore temporaneo)", { headers: { "content-type": "text/plain" } });
+      return new Response("iRally worker v8 (gemini-3.6-flash fisso, 3 tentativi rapidi)", { headers: { "content-type": "text/plain" } });
     }
     if (new URL(request.url).pathname === "/usage") {
       const mk = "tok:" + new Date().toISOString().slice(0, 7);
@@ -108,14 +108,14 @@ export default {
       const T0 = Date.now();
       outer:
       for (let i = 0; i < maxModels; i++) {
-        if (Date.now() - T0 > 70000) break;
+        if (Date.now() - T0 > 40000) break;
         const name = ranked[i];
         /* Con il modello bloccato non c'e' un ripiego: su errore temporaneo
            ("high demand", 503, timeout) conviene insistere sullo stesso modello
            con attese crescenti, invece di arrendersi al primo tentativo. */
-        const BACKOFF = [700, 2000, 5000, 9000];
+        const BACKOFF = [800, 2500];   /* 3 tentativi in tutto: oltre, l'attesa dell'utente conta piu' del tentativo */
         for (let attempt = 0; attempt <= BACKOFF.length; attempt++) {
-          if (Date.now() - T0 > 70000) break outer;
+          if (Date.now() - T0 > 40000) break outer;   /* lascia tempo alla risposta invece di far girare la rotella */
           let r = await callModel(name);
           if (!r.text && /thinking|budget|level|temperature/i.test(String(r.error))) r = await callModel(name, false);
           if (r.text) { resultText = r.text; usedModel = name; break outer; }
