@@ -719,7 +719,7 @@
   <h2 data-t="introTitle"></h2>
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
-  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-07.3</p>
+  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-07.5</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -4838,7 +4838,25 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
     try{
       const b64=toB64(src,1800);
       if(window.__scanBusy) window.__scanBusy(true);
-      let res; try{ res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','X-App-Key':window.__rallyAuth.key},body:JSON.stringify({image:b64,mode:'timecard',device:window.__rallyAuth.device})}); } finally { if(window.__scanBusy) window.__scanBusy(false); }
+      /* tempo massimo di attesa: senza, se la risposta non arriva la rotella
+         gira all'infinito invece di dire cosa e' successo. Il worker si ferma
+         da solo entro ~40 s, quindi 75 s e' abbondante. */
+      const TC_TIMEOUT = 25000;   /* normale ~5 s; il worker si arrende da solo entro ~15 s */
+      const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+      const tmo = setTimeout(function(){ try{ ctrl && ctrl.abort(); }catch(_){} }, TC_TIMEOUT);
+      const t0 = Date.now();
+      const tick = setInterval(function(){
+        if(window.__scanBusy) window.__scanBusy(true, t('tcReading')+' \u00B7 '+Math.round((Date.now()-t0)/1000)+' s');
+      }, 1000);
+      let res;
+      try{
+        res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','X-App-Key':window.__rallyAuth.key},body:JSON.stringify({image:b64,mode:'timecard',device:window.__rallyAuth.device}),signal: ctrl?ctrl.signal:undefined});
+      } catch(e){
+        throw new Error(e && e.name==='AbortError' ? 'tempo scaduto (25 s): riprova' : 'rete');
+      } finally {
+        clearTimeout(tmo); clearInterval(tick);
+        if(window.__scanBusy) window.__scanBusy(false);
+      }
       const data=await res.json();
       if(data.error){ setTxt('\u26A0\uFE0F '+data.error); return; }
       if(!data.card){ setTxt(t('tcNoData')); return; }
