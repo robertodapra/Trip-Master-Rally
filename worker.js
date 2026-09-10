@@ -4,7 +4,8 @@ const SUPPORT_EMAIL = "iRallySupport@icloud.com";
 export default {
   async fetch(request, env, ctx) {
     if (new URL(request.url).pathname === "/version") {
-      return new Response("iRally worker v9 (gemini-3.6-flash fisso, thinking minimal)", { headers: { "content-type": "text/plain" } });
+      const m = (env && env.MODEL && String(env.MODEL).trim()) || PREFERRED_BY_MODE.radar[0];
+      return new Response("iRally worker RADAR v10 - modello: " + m + (env && env.MODEL ? " (da variabile MODEL)" : " (predefinito)"), { headers: { "content-type": "text/plain" } });
     }
     if (new URL(request.url).pathname === "/usage") {
       const mk = "tok:" + new Date().toISOString().slice(0, 7);
@@ -213,9 +214,12 @@ const PREFERRED_BY_MODE = {
    pagine perse a caso. NON rimetterlo senza una prova su piu' road book. */
 const PIN_MODEL = true;   // true = usa solo i modelli qui sopra, niente scelta automatica
 async function getRanked(env, mode) {
-  const PREFERRED = PREFERRED_BY_MODE[mode] || PREFERRED_BY_MODE.radar;
+  /* Variabile MODEL nel pannello Cloudflare (Settings > Variables): se c'e',
+     comanda lei. Cosi' si prova un modello diverso senza toccare il codice. */
+  const override = env && env.MODEL && String(env.MODEL).trim();
+  const PREFERRED = override ? [override] : (PREFERRED_BY_MODE[mode] || PREFERRED_BY_MODE.radar);
   const now = Date.now();
-  const ck = mode === "timecard" ? "timecard" : "radar";
+  const ck = (mode === "timecard" ? "timecard" : "radar") + ":" + PREFERRED.join(",");   /* cache separata per modello */
   if (CACHE[ck] && (now - CACHE.at) < CACHE_TTL) return CACHE[ck];
 
   const listRes = await fetch("https://generativelanguage.googleapis.com/v1beta/models", {
