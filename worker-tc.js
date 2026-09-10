@@ -12,7 +12,7 @@
 /* Il modello si sceglie dal pannello Cloudflare (Settings > Variables > MODEL),
    senza toccare il codice: cosi' si provano modelli piu' economici in
    sicurezza, uno alla volta. Se la variabile manca, vale questo. */
-const DEFAULT_MODEL = "gemini-3.6-flash";
+const DEFAULT_MODEL = "gemini-3.1-flash-lite";   // provato il 10 set 2026 su Il Ciocco: legge bene, 6x piu' economico del 3.6
 const APP_KEY = "iRallyK3y9Xq7SdP2vLm2026";   // stessa stringa dell'app
 const TIMEOUT_MS = 20000;                      // oltre, meglio un errore chiaro che far aspettare
 
@@ -62,7 +62,7 @@ export default {
 
     const MODEL = (env && env.MODEL && String(env.MODEL).trim()) || DEFAULT_MODEL;
     if (url.pathname === "/version") {
-      return new Response("iRally worker TABELLA v2 - modello: " + MODEL
+      return new Response("iRally worker TABELLA v3 - modello: " + MODEL
         + (env && env.MODEL ? " (da variabile MODEL)" : " (predefinito)"),
         { headers: { "content-type": "text/plain" } });
     }
