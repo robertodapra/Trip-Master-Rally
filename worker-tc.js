@@ -9,7 +9,10 @@
    ritentare, si aggiunge QUI e non altrove.
    ============================================================ */
 
-const MODEL = "gemini-3.6-flash";
+/* Il modello si sceglie dal pannello Cloudflare (Settings > Variables > MODEL),
+   senza toccare il codice: cosi' si provano modelli piu' economici in
+   sicurezza, uno alla volta. Se la variabile manca, vale questo. */
+const DEFAULT_MODEL = "gemini-3.6-flash";
 const APP_KEY = "iRallyK3y9Xq7SdP2vLm2026";   // stessa stringa dell'app
 const TIMEOUT_MS = 20000;                      // oltre, meglio un errore chiaro che far aspettare
 
@@ -57,8 +60,10 @@ export default {
       "Access-Control-Allow-Headers": "Content-Type, X-App-Key",
     };
 
+    const MODEL = (env && env.MODEL && String(env.MODEL).trim()) || DEFAULT_MODEL;
     if (url.pathname === "/version") {
-      return new Response("iRally worker TABELLA v1 (" + MODEL + ", una chiamata, no ripieghi)",
+      return new Response("iRally worker TABELLA v2 - modello: " + MODEL
+        + (env && env.MODEL ? " (da variabile MODEL)" : " (predefinito)"),
         { headers: { "content-type": "text/plain" } });
     }
     if (request.method === "OPTIONS") return new Response(null, { headers: cors });
@@ -112,7 +117,21 @@ export default {
       }
       clearTimeout(tmo);
 
-      const data = await res.json();
+      let data = await res.json();
+
+      /* "high demand" / 503 = Google sovraccarico per pochi secondi.
+         UN solo ritentativo dopo 2,5 s: di piu' significherebbe far aspettare. */
+      if (data.error && /high demand|overload|unavailable|\b503\b/i.test(String(data.error.message || ""))) {
+        await new Promise(r => setTimeout(r, 2500));
+        try {
+          const res2 = await fetch(
+            "https://generativelanguage.googleapis.com/v1beta/models/" + MODEL + ":generateContent",
+            { method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": env.GEMINI_KEY }, body: JSON.stringify(payload) }
+          );
+          data = await res2.json();
+        } catch (_) { /* si tiene l'errore del primo tentativo */ }
+      }
+
       const secs = Math.round((Date.now() - T0) / 1000);
 
       /* errore di Google riportato COM'E': niente messaggi generici,
