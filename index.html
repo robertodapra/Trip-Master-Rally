@@ -719,7 +719,7 @@
   <h2 data-t="introTitle"></h2>
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
-  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-07.6</p>
+  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-11.1</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -824,8 +824,16 @@
 #tcMenu #tc_modeRow{align-items:center;gap:8px;font-size:13px;color:var(--muted);margin-bottom:10px}
 #tcMenu .tc-mbtn{padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--muted);font-size:13px;font-weight:700}
 #tcMenu .tc-mbtn.on{border-color:var(--green);color:var(--green)}
-#tcMenu .tc-set{margin-bottom:8px}
-#tcMenu .tc-setrow{display:flex;align-items:center;gap:7px;flex-wrap:nowrap;font-size:13px;color:var(--muted);margin-bottom:6px;white-space:nowrap}
+#tcMenu .tc-set{margin-bottom:12px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:4px 12px}
+#tcMenu .tc-setrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line);white-space:nowrap}
+#tcMenu .tc-setrow:last-child{border-bottom:none}
+#tcMenu .tc-setlab{font-size:14px;color:var(--text);font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+#tcMenu .tc-setval{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);flex-shrink:0}
+#tcMenu .tc-seg{gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+#tcMenu .tc-seg .tc-mbtn{border:none;border-radius:0;padding:7px 12px}
+#tcMenu .tc-seg .tc-mbtn.on{background:var(--green);color:#000}
+#tcMenu .tc-sethint{font-size:12px;color:var(--muted);padding:0 0 10px;margin-top:-4px;line-height:1.4;white-space:normal;border-bottom:1px solid var(--line)}
+#tcMenu .tc-set .tc-editbtn{width:auto;margin:0;padding:7px 14px;font-size:13px}
 #tcMenu .tc-set select{padding:6px 8px;border-radius:8px;border:1px solid var(--amber);background:var(--panel);color:var(--amber);font-size:15px;font-weight:800}
 #tcMenu .tc-editbtn{display:block;width:100%;box-sizing:border-box;padding:10px;border-radius:9px;border:1px solid var(--line);background:var(--panel);color:var(--muted);font-size:14px;font-weight:700;margin-bottom:12px}
 #tcMenu .tc-editbtn.on{border-color:var(--amber);color:var(--amber)}
@@ -1431,8 +1439,15 @@ it:{introTitle:"Come funziona",
   tcScanPage:"📷 Scansiona pagina",
   tcScanHint:"(si somma)",
   tcInsert:"Inserimento:",
-  tcWheel:"Rotelle",
-  tcKeyboard:"Tastiera",
+  tcWheel:"Scorri",
+  tcKeyboard:"Scrivi",
+  tcAlarmLbl:"Sveglia timbro",
+  tcStartSsLbl:"Partenza PS dopo il timbro",
+  tcInsertLbl:"Come inserisci gli orari",
+  tcInsertHint:"Scorri: scegli ore e minuti da un elenco. Scrivi: digiti le cifre sulla tastiera.",
+  tcEditLbl:"Correggi i tempi imposti",
+  tcEditOff:"Modifica",
+  tcEditOn:"Fine",
   tcEmptyLib:"Nessuna tabella salvata. Tocca “+ Nuova tabella di marcia”, poi scansiona tutte le pagine (i TC si sommano).",
   tcEmptyCard:"Ancora nessun TC. Tocca “📷 Scansiona pagina” e fotografa la time card. Ogni pagina in più si somma.",
   tcFolderEmpty:"Cartella vuota. Sposta qui una tabella con 📁.",
@@ -1594,8 +1609,15 @@ en:{introTitle:"How it works",
   tcScanPage:"📷 Scan page",
   tcScanHint:"(adds up)",
   tcInsert:"Input:",
-  tcWheel:"Wheels",
-  tcKeyboard:"Keyboard",
+  tcWheel:"Scroll",
+  tcKeyboard:"Type",
+  tcAlarmLbl:"Stamp alarm",
+  tcStartSsLbl:"SS start after the stamp",
+  tcInsertLbl:"How you enter times",
+  tcInsertHint:"Scroll: pick hours and minutes from a list. Type: enter the digits on the keyboard.",
+  tcEditLbl:"Fix target times",
+  tcEditOff:"Edit",
+  tcEditOn:"Done",
   tcEmptyLib:"No time card saved. Tap “+ New time card”, then scan all the pages (the TCs add up).",
   tcEmptyCard:"No TC yet. Tap “📷 Scan page” and photograph the time card. Each extra page adds up.",
   tcFolderEmpty:"Empty folder. Move a card here with 📁.",
@@ -1626,6 +1648,50 @@ en:{introTitle:"How it works",
   soundDefault:"Default",
   soundPlay:"Play"},
 fr:{introTitle:"Comment ça marche",
+  tut1Title:"Flèches",
+  tut1Text:"Elles font défiler les repères en avant ou en arrière. La mesure ne change pas, ni sur le partiel ni sur le total.",
+  tut2Title:"Photo du repère",
+  tut2Text:"Pour chaque repère tu vois le numéro, la photo de la note et la distance jusqu'au suivant.",
+  tut3Title:"Touche le partiel",
+  tut3Text:"Une touche remet le partiel à zéro et passe directement au repère suivant.",
+  tut4Title:"Maintiens le partiel",
+  tut4Text:"Maintiens 1 seconde pour recaler l'écart GPS et remettre le partiel à zéro.",
+  tut5Title:"Maintiens le total",
+  tut5Text:"Maintiens 2 secondes pour remettre le total à zéro, par exemple au départ de la spéciale.",
+  tutNext:"Suivant",
+  tutFinish:"Terminé",
+  tutSkip:"Passer",
+  tutDontShow:"Ne plus afficher ce guide",
+  rbNewPdf:"📄 Importer depuis un road book PDF",
+  pdfImpTitle:"Importer depuis un PDF",
+  pdfImpDesc:"Je repère automatiquement les spéciales dans le PDF. Vérifie les miniatures et les noms avant de confirmer : tu peux les corriger ou exclure celles dont tu n'as pas besoin.",
+  pdfImpLoadingTxt:"Analyse du PDF…",
+  pdfImpAddManual:"+ Ajouter manuellement une plage de pages",
+  pdfImpConfirmBtn:"Importer la sélection",
+  pdfImpNoGroups:"Je n'ai reconnu aucune spéciale automatiquement. Utilise « Ajouter manuellement » pour indiquer les pages.",
+  pdfImpPages:"Pages {a}–{b}",
+  pdfImpNameLbl:"Nom de la spéciale",
+  pdfImpFrom:"De la page",
+  pdfImpTo:"À la page",
+  pdfImpAdd:"Ajouter",
+  pdfImpAnalyzing:"Lecture de la page {i} sur {n}…",
+  pdfImpRendering:"Préparation des pages de « {name} » ({i}/{n})…",
+  pdfImpDone:"Import terminé",
+  pdfImpErrFile:"Je n'arrive pas à lire ce PDF.",
+  pdfImpUnnamed:"Spéciale (p. {a}-{b})",
+  pdfImpConfirmN:"Importer {n} spéciales",
+  pdfImpRepeat:"répétition",
+  pdfImpShowOthers:"Afficher aussi les autres sections sans nom ({n})",
+  pdfImpHideOthers:"Masquer les autres sections ({n})",
+  pdfImpDoneN:"{n} spéciales importées : elles sont listées ci-dessous, prêtes pour le Radar",
+  pdfImpErrRange:"Plage de pages non valide.",
+  tcAlarmLbl:"Alerte pointage",
+  tcStartSsLbl:"Départ ES après le pointage",
+  tcInsertLbl:"Saisie des horaires",
+  tcInsertHint:"Défiler : choisis heures et minutes dans une liste. Saisir : tape les chiffres au clavier.",
+  tcEditLbl:"Corriger les temps impartis",
+  tcEditOff:"Modifier",
+  tcEditOn:"Terminé",
   ssMore:"Plus",ssRename:"Renommer",ssDelete:"Supprimer",
   impTitle:"Données iRally reçues",impBody:"Le fichier contient {s} spéciales et {t} carnets.",
   impAdd:"Ajouter à mes spéciales",impReplace:"Tout remplacer",impBad:"Fichier non valide : ce n'est pas un fichier iRally.",impErr:"Erreur lors de la restauration :",
@@ -1733,8 +1799,8 @@ fr:{introTitle:"Comment ça marche",
   tcScanPage:"📷 Scanner la page",
   tcScanHint:"(s’additionne)",
   tcInsert:"Saisie :",
-  tcWheel:"Molettes",
-  tcKeyboard:"Clavier",
+  tcWheel:"Défiler",
+  tcKeyboard:"Saisir",
   tcEmptyLib:"Aucun carnet enregistré. Touche « + Nouveau carnet », puis scanne toutes les pages (les CH s’additionnent).",
   tcEmptyCard:"Aucun CH pour l’instant. Touche « 📷 Scanner la page » et photographie le carnet. Chaque page en plus s’additionne.",
   tcFolderEmpty:"Dossier vide. Déplace un carnet ici avec 📁.",
@@ -1765,6 +1831,50 @@ fr:{introTitle:"Comment ça marche",
   soundDefault:"Par défaut",
   soundPlay:"Écouter"},
 es:{introTitle:"Cómo funciona",
+  tut1Title:"Flechas",
+  tut1Text:"Úsalas para avanzar o retroceder entre los símbolos. La medición no cambia, ni en el parcial ni en el total.",
+  tut2Title:"Foto de la referencia",
+  tut2Text:"En cada referencia ves el número, la foto de la nota y la distancia hasta la siguiente.",
+  tut3Title:"Toca el parcial",
+  tut3Text:"Un toque pone el parcial a cero y pasa directo a la referencia siguiente.",
+  tut4Title:"Mantén pulsado el parcial",
+  tut4Text:"Mantén 1 segundo para realinear el desfase del GPS y poner el parcial a cero.",
+  tut5Title:"Mantén pulsado el total",
+  tut5Text:"Mantén 2 segundos para poner el total a cero, por ejemplo en la salida del tramo.",
+  tutNext:"Siguiente",
+  tutFinish:"Hecho",
+  tutSkip:"Saltar",
+  tutDontShow:"No volver a mostrar esta guía",
+  rbNewPdf:"📄 Importar desde road book PDF",
+  pdfImpTitle:"Importar desde PDF",
+  pdfImpDesc:"Localizo automáticamente los tramos en el PDF. Revisa las miniaturas y los nombres antes de confirmar: puedes corregirlos o excluir los que no necesites.",
+  pdfImpLoadingTxt:"Analizando el PDF…",
+  pdfImpAddManual:"+ Añadir manualmente un rango de páginas",
+  pdfImpConfirmBtn:"Importar seleccionados",
+  pdfImpNoGroups:"No he reconocido ningún tramo automáticamente. Usa «Añadir manualmente» para indicar las páginas.",
+  pdfImpPages:"Páginas {a}–{b}",
+  pdfImpNameLbl:"Nombre del tramo",
+  pdfImpFrom:"Desde página",
+  pdfImpTo:"Hasta página",
+  pdfImpAdd:"Añadir",
+  pdfImpAnalyzing:"Leyendo página {i} de {n}…",
+  pdfImpRendering:"Preparando las páginas de «{name}» ({i}/{n})…",
+  pdfImpDone:"Importación completada",
+  pdfImpErrFile:"No puedo leer este PDF.",
+  pdfImpUnnamed:"Tramo (pág. {a}-{b})",
+  pdfImpConfirmN:"Importar {n} tramos",
+  pdfImpRepeat:"repetición",
+  pdfImpShowOthers:"Mostrar también las otras secciones sin nombre ({n})",
+  pdfImpHideOthers:"Ocultar las otras secciones ({n})",
+  pdfImpDoneN:"{n} tramos importados: están en la lista de abajo, listos para el Radar",
+  pdfImpErrRange:"Rango de páginas no válido.",
+  tcAlarmLbl:"Alarma de sello",
+  tcStartSsLbl:"Salida TC después del sello",
+  tcInsertLbl:"Cómo introduces las horas",
+  tcInsertHint:"Desplazar: elige horas y minutos de una lista. Escribir: teclea las cifras.",
+  tcEditLbl:"Corregir tiempos impuestos",
+  tcEditOff:"Editar",
+  tcEditOn:"Hecho",
   ssMore:"Más",ssRename:"Renombrar",ssDelete:"Eliminar",
   impTitle:"Datos iRally recibidos",impBody:"El archivo contiene {s} tramos y {t} tablas.",
   impAdd:"Añadir a mis tramos",impReplace:"Sustituir todo",impBad:"Archivo no válido: no parece un archivo iRally.",impErr:"Error al restaurar:",
@@ -1872,8 +1982,8 @@ es:{introTitle:"Cómo funciona",
   tcScanPage:"📷 Escanear página",
   tcScanHint:"(se suma)",
   tcInsert:"Entrada:",
-  tcWheel:"Ruedas",
-  tcKeyboard:"Teclado",
+  tcWheel:"Desplazar",
+  tcKeyboard:"Escribir",
   tcEmptyLib:"No hay carnés guardados. Toca «+ Nuevo carné» y escanea todas las páginas (los CH se suman).",
   tcEmptyCard:"Aún no hay CH. Toca «📷 Escanear página» y fotografía el carné. Cada página más se suma.",
   tcFolderEmpty:"Carpeta vacía. Mueve un carné aquí con 📁.",
@@ -1904,6 +2014,50 @@ es:{introTitle:"Cómo funciona",
   soundDefault:"Predeterminado",
   soundPlay:"Escuchar"},
 de:{introTitle:"So funktioniert es",
+  tut1Title:"Pfeile",
+  tut1Text:"Damit blätterst du vor oder zurück durch die Symbole. Die Messung ändert sich nicht, weder Teilstrecke noch Gesamt.",
+  tut2Title:"Foto des Bezugspunkts",
+  tut2Text:"Zu jedem Bezugspunkt siehst du die Nummer, das Foto der Notiz und die Distanz bis zum nächsten.",
+  tut3Title:"Teilstrecke antippen",
+  tut3Text:"Ein Tipp stellt die Teilstrecke auf null und springt direkt zum nächsten Bezugspunkt.",
+  tut4Title:"Teilstrecke gedrückt halten",
+  tut4Text:"1 Sekunde halten, um den GPS-Versatz neu auszurichten und die Teilstrecke auf null zu stellen.",
+  tut5Title:"Gesamt gedrückt halten",
+  tut5Text:"2 Sekunden halten, um den Gesamtwert auf null zu stellen, z. B. am Start der Prüfung.",
+  tutNext:"Weiter",
+  tutFinish:"Fertig",
+  tutSkip:"Überspringen",
+  tutDontShow:"Diese Anleitung nicht mehr anzeigen",
+  rbNewPdf:"📄 Aus Roadbook-PDF importieren",
+  pdfImpTitle:"Aus PDF importieren",
+  pdfImpDesc:"Ich finde die Prüfungen im PDF automatisch. Prüfe Vorschau und Namen vor dem Bestätigen: du kannst sie korrigieren oder nicht benötigte ausschließen.",
+  pdfImpLoadingTxt:"PDF wird analysiert…",
+  pdfImpAddManual:"+ Seitenbereich manuell hinzufügen",
+  pdfImpConfirmBtn:"Auswahl importieren",
+  pdfImpNoGroups:"Ich konnte keine Prüfung automatisch erkennen. Nutze „Manuell hinzufügen“, um die Seiten anzugeben.",
+  pdfImpPages:"Seiten {a}–{b}",
+  pdfImpNameLbl:"Name der Prüfung",
+  pdfImpFrom:"Von Seite",
+  pdfImpTo:"Bis Seite",
+  pdfImpAdd:"Hinzufügen",
+  pdfImpAnalyzing:"Seite {i} von {n} wird gelesen…",
+  pdfImpRendering:"Seiten von „{name}“ werden vorbereitet ({i}/{n})…",
+  pdfImpDone:"Import abgeschlossen",
+  pdfImpErrFile:"Dieses PDF kann ich nicht lesen.",
+  pdfImpUnnamed:"Prüfung (S. {a}-{b})",
+  pdfImpConfirmN:"{n} Prüfungen importieren",
+  pdfImpRepeat:"Wiederholung",
+  pdfImpShowOthers:"Auch die anderen unbenannten Abschnitte anzeigen ({n})",
+  pdfImpHideOthers:"Andere Abschnitte ausblenden ({n})",
+  pdfImpDoneN:"{n} Prüfungen importiert: sie stehen unten in der Liste, bereit für Radar",
+  pdfImpErrRange:"Ungültiger Seitenbereich.",
+  tcAlarmLbl:"Stempel-Wecker",
+  tcStartSsLbl:"WP-Start nach dem Stempel",
+  tcInsertLbl:"Zeiteingabe",
+  tcInsertHint:"Scrollen: Stunden und Minuten aus einer Liste wählen. Tippen: Ziffern über die Tastatur eingeben.",
+  tcEditLbl:"Sollzeiten korrigieren",
+  tcEditOff:"Bearbeiten",
+  tcEditOn:"Fertig",
   ssMore:"Mehr",ssRename:"Umbenennen",ssDelete:"Löschen",
   impTitle:"iRally-Daten empfangen",impBody:"Die Datei enthält {s} Prüfungen und {t} Bordkarten.",
   impAdd:"Zu meinen Prüfungen hinzufügen",impReplace:"Alles ersetzen",impBad:"Ungültige Datei: das ist keine iRally-Datei.",impErr:"Fehler beim Wiederherstellen:",
@@ -2011,8 +2165,8 @@ de:{introTitle:"So funktioniert es",
   tcScanPage:"📷 Seite scannen",
   tcScanHint:"(wird addiert)",
   tcInsert:"Eingabe:",
-  tcWheel:"Räder",
-  tcKeyboard:"Tastatur",
+  tcWheel:"Scrollen",
+  tcKeyboard:"Tippen",
   tcEmptyLib:"Keine Bordkarte gespeichert. Tippe auf „+ Neue Bordkarte“ und scanne alle Seiten (die ZK werden addiert).",
   tcEmptyCard:"Noch keine ZK. Tippe auf „📷 Seite scannen“ und fotografiere die Bordkarte. Jede weitere Seite wird addiert.",
   tcFolderEmpty:"Leerer Ordner. Verschiebe eine Karte mit 📁 hierher.",
@@ -2043,6 +2197,50 @@ de:{introTitle:"So funktioniert es",
   soundDefault:"Standard",
   soundPlay:"Anhören"},
 pt:{introTitle:"Como funciona",
+  tut1Title:"Setas",
+  tut1Text:"Usa-as para avançar ou recuar entre os símbolos. A medição não muda, nem no parcial nem no total.",
+  tut2Title:"Foto da referência",
+  tut2Text:"Em cada referência vês o número, a foto da nota e a distância até à seguinte.",
+  tut3Title:"Toca no parcial",
+  tut3Text:"Um toque zera o parcial e passa logo para a referência seguinte.",
+  tut4Title:"Mantém premido o parcial",
+  tut4Text:"Mantém 1 segundo para realinhar o desvio do GPS e zerar o parcial.",
+  tut5Title:"Mantém premido o total",
+  tut5Text:"Mantém 2 segundos para zerar o total, por exemplo na partida da prova.",
+  tutNext:"Seguinte",
+  tutFinish:"Concluído",
+  tutSkip:"Saltar",
+  tutDontShow:"Não mostrar mais este guia",
+  rbNewPdf:"📄 Importar de road book PDF",
+  pdfImpTitle:"Importar de PDF",
+  pdfImpDesc:"Encontro automaticamente as provas no PDF. Verifica as miniaturas e os nomes antes de confirmar: podes corrigi-los ou excluir as que não precisas.",
+  pdfImpLoadingTxt:"A analisar o PDF…",
+  pdfImpAddManual:"+ Adicionar manualmente um intervalo de páginas",
+  pdfImpConfirmBtn:"Importar selecionadas",
+  pdfImpNoGroups:"Não reconheci nenhuma prova automaticamente. Usa «Adicionar manualmente» para indicar as páginas.",
+  pdfImpPages:"Páginas {a}–{b}",
+  pdfImpNameLbl:"Nome da prova",
+  pdfImpFrom:"Da página",
+  pdfImpTo:"À página",
+  pdfImpAdd:"Adicionar",
+  pdfImpAnalyzing:"A ler a página {i} de {n}…",
+  pdfImpRendering:"A preparar as páginas de «{name}» ({i}/{n})…",
+  pdfImpDone:"Importação concluída",
+  pdfImpErrFile:"Não consigo ler este PDF.",
+  pdfImpUnnamed:"Prova (pág. {a}-{b})",
+  pdfImpConfirmN:"Importar {n} provas",
+  pdfImpRepeat:"repetição",
+  pdfImpShowOthers:"Mostrar também as outras secções sem nome ({n})",
+  pdfImpHideOthers:"Ocultar as outras secções ({n})",
+  pdfImpDoneN:"{n} provas importadas: estão na lista abaixo, prontas para o Radar",
+  pdfImpErrRange:"Intervalo de páginas inválido.",
+  tcAlarmLbl:"Alarme de carimbo",
+  tcStartSsLbl:"Partida PE depois do carimbo",
+  tcInsertLbl:"Como introduzes as horas",
+  tcInsertHint:"Deslizar: escolhe horas e minutos numa lista. Escrever: digita os algarismos no teclado.",
+  tcEditLbl:"Corrigir tempos impostos",
+  tcEditOff:"Editar",
+  tcEditOn:"Concluído",
   ssMore:"Mais",ssRename:"Mudar nome",ssDelete:"Eliminar",
   impTitle:"Dados iRally recebidos",impBody:"O ficheiro contém {s} troços e {t} cartões.",
   impAdd:"Adicionar aos meus troços",impReplace:"Substituir tudo",impBad:"Ficheiro inválido: não parece um ficheiro iRally.",impErr:"Erro ao restaurar:",
@@ -2150,8 +2348,8 @@ pt:{introTitle:"Como funciona",
   tcScanPage:"📷 Digitalizar página",
   tcScanHint:"(soma-se)",
   tcInsert:"Introdução:",
-  tcWheel:"Rodas",
-  tcKeyboard:"Teclado",
+  tcWheel:"Deslizar",
+  tcKeyboard:"Escrever",
   tcEmptyLib:"Nenhum cartão guardado. Toca em «+ Novo cartão» e digitaliza todas as páginas (os CH somam-se).",
   tcEmptyCard:"Ainda sem CH. Toca em «📷 Digitalizar página» e fotografa o cartão. Cada página a mais soma-se.",
   tcFolderEmpty:"Pasta vazia. Move um cartão para aqui com 📁.",
@@ -2182,6 +2380,50 @@ pt:{introTitle:"Como funciona",
   soundDefault:"Predefinido",
   soundPlay:"Ouvir"},
 ja:{introTitle:"使い方",
+  tut1Title:"矢印",
+  tut1Text:"記号を前後に切り替えます。計測は変わりません（区間も合計も）。",
+  tut2Title:"基準点の写真",
+  tut2Text:"各基準点で、番号・ノートの写真・次までの距離が表示されます。",
+  tut3Title:"区間をタップ",
+  tut3Text:"タップすると区間がゼロになり、次の基準点にすぐ進みます。",
+  tut4Title:"区間を長押し",
+  tut4Text:"1秒長押しでGPSのずれを補正し、区間をゼロにします。",
+  tut5Title:"合計を長押し",
+  tut5Text:"2秒長押しで合計をゼロにします。例えばステージのスタート時に。",
+  tutNext:"次へ",
+  tutFinish:"完了",
+  tutSkip:"スキップ",
+  tutDontShow:"このガイドを今後表示しない",
+  rbNewPdf:"📄 ロードブックPDFから読み込む",
+  pdfImpTitle:"PDFから読み込む",
+  pdfImpDesc:"PDF内のステージを自動で探します。確定前にサムネイルと名前を確認してください。修正したり、不要なものを外したりできます。",
+  pdfImpLoadingTxt:"PDFを解析中…",
+  pdfImpAddManual:"+ ページ範囲を手動で追加",
+  pdfImpConfirmBtn:"選択したものを読み込む",
+  pdfImpNoGroups:"ステージを自動で認識できませんでした。「手動で追加」でページを指定してください。",
+  pdfImpPages:"ページ {a}–{b}",
+  pdfImpNameLbl:"ステージ名",
+  pdfImpFrom:"開始ページ",
+  pdfImpTo:"終了ページ",
+  pdfImpAdd:"追加",
+  pdfImpAnalyzing:"{n} ページ中 {i} ページ目を読み取り中…",
+  pdfImpRendering:"「{name}」のページを準備中（{i}/{n}）…",
+  pdfImpDone:"読み込み完了",
+  pdfImpErrFile:"このPDFを読めません。",
+  pdfImpUnnamed:"ステージ（p. {a}-{b}）",
+  pdfImpConfirmN:"{n} 件のステージを読み込む",
+  pdfImpRepeat:"繰り返し",
+  pdfImpShowOthers:"名前のない他のセクションも表示（{n}）",
+  pdfImpHideOthers:"他のセクションを隠す（{n}）",
+  pdfImpDoneN:"{n} 件のステージを読み込みました。下の一覧にあり、レーダーで使えます",
+  pdfImpErrRange:"ページ範囲が無効です。",
+  tcAlarmLbl:"押印アラーム",
+  tcStartSsLbl:"押印後のSSスタート",
+  tcInsertLbl:"時刻の入力方法",
+  tcInsertHint:"スクロール：一覧から時・分を選びます。入力：キーボードで数字を打ちます。",
+  tcEditLbl:"規定時間を修正",
+  tcEditOff:"編集",
+  tcEditOn:"完了",
   ssMore:"その他",ssRename:"名前を変更",ssDelete:"削除",
   impTitle:"iRally のデータを受け取りました",impBody:"このファイルには {s} 件のステージと {t} 件のタイムカードが含まれます。",
   impAdd:"自分のステージに追加",impReplace:"すべて置き換える",impBad:"無効なファイルです: iRally のファイルではないようです。",impErr:"復元中にエラー:",
@@ -2289,8 +2531,8 @@ ja:{introTitle:"使い方",
   tcScanPage:"📷 ページをスキャン",
   tcScanHint:"（加算されます）",
   tcInsert:"入力：",
-  tcWheel:"ホイール",
-  tcKeyboard:"キーボード",
+  tcWheel:"スクロール",
+  tcKeyboard:"入力",
   tcEmptyLib:"保存されたタイムカードはありません。「＋ 新しいタイムカード」をタップし、全ページをスキャンしてください（TCは加算されます）。",
   tcEmptyCard:"まだTCがありません。「📷 ページをスキャン」をタップしてタイムカードを撮影してください。追加のページは加算されます。",
   tcFolderEmpty:"空のフォルダです。📁 でカードをここに移動してください。",
@@ -2321,6 +2563,50 @@ ja:{introTitle:"使い方",
   soundDefault:"デフォルト",
   soundPlay:"再生"},
 cs:{introTitle:"Jak to funguje",
+  tut1Title:"Šipky",
+  tut1Text:"Listují symboly dopředu nebo dozadu. Měření se nemění, ani dílčí, ani celkové.",
+  tut2Title:"Foto bodu",
+  tut2Text:"U každého bodu vidíš číslo, foto poznámky a vzdálenost k dalšímu.",
+  tut3Title:"Klepni na dílčí",
+  tut3Text:"Klepnutí vynuluje dílčí a přejde rovnou na další bod.",
+  tut4Title:"Podrž dílčí",
+  tut4Text:"Podrž 1 sekundu pro zarovnání odchylky GPS a vynulování dílčího.",
+  tut5Title:"Podrž celkem",
+  tut5Text:"Podrž 2 sekundy pro vynulování celkového, například na startu zkoušky.",
+  tutNext:"Další",
+  tutFinish:"Hotovo",
+  tutSkip:"Přeskočit",
+  tutDontShow:"Tuto nápovědu už nezobrazovat",
+  rbNewPdf:"📄 Importovat z PDF road booku",
+  pdfImpTitle:"Import z PDF",
+  pdfImpDesc:"Zkoušky v PDF najdu automaticky. Před potvrzením zkontroluj náhledy a názvy: můžeš je opravit nebo vyřadit ty, které nepotřebuješ.",
+  pdfImpLoadingTxt:"Analyzuji PDF…",
+  pdfImpAddManual:"+ Ručně přidat rozsah stran",
+  pdfImpConfirmBtn:"Importovat vybrané",
+  pdfImpNoGroups:"Automaticky jsem nerozpoznal žádnou zkoušku. Použij „Přidat ručně“ a zadej strany.",
+  pdfImpPages:"Strany {a}–{b}",
+  pdfImpNameLbl:"Název zkoušky",
+  pdfImpFrom:"Od strany",
+  pdfImpTo:"Do strany",
+  pdfImpAdd:"Přidat",
+  pdfImpAnalyzing:"Čtu stranu {i} z {n}…",
+  pdfImpRendering:"Připravuji strany „{name}“ ({i}/{n})…",
+  pdfImpDone:"Import dokončen",
+  pdfImpErrFile:"Toto PDF nedokážu přečíst.",
+  pdfImpUnnamed:"Zkouška (str. {a}-{b})",
+  pdfImpConfirmN:"Importovat {n} zkoušek",
+  pdfImpRepeat:"opakování",
+  pdfImpShowOthers:"Zobrazit i ostatní nepojmenované úseky ({n})",
+  pdfImpHideOthers:"Skrýt ostatní úseky ({n})",
+  pdfImpDoneN:"{n} zkoušek importováno: jsou v seznamu níže, připravené pro Radar",
+  pdfImpErrRange:"Neplatný rozsah stran.",
+  tcAlarmLbl:"Budík razítka",
+  tcStartSsLbl:"Start RZ po razítku",
+  tcInsertLbl:"Jak zadáváš časy",
+  tcInsertHint:"Posunout: vyber hodiny a minuty ze seznamu. Psát: zadej číslice na klávesnici.",
+  tcEditLbl:"Opravit stanovené časy",
+  tcEditOff:"Upravit",
+  tcEditOn:"Hotovo",
   ssMore:"Více",ssRename:"Přejmenovat",ssDelete:"Smazat",
   impTitle:"Přijata data iRally",impBody:"Soubor obsahuje {s} zkoušek a {t} výkazů.",
   impAdd:"Přidat k mým zkouškám",impReplace:"Nahradit vše",impBad:"Neplatný soubor: nevypadá jako soubor iRally.",impErr:"Chyba při obnově:",
@@ -2428,8 +2714,8 @@ cs:{introTitle:"Jak to funguje",
   tcScanPage:"📷 Naskenovat stránku",
   tcScanHint:"(sčítá se)",
   tcInsert:"Zadávání:",
-  tcWheel:"Kolečka",
-  tcKeyboard:"Klávesnice",
+  tcWheel:"Posunout",
+  tcKeyboard:"Psát",
   tcEmptyLib:"Žádný výkaz uložen. Klepni na „+ Nový výkaz“ a naskenuj všechny stránky (ČK se sčítají).",
   tcEmptyCard:"Zatím žádné ČK. Klepni na „📷 Naskenovat stránku“ a vyfoť výkaz. Každá další stránka se přičte.",
   tcFolderEmpty:"Prázdná složka. Přesuň sem výkaz pomocí 📁.",
@@ -2516,7 +2802,7 @@ let cfg = {
   units: 'metric',
   tunnel: true,
   theme: 'dark',
-  notifSound: 'default',
+  notifSound: 'ding.wav',   /* 'default' su iOS non emette suono: i nuovi utenti partono con Ding */
   h24: true
 };
 
@@ -2530,7 +2816,7 @@ try{
     if(!Array.isArray(cfg.tdm)) cfg.tdm = [];
     if(!Array.isArray(cfg.tcards)) cfg.tcards = [];
     if(!Array.isArray(cfg.tcfolders)) cfg.tcfolders = [];
-    if(typeof cfg.notifSound !== 'string') cfg.notifSound = 'default';
+    if(typeof cfg.notifSound !== 'string') cfg.notifSound = 'ding.wav';
     // migrazione tipi timbro vecchi -> nuovi (CO->TC, PS->SS, RIO->Regroup out, PARCO->Service in, CT->TC, ARR->Finish)
     var TDM_MAP = {CO:'TC', PS:'SS', RIO:'RGO', PARCO:'SVI', CT:'TC', ARR:'FIN'};
     cfg.tdm = cfg.tdm.map(function(tab){
@@ -3521,7 +3807,7 @@ function showStageDetail(i){
   });
   const bw=document.createElement('div'); bw.style.cssText='display:flex;flex-direction:column;gap:8px;margin-top:14px';
   const lo=document.createElement('button'); lo.textContent=t('ssLoad'); lo.style.cssText='padding:12px;border-radius:10px;background:var(--green,#39d353);border:none;color:#000;font-weight:800'; lo.addEventListener('click',()=>{ uiClose(ov); loadStage(i); });
-  const ad=document.createElement('button'); ad.textContent='+ '+t('rbAddScan'); ad.style.cssText='padding:12px;border-radius:10px;background:var(--btnbg,#222);border:2px solid var(--amber);color:var(--amber);font-weight:800'; ad.addEventListener('click',()=>{ if(!proGate()) return; uiClose(ov); pendingStageName=ss.name; pendingAppend=true; $('aiFile').click(); });
+  const ad=document.createElement('button'); ad.textContent='+ '+t('rbAddScan'); ad.style.cssText='padding:12px;border-radius:10px;background:var(--btnbg,#222);border:2px solid var(--amber);color:var(--amber);font-weight:800'; ad.addEventListener('click',()=>{ if(!proGate()) return; /* la schermata resta aperta sotto il selettore foto; al ritorno viene ridisegnata coi nuovi riferimenti */ pendingDetail={ov:ov, idx:i}; pendingStageName=ss.name; pendingAppend=true; $('aiFile').click(); });
   const cl=document.createElement('button'); cl.textContent=t('close'); cl.style.cssText='padding:12px;border-radius:10px;background:var(--btnbg,#222);border:1px solid var(--line,#333);color:var(--text,#eee)'; cl.addEventListener('click',()=>uiClose(ov));
   bw.appendChild(lo); bw.appendChild(ad); bw.appendChild(cl); box.appendChild(bw);
 }
@@ -3627,6 +3913,7 @@ $('ssNewFolder').addEventListener('click', ()=>{
 let pendingStageName = null;
 let pendingAppend = false;
 let pendingMaxKm = null;   /* solo importazione PDF: km della prova letti dal titolo */
+let pendingDetail = null;  /* dettaglio prova aperto durante "+ Aggiungi scan": da ridisegnare al ritorno */
 
 $('ssNew').addEventListener('click', ()=>{
   if(!proGate()) return;
@@ -4245,10 +4532,15 @@ function loadImageFile(f){
 }
 $('aiFile').addEventListener('change', e=>{
   const files = Array.from(e.target.files || []);
-  if(!files.length){ e.target.value = ''; pendingStageName = null; pendingAppend = false; return; }
+  if(!files.length){ e.target.value = ''; pendingStageName = null; pendingAppend = false; pendingDetail = null; return; }
+  const det = pendingDetail; pendingDetail = null;
   window.__scanBusy(true, t('scanReading'));   /* rotellina subito, prima ancora di aprire le foto */
   scanAIRunFiles(files).catch(function(err){ showMsg('\u26A0\uFE0F ' + t('scanConnErr')); })
-    .finally(function(){ window.__scanBusy(false); try{ $('aiFile').value = ''; }catch(_){} });
+    .finally(function(){
+      window.__scanBusy(false); try{ $('aiFile').value = ''; }catch(_){}
+      /* eravamo nel dettaglio della prova: lo ridisegno con i riferimenti appena aggiunti */
+      if(det){ try{ uiClose(det.ov); }catch(_){} try{ showStageDetail(det.idx); }catch(_){} }
+    });
 });
 
 /* ================= IMPORTA RADAR DA PDF ================= */
@@ -4337,7 +4629,76 @@ async function pdfPageText(page){
   return { all, head };
 }
 
-/* Legge ogni pagina, individua le tabelle, le raggruppa e da' loro un nome */
+/* ============ RICONOSCIMENTO PROVE NEL PDF - PER STRUTTURA, NON PER TESTO ============
+   Verificato l'11 settembre 2026 sui road book di Lamia (GR), Alba (ACI) e Noale (TTR).
+   Il testo dell'intestazione cambia da organizzatore a organizzatore; la STRUTTURA no:
+     1. una pagina di prova e' una griglia (almeno 6 chilometraggi "12,34")
+     2. la colonna Direzione della PROVA ha uno sfondo colorato (grigio a Lamia,
+        arancione ad Alba, giallo a Noale); il TRASFERIMENTO no
+     3. dentro un road book il colore delle prove e' sempre lo stesso: si tiene il
+        colore dominante del documento
+     4. pagine consecutive con quel colore = una prova; "Finish"/"Stop" la chiude
+   Misurato sui pixel a bassa risoluzione: prove fra 8% e 22% della pagina in quel
+   colore, trasferimenti sotto il 4%. Soglia: 6%.
+   Il titolo (SS/PS/Shakedown) serve SOLO per dare il nome e i km: se non c'e', la
+   prova si chiama "Prova (pag. x-y)" e si rinomina, ma non si perde.
+   Se il PDF non ha nessuna colonna colorata, si ripiega sul vecchio raggruppamento
+   per intestazione. Non tocca detectTable() ne' la pipeline di scansione.
+   ================================================================================== */
+const PDF_COLOR_SHARE = 0.06;
+const PDF_STOP = /\b(finish|stop)\b/i;
+
+/* istogramma dei colori di una pagina resa piccola: chiave = colore quantizzato a 8 livelli */
+async function pdfPagePalette(page){
+  const base = page.getViewport({ scale: 1 });
+  const scale = 220 / Math.max(base.width, base.height);
+  const vp = page.getViewport({ scale });
+  const c = document.createElement('canvas');
+  c.width = Math.max(1, Math.round(vp.width)); c.height = Math.max(1, Math.round(vp.height));
+  const g = c.getContext('2d', { willReadFrequently: true });
+  await page.render({ canvasContext: g, viewport: vp }).promise;
+  const d = g.getImageData(0, 0, c.width, c.height).data;
+  c.width = c.height = 0;
+  const hist = Object.create(null);
+  const total = d.length / 4;
+  for(let i = 0; i < d.length; i += 4){
+    const r = d[i], gg = d[i+1], b = d[i+2];
+    if(r > 235 && gg > 235 && b > 235) continue;   /* bianco */
+    if(r < 40 && gg < 40 && b < 40) continue;       /* nero / testo */
+    const k = ((r >> 5) << 6) | ((gg >> 5) << 3) | (b >> 5);
+    hist[k] = (hist[k] || 0) + 1;
+  }
+  return { hist, total };
+}
+/* raggruppa pagine consecutive (con eventuale chiusura su Finish/Stop) */
+function pdfGroupConsecutive(pages){
+  const groups = []; let cur = null;
+  for(const p of pages){
+    if(cur && p.num === cur.pages[cur.pages.length-1] + 1 && !cur.closed){ cur.pages.push(p.num); }
+    else { cur = { pages:[p.num], closed:false }; groups.push(cur); }
+    if(p.fin) cur.closed = true;
+  }
+  return groups;
+}
+/* dato l'elenco pagine con {num, isTable, share:{colore:quota}, fin}, restituisce i gruppi-prova.
+   Funzione pura: e' quella collaudata sui numeri misurati dai tre road book. */
+function pdfGroupsByColor(pages){
+  const votes = Object.create(null);
+  pages.forEach(p => { if(!p.isTable || !p.share) return;
+    Object.keys(p.share).forEach(k => { if(p.share[k] >= PDF_COLOR_SHARE) votes[k] = (votes[k]||0) + 1; }); });
+  let dom = null, best = 0;
+  Object.keys(votes).forEach(k => { if(votes[k] > best){ best = votes[k]; dom = k; } });
+  if(dom === null) return null;                       /* nessuna colonna colorata: ripiego */
+  const stagePages = pages.filter(p => p.isTable && p.share && (p.share[dom]||0) >= PDF_COLOR_SHARE);
+  const groups = pdfGroupConsecutive(stagePages);
+  groups.forEach(g => { g.isStage = true; });
+  const stageSet = new Set(stagePages.map(p => p.num));
+  const others = pdfGroupConsecutive(pages.filter(p => p.isTable && !stageSet.has(p.num)));
+  others.forEach(g => { g.isStage = false; });
+  return { groups, others, color: dom };
+}
+
+/* Legge ogni pagina, individua le prove per struttura, da' loro un nome */
 async function pdfExtractGroups(pdf, onProgress){
   const n = pdf.numPages;
   const pages = [];
@@ -4345,60 +4706,76 @@ async function pdfExtractGroups(pdf, onProgress){
     if(onProgress) onProgress(i, n);
     const page = await pdf.getPage(i);
     const tx = await pdfPageText(page);
-    pages.push({ num:i, isTable: pdfLooksLikeTable(tx.all), head: tx.head, all: tx.all,
-                 hit: pdfHeaderKey(tx.head), fp: pdfFingerprint(tx.head) });
+    const isTable = pdfLooksLikeTable(tx.all);
+    const p = { num:i, isTable, head:tx.head, all:tx.all, hit:pdfHeaderKey(tx.head), fp:pdfFingerprint(tx.head),
+                fin: PDF_STOP.test(tx.all), share:null };
+    if(isTable){
+      try{
+        const pal = await pdfPagePalette(page);
+        const share = Object.create(null);
+        Object.keys(pal.hist).forEach(k => { share[k] = pal.hist[k] / pal.total; });
+        p.share = share;
+      }catch(e){ p.share = null; }
+    }
+    try{ page.cleanup(); }catch(e){}
+    pages.push(p);
   }
-  /* 1) gruppi di pagine-tabella consecutive con la stessa intestazione */
-  const groups = [];
-  let cur = null;
-  for(const p of pages){
-    if(!p.isTable){ cur = null; continue; }
-    const sameByHit = cur && p.hit && cur.hitKey && p.hit.key === cur.hitKey;
-    const sameByFp = cur && !p.hit && !cur.hitKey && pdfFpSimilar(p.fp, cur.fp);
-    if(sameByHit || sameByFp){ cur.pages.push(p.num); continue; }
-    cur = { pages:[p.num], hitKey: p.hit ? p.hit.key : null, fp: p.fp, hit: p.hit };
-    groups.push(cur);
+
+  /* 1) prove per struttura (colore); se il PDF non ha colonne colorate, per intestazione */
+  let byColor = pdfGroupsByColor(pages);
+  let groups;
+  if(byColor){
+    groups = byColor.groups.concat(byColor.others);
+  } else {
+    groups = [];
+    let cur = null;
+    for(const p of pages){
+      if(!p.isTable){ cur = null; continue; }
+      const sameByHit = cur && p.hit && cur.hitKey && p.hit.key === cur.hitKey;
+      const sameByFp = cur && !p.hit && !cur.hitKey && pdfFpSimilar(p.fp, cur.fp);
+      if(sameByHit || sameByFp){ cur.pages.push(p.num); continue; }
+      cur = { pages:[p.num], hitKey: p.hit ? p.hit.key : null, fp: p.fp, isStage: !!p.hit };
+      groups.push(cur);
+    }
   }
-  /* 2) nome: dall'intestazione della tabella; altrimenti dalle 1-3 pagine subito prima
-        (mappa / foto della prova, come nei roadbook italiani) */
+  groups.sort((a,b) => a.pages[0] - b.pages[0]);
+
+  /* 2) nome e km: dall'intestazione delle pagine del gruppo, altrimenti dalle 1-3 pagine prima
+        (mappa / foto della prova). Il nome NON decide se e' una prova: quello lo ha gia' deciso il colore. */
+  const byNum = Object.create(null); pages.forEach(p => { byNum[p.num] = p; });
   for(const g of groups){
-    let hit = g.hit;
+    let hit = null, fallback = null;
+    for(const num of g.pages){ const h = byNum[num] && byNum[num].hit; if(h){ if(h.km != null){ hit = h; break; } if(!fallback) fallback = h; } }
     if(!hit){
-      /* guarda fino a 3 pagine prima; preferisci quella che riporta anche i km */
-      const first = g.pages[0];
-      let fallback = null;
-      for(let k=1; k<=3; k++){
-        const prev = pages[first - 1 - k];
+      for(let k=1; k<=3 && !hit; k++){
+        const prev = byNum[g.pages[0] - k];
         if(!prev || prev.isTable) break;
         const h = pdfHeaderKey(prev.head) || pdfHeaderKey(prev.all);
         if(!h) continue;
         if(h.km != null){ hit = h; break; }
         if(!fallback) fallback = h;
       }
-      if(!hit) hit = fallback;
     }
+    if(!hit) hit = fallback;
     g.name = hit ? hit.name : '';
     g.km = hit ? hit.km : null;
-    g.isStage = !!hit;
+    if(!byColor) g.isStage = !!hit;
   }
-  /* 3) scarta i gruppi di 1 sola pagina senza nome; segna le ripetizioni della stessa prova */
+
+  /* 3) ripetizioni della stessa prova (stesso nome e stessa dimensione) */
   const seen = {};
   const out = [];
   for(const g of groups){
-    if(!g.isStage && g.pages.length < 2) continue;
-    const k = g.name.toLowerCase();
-    const prev = seen[k];
-    /* ripetizione vera = stesso nome E stessa dimensione; se il blocco ha un numero di
-       pagine diverso e' un'altra cosa (es. il trasferimento che porta alla prova) */
+    if(!g.isStage && g.pages.length < 2 && !byColor) continue;
+    const k = (g.name || '').toLowerCase();
+    const prev = k ? seen[k] : null;
     g.repeat = !!(g.isStage && prev && Math.abs(prev - g.pages.length) <= 1);
-    if(g.isStage && !prev) seen[k] = g.pages.length;
+    if(g.isStage && k && !prev) seen[k] = g.pages.length;
     out.push(g);
   }
   return out;
 }
 
-/* targetPx = lato lungo desiderato. Renderizzare piu' grande e' solo memoria sprecata:
-   la scansione riduce comunque a 1800 px. */
 async function pdfRenderPageToBlob(pdf, pageNum, targetPx){
   const page = await pdf.getPage(pageNum);
   const base = page.getViewport({ scale: 1 });
@@ -4846,17 +5223,13 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
       const TC_TIMEOUT = 25000;   /* normale ~5 s; il worker si arrende da solo entro ~15 s */
       const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
       const tmo = setTimeout(function(){ try{ ctrl && ctrl.abort(); }catch(_){} }, TC_TIMEOUT);
-      const t0 = Date.now();
-      const tick = setInterval(function(){
-        if(window.__scanBusy) window.__scanBusy(true, t('tcReading')+' \u00B7 '+Math.round((Date.now()-t0)/1000)+' s');
-      }, 1000);
       let res;
       try{
         res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','X-App-Key':window.__rallyAuth.key},body:JSON.stringify({image:b64,mode:'timecard',device:window.__rallyAuth.device}),signal: ctrl?ctrl.signal:undefined});
       } catch(e){
         throw new Error(e && e.name==='AbortError' ? 'tempo scaduto (25 s): riprova' : 'rete');
       } finally {
-        clearTimeout(tmo); clearInterval(tick);
+        clearTimeout(tmo);
         if(window.__scanBusy) window.__scanBusy(false);
       }
       const data=await res.json();
@@ -4881,7 +5254,7 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
   function cell(lab,inner,sub){ return '<div class="cell"><span class="lab">'+esc(lab)+'</span>'+inner+(sub?'<span class="sub">'+esc(sub)+'</span>':'')+'</div>'; }
   function arrow(){ return '<span class="arrow">\u25B6</span>'; }
 
-  function toggleEdit(){ editMode=!editMode; const o=$('tc_out'); if(o) o.classList.toggle('tcedit', editMode); const b=document.getElementById('tc_editbtn'); if(b) b.classList.toggle('on', editMode); }
+  function toggleEdit(){ editMode=!editMode; const o=$('tc_out'); if(o) o.classList.toggle('tcedit', editMode); const b=document.getElementById('tc_editbtn'); if(b){ b.classList.toggle('on', editMode); b.textContent = editMode ? t('tcEditOn') : t('tcEditOff'); } }
 
   function normTarget(s){
     s=String(s||'').replace(/[^0-9]/g,'');
@@ -4929,7 +5302,7 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
       const ou=$('tc_out'); if(ou) ou.innerHTML='<div class="tdm-empty">'+t('tcEmptyCard')+'</div>';
       return;
     }
-    const mr=$('tc_modeRow'); if(mr) mr.style.display='flex';
+    const mr=$('tc_modeRow'); if(mr) mr.style.display='none';   /* la scelta e' nel riquadro impostazioni */
     const hd0=$('tc_head'); if(hd0) hd0.innerHTML='Rally: <b>'+esc(card.rally||'?')+'</b> \u00b7 Sezione: <b>'+esc(card.section||'?')+'</b> \u00b7 Data: <b>'+esc(card.date||'?')+'</b>';
     function descOf(code){ const L=legs.find(x=>x.from===code); return (L && !L.ss)?(L.desc||''):''; }
     const controls=[];
@@ -4941,7 +5314,15 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
 
     let minOpts=''; for(let m=1;m<=30;m++){ minOpts+='<option value="'+m+'"'+(m===tcMin?' selected':'')+'>'+m+'</option>'; }
     let offOpts=''; for(let m=0;m<=20;m++){ offOpts+='<option value="'+m+'"'+(m===tcOff?' selected':'')+'>'+m+'</option>'; }
-    let h='<div class="tc-set">'+'<div class="tc-setrow">\uD83D\uDD14 '+t('tcAlarm')+' <select id="tc_minSel">'+minOpts+'</select> '+t('tcMinBefore')+'</div>'+'<div class="tc-setrow">'+t('tcStartSs')+' <select id="tc_offSel">'+offOpts+'</select> '+t('tcMinU')+'</div>'+'</div>'+'<button id="tc_editbtn" class="tc-editbtn'+(editMode?' on':'')+'">'+t('tcEdit')+'</button>';
+    let h='<div class="tc-set">'
+      +'<div class="tc-setrow"><span class="tc-setlab">\uD83D\uDD14 '+t('tcAlarmLbl')+'</span><span class="tc-setval"><select id="tc_minSel">'+minOpts+'</select> '+t('tcMinBefore')+'</span></div>'
+      +'<div class="tc-setrow"><span class="tc-setlab">\uD83C\uDFC1 '+t('tcStartSsLbl')+'</span><span class="tc-setval"><select id="tc_offSel">'+offOpts+'</select> '+t('tcMinU')+'</span></div>'
+      +'<div class="tc-setrow"><span class="tc-setlab">\u2328\uFE0F '+t('tcInsertLbl')+'</span><span class="tc-setval tc-seg">'
+        +'<button type="button" class="tc-mbtn'+(INPUT_MODE==='wheel'?' on':'')+'" data-mode="wheel">'+t('tcWheel')+'</button>'
+        +'<button type="button" class="tc-mbtn'+(INPUT_MODE==='keyboard'?' on':'')+'" data-mode="keyboard">'+t('tcKeyboard')+'</button></span></div>'
+      +'<div class="tc-sethint">'+t('tcInsertHint')+'</div>'
+      +'<div class="tc-setrow"><span class="tc-setlab">\u270F\uFE0F '+t('tcEditLbl')+'</span><span class="tc-setval"><button type="button" id="tc_editbtn" class="tc-editbtn'+(editMode?' on':'')+'">'+(editMode?t('tcEditOn'):t('tcEditOff'))+'</button></span></div>'
+      +'</div>';
     h+='<div class="card">';
     controls.forEach((b,i)=>{
       h+='<div class="blk" data-band="'+i+'"><div class="blkhead"><span class="tcc">'+esc(b.code||'\u2014')+'</span>'
