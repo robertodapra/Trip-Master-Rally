@@ -2,5 +2,11 @@ name = "rally-scan-tc"
 main = "worker-tc.js"
 compatibility_date = "2026-09-07"
 
-# La chiave GEMINI_KEY va messa come "secret" su QUESTO worker
-# (Settings > Variables and Secrets), non qui dentro.
+# Le variabili del pannello sopravvivono ai deploy automatici.
+keep_vars = true
+
+# La chiave GEMINI_KEY resta un "secret" nel pannello: non va scritta qui.
+
+# Modello della TABELLA DI MARCIA, versionato nel repo.
+[vars]
+MODEL = "gemini-3.1-flash-lite"
