@@ -2,5 +2,13 @@ name = "rally-scan"
 main = "worker.js"
 compatibility_date = "2026-09-07"
 
-# La chiave GEMINI_KEY NON va scritta qui: resta un "secret" salvato in
-# Cloudflare (Settings > Variables and Secrets) e sopravvive ai deploy.
+# Le variabili aggiunte a mano nel pannello Cloudflare NON vengono
+# piu' cancellate dai deploy automatici (prima si', ad ogni push).
+keep_vars = true
+
+# La chiave GEMINI_KEY resta un "secret" nel pannello: non va scritta qui.
+
+# Variabili versionate nel repo: sopravvivono a ogni deploy.
+# Il modello del RADAR si cambia qui.
+[vars]
+MODEL = "gemini-3.1-flash-lite"
