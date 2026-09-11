@@ -719,7 +719,7 @@
   <h2 data-t="introTitle"></h2>
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
-  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-11.2</p>
+  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-12.1</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -4683,7 +4683,7 @@ const PDF_STOP = /\b(finish|stop)\b/i;
 /* istogramma dei colori di una pagina resa piccola: chiave = colore quantizzato a 8 livelli */
 async function pdfPagePalette(page){
   const base = page.getViewport({ scale: 1 });
-  const scale = 220 / Math.max(base.width, base.height);
+  const scale = 480 / Math.max(base.width, base.height);   /* a 220 px la colonna colorata si impastava con lo sfondo */
   const vp = page.getViewport({ scale });
   const c = document.createElement('canvas');
   c.width = Math.max(1, Math.round(vp.width)); c.height = Math.max(1, Math.round(vp.height));
@@ -4712,14 +4712,55 @@ function pdfGroupConsecutive(pages){
   }
   return groups;
 }
+/* nome e km di ogni gruppo: dall'intestazione delle sue pagine, altrimenti dalle 1-3
+   pagine subito prima (cartina / foto della prova). Con il metodo per colore il nome NON
+   decide se e' una prova; con quello per intestazione si'. */
+function nameGroups(groups, byNum, colorDecided){
+  for(const g of groups){
+    let hit = null, fallback = null;
+    for(const num of g.pages){ const h = byNum[num] && byNum[num].hit; if(h){ if(h.km != null){ hit = h; break; } if(!fallback) fallback = h; } }
+    if(!hit){
+      for(let k=1; k<=3 && !hit; k++){
+        const prev = byNum[g.pages[0] - k];
+        if(!prev || prev.isTable) break;
+        const h = pdfHeaderKey(prev.head) || pdfHeaderKey(prev.all);
+        if(!h) continue;
+        if(h.km != null){ hit = h; break; }
+        if(!fallback) fallback = h;
+      }
+    }
+    if(!hit) hit = fallback;
+    g.name = hit ? hit.name : '';
+    g.km = hit ? hit.km : null;
+    if(!colorDecided) g.isStage = !!hit;
+  }
+}
+
+/* metodo classico: pagine-tabella consecutive con la stessa intestazione */
+function pdfGroupsByHeader(pages){
+  const groups = []; let cur = null;
+  for(const p of pages){
+    if(!p.isTable){ cur = null; continue; }
+    const sameByHit = cur && p.hit && cur.hitKey && p.hit.key === cur.hitKey;
+    const sameByFp = cur && !p.hit && !cur.hitKey && pdfFpSimilar(p.fp, cur.fp);
+    if(sameByHit || sameByFp){ cur.pages.push(p.num); continue; }
+    cur = { pages:[p.num], hitKey: p.hit ? p.hit.key : null, fp: p.fp, isStage: !!p.hit };
+    groups.push(cur);
+  }
+  return groups;
+}
 /* dato l'elenco pagine con {num, isTable, share:{colore:quota}, fin}, restituisce i gruppi-prova.
    Funzione pura: e' quella collaudata sui numeri misurati dai tre road book. */
 function pdfGroupsByColor(pages){
+  const grid = pages.filter(p => p.isTable && p.share);
+  if(grid.length < 3) return null;
   const votes = Object.create(null);
-  pages.forEach(p => { if(!p.isTable || !p.share) return;
-    Object.keys(p.share).forEach(k => { if(p.share[k] >= PDF_COLOR_SHARE) votes[k] = (votes[k]||0) + 1; }); });
+  grid.forEach(p => { Object.keys(p.share).forEach(k => { if(p.share[k] >= PDF_COLOR_SHARE) votes[k] = (votes[k]||0) + 1; }); });
+  /* Un colore presente su QUASI TUTTE le griglie e' la carta o il reticolo, non la prova:
+     le prove sono una minoranza delle pagine-griglia (il resto sono trasferimenti). */
+  const CAP = Math.max(2, Math.floor(grid.length * 0.55));
   let dom = null, best = 0;
-  Object.keys(votes).forEach(k => { if(votes[k] > best){ best = votes[k]; dom = k; } });
+  Object.keys(votes).forEach(k => { if(votes[k] <= CAP && votes[k] > best){ best = votes[k]; dom = k; } });
   if(dom === null) return null;                       /* nessuna colonna colorata: ripiego */
   const stagePages = pages.filter(p => p.isTable && p.share && (p.share[dom]||0) >= PDF_COLOR_SHARE);
   const groups = pdfGroupConsecutive(stagePages);
@@ -4755,43 +4796,34 @@ async function pdfExtractGroups(pdf, onProgress){
 
   /* 1) prove per struttura (colore); se il PDF non ha colonne colorate, per intestazione */
   let byColor = pdfGroupsByColor(pages);
+  /* Rete di sicurezza: se il colore promuove quasi tutto a prova, o se NESSUNA prova
+     riceve un nome, la misura non e' affidabile su questo PDF -> si torna al metodo
+     per intestazione, che almeno da' prove con un nome e i km per il taglio. */
+  if(byColor){
+    const nTab = pages.filter(p=>p.isTable).length;
+    const nStage = byColor.groups.reduce((a,g)=>a+g.pages.length, 0);
+    if(nTab && nStage > nTab*0.6) byColor = null;
+  }
   let groups;
   if(byColor){
     groups = byColor.groups.concat(byColor.others);
   } else {
-    groups = [];
-    let cur = null;
-    for(const p of pages){
-      if(!p.isTable){ cur = null; continue; }
-      const sameByHit = cur && p.hit && cur.hitKey && p.hit.key === cur.hitKey;
-      const sameByFp = cur && !p.hit && !cur.hitKey && pdfFpSimilar(p.fp, cur.fp);
-      if(sameByHit || sameByFp){ cur.pages.push(p.num); continue; }
-      cur = { pages:[p.num], hitKey: p.hit ? p.hit.key : null, fp: p.fp, isStage: !!p.hit };
-      groups.push(cur);
-    }
+    groups = pdfGroupsByHeader(pages);
   }
   groups.sort((a,b) => a.pages[0] - b.pages[0]);
 
   /* 2) nome e km: dall'intestazione delle pagine del gruppo, altrimenti dalle 1-3 pagine prima
         (mappa / foto della prova). Il nome NON decide se e' una prova: quello lo ha gia' deciso il colore. */
   const byNum = Object.create(null); pages.forEach(p => { byNum[p.num] = p; });
-  for(const g of groups){
-    let hit = null, fallback = null;
-    for(const num of g.pages){ const h = byNum[num] && byNum[num].hit; if(h){ if(h.km != null){ hit = h; break; } if(!fallback) fallback = h; } }
-    if(!hit){
-      for(let k=1; k<=3 && !hit; k++){
-        const prev = byNum[g.pages[0] - k];
-        if(!prev || prev.isTable) break;
-        const h = pdfHeaderKey(prev.head) || pdfHeaderKey(prev.all);
-        if(!h) continue;
-        if(h.km != null){ hit = h; break; }
-        if(!fallback) fallback = h;
-      }
-    }
-    if(!hit) hit = fallback;
-    g.name = hit ? hit.name : '';
-    g.km = hit ? hit.km : null;
-    if(!byColor) g.isStage = !!hit;
+  nameGroups(groups, byNum, !!byColor);
+
+  /* Se il colore ha trovato prove ma NESSUNA ha un nome, quasi certamente ha sbagliato
+     bersaglio: meglio il metodo per intestazione. */
+  if(byColor && groups.length >= 3 && !groups.some(g => g.isStage && g.name)){
+    byColor = null;
+    groups = pdfGroupsByHeader(pages);
+    groups.sort((a,b) => a.pages[0] - b.pages[0]);
+    nameGroups(groups, byNum, false);
   }
 
   /* 3) ripetizioni della stessa prova (stesso nome e stessa dimensione) */
