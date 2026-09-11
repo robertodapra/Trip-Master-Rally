@@ -719,7 +719,7 @@
   <h2 data-t="introTitle"></h2>
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
-  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-11.1</p>
+  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-11.2</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -4263,7 +4263,7 @@ function imgToB64(img, maxDim){
   return b64;
 }
 /* trova le linee della tabella sui pixel: righe (bande) e colonne, in px di un canvas 900 di larghezza */
-function detectTable(img){
+function detectTable(img, hint){   /* hint: y (0-1000) dei riferimenti visti dall'AI, opzionale */
   try{
     const W=900, sc=W/img.naturalWidth, H=Math.max(1, Math.round(img.naturalHeight*sc));
     const c=document.createElement('canvas'); c.width=W; c.height=H;
@@ -4293,16 +4293,47 @@ function detectTable(img){
     hs.forEach(h=>{ let cov=0; hs.forEach(k=>{ if(Math.abs(k-h)<=h*0.10) cov+=k; });
       if(cov>bestCov || (cov===bestCov && h>modeH)){ bestCov=cov; modeH=h; } });
     const keep=[];
+    const hintY = Array.isArray(hint) ? hint.filter(v=>typeof v==='number' && !isNaN(v)).map(v=>v*H/1000).sort((a,b)=>a-b) : [];
+    /* CELLE UNITE (Noale, 11 set 2026): quando i riferimenti sono vicini fra loro l'organizzatore
+       non stampa il separatore e 2, 3, 4 righe risultano una sola. Su alcune pagine NON esiste
+       nessuna riga singola da usare come misura. Stima dell'altezza di UNA riga, in ordine:
+         a) con l'AI: fra le altezze reali delle fasce vince quella che spiega tutte le
+            fasce coi riferimenti come multipli interi; la distanza mediana fra i
+            riferimenti decide solo i pareggi (le linee restano la misura esatta)
+         b) senza AI: l'altezza piu' ricorrente (metodo classico)
+       Poi ogni fascia alta k volte quella misura viene divisa in k parti uguali. */
+    const tolH = H*0.015;
+    const cntIn = b => hintY.filter(y=> y>=b[0]-tolH && y<=b[1]+tolH).length;
+    let h0 = modeH;
+    if(hintY.length >= 2){
+      /* La distanza mediana fra un riferimento e il successivo (g) e' una stima grezza
+         dell'altezza di riga, rumorosa quanto l'AI. Non la uso come misura: le CANDIDATE
+         sono le altezze reali delle fasce (piu' g stessa); vince quella che spiega tutte
+         le fasce coi riferimenti come multipli interi; g decide solo i pareggi. */
+      const gaps=[]; for(let i=1;i<hintY.length;i++) gaps.push(hintY[i]-hintY[i-1]);
+      gaps.sort((a,b)=>a-b); const g = gaps[Math.floor(gaps.length/2)];
+      if(g > H*0.02){
+        const grid = bands.filter(b => (b[1]-b[0]) > H*0.02);
+        const withHint = grid.filter(b => cntIn(b) >= 1);
+        const cands = Array.from(new Set(grid.map(b=>Math.round(b[1]-b[0])).concat([Math.round(g)]))).filter(h => h >= g*0.5);
+        let best=null;
+        cands.forEach(c=>{
+          let score=0;
+          withHint.forEach(b=>{ const h=b[1]-b[0]; const k=Math.round(h/c); if(k>=1 && Math.abs(h-k*c)<=c*0.15) score+=h; });
+          const d=Math.abs(c-g);
+          if(best===null || score>best.score || (score===best.score && d<best.d)) best={c, score, d};
+        });
+        if(best && best.score>0) h0 = best.c;
+      }
+    }
     bands.forEach(b=>{
       const h=b[1]-b[0];
-      if(Math.abs(h-modeH)<=modeH*0.12){ keep.push(b); return; }
-      /* riga doppia o tripla: separatore non stampato -> la divido in parti uguali */
-      for(let k=2;k<=3;k++){
-        if(Math.abs(h-k*modeH)<=modeH*0.16){
-          for(let j=0;j<k;j++) keep.push([b[0]+h*j/k, b[0]+h*(j+1)/k]);
-          return;
-        }
-      }
+      const kr = Math.round(h/h0);
+      const clean = kr>=1 && Math.abs(h-kr*h0) <= h0*(kr===1 ? 0.12 : 0.25);
+      let k = clean ? kr : 0;
+      if(!k && hintY.length){ const n=cntIn(b); if(n>=2 && h >= h0*1.5) k = n; }   /* altezza sporca: conta l'AI */
+      if(k===1) keep.push(b);
+      else if(k>=2 && k<=12){ for(let j=0;j<k;j++) keep.push([b[0]+h*j/k, b[0]+h*(j+1)/k]); }
     });
     if(!keep.length) return null;
     keep.sort((p,q)=>p[0]-q[0]);
@@ -4369,7 +4400,8 @@ async function scanOnePage(img){
   rows = rows.slice().sort((a,b)=> (parseInt(a.num,10)||0) - (parseInt(b.num,10)||0));
   const cols = (data.cols && typeof data.cols === 'object') ? data.cols : null;
   const okBox = b => Array.isArray(b) && b.length===4 && b.every(v => typeof v === 'number' && !isNaN(v));
-  const tbl = detectTable(img);
+  const cyOf0 = r => okBox(r.rowbox) ? (r.rowbox[0]+r.rowbox[2])/2 : (okBox(r.box) ? (r.box[0]+r.box[2])/2 : (okBox(r.numbox) ? r.numbox[0] : null));
+  const tbl = detectTable(img, rows.map(cyOf0).filter(v=>v!=null));
   let snapped = false;
   if(tbl && tbl.bands.length){
     const M = rows.length;
