@@ -719,7 +719,7 @@
   <h2 data-t="introTitle"></h2>
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
-  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-12.1</p>
+  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-12.2</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -4593,7 +4593,8 @@ function ensurePdfJs(){
 const PDF_STAGE_PATTERNS = [
   { re:/SPS\s*(\d+)\s*["\u201c]?([^"\u201d\n,\d]{0,40})/i, build:(m)=> ('SPS'+m[1]+' '+(m[2]||'').trim()).trim() },
   { re:/SS\s*([\dA-Z]+\/[\dA-Z]+)\s*:?\s*["\u201c]?\s*([^"\u201d\n,\d]{2,40})/i, build:(m)=> (m[2]||'').trim()+' (SS '+m[1]+')' },
-  { re:/P\.?\s?S\.?\s*([\d\-]+)\s*["\u201c]([^"\u201d\n]{2,40})["\u201d]/i, build:(m)=> (m[2]||'').trim()+' (PS '+m[1]+')' },
+  /* ACI: "P.S. 1 \"Nome\" Km 14,20" e anche "C.O. PS 1/5 \"Borine-Cissone\"" (con la barra, senza km) */
+  { re:/P\.?\s?S\.?\s*([\d]+(?:\s*[\-\/]\s*[\d]+)*)\s*["\u201c]([^"\u201d\n]{2,40})["\u201d]/i, build:(m)=> (m[2]||'').trim()+' (PS '+(m[1]||'').replace(/\s+/g,'')+')' },
   { re:/SHAKEDOWN\s*["\u201c]([^"\u201d\n]{2,40})["\u201d]/i, build:(m)=> 'Shakedown '+(m[1]||'').trim() },
   /* solo con i km accanto: "Shakedown 4,29km" e' la prova, il semplice "Shakedown"
      compare anche nel trasferimento che porta alla partenza */
@@ -4722,7 +4723,8 @@ function nameGroups(groups, byNum, colorDecided){
     if(!hit){
       for(let k=1; k<=3 && !hit; k++){
         const prev = byNum[g.pages[0] - k];
-        if(!prev || prev.isTable) break;
+        if(!prev) break;
+        if(prev.isTable) continue;   /* la pagina col titolo puo' stare oltre una griglia */
         const h = pdfHeaderKey(prev.head) || pdfHeaderKey(prev.all);
         if(!h) continue;
         if(h.km != null){ hit = h; break; }
