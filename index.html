@@ -719,7 +719,7 @@
   <h2 data-t="introTitle"></h2>
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
-  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-12.2</p>
+  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-12.3</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -4679,6 +4679,10 @@ async function pdfPageText(page){
    per intestazione. Non tocca detectTable() ne' la pipeline di scansione.
    ================================================================================== */
 const PDF_COLOR_SHARE = 0.06;
+/* Quando la prova finisce a meta' pagina, su quella pagina il colore copre poco
+   (misurato su Noale: 3,7-3,9%, mentre la pagina dopo e' a 0%). Va inclusa: e'
+   la coda della prova. Non si estende se il blocco era gia' chiuso da "Finish". */
+const PDF_COLOR_TAIL = 0.015;
 const PDF_STOP = /\b(finish|stop)\b/i;
 
 /* istogramma dei colori di una pagina resa piccola: chiave = colore quantizzato a 8 livelli */
@@ -4767,7 +4771,20 @@ function pdfGroupsByColor(pages){
   const stagePages = pages.filter(p => p.isTable && p.share && (p.share[dom]||0) >= PDF_COLOR_SHARE);
   const groups = pdfGroupConsecutive(stagePages);
   groups.forEach(g => { g.isStage = true; });
-  const stageSet = new Set(stagePages.map(p => p.num));
+  /* coda: allunga il blocco finche' la pagina dopo conserva un po' del colore della prova */
+  const byN = Object.create(null); pages.forEach(p => { byN[p.num] = p; });
+  groups.forEach(g => {
+    if(g.closed) return;                    /* "Finish" ha gia' detto dove finisce */
+    for(let guard=0; guard<3; guard++){
+      const nx = byN[g.pages[g.pages.length-1] + 1];
+      if(!nx || !nx.isTable || !nx.share) break;
+      const sh = nx.share[dom] || 0;
+      if(sh < PDF_COLOR_TAIL || sh >= PDF_COLOR_SHARE) break;
+      g.pages.push(nx.num);
+      if(nx.fin) break;
+    }
+  });
+  const stageSet = new Set(stagePages.map(p => p.num).concat([].concat.apply([], groups.map(g=>g.pages))));
   const others = pdfGroupConsecutive(pages.filter(p => p.isTable && !stageSet.has(p.num)));
   others.forEach(g => { g.isStage = false; });
   return { groups, others, color: dom };
@@ -4783,7 +4800,10 @@ async function pdfExtractGroups(pdf, onProgress){
     const tx = await pdfPageText(page);
     const isTable = pdfLooksLikeTable(tx.all);
     const p = { num:i, isTable, head:tx.head, all:tx.all, hit:pdfHeaderKey(tx.head), fp:pdfFingerprint(tx.head),
-                fin: PDF_STOP.test(tx.all), share:null };
+                fin: PDF_STOP.test(tx.all), share:null,
+                /* i primi chilometraggi della pagina: due pagine con la stessa sequenza
+                   sono la stessa prova ristampata (es. rientro allo shakedown) */
+                kmSeq: isTable ? (tx.all.match(/\d{1,3}[,.]\d{2}/g) || []).slice(0, 8).join('|') : '' };
     if(isTable){
       try{
         const pal = await pdfPagePalette(page);
@@ -4830,9 +4850,21 @@ async function pdfExtractGroups(pdf, onProgress){
 
   /* 3) ripetizioni della stessa prova (stesso nome e stessa dimensione) */
   const seen = {};
+  const seenKm = {};
   const out = [];
   for(const g of groups){
     if(!g.isStage && g.pages.length < 2 && !byColor) continue;
+    /* ristampa della stessa prova: identica sequenza di km sulla prima pagina.
+       Prende anche il nome dall'originale, cosi' si capisce cos'e'. */
+    const kmKey = g.isStage ? ((byNum[g.pages[0]] && byNum[g.pages[0]].kmSeq) || '') : '';
+    if(kmKey && seenKm[kmKey]){
+      g.repeat = true;
+      if(!g.name) g.name = seenKm[kmKey].name;
+      if(g.km == null) g.km = seenKm[kmKey].km;
+      out.push(g);
+      continue;
+    }
+    if(kmKey) seenKm[kmKey] = { name: g.name, km: g.km };
     const k = (g.name || '').toLowerCase();
     const prev = k ? seen[k] : null;
     g.repeat = !!(g.isStage && prev && Math.abs(prev - g.pages.length) <= 1);
