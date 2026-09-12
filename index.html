@@ -719,7 +719,7 @@
   <h2 data-t="introTitle"></h2>
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
-  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-12.4</p>
+  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-12.5</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -1308,11 +1308,12 @@ function updateNavFree(){ var el=document.getElementById('navFree'); if(!el) ret
 /* ================= TRADUZIONI ================= */
 const T = {
 it:{introTitle:"Come funziona",
+  pdfImpRallyAsk:"Nome della gara (le prove finiranno in questa cartella)",
   ssMore:"Altro",ssRename:"Rinomina",ssDelete:"Elimina",
   impTitle:"Dati iRally ricevuti",impBody:"Il file contiene {s} prove radar e {t} tabelle.",
   impAdd:"Aggiungi alle mie prove",impReplace:"Sostituisci tutto",impBad:"File non valido: non sembra un file iRally.",impErr:"Errore durante il ripristino:",
   rbDelRef:"Eliminare il riferimento {n}?",rbDelOk:"Elimina",
-  rbAdvLabel:"Scorrimento simboli radar",rbAdvAuto:"Automatico",rbAdvManual:"Manuale (tocco sul parziale)",
+  rbAdvLabel:"Scorrimento simboli radar",rbAdvAuto:"Automatico",rbAdvManual:"Manuale \u2014 consigliato (tocco sul parziale)",
   rbAdvSmall:"Automatico: al chilometraggio del riferimento il simbolo passa al successivo e il parziale si azzera da solo. Manuale: il simbolo cambia solo quando tocchi il parziale o usi le frecce; i metri corrono comunque.",
   scanPage:"Pagina {i} di {n}…",scanPagesFail:"Pagine non lette: {list}. Rifalle con \"+ Aggiungi scan\".",scanPagesGap:"Pagine con un numero mancante: {list}. Controllale.",
   pwYear:"Annuale",pwMonth:"Mensile",pwPerYear:"/anno",pwPerMonth:"/mese",pwNote:"7 giorni gratis, poi {p}",pwCta:"Inizia 7 giorni gratis",pwRestore:"Ripristina acquisti",pwLegal:"Rinnovo automatico. Disdici quando vuoi dalle impostazioni Apple. I prezzi possono variare per paese.",pwWait:"Attendere…",pwLoading:"Prodotti ancora in caricamento, riprova tra qualche secondo.",scanGap:"Lettura incompleta: manca il riferimento {n}. Controlla la pagina e, se serve, riscansionala.",
@@ -1478,11 +1479,12 @@ it:{introTitle:"Come funziona",
   soundDefault:"Predefinito",
   soundPlay:"Ascolta"},
 en:{introTitle:"How it works",
+  pdfImpRallyAsk:"Rally name (the stages will go into this folder)",
   ssMore:"More",ssRename:"Rename",ssDelete:"Delete",
   impTitle:"iRally data received",impBody:"The file contains {s} radar stages and {t} time cards.",
   impAdd:"Add to my stages",impReplace:"Replace everything",impBad:"Invalid file: it does not look like an iRally file.",impErr:"Error while restoring:",
   rbDelRef:"Delete reference {n}?",rbDelOk:"Delete",
-  rbAdvLabel:"Road book symbol advance",rbAdvAuto:"Automatic",rbAdvManual:"Manual (tap the partial)",
+  rbAdvLabel:"Road book symbol advance",rbAdvAuto:"Automatic",rbAdvManual:"Manual \u2014 recommended (tap the partial)",
   rbAdvSmall:"Automatic: at the reference distance the symbol moves to the next one and the partial resets by itself. Manual: the symbol changes only when you tap the partial or use the arrows; the metres keep counting anyway.",
   scanPage:"Page {i} of {n}…",scanPagesFail:"Pages not read: {list}. Redo them with \"+ Add scan\".",scanPagesGap:"Pages with a missing number: {list}. Check them.",
   pwYear:"Annual",pwMonth:"Monthly",pwPerYear:"/year",pwPerMonth:"/month",pwNote:"7 days free, then {p}",pwCta:"Start 7 days free",pwRestore:"Restore purchases",pwLegal:"Auto-renewing. Cancel anytime in your Apple settings. Prices may vary by country.",pwWait:"Please wait…",pwLoading:"Products are still loading, try again in a few seconds.",scanGap:"Incomplete read: reference {n} is missing. Check the page and rescan it if needed.",
@@ -1648,6 +1650,7 @@ en:{introTitle:"How it works",
   soundDefault:"Default",
   soundPlay:"Play"},
 fr:{introTitle:"Comment ça marche",
+  pdfImpRallyAsk:"Nom du rallye (les spéciales iront dans ce dossier)",
   tut1Title:"Flèches",
   tut1Text:"Elles font défiler les repères en avant ou en arrière. La mesure ne change pas, ni sur le partiel ni sur le total.",
   tut2Title:"Photo du repère",
@@ -1696,7 +1699,7 @@ fr:{introTitle:"Comment ça marche",
   impTitle:"Données iRally reçues",impBody:"Le fichier contient {s} spéciales et {t} carnets.",
   impAdd:"Ajouter à mes spéciales",impReplace:"Tout remplacer",impBad:"Fichier non valide : ce n'est pas un fichier iRally.",impErr:"Erreur lors de la restauration :",
   rbDelRef:"Supprimer le repère {n} ?",rbDelOk:"Supprimer",
-  rbAdvLabel:"Défilement des repères radar",rbAdvAuto:"Automatique",rbAdvManual:"Manuel (touche sur le partiel)",
+  rbAdvLabel:"Défilement des repères radar",rbAdvAuto:"Automatique",rbAdvManual:"Manuel \u2014 recommand\u00e9 (touche sur le partiel)",
   rbAdvSmall:"Automatique : au kilométrage du repère, le symbole passe au suivant et le partiel repart de zéro. Manuel : le symbole change seulement quand vous touchez le partiel ou les flèches ; les mètres défilent quand même.",
   scanPage:"Page {i} sur {n}…",scanPagesFail:"Pages non lues : {list}. Refaites-les avec \"+ Ajouter un scan\".",scanPagesGap:"Pages avec un numéro manquant : {list}. Vérifiez-les.",
   pwYear:"Annuel",pwMonth:"Mensuel",pwPerYear:"/an",pwPerMonth:"/mois",pwNote:"7 jours gratuits, puis {p}",pwCta:"Commencer 7 jours gratuits",pwRestore:"Restaurer les achats",pwLegal:"Renouvellement automatique. Résiliez à tout moment dans les réglages Apple. Les prix peuvent varier selon le pays.",pwWait:"Veuillez patienter…",pwLoading:"Produits en cours de chargement, réessayez dans quelques secondes.",scanGap:"Lecture incomplète : le repère {n} manque. Vérifiez la page et rescannez-la si besoin.",
@@ -1831,6 +1834,7 @@ fr:{introTitle:"Comment ça marche",
   soundDefault:"Par défaut",
   soundPlay:"Écouter"},
 es:{introTitle:"Cómo funciona",
+  pdfImpRallyAsk:"Nombre del rally (los tramos irán a esta carpeta)",
   tut1Title:"Flechas",
   tut1Text:"Úsalas para avanzar o retroceder entre los símbolos. La medición no cambia, ni en el parcial ni en el total.",
   tut2Title:"Foto de la referencia",
@@ -1879,7 +1883,7 @@ es:{introTitle:"Cómo funciona",
   impTitle:"Datos iRally recibidos",impBody:"El archivo contiene {s} tramos y {t} tablas.",
   impAdd:"Añadir a mis tramos",impReplace:"Sustituir todo",impBad:"Archivo no válido: no parece un archivo iRally.",impErr:"Error al restaurar:",
   rbDelRef:"¿Eliminar la referencia {n}?",rbDelOk:"Eliminar",
-  rbAdvLabel:"Avance de símbolos del radar",rbAdvAuto:"Automático",rbAdvManual:"Manual (toque en el parcial)",
+  rbAdvLabel:"Avance de símbolos del radar",rbAdvAuto:"Automático",rbAdvManual:"Manual \u2014 recomendado (toque en el parcial)",
   rbAdvSmall:"Automático: al llegar al kilometraje de la referencia, el símbolo pasa al siguiente y el parcial se pone a cero solo. Manual: el símbolo cambia solo cuando tocas el parcial o usas las flechas; los metros siguen corriendo.",
   scanPage:"Página {i} de {n}…",scanPagesFail:"Páginas no leídas: {list}. Repítelas con \"+ Añadir escaneo\".",scanPagesGap:"Páginas con un número que falta: {list}. Revísalas.",
   pwYear:"Anual",pwMonth:"Mensual",pwPerYear:"/año",pwPerMonth:"/mes",pwNote:"7 días gratis, luego {p}",pwCta:"Empieza 7 días gratis",pwRestore:"Restaurar compras",pwLegal:"Renovación automática. Cancela cuando quieras en los ajustes de Apple. Los precios pueden variar según el país.",pwWait:"Espera…",pwLoading:"Los productos aún se están cargando, inténtalo en unos segundos.",scanGap:"Lectura incompleta: falta la referencia {n}. Revisa la página y vuelve a escanearla si hace falta.",
@@ -2014,6 +2018,7 @@ es:{introTitle:"Cómo funciona",
   soundDefault:"Predeterminado",
   soundPlay:"Escuchar"},
 de:{introTitle:"So funktioniert es",
+  pdfImpRallyAsk:"Name des Rallyes (die Prüfungen landen in diesem Ordner)",
   tut1Title:"Pfeile",
   tut1Text:"Damit blätterst du vor oder zurück durch die Symbole. Die Messung ändert sich nicht, weder Teilstrecke noch Gesamt.",
   tut2Title:"Foto des Bezugspunkts",
@@ -2062,7 +2067,7 @@ de:{introTitle:"So funktioniert es",
   impTitle:"iRally-Daten empfangen",impBody:"Die Datei enthält {s} Prüfungen und {t} Bordkarten.",
   impAdd:"Zu meinen Prüfungen hinzufügen",impReplace:"Alles ersetzen",impBad:"Ungültige Datei: das ist keine iRally-Datei.",impErr:"Fehler beim Wiederherstellen:",
   rbDelRef:"Referenz {n} löschen?",rbDelOk:"Löschen",
-  rbAdvLabel:"Roadbook-Symbolwechsel",rbAdvAuto:"Automatisch",rbAdvManual:"Manuell (Tippen auf Teilstrecke)",
+  rbAdvLabel:"Roadbook-Symbolwechsel",rbAdvAuto:"Automatisch",rbAdvManual:"Manuell \u2014 empfohlen (Tippen auf Teilstrecke)",
   rbAdvSmall:"Automatisch: am Kilometerstand des Bezugspunkts wechselt das Symbol zum nächsten und die Teilstrecke wird zurückgesetzt. Manuell: das Symbol wechselt nur beim Tippen auf die Teilstrecke oder mit den Pfeilen; die Meter laufen trotzdem weiter.",
   scanPage:"Seite {i} von {n}…",scanPagesFail:"Nicht gelesene Seiten: {list}. Wiederhole sie mit \"+ Scan hinzufügen\".",scanPagesGap:"Seiten mit fehlender Nummer: {list}. Bitte prüfen.",
   pwYear:"Jährlich",pwMonth:"Monatlich",pwPerYear:"/Jahr",pwPerMonth:"/Monat",pwNote:"7 Tage gratis, dann {p}",pwCta:"7 Tage gratis starten",pwRestore:"Käufe wiederherstellen",pwLegal:"Automatische Verlängerung. Jederzeit in den Apple-Einstellungen kündbar. Preise können je nach Land variieren.",pwWait:"Bitte warten…",pwLoading:"Produkte werden noch geladen, versuche es in ein paar Sekunden erneut.",scanGap:"Unvollständig gelesen: Referenz {n} fehlt. Prüfe die Seite und scanne sie bei Bedarf erneut.",
@@ -2197,6 +2202,7 @@ de:{introTitle:"So funktioniert es",
   soundDefault:"Standard",
   soundPlay:"Anhören"},
 pt:{introTitle:"Como funciona",
+  pdfImpRallyAsk:"Nome do rali (as provas irão para esta pasta)",
   tut1Title:"Setas",
   tut1Text:"Usa-as para avançar ou recuar entre os símbolos. A medição não muda, nem no parcial nem no total.",
   tut2Title:"Foto da referência",
@@ -2245,7 +2251,7 @@ pt:{introTitle:"Como funciona",
   impTitle:"Dados iRally recebidos",impBody:"O ficheiro contém {s} troços e {t} cartões.",
   impAdd:"Adicionar aos meus troços",impReplace:"Substituir tudo",impBad:"Ficheiro inválido: não parece um ficheiro iRally.",impErr:"Erro ao restaurar:",
   rbDelRef:"Eliminar a referência {n}?",rbDelOk:"Eliminar",
-  rbAdvLabel:"Avanço dos símbolos do radar",rbAdvAuto:"Automático",rbAdvManual:"Manual (toque no parcial)",
+  rbAdvLabel:"Avanço dos símbolos do radar",rbAdvAuto:"Automático",rbAdvManual:"Manual \u2014 recomendado (toque no parcial)",
   rbAdvSmall:"Automático: ao quilómetro da referência o símbolo passa ao seguinte e o parcial zera sozinho. Manual: o símbolo muda só quando tocas no parcial ou usas as setas; os metros continuam a contar.",
   scanPage:"Página {i} de {n}…",scanPagesFail:"Páginas não lidas: {list}. Repete-as com \"+ Adicionar scan\".",scanPagesGap:"Páginas com um número em falta: {list}. Verifica-as.",
   pwYear:"Anual",pwMonth:"Mensal",pwPerYear:"/ano",pwPerMonth:"/mês",pwNote:"7 dias grátis, depois {p}",pwCta:"Começar 7 dias grátis",pwRestore:"Restaurar compras",pwLegal:"Renovação automática. Cancela quando quiseres nas definições Apple. Os preços podem variar por país.",pwWait:"Aguarda…",pwLoading:"Os produtos ainda estão a carregar, tenta de novo daqui a alguns segundos.",scanGap:"Leitura incompleta: falta a referência {n}. Verifica a página e volta a digitalizá-la se for preciso.",
@@ -2380,6 +2386,7 @@ pt:{introTitle:"Como funciona",
   soundDefault:"Predefinido",
   soundPlay:"Ouvir"},
 ja:{introTitle:"使い方",
+  pdfImpRallyAsk:"ラリー名（ステージはこのフォルダに入ります）",
   tut1Title:"矢印",
   tut1Text:"記号を前後に切り替えます。計測は変わりません（区間も合計も）。",
   tut2Title:"基準点の写真",
@@ -2428,7 +2435,7 @@ ja:{introTitle:"使い方",
   impTitle:"iRally のデータを受け取りました",impBody:"このファイルには {s} 件のステージと {t} 件のタイムカードが含まれます。",
   impAdd:"自分のステージに追加",impReplace:"すべて置き換える",impBad:"無効なファイルです: iRally のファイルではないようです。",impErr:"復元中にエラー:",
   rbDelRef:"参照 {n} を削除しますか?",rbDelOk:"削除",
-  rbAdvLabel:"ロードブック記号の切替",rbAdvAuto:"自動",rbAdvManual:"手動（区間距離をタップ）",
+  rbAdvLabel:"ロードブック記号の切替",rbAdvAuto:"自動",rbAdvManual:"手動 — 推奨（区間距離をタップ）",
   rbAdvSmall:"自動: 基準点の距離に達すると記号が次に進み、区間距離は自動でリセットされます。手動: 区間距離をタップするか矢印を使ったときだけ記号が変わります。距離は常に進み続けます。",
   scanPage:"{n} ページ中 {i} ページ目…",scanPagesFail:"読み取れなかったページ: {list}。「+ スキャンを追加」でやり直してください。",scanPagesGap:"番号が欠けているページ: {list}。確認してください。",
   pwYear:"年額",pwMonth:"月額",pwPerYear:"/年",pwPerMonth:"/月",pwNote:"7日間無料、その後 {p}",pwCta:"7日間無料で始める",pwRestore:"購入を復元",pwLegal:"自動更新。Appleの設定からいつでも解約できます。価格は国によって異なる場合があります。",pwWait:"お待ちください…",pwLoading:"製品を読み込み中です。数秒後にもう一度お試しください。",scanGap:"読み取りが不完全です: 参照 {n} がありません。ページを確認し、必要なら再スキャンしてください。",
@@ -2563,6 +2570,7 @@ ja:{introTitle:"使い方",
   soundDefault:"デフォルト",
   soundPlay:"再生"},
 cs:{introTitle:"Jak to funguje",
+  pdfImpRallyAsk:"Název rally (zkoušky se uloží do této složky)",
   tut1Title:"Šipky",
   tut1Text:"Listují symboly dopředu nebo dozadu. Měření se nemění, ani dílčí, ani celkové.",
   tut2Title:"Foto bodu",
@@ -2611,7 +2619,7 @@ cs:{introTitle:"Jak to funguje",
   impTitle:"Přijata data iRally",impBody:"Soubor obsahuje {s} zkoušek a {t} výkazů.",
   impAdd:"Přidat k mým zkouškám",impReplace:"Nahradit vše",impBad:"Neplatný soubor: nevypadá jako soubor iRally.",impErr:"Chyba při obnově:",
   rbDelRef:"Smazat bod {n}?",rbDelOk:"Smazat",
-  rbAdvLabel:"Posun symbolů road booku",rbAdvAuto:"Automaticky",rbAdvManual:"Ručně (klepnutí na mezisoučet)",
+  rbAdvLabel:"Posun symbolů road booku",rbAdvAuto:"Automaticky",rbAdvManual:"Ručně — doporučeno (klepnutí na mezisoučet)",
   rbAdvSmall:"Automaticky: na kilometru bodu přejde symbol na další a mezisoučet se sám vynuluje. Ručně: symbol se změní jen po klepnutí na mezisoučet nebo šipkami; metry běží dál.",
   scanPage:"Strana {i} z {n}…",scanPagesFail:"Nepřečtené strany: {list}. Zopakujte je přes \"+ Přidat sken\".",scanPagesGap:"Strany s chybějícím číslem: {list}. Zkontrolujte je.",
   pwYear:"Roční",pwMonth:"Měsíční",pwPerYear:"/rok",pwPerMonth:"/měsíc",pwNote:"7 dní zdarma, poté {p}",pwCta:"Začít 7 dní zdarma",pwRestore:"Obnovit nákupy",pwLegal:"Automatické obnovení. Zrušit lze kdykoli v nastavení Apple. Ceny se mohou lišit podle země.",pwWait:"Čekejte…",pwLoading:"Produkty se ještě načítají, zkuste to za pár sekund.",scanGap:"Neúplné čtení: chybí bod {n}. Zkontrolujte stránku a případně ji naskenujte znovu.",
@@ -3914,6 +3922,7 @@ let pendingStageName = null;
 let pendingAppend = false;
 let pendingMaxKm = null;   /* solo importazione PDF: km della prova letti dal titolo */
 let pendingDetail = null;  /* dettaglio prova aperto durante "+ Aggiungi scan": da ridisegnare al ritorno */
+let pendingFolder = null;  /* importazione PDF: cartella della gara in cui mettere le prove */
 
 $('ssNew').addEventListener('click', ()=>{
   if(!proGate()) return;
@@ -4526,7 +4535,7 @@ async function scanAIRunFiles(files){
   parts.forEach(rb=>{ if(rb) all = all.concat(rb); });
   if(!all.length){ showMsg('\u26A0\uFE0F ' + (n>1 ? t('scanNone') : t('scanConnErr')) + (why.length ? '\n(' + why.join(' \u00B7 ') + ')' : '')); return; }
   let stage = cfg.ssLib.find(x => x.name === name);
-  if(!stage){ stage = { name: name, rb: [] }; if(ssCurFolder) stage.folder = ssCurFolder; cfg.ssLib.push(stage); }
+  if(!stage){ stage = { name: name, rb: [] }; const fld = pendingFolder || ssCurFolder; if(fld) stage.folder = fld; cfg.ssLib.push(stage); }
   stage.rb = append ? (stage.rb || []).concat(all) : all;
   if(pendingMaxKm != null){
     /* importazione da PDF: il roadbook include spesso il trasferimento dopo il fine prova.
@@ -4824,6 +4833,38 @@ async function pdfExtractGroups(pdf, onProgress){
     pages.push(p);
   }
 
+  /* nome della gara: la riga che compare in fondo a quasi tutte le pagine
+     (es. "20° #RA Rally Regione Piemonte - CIAR", "Rally Il Ciocco") */
+  try{
+    /* Due tentativi. 1) la riga con "rally" ripetuta su piu' pagine (Alba:
+       "20° #RA Rally Regione Piemonte - CIAR"). 2) la riga di piede ripetuta,
+       che spesso e' il nome o l'hashtag della gara (Lamia: "#Rallyfthiotidos").
+       Se nessuno dei due trova niente, il nome lo scrive l'utente. */
+    const tally = (obj, v) => {
+      v = (v||'').replace(/\s+/g,' ').trim()
+            .replace(/\bpag\.?\s*\/?\s*page\s*\d*\b/ig,'')
+            .replace(/^[-\u2013|\s]+|[-\u2013|\s]+$/g,'');
+      if(v.length < 6 || v.length > 60) return;
+      if(/^[\d\s,./|-]+$/.test(v)) return;
+      obj[v] = (obj[v]||0) + 1;
+    };
+    const pick = (obj, min) => {
+      let bv='', bn=0;
+      Object.keys(obj).forEach(k => { if(obj[k] > bn){ bn = obj[k]; bv = k; } });
+      return bn >= min ? bv : '';
+    };
+    const withRally = Object.create(null), footers = Object.create(null);
+    pages.forEach(p => {
+      const lines = (p.all||'').split('\n');
+      const m = (p.all||'').match(/([^\n]*\b(?:rally|rallye)\b[^\n]*)/i);
+      if(m) tally(withRally, m[1]);
+      lines.slice(-2).forEach(l => tally(footers, l));
+    });
+    /* prima la riga di piede ripetuta su almeno un quarto delle pagine (la piu'
+       affidabile), poi come ripiego la riga che contiene "rally" */
+    pdfImpRally = pick(footers, Math.max(3, Math.floor(pages.length * 0.25))) || pick(withRally, 3);
+  }catch(e){}
+
   /* 1) prove per struttura (colore); se il PDF non ha colonne colorate, per intestazione */
   let byColor = pdfGroupsByColor(pages);
   /* Rete di sicurezza: se il colore promuove quasi tutto a prova, o se NESSUNA prova
@@ -4915,6 +4956,7 @@ async function pdfRenderPageToBlob(pdf, pageNum, targetPx){
 
 let pdfImpDoc = null;
 let pdfImpGroups = [];
+let pdfImpRally = '';   /* nome della gara letto nel PDF: proposto come nome della cartella */
 let pdfImpManualSeq = 0;
 
 function pdfImpCard(g){
@@ -5078,6 +5120,16 @@ $('pdfImpConfirm').addEventListener('click', async ()=>{
   if(!toImport.length || !pdfImpDoc){ pdfImpCloseOv(); return; }
   const pdf = pdfImpDoc;
   pdfImpCloseOv();
+  /* Nome gara: le prove importate finiscono tutte in una cartella con questo nome,
+     cosi' non vanno spostate una per una. Proposto da quello letto nel PDF. */
+  const suggested = pdfImpRally || '';
+  const rallyName = await new Promise(res => askName(suggested, res, 'pdfImpRallyAsk'));
+  let folderId = null;
+  if(rallyName){
+    const ex = ssFolders().find(f => (f.name||'').toLowerCase() === rallyName.toLowerCase());
+    if(ex) folderId = ex.id;
+    else { folderId = 'r' + Date.now(); ssFolders().push({ id: folderId, name: rallyName }); }
+  }
   window.__scanBusy(true, t('scanReading'));
   let done = 0;
   try{
@@ -5090,6 +5142,7 @@ $('pdfImpConfirm').addEventListener('click', async ()=>{
       if(!blobs.length) continue;
       pendingStageName = g.name || ('Prova ' + g.pages[0]);
       pendingAppend = false;
+      pendingFolder = folderId;
       pendingMaxKm = (typeof g.km === 'number' && g.km > 0) ? g.km : null;
       await scanAIRunFiles(blobs);
       done++;
@@ -5098,8 +5151,10 @@ $('pdfImpConfirm').addEventListener('click', async ()=>{
     showMsg('\u26A0\uFE0F ' + t('scanConnErr'));
   } finally {
     pendingMaxKm = null;
+    pendingFolder = null;
     window.__scanBusy(false);
   }
+  if(folderId) ssCurFolder = folderId;   /* apri direttamente la cartella della gara */
   /* le prove sono gia' nell'elenco Radar (scanAIRunFiles le salva): mostralo */
   buildSsList();
   $('navMenu').classList.add('open');
