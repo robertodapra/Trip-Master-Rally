@@ -719,7 +719,7 @@
   <h2 data-t="introTitle"></h2>
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
-  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-12.3</p>
+  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-12.4</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -4742,6 +4742,14 @@ function nameGroups(groups, byNum, colorDecided){
   }
 }
 
+/* quanti chilometraggi hanno in comune due pagine, sul totale della piu' corta */
+function pdfKmOverlap(a, b){
+  if(!a.length || !b.length) return 0;
+  const pool = b.slice();
+  let common = 0;
+  for(const v of a){ const i = pool.indexOf(v); if(i >= 0){ pool.splice(i,1); common++; } }
+  return common / Math.min(a.length, b.length);
+}
 /* metodo classico: pagine-tabella consecutive con la stessa intestazione */
 function pdfGroupsByHeader(pages){
   const groups = []; let cur = null;
@@ -4803,7 +4811,7 @@ async function pdfExtractGroups(pdf, onProgress){
                 fin: PDF_STOP.test(tx.all), share:null,
                 /* i primi chilometraggi della pagina: due pagine con la stessa sequenza
                    sono la stessa prova ristampata (es. rientro allo shakedown) */
-                kmSeq: isTable ? (tx.all.match(/\d{1,3}[,.]\d{2}/g) || []).slice(0, 8).join('|') : '' };
+                kmList: isTable ? (tx.all.match(/\d{1,3}[,.]\d{2}/g) || []) : [] };
     if(isTable){
       try{
         const pal = await pdfPagePalette(page);
@@ -4850,21 +4858,35 @@ async function pdfExtractGroups(pdf, onProgress){
 
   /* 3) ripetizioni della stessa prova (stesso nome e stessa dimensione) */
   const seen = {};
-  const seenKm = {};
+  const firsts = [];      /* prove gia' viste, per riconoscere le ristampe */
   const out = [];
   for(const g of groups){
     if(!g.isStage && g.pages.length < 2 && !byColor) continue;
-    /* ristampa della stessa prova: identica sequenza di km sulla prima pagina.
-       Prende anche il nome dall'originale, cosi' si capisce cos'e'. */
-    const kmKey = g.isStage ? ((byNum[g.pages[0]] && byNum[g.pages[0]].kmSeq) || '') : '';
-    if(kmKey && seenKm[kmKey]){
+    /* RISTAMPA DELLA STESSA PROVA (passaggi ripetuti, rientro allo shakedown):
+       stessa strada = stessi chilometraggi. Non pretendo che siano identici, perche'
+       i totali in testata cambiano fra un passaggio e l'altro: misuro quanto si
+       sovrappongono. Misurato sui tre road book: stessa prova 70-100%, prove diverse
+       8-16%. Soglia al 50%, con margine larghissimo da entrambe le parti.
+       La ristampa prende nome e km dall'originale e nasce deselezionata. */
+    const mine = g.isStage ? ((byNum[g.pages[0]] && byNum[g.pages[0]].kmList) || []) : [];
+    let src = null;
+    if(mine.length >= 6){
+      for(const f of firsts){
+        /* anche la LUNGHEZZA deve combaciare: lo shakedown si corre sulla strada della
+           prova, quindi ha molti km in comune con lei senza esserne una ristampa
+           (Noale: shakedown 2 pagine, ZERO BRANCO 5). */
+        if(Math.abs(f.len - g.pages.length) > 1) continue;
+        if(pdfKmOverlap(mine, f.list) >= 0.5){ src = f; break; }
+      }
+    }
+    if(src){
       g.repeat = true;
-      if(!g.name) g.name = seenKm[kmKey].name;
-      if(g.km == null) g.km = seenKm[kmKey].km;
+      if(!g.name) g.name = src.name;
+      if(g.km == null) g.km = src.km;
       out.push(g);
       continue;
     }
-    if(kmKey) seenKm[kmKey] = { name: g.name, km: g.km };
+    if(mine.length >= 6) firsts.push({ list: mine, name: g.name, km: g.km, len: g.pages.length });
     const k = (g.name || '').toLowerCase();
     const prev = k ? seen[k] : null;
     g.repeat = !!(g.isStage && prev && Math.abs(prev - g.pages.length) <= 1);
