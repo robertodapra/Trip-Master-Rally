@@ -438,6 +438,9 @@
   .rb-imgdel{background:none;border:none;color:var(--red);font-size:11px;padding:4px 0;width:100%}
 
   #zoneWord{grid-area:word;cursor:pointer}
+  #prevWord{font-size:15px;color:var(--muted);margin-bottom:4px;letter-spacing:.02em}
+  #prevWord .pw-lbl{opacity:.7}
+  #prevWordVal{color:var(--text);font-weight:700}
   #wordVal{
     font-size:calc(clamp(64px,15vw,170px) * var(--numscale));
     font-weight:900;line-height:1;
@@ -633,6 +636,7 @@
   <div id="navFree"><div id="navFreeTrack"><div id="navFreeFill"></div></div><span id="navFreeTxt"></span></div>
   <div class="zone" id="zoneWord">
     <span class="zlabel" data-t="wordShort"></span>
+    <div id="prevWord" hidden><span class="pw-lbl" data-t="prevWordLbl"></span> <span id="prevWordVal"></span></div>
     <div id="wordVal" class="numeric">0</div>
     <div id="wordState"></div>
   </div>
@@ -719,7 +723,7 @@
   <h2 data-t="introTitle"></h2>
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
-  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-14.1</p>
+  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-14.2</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -1315,6 +1319,7 @@ function updateNavFree(){ var el=document.getElementById('navFree'); if(!el) ret
 /* ================= TRADUZIONI ================= */
 const T = {
 it:{introTitle:"Come funziona",
+  prevWordLbl:"Prima:",
   pdfImpScannedMsg:"Questo PDF è fatto di scansioni (immagini senza testo): non posso trovare le prove da solo. Usa \"+ Aggiungi manualmente un intervallo di pagine\" e indica le pagine di ogni prova.",
   pmTapReset:"Ogni tocco azzera la misurazione",
   pmTapResetDesc:"Attivo: ogni tocco sullo schermo fa ripartire da zero una nuova misurazione. Spento: il primo tocco ferma, il secondo riparte.",
@@ -1489,6 +1494,7 @@ it:{introTitle:"Come funziona",
   soundDefault:"Predefinito",
   soundPlay:"Ascolta"},
 en:{introTitle:"How it works",
+  prevWordLbl:"Before:",
   pdfImpScannedMsg:"This PDF is made of scans (images without text): I cannot find the stages by myself. Use \"+ Add a page range manually\" and enter the pages of each stage.",
   pmTapReset:"Every tap resets the measurement",
   pmTapResetDesc:"On: every tap on the screen starts a new measurement from zero. Off: the first tap stops, the second restarts.",
@@ -1663,6 +1669,7 @@ en:{introTitle:"How it works",
   soundDefault:"Default",
   soundPlay:"Play"},
 fr:{introTitle:"Comment ça marche",
+  prevWordLbl:"Avant :",
   pdfImpScannedMsg:"Ce PDF est composé de scans (images sans texte) : je ne peux pas trouver les spéciales seul. Utilise « Ajouter manuellement une plage de pages » et indique les pages de chaque spéciale.",
   pmTapReset:"Chaque touche remet la mesure à zéro",
   pmTapResetDesc:"Activé : chaque touche sur l'écran lance une nouvelle mesure depuis zéro. Désactivé : la première touche arrête, la seconde relance.",
@@ -1850,6 +1857,7 @@ fr:{introTitle:"Comment ça marche",
   soundDefault:"Par défaut",
   soundPlay:"Écouter"},
 es:{introTitle:"Cómo funciona",
+  prevWordLbl:"Antes:",
   pdfImpScannedMsg:"Este PDF está hecho de escaneos (imágenes sin texto): no puedo encontrar los tramos por mí mismo. Usa «Añadir manualmente un rango de páginas» e indica las páginas de cada tramo.",
   pmTapReset:"Cada toque pone a cero la medición",
   pmTapResetDesc:"Activado: cada toque en la pantalla inicia una medición nueva desde cero. Desactivado: el primer toque detiene, el segundo reanuda.",
@@ -2037,6 +2045,7 @@ es:{introTitle:"Cómo funciona",
   soundDefault:"Predeterminado",
   soundPlay:"Escuchar"},
 de:{introTitle:"So funktioniert es",
+  prevWordLbl:"Vorher:",
   pdfImpScannedMsg:"Dieses PDF besteht aus Scans (Bilder ohne Text): ich kann die Prüfungen nicht selbst finden. Nutze „Seitenbereich manuell hinzufügen“ und gib die Seiten jeder Prüfung an.",
   pmTapReset:"Jedes Tippen setzt die Messung zurück",
   pmTapResetDesc:"Ein: jedes Tippen auf den Bildschirm startet eine neue Messung bei null. Aus: das erste Tippen stoppt, das zweite startet wieder.",
@@ -2224,6 +2233,7 @@ de:{introTitle:"So funktioniert es",
   soundDefault:"Standard",
   soundPlay:"Anhören"},
 pt:{introTitle:"Como funciona",
+  prevWordLbl:"Antes:",
   pdfImpScannedMsg:"Este PDF é feito de digitalizações (imagens sem texto): não consigo encontrar as provas sozinho. Usa «Adicionar manualmente um intervalo de páginas» e indica as páginas de cada prova.",
   pmTapReset:"Cada toque zera a medição",
   pmTapResetDesc:"Ligado: cada toque no ecrã inicia uma nova medição a partir do zero. Desligado: o primeiro toque para, o segundo recomeça.",
@@ -2411,6 +2421,7 @@ pt:{introTitle:"Como funciona",
   soundDefault:"Predefinido",
   soundPlay:"Ouvir"},
 ja:{introTitle:"使い方",
+  prevWordLbl:"前回：",
   pdfImpScannedMsg:"このPDFはスキャン画像（テキストなし）でできています。ステージを自動で見つけることはできません。「ページ範囲を手動で追加」で各ステージのページを指定してください。",
   pmTapReset:"タップするたびに計測をリセット",
   pmTapResetDesc:"オン：画面をタップするたびにゼロから新しい計測を開始します。オフ：1回目のタップで停止、2回目で再開します。",
@@ -2598,6 +2609,7 @@ ja:{introTitle:"使い方",
   soundDefault:"デフォルト",
   soundPlay:"再生"},
 cs:{introTitle:"Jak to funguje",
+  prevWordLbl:"Předtím:",
   pdfImpScannedMsg:"Toto PDF je složeno ze skenů (obrázky bez textu): zkoušky nedokážu najít sám. Použij „Ručně přidat rozsah stran“ a zadej strany každé zkoušky.",
   pmTapReset:"Každé klepnutí vynuluje měření",
   pmTapResetDesc:"Zapnuto: každé klepnutí na obrazovku spustí nové měření od nuly. Vypnuto: první klepnutí zastaví, druhé spustí znovu.",
@@ -3154,6 +3166,7 @@ function speedUnitStr(){ return isImp() ? 'mph' : 'km/h'; }
 /* ================= MODALITÀ ================= */
 /* pilot = pilota · nav = trip navigatore · radar = display radar */
 function applyMode(){
+  try{ const pw = $('prevWord'); if(pw && cfg.mode !== 'pilot') pw.hidden = true; }catch(e){}
   document.body.dataset.mode = cfg.mode;
   partialLbl.dataset.t = (cfg.mode === 'radar') ? 'partialLabelRadar' : 'partialLabel';
   applyUnits();
@@ -3435,8 +3448,14 @@ function anyOverlayOpen(){
 
 /* legge la parola corrispondente alla distanza appena misurata */
 function speakMeasured(dist){
-  if(!cfg.speak || !('speechSynthesis' in window)) return;
   const w = activeWord(dist);
+  /* la parola della misurazione appena chiusa resta scritta sopra quella corrente,
+     cosi' durante la misurazione nuova si vede ancora cos'aveva detto prima */
+  try{
+    const pw = $('prevWord'), pv = $('prevWordVal');
+    if(pw && pv){ if(w){ pv.textContent = w; pw.hidden = false; } }
+  }catch(e){}
+  if(!cfg.speak || !('speechSynthesis' in window)) return;
   if(!w) return;
   const u = new SpeechSynthesisUtterance(w);
   u.lang = loc();
