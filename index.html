@@ -719,7 +719,7 @@
   <h2 data-t="introTitle"></h2>
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
-  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-12.7</p>
+  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-14.1</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -1315,6 +1315,7 @@ function updateNavFree(){ var el=document.getElementById('navFree'); if(!el) ret
 /* ================= TRADUZIONI ================= */
 const T = {
 it:{introTitle:"Come funziona",
+  pdfImpScannedMsg:"Questo PDF è fatto di scansioni (immagini senza testo): non posso trovare le prove da solo. Usa \"+ Aggiungi manualmente un intervallo di pagine\" e indica le pagine di ogni prova.",
   pmTapReset:"Ogni tocco azzera la misurazione",
   pmTapResetDesc:"Attivo: ogni tocco sullo schermo fa ripartire da zero una nuova misurazione. Spento: il primo tocco ferma, il secondo riparte.",
   pdfImpFolderAsk:"Nome cartella",
@@ -1323,7 +1324,7 @@ it:{introTitle:"Come funziona",
   impAdd:"Aggiungi alle mie prove",impReplace:"Sostituisci tutto",impBad:"File non valido: non sembra un file iRally.",impErr:"Errore durante il ripristino:",
   rbDelRef:"Eliminare il riferimento {n}?",rbDelOk:"Elimina",
   rbAdvLabel:"Scorrimento simboli radar",rbAdvAuto:"Automatico",rbAdvManual:"Manuale (consigliato)",
-  rbAdvSmall:"Automatico: al chilometraggio del riferimento il simbolo passa al successivo e il parziale si azzera da solo. Manuale: il simbolo cambia solo quando tocchi il parziale o usi le frecce; i metri corrono comunque.",
+  rbAdvSmall:"Automatico: raggiunto il parziale, passa da solo al simbolo successivo. Manuale: premi il parziale per azzerarlo e passare al simbolo successivo.",
   scanPage:"Pagina {i} di {n}…",scanPagesFail:"Pagine non lette: {list}. Rifalle con \"+ Aggiungi scan\".",scanPagesGap:"Pagine con un numero mancante: {list}. Controllale.",
   pwYear:"Annuale",pwMonth:"Mensile",pwPerYear:"/anno",pwPerMonth:"/mese",pwNote:"7 giorni gratis, poi {p}",pwCta:"Inizia 7 giorni gratis",pwRestore:"Ripristina acquisti",pwLegal:"Rinnovo automatico. Disdici quando vuoi dalle impostazioni Apple. I prezzi possono variare per paese.",pwWait:"Attendere…",pwLoading:"Prodotti ancora in caricamento, riprova tra qualche secondo.",scanGap:"Lettura incompleta: manca il riferimento {n}. Controlla la pagina e, se serve, riscansionala.",
   calcHint:"Scrivi l'orario (es. 1335 = 13:35), poi + o − e un altro tempo, infine =.",bkExport:"Esporta backup",bkImport:"Importa backup",
@@ -1488,6 +1489,7 @@ it:{introTitle:"Come funziona",
   soundDefault:"Predefinito",
   soundPlay:"Ascolta"},
 en:{introTitle:"How it works",
+  pdfImpScannedMsg:"This PDF is made of scans (images without text): I cannot find the stages by myself. Use \"+ Add a page range manually\" and enter the pages of each stage.",
   pmTapReset:"Every tap resets the measurement",
   pmTapResetDesc:"On: every tap on the screen starts a new measurement from zero. Off: the first tap stops, the second restarts.",
   pdfImpFolderAsk:"Folder name",
@@ -1496,7 +1498,7 @@ en:{introTitle:"How it works",
   impAdd:"Add to my stages",impReplace:"Replace everything",impBad:"Invalid file: it does not look like an iRally file.",impErr:"Error while restoring:",
   rbDelRef:"Delete reference {n}?",rbDelOk:"Delete",
   rbAdvLabel:"Road book symbol advance",rbAdvAuto:"Automatic",rbAdvManual:"Manual (recommended)",
-  rbAdvSmall:"Automatic: at the reference distance the symbol moves to the next one and the partial resets by itself. Manual: the symbol changes only when you tap the partial or use the arrows; the metres keep counting anyway.",
+  rbAdvSmall:"Automatic: when the partial is reached, it moves to the next symbol by itself. Manual: tap the partial to reset it and move to the next symbol.",
   scanPage:"Page {i} of {n}…",scanPagesFail:"Pages not read: {list}. Redo them with \"+ Add scan\".",scanPagesGap:"Pages with a missing number: {list}. Check them.",
   pwYear:"Annual",pwMonth:"Monthly",pwPerYear:"/year",pwPerMonth:"/month",pwNote:"7 days free, then {p}",pwCta:"Start 7 days free",pwRestore:"Restore purchases",pwLegal:"Auto-renewing. Cancel anytime in your Apple settings. Prices may vary by country.",pwWait:"Please wait…",pwLoading:"Products are still loading, try again in a few seconds.",scanGap:"Incomplete read: reference {n} is missing. Check the page and rescan it if needed.",
   calcHint:"Type a time (e.g. 1335 = 13:35), then + or −, another time, then =.",bkExport:"Export backup",bkImport:"Import backup",
@@ -1661,6 +1663,7 @@ en:{introTitle:"How it works",
   soundDefault:"Default",
   soundPlay:"Play"},
 fr:{introTitle:"Comment ça marche",
+  pdfImpScannedMsg:"Ce PDF est composé de scans (images sans texte) : je ne peux pas trouver les spéciales seul. Utilise « Ajouter manuellement une plage de pages » et indique les pages de chaque spéciale.",
   pmTapReset:"Chaque touche remet la mesure à zéro",
   pmTapResetDesc:"Activé : chaque touche sur l'écran lance une nouvelle mesure depuis zéro. Désactivé : la première touche arrête, la seconde relance.",
   pdfImpFolderAsk:"Nom du dossier",
@@ -1713,7 +1716,7 @@ fr:{introTitle:"Comment ça marche",
   impAdd:"Ajouter à mes spéciales",impReplace:"Tout remplacer",impBad:"Fichier non valide : ce n'est pas un fichier iRally.",impErr:"Erreur lors de la restauration :",
   rbDelRef:"Supprimer le repère {n} ?",rbDelOk:"Supprimer",
   rbAdvLabel:"Défilement des repères radar",rbAdvAuto:"Automatique",rbAdvManual:"Manuel (recommand\u00e9)",
-  rbAdvSmall:"Automatique : au kilométrage du repère, le symbole passe au suivant et le partiel repart de zéro. Manuel : le symbole change seulement quand vous touchez le partiel ou les flèches ; les mètres défilent quand même.",
+  rbAdvSmall:"Automatique : une fois le partiel atteint, il passe au symbole suivant tout seul. Manuel : il suffit d'appuyer sur le partiel pour le remettre à zéro et changer de symbole.",
   scanPage:"Page {i} sur {n}…",scanPagesFail:"Pages non lues : {list}. Refaites-les avec \"+ Ajouter un scan\".",scanPagesGap:"Pages avec un numéro manquant : {list}. Vérifiez-les.",
   pwYear:"Annuel",pwMonth:"Mensuel",pwPerYear:"/an",pwPerMonth:"/mois",pwNote:"7 jours gratuits, puis {p}",pwCta:"Commencer 7 jours gratuits",pwRestore:"Restaurer les achats",pwLegal:"Renouvellement automatique. Résiliez à tout moment dans les réglages Apple. Les prix peuvent varier selon le pays.",pwWait:"Veuillez patienter…",pwLoading:"Produits en cours de chargement, réessayez dans quelques secondes.",scanGap:"Lecture incomplète : le repère {n} manque. Vérifiez la page et rescannez-la si besoin.",
   calcHint:"Saisissez une heure (ex. 1335 = 13:35), puis + ou −, une autre durée, puis =.",bkExport:"Exporter la sauvegarde",bkImport:"Importer la sauvegarde",
@@ -1847,6 +1850,7 @@ fr:{introTitle:"Comment ça marche",
   soundDefault:"Par défaut",
   soundPlay:"Écouter"},
 es:{introTitle:"Cómo funciona",
+  pdfImpScannedMsg:"Este PDF está hecho de escaneos (imágenes sin texto): no puedo encontrar los tramos por mí mismo. Usa «Añadir manualmente un rango de páginas» e indica las páginas de cada tramo.",
   pmTapReset:"Cada toque pone a cero la medición",
   pmTapResetDesc:"Activado: cada toque en la pantalla inicia una medición nueva desde cero. Desactivado: el primer toque detiene, el segundo reanuda.",
   pdfImpFolderAsk:"Nombre de la carpeta",
@@ -1899,7 +1903,7 @@ es:{introTitle:"Cómo funciona",
   impAdd:"Añadir a mis tramos",impReplace:"Sustituir todo",impBad:"Archivo no válido: no parece un archivo iRally.",impErr:"Error al restaurar:",
   rbDelRef:"¿Eliminar la referencia {n}?",rbDelOk:"Eliminar",
   rbAdvLabel:"Avance de símbolos del radar",rbAdvAuto:"Automático",rbAdvManual:"Manual (recomendado)",
-  rbAdvSmall:"Automático: al llegar al kilometraje de la referencia, el símbolo pasa al siguiente y el parcial se pone a cero solo. Manual: el símbolo cambia solo cuando tocas el parcial o usas las flechas; los metros siguen corriendo.",
+  rbAdvSmall:"Automático: al alcanzar el parcial pasa al siguiente símbolo solo. Manual: basta con pulsar el parcial para ponerlo a cero y cambiar de símbolo.",
   scanPage:"Página {i} de {n}…",scanPagesFail:"Páginas no leídas: {list}. Repítelas con \"+ Añadir escaneo\".",scanPagesGap:"Páginas con un número que falta: {list}. Revísalas.",
   pwYear:"Anual",pwMonth:"Mensual",pwPerYear:"/año",pwPerMonth:"/mes",pwNote:"7 días gratis, luego {p}",pwCta:"Empieza 7 días gratis",pwRestore:"Restaurar compras",pwLegal:"Renovación automática. Cancela cuando quieras en los ajustes de Apple. Los precios pueden variar según el país.",pwWait:"Espera…",pwLoading:"Los productos aún se están cargando, inténtalo en unos segundos.",scanGap:"Lectura incompleta: falta la referencia {n}. Revisa la página y vuelve a escanearla si hace falta.",
   calcHint:"Escribe la hora (p. ej. 1335 = 13:35), luego + o −, otro tiempo y =.",bkExport:"Exportar copia",bkImport:"Importar copia",
@@ -2033,6 +2037,7 @@ es:{introTitle:"Cómo funciona",
   soundDefault:"Predeterminado",
   soundPlay:"Escuchar"},
 de:{introTitle:"So funktioniert es",
+  pdfImpScannedMsg:"Dieses PDF besteht aus Scans (Bilder ohne Text): ich kann die Prüfungen nicht selbst finden. Nutze „Seitenbereich manuell hinzufügen“ und gib die Seiten jeder Prüfung an.",
   pmTapReset:"Jedes Tippen setzt die Messung zurück",
   pmTapResetDesc:"Ein: jedes Tippen auf den Bildschirm startet eine neue Messung bei null. Aus: das erste Tippen stoppt, das zweite startet wieder.",
   pdfImpFolderAsk:"Ordnername",
@@ -2085,7 +2090,7 @@ de:{introTitle:"So funktioniert es",
   impAdd:"Zu meinen Prüfungen hinzufügen",impReplace:"Alles ersetzen",impBad:"Ungültige Datei: das ist keine iRally-Datei.",impErr:"Fehler beim Wiederherstellen:",
   rbDelRef:"Referenz {n} löschen?",rbDelOk:"Löschen",
   rbAdvLabel:"Roadbook-Symbolwechsel",rbAdvAuto:"Automatisch",rbAdvManual:"Manuell (empfohlen)",
-  rbAdvSmall:"Automatisch: am Kilometerstand des Bezugspunkts wechselt das Symbol zum nächsten und die Teilstrecke wird zurückgesetzt. Manuell: das Symbol wechselt nur beim Tippen auf die Teilstrecke oder mit den Pfeilen; die Meter laufen trotzdem weiter.",
+  rbAdvSmall:"Automatisch: sobald die Teilstrecke erreicht ist, wechselt es von selbst zum nächsten Symbol. Manuell: einfach auf die Teilstrecke tippen, um sie zurückzusetzen und das Symbol zu wechseln.",
   scanPage:"Seite {i} von {n}…",scanPagesFail:"Nicht gelesene Seiten: {list}. Wiederhole sie mit \"+ Scan hinzufügen\".",scanPagesGap:"Seiten mit fehlender Nummer: {list}. Bitte prüfen.",
   pwYear:"Jährlich",pwMonth:"Monatlich",pwPerYear:"/Jahr",pwPerMonth:"/Monat",pwNote:"7 Tage gratis, dann {p}",pwCta:"7 Tage gratis starten",pwRestore:"Käufe wiederherstellen",pwLegal:"Automatische Verlängerung. Jederzeit in den Apple-Einstellungen kündbar. Preise können je nach Land variieren.",pwWait:"Bitte warten…",pwLoading:"Produkte werden noch geladen, versuche es in ein paar Sekunden erneut.",scanGap:"Unvollständig gelesen: Referenz {n} fehlt. Prüfe die Seite und scanne sie bei Bedarf erneut.",
   calcHint:"Zeit eingeben (z. B. 1335 = 13:35), dann + oder −, eine weitere Zeit, dann =.",bkExport:"Backup exportieren",bkImport:"Backup importieren",
@@ -2219,6 +2224,7 @@ de:{introTitle:"So funktioniert es",
   soundDefault:"Standard",
   soundPlay:"Anhören"},
 pt:{introTitle:"Como funciona",
+  pdfImpScannedMsg:"Este PDF é feito de digitalizações (imagens sem texto): não consigo encontrar as provas sozinho. Usa «Adicionar manualmente um intervalo de páginas» e indica as páginas de cada prova.",
   pmTapReset:"Cada toque zera a medição",
   pmTapResetDesc:"Ligado: cada toque no ecrã inicia uma nova medição a partir do zero. Desligado: o primeiro toque para, o segundo recomeça.",
   pdfImpFolderAsk:"Nome da pasta",
@@ -2271,7 +2277,7 @@ pt:{introTitle:"Como funciona",
   impAdd:"Adicionar aos meus troços",impReplace:"Substituir tudo",impBad:"Ficheiro inválido: não parece um ficheiro iRally.",impErr:"Erro ao restaurar:",
   rbDelRef:"Eliminar a referência {n}?",rbDelOk:"Eliminar",
   rbAdvLabel:"Avanço dos símbolos do radar",rbAdvAuto:"Automático",rbAdvManual:"Manual (recomendado)",
-  rbAdvSmall:"Automático: ao quilómetro da referência o símbolo passa ao seguinte e o parcial zera sozinho. Manual: o símbolo muda só quando tocas no parcial ou usas as setas; os metros continuam a contar.",
+  rbAdvSmall:"Automático: ao atingir o parcial passa sozinho para o símbolo seguinte. Manual: basta premir o parcial para o zerar e mudar de símbolo.",
   scanPage:"Página {i} de {n}…",scanPagesFail:"Páginas não lidas: {list}. Repete-as com \"+ Adicionar scan\".",scanPagesGap:"Páginas com um número em falta: {list}. Verifica-as.",
   pwYear:"Anual",pwMonth:"Mensal",pwPerYear:"/ano",pwPerMonth:"/mês",pwNote:"7 dias grátis, depois {p}",pwCta:"Começar 7 dias grátis",pwRestore:"Restaurar compras",pwLegal:"Renovação automática. Cancela quando quiseres nas definições Apple. Os preços podem variar por país.",pwWait:"Aguarda…",pwLoading:"Os produtos ainda estão a carregar, tenta de novo daqui a alguns segundos.",scanGap:"Leitura incompleta: falta a referência {n}. Verifica a página e volta a digitalizá-la se for preciso.",
   calcHint:"Escreve a hora (ex. 1335 = 13:35), depois + ou −, outro tempo e =.",bkExport:"Exportar cópia",bkImport:"Importar cópia",
@@ -2405,6 +2411,7 @@ pt:{introTitle:"Como funciona",
   soundDefault:"Predefinido",
   soundPlay:"Ouvir"},
 ja:{introTitle:"使い方",
+  pdfImpScannedMsg:"このPDFはスキャン画像（テキストなし）でできています。ステージを自動で見つけることはできません。「ページ範囲を手動で追加」で各ステージのページを指定してください。",
   pmTapReset:"タップするたびに計測をリセット",
   pmTapResetDesc:"オン：画面をタップするたびにゼロから新しい計測を開始します。オフ：1回目のタップで停止、2回目で再開します。",
   pdfImpFolderAsk:"フォルダ名",
@@ -2457,7 +2464,7 @@ ja:{introTitle:"使い方",
   impAdd:"自分のステージに追加",impReplace:"すべて置き換える",impBad:"無効なファイルです: iRally のファイルではないようです。",impErr:"復元中にエラー:",
   rbDelRef:"参照 {n} を削除しますか?",rbDelOk:"削除",
   rbAdvLabel:"ロードブック記号の切替",rbAdvAuto:"自動",rbAdvManual:"手動（推奨）",
-  rbAdvSmall:"自動: 基準点の距離に達すると記号が次に進み、区間距離は自動でリセットされます。手動: 区間距離をタップするか矢印を使ったときだけ記号が変わります。距離は常に進み続けます。",
+  rbAdvSmall:"自動：区間距離に達すると自動で次の記号に進みます。手動：区間距離をタップするだけでゼロに戻り、記号が切り替わります。",
   scanPage:"{n} ページ中 {i} ページ目…",scanPagesFail:"読み取れなかったページ: {list}。「+ スキャンを追加」でやり直してください。",scanPagesGap:"番号が欠けているページ: {list}。確認してください。",
   pwYear:"年額",pwMonth:"月額",pwPerYear:"/年",pwPerMonth:"/月",pwNote:"7日間無料、その後 {p}",pwCta:"7日間無料で始める",pwRestore:"購入を復元",pwLegal:"自動更新。Appleの設定からいつでも解約できます。価格は国によって異なる場合があります。",pwWait:"お待ちください…",pwLoading:"製品を読み込み中です。数秒後にもう一度お試しください。",scanGap:"読み取りが不完全です: 参照 {n} がありません。ページを確認し、必要なら再スキャンしてください。",
   calcHint:"時刻を入力し（例 1335 = 13:35）、+ または − と別の時間を入れて = を押します。",bkExport:"バックアップを書き出す",bkImport:"バックアップを読み込む",
@@ -2591,6 +2598,7 @@ ja:{introTitle:"使い方",
   soundDefault:"デフォルト",
   soundPlay:"再生"},
 cs:{introTitle:"Jak to funguje",
+  pdfImpScannedMsg:"Toto PDF je složeno ze skenů (obrázky bez textu): zkoušky nedokážu najít sám. Použij „Ručně přidat rozsah stran“ a zadej strany každé zkoušky.",
   pmTapReset:"Každé klepnutí vynuluje měření",
   pmTapResetDesc:"Zapnuto: každé klepnutí na obrazovku spustí nové měření od nuly. Vypnuto: první klepnutí zastaví, druhé spustí znovu.",
   pdfImpFolderAsk:"Název složky",
@@ -2643,7 +2651,7 @@ cs:{introTitle:"Jak to funguje",
   impAdd:"Přidat k mým zkouškám",impReplace:"Nahradit vše",impBad:"Neplatný soubor: nevypadá jako soubor iRally.",impErr:"Chyba při obnově:",
   rbDelRef:"Smazat bod {n}?",rbDelOk:"Smazat",
   rbAdvLabel:"Posun symbolů road booku",rbAdvAuto:"Automaticky",rbAdvManual:"Ručně (doporučeno)",
-  rbAdvSmall:"Automaticky: na kilometru bodu přejde symbol na další a mezisoučet se sám vynuluje. Ručně: symbol se změní jen po klepnutí na mezisoučet nebo šipkami; metry běží dál.",
+  rbAdvSmall:"Automaticky: po dosažení dílčí vzdálenosti přejde na další symbol sám. Ručně: stačí klepnout na dílčí, tím se vynuluje a změní symbol.",
   scanPage:"Strana {i} z {n}…",scanPagesFail:"Nepřečtené strany: {list}. Zopakujte je přes \"+ Přidat sken\".",scanPagesGap:"Strany s chybějícím číslem: {list}. Zkontrolujte je.",
   pwYear:"Roční",pwMonth:"Měsíční",pwPerYear:"/rok",pwPerMonth:"/měsíc",pwNote:"7 dní zdarma, poté {p}",pwCta:"Začít 7 dní zdarma",pwRestore:"Obnovit nákupy",pwLegal:"Automatické obnovení. Zrušit lze kdykoli v nastavení Apple. Ceny se mohou lišit podle země.",pwWait:"Čekejte…",pwLoading:"Produkty se ještě načítají, zkuste to za pár sekund.",scanGap:"Neúplné čtení: chybí bod {n}. Zkontrolujte stránku a případně ji naskenujte znovu.",
   calcHint:"Zadejte čas (např. 1335 = 13:35), pak + nebo −, další čas a =.",bkExport:"Exportovat zálohu",bkImport:"Importovat zálohu",
@@ -3396,16 +3404,10 @@ function frame(){
 
   if(cfg.mode === 'pilot'){
     if(running){
-      const w = activeWord(partial);
-      currentWord = w;
-      if(w && cfg.speak && w !== lastSpoken && 'speechSynthesis' in window){
-        lastSpoken = w;
-        const u = new SpeechSynthesisUtterance(w);
-        u.lang = loc();
-        speechSynthesis.cancel();
-        speechSynthesis.speak(u);
-      }
-      if(!w) lastSpoken = null;
+      /* La parola NON viene piu' letta mentre i metri scorrono: verrebbe letta ogni
+         fascia attraversata. Si legge al tocco, ed e' quella della distanza appena
+         misurata (vedi speakMeasured in mainAction). */
+      currentWord = activeWord(partial);
     }
     if(currentWord){
       if(wordVal.textContent !== currentWord){ wordVal.textContent = currentWord; }
@@ -3431,6 +3433,16 @@ function anyOverlayOpen(){
     || $('drawer').classList.contains('open');
 }
 
+/* legge la parola corrispondente alla distanza appena misurata */
+function speakMeasured(dist){
+  if(!cfg.speak || !('speechSynthesis' in window)) return;
+  const w = activeWord(dist);
+  if(!w) return;
+  const u = new SpeechSynthesisUtterance(w);
+  u.lang = loc();
+  try{ speechSynthesis.cancel(); speechSynthesis.speak(u); }catch(e){}
+}
+
 function mainAction(){
   if(cfg.mode !== 'pilot'){
     partial = 0;
@@ -3438,6 +3450,7 @@ function mainAction(){
   } else {
     /* opzione "ogni tocco azzera": il tocco non ferma mai, riparte sempre da zero */
     if(cfg.pilotTapReset){
+      speakMeasured(partial);       /* la parola dei metri appena percorsi */
       partial = 0;
       currentWord = null;
       lastSpoken = null;
@@ -3445,6 +3458,7 @@ function mainAction(){
       zonePartial.classList.remove('stopped');
       zoneWord.classList.remove('stopped');
     } else if(running){
+      speakMeasured(partial);       /* la parola dei metri appena percorsi */
       running = false;
       zonePartial.classList.add('stopped');
       zoneWord.classList.add('stopped');
@@ -3817,6 +3831,10 @@ function loadStage(i){
   rbPassedIdx=null; radShownIdx=-2; rbOffset=0;
   updateSsBadge(); saveCfg(); buildSsList();
   showToast('\u201C'+ss.name+'\u201D \u2014 '+t('ssLoadedMsg'));
+  /* caricata una prova si va direttamente in modalita' Radar con quella attiva:
+     e' sempre il passo successivo, non ha senso farlo fare a mano */
+  try{ $('navMenu').classList.remove('open'); }catch(e){}   /* schermata Scanner radar */
+  setMode('radar');
 }
 
 function showStageDetail(i){
@@ -4634,6 +4652,15 @@ function ensurePdfJs(){
 /* Pattern noti di intestazione prova (diversi organizzatori scrivono in modo diverso).
    L'ordine conta: i piu' specifici prima. */
 const PDF_STAGE_PATTERNS = [
+  /* Road book internazionali (FIA/ERC, es. Ceredigion 2026): l'intestazione e' del tipo
+     "SS3 - Elerch TC4 - Blaenmelindwr" oppure "TC SSS1 - Aberystwyth 1 ...", con la
+     lunghezza su una riga a parte "DISTANCE 10.14 KM". Il nome e' quello che segue il
+     trattino, fermandosi al prossimo codice di controllo (TC, SS, CO...). */
+  { re:/\bS{2,3}\s*(\d+[A-Z]?)\s*[-\u2013]\s*([^\n]{2,40}?)\s*(?=\s(?:TC|CO|SSS?|PS)\s*\d|\s(?:Parc|Service|Technical|Regroup|Finish|Stop)\b|\sDISTANCE\b|\n|$)/i,
+    build:(m)=> (m[2]||'').trim().replace(/\s+(?:TC|CO|SS|SSS|PS)$/i,'').trim()+' (SS '+m[1]+')' },
+  /* "Free Practice / Shakedown - Pendam ..." */
+  { re:/\bShakedown\s*[-\u2013]\s*([^\n]{2,30}?)\s*(?=\s(?:TC|CO)\s*\d|\s(?:Service|Parc)\b|\sDISTANCE\b|\n|$)/i,
+    build:(m)=> 'Shakedown '+(m[1]||'').trim() },
   { re:/SPS\s*(\d+)\s*["\u201c]?([^"\u201d\n,\d]{0,40})/i, build:(m)=> ('SPS'+m[1]+' '+(m[2]||'').trim()).trim() },
   { re:/SS\s*([\dA-Z]+\/[\dA-Z]+)\s*:?\s*["\u201c]?\s*([^"\u201d\n,\d]{2,40})/i, build:(m)=> (m[2]||'').trim()+' (SS '+m[1]+')' },
   /* ACI: "P.S. 1 \"Nome\" Km 14,20" e anche "C.O. PS 1/5 \"Borine-Cissone\"" (con la barra, senza km) */
@@ -4645,6 +4672,10 @@ const PDF_STAGE_PATTERNS = [
 ];
 /* parole della tabella che a volte restano attaccate al nome catturato: il nome si ferma qui */
 const PDF_NAME_STOPWORDS = /\b(Average|Target|Total|Distance|Speed|Km|Road|Section|Time|Start|Stop|Saturday|Sunday|Monday|Service|Park)\b/i;
+function pdfDistanceKm(norm){
+  const m = norm.match(/\bDISTANCE\s+(\d{1,3}[.,]\d{1,2})\s*KM/i);
+  return m ? parseFloat(m[1].replace(',', '.')) : null;
+}
 function pdfHeaderKey(text){
   const norm = (text||'').replace(/\s+/g,' ').trim();
   for(const p of PDF_STAGE_PATTERNS){
@@ -4657,11 +4688,11 @@ function pdfHeaderKey(text){
     if(!name) continue;
     /* km della prova: primo "12,34 km" o "Km 12,34" dopo il titolo,
        saltando i totali di sezione ("Total Distance 27,78 km") */
-    let km = null;
+    let km = pdfDistanceKm(norm);   /* road book internazionali: "DISTANCE 10.14 KM" */
     const after = norm.slice(m.index, m.index + 200);
-    const reKm = /(\d{1,3})[,.](\d{2})\s*km\b|km\.?\s*(\d{1,3})[,.](\d{2})/ig;
+    const reKm = km == null ? /(\d{1,3})[,.](\d{2})\s*km\b|km\.?\s*(\d{1,3})[,.](\d{2})/ig : null;
     let mk;
-    while((mk = reKm.exec(after))){
+    while(reKm && (mk = reKm.exec(after))){
       const before = after.slice(Math.max(0, mk.index - 30), mk.index);
       if(/total|dist|media|average/i.test(before)) continue;
       const a = mk[1] || mk[3], b = mk[2] || mk[4];
@@ -4685,7 +4716,10 @@ function pdfFpSimilar(a, b){
 /* una pagina di tabella pace-note ha sempre parecchie distanze tipo "12,34":
    e' un segnale che non dipende da come l'organizzatore scrive i titoli */
 function pdfLooksLikeTable(text){
-  const m = (text||'').match(/\d{1,3},\d{2}/g);
+  /* i road book internazionali usano il PUNTO decimale (20.38), quelli italiani
+     la virgola (20,38): vanno accettati entrambi, altrimenti non si trova nessuna
+     griglia e l'importazione dice "nessuna prova" (Ceredigion, 12 set 2026) */
+  const m = (text||'').match(/\d{1,3}[,.]\d{2}/g);
   return !!(m && m.length >= 6);
 }
 /* Testo della pagina ordinato per POSIZIONE (alto->basso, sinistra->destra), non nell'ordine
@@ -4867,6 +4901,9 @@ async function pdfExtractGroups(pdf, onProgress){
     pages.push(p);
   }
 
+  /* PDF scansionato = quasi nessun testo su tutte le pagine */
+  pdfImpScanned = pages.length >= 3 && pages.reduce((a,p)=>a+((p.all||'').trim().length),0) < pages.length * 20;
+
   /* nome della gara: la riga che compare in fondo a quasi tutte le pagine
      (es. "20° #RA Rally Regione Piemonte - CIAR", "Rally Il Ciocco") */
   try{
@@ -4991,6 +5028,7 @@ async function pdfRenderPageToBlob(pdf, pageNum, targetPx){
 let pdfImpDoc = null;
 let pdfImpGroups = [];
 let pdfImpRally = '';   /* nome della gara letto nel PDF: proposto come nome della cartella */
+let pdfImpScanned = false;   /* true se il PDF non ha testo (scansioni): niente riconoscimento automatico */
 let pdfImpManualSeq = 0;
 
 function pdfImpCard(g){
@@ -5040,7 +5078,9 @@ function pdfImpRenderList(){
   if(!stages.length){
     const p = document.createElement('p');
     p.className = 'small'; p.style.color = 'var(--muted)';
-    p.textContent = t('pdfImpNoGroups');
+    /* un PDF fatto di scansioni non ha testo: l'automatico non puo' funzionare,
+       e va detto chiaramente invece di un generico "nessuna prova" */
+    p.textContent = t(pdfImpScanned ? 'pdfImpScannedMsg' : 'pdfImpNoGroups');
     wrap.appendChild(p);
   }
   stages.forEach(g => wrap.appendChild(pdfImpCard(g)));
