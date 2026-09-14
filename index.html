@@ -129,6 +129,37 @@
   #zoneSpeed{display:none}
   #zoneRadar{display:none}
 
+  /* ====== PILOTA: due modi, uno alla volta ======
+     parole      -> Totale + Parola (il parziale in metri e' superfluo)
+     metri reali -> Totale + Parziale (niente parole) */
+  body[data-mode="pilot"]:not([data-pilotreal="1"]) #zonePartial{display:none}
+  body[data-mode="pilot"]:not([data-pilotreal="1"]) #app{
+    grid-template-columns:1.2fr 1fr;
+    grid-template-rows:1fr;
+    grid-template-areas:"word total";
+  }
+  body[data-mode="pilot"][data-pilotreal="1"] #zoneWord{display:none}
+  body[data-mode="pilot"][data-pilotreal="1"] #app{
+    grid-template-columns:1fr 1.2fr;
+    grid-template-rows:1fr;
+    grid-template-areas:"total partial";
+  }
+  @media (orientation:portrait){
+    body[data-mode="pilot"]:not([data-pilotreal="1"]) #app{
+      grid-template-columns:1fr;
+      grid-template-rows:1fr 2fr;
+      grid-template-areas:"total" "word";
+    }
+    body[data-mode="pilot"][data-pilotreal="1"] #app{
+      grid-template-columns:1fr;
+      grid-template-rows:1fr 2fr;
+      grid-template-areas:"total" "partial";
+    }
+  }
+  #prevPartial{font-size:15px;color:var(--muted);margin-bottom:4px;letter-spacing:.02em}
+  #prevPartial .pw-lbl{opacity:.7}
+  #prevPartialVal{color:var(--text);font-weight:700}
+
   /* ====== LAYOUT NAVIGATORE / TRIP ====== */
   body[data-mode="nav"] #app{
     grid-template-columns:1.3fr 1fr;
@@ -664,6 +695,7 @@
 
   <div class="zone stopped" id="zonePartial">
     <span class="zlabel" id="partialLbl" data-t="partialLabel"></span>
+    <div id="prevPartial" hidden><span class="pw-lbl" data-t="prevWordLbl"></span> <span id="prevPartialVal"></span></div>
     <div id="partialVal">0</div>
     <div class="unit" id="partialUnit">m</div>
     <div id="holdBarP"></div>
@@ -723,7 +755,7 @@
   <h2 data-t="introTitle"></h2>
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
-  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-14.2</p>
+  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-14.3</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -732,6 +764,12 @@
 <!-- ============ MENU PILOTA (tabella parole) ============ -->
 <div class="overlay" id="pilotMenu">
   <h2 data-t="pmTitle"></h2>
+
+  <div class="setting-row">
+    <span data-t="pmRealMeters"></span>
+    <input type="checkbox" id="realMetersToggle">
+  </div>
+  <p class="small" data-t="pmRealMetersDesc"></p>
 
   <h3 data-t="wordsTitle"></h3>
   <p class="small" data-t="setDesc"></p>
@@ -1319,6 +1357,8 @@ function updateNavFree(){ var el=document.getElementById('navFree'); if(!el) ret
 /* ================= TRADUZIONI ================= */
 const T = {
 it:{introTitle:"Come funziona",
+  pmRealMeters:"Usa i metri reali (senza parole)",
+  pmRealMetersDesc:"Attivo: in modalità pilota vedi solo Totale e Parziale in metri. Spento: vedi Totale e la Parola della tabella qui sotto.",
   prevWordLbl:"Prima:",
   pdfImpScannedMsg:"Questo PDF è fatto di scansioni (immagini senza testo): non posso trovare le prove da solo. Usa \"+ Aggiungi manualmente un intervallo di pagine\" e indica le pagine di ogni prova.",
   pmTapReset:"Ogni tocco azzera la misurazione",
@@ -1494,6 +1534,8 @@ it:{introTitle:"Come funziona",
   soundDefault:"Predefinito",
   soundPlay:"Ascolta"},
 en:{introTitle:"How it works",
+  pmRealMeters:"Use real metres (no words)",
+  pmRealMetersDesc:"On: pilot mode shows only Total and Partial in metres. Off: it shows Total and the Word from the table below.",
   prevWordLbl:"Before:",
   pdfImpScannedMsg:"This PDF is made of scans (images without text): I cannot find the stages by myself. Use \"+ Add a page range manually\" and enter the pages of each stage.",
   pmTapReset:"Every tap resets the measurement",
@@ -1669,6 +1711,8 @@ en:{introTitle:"How it works",
   soundDefault:"Default",
   soundPlay:"Play"},
 fr:{introTitle:"Comment ça marche",
+  pmRealMeters:"Utiliser les mètres réels (sans mots)",
+  pmRealMetersDesc:"Activé : le mode pilote affiche seulement Total et Partiel en mètres. Désactivé : il affiche Total et le Mot du tableau ci-dessous.",
   prevWordLbl:"Avant :",
   pdfImpScannedMsg:"Ce PDF est composé de scans (images sans texte) : je ne peux pas trouver les spéciales seul. Utilise « Ajouter manuellement une plage de pages » et indique les pages de chaque spéciale.",
   pmTapReset:"Chaque touche remet la mesure à zéro",
@@ -1857,6 +1901,8 @@ fr:{introTitle:"Comment ça marche",
   soundDefault:"Par défaut",
   soundPlay:"Écouter"},
 es:{introTitle:"Cómo funciona",
+  pmRealMeters:"Usar metros reales (sin palabras)",
+  pmRealMetersDesc:"Activado: el modo piloto muestra solo Total y Parcial en metros. Desactivado: muestra Total y la Palabra de la tabla de abajo.",
   prevWordLbl:"Antes:",
   pdfImpScannedMsg:"Este PDF está hecho de escaneos (imágenes sin texto): no puedo encontrar los tramos por mí mismo. Usa «Añadir manualmente un rango de páginas» e indica las páginas de cada tramo.",
   pmTapReset:"Cada toque pone a cero la medición",
@@ -2045,6 +2091,8 @@ es:{introTitle:"Cómo funciona",
   soundDefault:"Predeterminado",
   soundPlay:"Escuchar"},
 de:{introTitle:"So funktioniert es",
+  pmRealMeters:"Echte Meter verwenden (ohne Wörter)",
+  pmRealMetersDesc:"Ein: der Pilotmodus zeigt nur Gesamt und Teilstrecke in Metern. Aus: er zeigt Gesamt und das Wort aus der Tabelle unten.",
   prevWordLbl:"Vorher:",
   pdfImpScannedMsg:"Dieses PDF besteht aus Scans (Bilder ohne Text): ich kann die Prüfungen nicht selbst finden. Nutze „Seitenbereich manuell hinzufügen“ und gib die Seiten jeder Prüfung an.",
   pmTapReset:"Jedes Tippen setzt die Messung zurück",
@@ -2233,6 +2281,8 @@ de:{introTitle:"So funktioniert es",
   soundDefault:"Standard",
   soundPlay:"Anhören"},
 pt:{introTitle:"Como funciona",
+  pmRealMeters:"Usar metros reais (sem palavras)",
+  pmRealMetersDesc:"Ligado: o modo piloto mostra só Total e Parcial em metros. Desligado: mostra Total e a Palavra da tabela abaixo.",
   prevWordLbl:"Antes:",
   pdfImpScannedMsg:"Este PDF é feito de digitalizações (imagens sem texto): não consigo encontrar as provas sozinho. Usa «Adicionar manualmente um intervalo de páginas» e indica as páginas de cada prova.",
   pmTapReset:"Cada toque zera a medição",
@@ -2421,6 +2471,8 @@ pt:{introTitle:"Como funciona",
   soundDefault:"Predefinido",
   soundPlay:"Ouvir"},
 ja:{introTitle:"使い方",
+  pmRealMeters:"実際のメートルを使う（単語なし）",
+  pmRealMetersDesc:"オン：パイロットモードは合計と区間（メートル）のみ表示。オフ：合計と下の表の単語を表示。",
   prevWordLbl:"前回：",
   pdfImpScannedMsg:"このPDFはスキャン画像（テキストなし）でできています。ステージを自動で見つけることはできません。「ページ範囲を手動で追加」で各ステージのページを指定してください。",
   pmTapReset:"タップするたびに計測をリセット",
@@ -2609,6 +2661,8 @@ ja:{introTitle:"使い方",
   soundDefault:"デフォルト",
   soundPlay:"再生"},
 cs:{introTitle:"Jak to funguje",
+  pmRealMeters:"Používat skutečné metry (bez slov)",
+  pmRealMetersDesc:"Zapnuto: pilotní režim ukazuje jen Celkem a Dílčí v metrech. Vypnuto: ukazuje Celkem a Slovo z tabulky níže.",
   prevWordLbl:"Předtím:",
   pdfImpScannedMsg:"Toto PDF je složeno ze skenů (obrázky bez textu): zkoušky nedokážu najít sám. Použij „Ručně přidat rozsah stran“ a zadej strany každé zkoušky.",
   pmTapReset:"Každé klepnutí vynuluje měření",
@@ -2847,6 +2901,7 @@ let cfg = {
   tcfolders: [],
   speak: false,
   pilotTapReset: false,   /* pilota: un tocco azzera e fa ripartire, invece di avvia/ferma */
+  pilotRealMeters: false, /* pilota: solo Totale + Parziale in metri, senza parole */
   autoReset: true,
   lang: null,
   hideIntro: false,
@@ -3166,7 +3221,8 @@ function speedUnitStr(){ return isImp() ? 'mph' : 'km/h'; }
 /* ================= MODALITÀ ================= */
 /* pilot = pilota · nav = trip navigatore · radar = display radar */
 function applyMode(){
-  try{ const pw = $('prevWord'); if(pw && cfg.mode !== 'pilot') pw.hidden = true; }catch(e){}
+  document.body.dataset.pilotreal = (cfg.mode === 'pilot' && cfg.pilotRealMeters) ? '1' : '0';
+  try{ const pw = $('prevWord'), pp = $('prevPartial'); if(cfg.mode !== 'pilot'){ if(pw) pw.hidden = true; if(pp) pp.hidden = true; } }catch(e){}
   document.body.dataset.mode = cfg.mode;
   partialLbl.dataset.t = (cfg.mode === 'radar') ? 'partialLabelRadar' : 'partialLabel';
   applyUnits();
@@ -3454,6 +3510,9 @@ function speakMeasured(dist){
   try{
     const pw = $('prevWord'), pv = $('prevWordVal');
     if(pw && pv){ if(w){ pv.textContent = w; pw.hidden = false; } }
+    /* modo metri reali: sopra il parziale restano i metri della misurazione chiusa */
+    const pp = $('prevPartial'), ppv = $('prevPartialVal');
+    if(pp && ppv && cfg.pilotRealMeters){ ppv.textContent = Math.round(dist) + ' m'; pp.hidden = false; }
   }catch(e){}
   if(!cfg.speak || !('speechSynthesis' in window)) return;
   if(!w) return;
@@ -3498,7 +3557,7 @@ function mainAction(){
 
 zoneWord.addEventListener('click', mainAction);
 zonePartial.addEventListener('click', ()=>{
-  if(cfg.mode === 'pilot') return;
+  if(cfg.mode === 'pilot'){ if(cfg.pilotRealMeters) mainAction(); return; }
   if(pHoldFired){ pHoldFired = false; return; }
   mainAction();
   if(cfg.mode === 'radar' && cfg.rb.length){
@@ -3741,6 +3800,7 @@ $('drvWords').addEventListener('click', ()=>{
   buildWordTable();
   $('speakToggle').checked = cfg.speak;
   $('tapResetToggle').checked = !!cfg.pilotTapReset;
+  $('realMetersToggle').checked = !!cfg.pilotRealMeters;
   $('pilotMenu').classList.add('open');
 });
 if($('rbAdvSel')) $('rbAdvSel').addEventListener('change', ()=>{ cfg.autoReset = ($('rbAdvSel').value !== 'manual'); saveCfg(); });
@@ -3797,6 +3857,8 @@ $('addRow').addEventListener('click', ()=>{ cfg.rows.push({from:'',to:'',w:''});
 $('closePilot').addEventListener('click', ()=>{
   cfg.speak = $('speakToggle').checked;
   cfg.pilotTapReset = $('tapResetToggle').checked;
+  cfg.pilotRealMeters = $('realMetersToggle').checked;
+  applyMode();
   cfg.rows = cfg.rows.filter(r => r.from !== '' && r.w !== '');
   cfg.rows.sort((a,b)=>parseFloat(a.from)-parseFloat(b.from));
   saveCfg();
