@@ -755,7 +755,7 @@
   <h2 data-t="introTitle"></h2>
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
-  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-16.8</p>
+  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-16.9</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -4885,7 +4885,11 @@ async function scanAIRunFiles(files, fromPdf){
   if(pendingMaxKm != null){
     /* importazione da PDF: il roadbook include spesso il trasferimento dopo il fine prova.
        Conosciamo i km della prova dal titolo: le righe oltre (con tolleranza) vengono tolte */
-    const maxKm = pendingMaxKm + 0.5; pendingMaxKm = null;
+    /* tolleranza 50 m, non 500: l'ultima riga della prova sta esattamente al
+       chilometraggio del titolo (e' la bandiera a scacchi). Con mezzo chilometro
+       passavano i primi riferimenti del rientro (Cassino: 30,04 e 30,13 su una
+       prova di 29,93). */
+    const maxKm = pendingMaxKm + 0.05; pendingMaxKm = null;
     stage.rb = stage.rb.filter(r => (parseKm(r.km) || 0) <= maxKm);
   }
   stage.rb.sort((a,b)=> (parseKm(a.km)||0) - (parseKm(b.km)||0));
@@ -4945,6 +4949,10 @@ function ensurePdfJs(){
 /* Pattern noti di intestazione prova (diversi organizzatori scrivono in modo diverso).
    L'ordine conta: i piu' specifici prima. */
 const PDF_STAGE_PATTERNS = [
+  /* ERC / CIAR (Cassino 2026): sotto "Special Stage:" c'e' la riga
+     "6/9 TORRE DI CICERONE 29,93km New stage 1h30 min" — numero, nome, lunghezza. */
+  { re:/Special Stage:[\s\S]{0,160}?\b(\d+(?:\/\d+)?)\s+([A-Z][A-Za-z\u00C0-\u017F'’.\- ]{2,40}?)\s+(\d{1,3})[,.](\d{1,2})\s*km\b/,
+    build:(m)=> (m[2]||'').trim()+' (SS '+m[1]+')' },
   /* Road book internazionali (FIA/ERC, es. Ceredigion 2026): l'intestazione e' del tipo
      "SS3 - Elerch TC4 - Blaenmelindwr" oppure "TC SSS1 - Aberystwyth 1 ...", con la
      lunghezza su una riga a parte "DISTANCE 10.14 KM". Il nome e' quello che segue il
