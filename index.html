@@ -755,7 +755,7 @@
   <h2 data-t="introTitle"></h2>
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
-  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-16.5</p>
+  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-16.6</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -3368,6 +3368,24 @@ let radShownIdx = -2;
 /* Avviso a 100 m dal simbolo: due note brevi e morbide (sinusoide con dissolvenza),
    non un beep squillante. Volume basso, dura meno di mezzo secondo. */
 let radBeepIdx = -1, radAudioCtx = null;
+/* iOS blocca l'audio finche' non c'e' stato un tocco dell'utente: il nostro avviso
+   parte mentre guidi, quindi il permesso va preso prima. Lo prendiamo al primo
+   tocco nell'app, con un suono muto, e poi il contesto resta utilizzabile. */
+function radAudioUnlock(){
+  try{
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) return;
+    if(!radAudioCtx) radAudioCtx = new AC();
+    if(radAudioCtx.state === 'suspended') radAudioCtx.resume();
+    const b = radAudioCtx.createBuffer(1, 1, 22050);
+    const src = radAudioCtx.createBufferSource();
+    src.buffer = b; src.connect(radAudioCtx.destination); src.start(0);
+  }catch(e){}
+}
+['touchend','pointerdown','click'].forEach(ev=>{
+  document.addEventListener(ev, function once(){ radAudioUnlock(); }, { passive:true });
+});
+
 function radarBeep(){
   try{
     const AC = window.AudioContext || window.webkitAudioContext;
