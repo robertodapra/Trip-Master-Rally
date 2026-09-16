@@ -755,7 +755,7 @@
   <h2 data-t="introTitle"></h2>
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
-  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-16.6</p>
+  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-16.7</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -3393,14 +3393,20 @@ function radarBeep(){
     if(!radAudioCtx) radAudioCtx = new AC();
     if(radAudioCtx.state === 'suspended') radAudioCtx.resume();
     const t0 = radAudioCtx.currentTime;
-    [[660, 0], [880, 0.14]].forEach(([f, off])=>{
-      const o = radAudioCtx.createOscillator(), g = radAudioCtx.createGain();
-      o.type = 'sine'; o.frequency.value = f;
-      g.gain.setValueAtTime(0.0001, t0 + off);
-      g.gain.exponentialRampToValueAtTime(0.12, t0 + off + 0.03);   /* attacco dolce */
-      g.gain.exponentialRampToValueAtTime(0.0001, t0 + off + 0.13); /* coda corta */
-      o.connect(g); g.connect(radAudioCtx.destination);
-      o.start(t0 + off); o.stop(t0 + off + 0.15);
+    /* volume alzato (0,12 -> 0,85) e note piu' lunghe: in abitacolo, con il motore,
+       il suono precedente non si sentiva nemmeno col volume al massimo.
+       Ogni nota ha una seconda voce un'ottava sopra, a volume basso: senza cambiare
+       il carattere morbido, il suono "taglia" molto meglio il rumore di fondo. */
+    [[660, 0], [880, 0.16]].forEach(([f, off])=>{
+      [[f, 0.85], [f*2, 0.22]].forEach(([freq, vol])=>{
+        const o = radAudioCtx.createOscillator(), g = radAudioCtx.createGain();
+        o.type = 'sine'; o.frequency.value = freq;
+        g.gain.setValueAtTime(0.0001, t0 + off);
+        g.gain.exponentialRampToValueAtTime(vol, t0 + off + 0.02);    /* attacco dolce */
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + off + 0.20); /* coda morbida */
+        o.connect(g); g.connect(radAudioCtx.destination);
+        o.start(t0 + off); o.stop(t0 + off + 0.22);
+      });
     });
   }catch(e){}
 }
