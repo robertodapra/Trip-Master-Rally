@@ -755,7 +755,7 @@
   <h2 data-t="introTitle"></h2>
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
-  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-16.1</p>
+  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-16.5</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -810,7 +810,12 @@
       <option value="manual" data-t="rbAdvManual"></option>
     </select>
   </div>
-  <p class="small" style="color:var(--muted);margin:0 0 14px" data-t="rbAdvSmall"></p>
+  <p class="small" style="color:var(--muted);margin:0 0 10px" data-t="rbAdvSmall"></p>
+  <div class="setting-row" style="margin-bottom:4px">
+    <span data-t="rbBeepLabel"></span>
+    <input type="checkbox" id="rbBeepToggle">
+  </div>
+  <p class="small" style="color:var(--muted);margin:0 0 14px" data-t="rbBeepSmall"></p>
   <div id="ssList"></div>
   <div id="ssEmpty" data-t="ssEmpty"></div>
   <input type="file" id="aiFile" accept="image/*" multiple style="display:none">
@@ -1357,6 +1362,8 @@ function updateNavFree(){ var el=document.getElementById('navFree'); if(!el) ret
 /* ================= TRADUZIONI ================= */
 const T = {
 it:{introTitle:"Come funziona",
+  rbBeepLabel:"Avviso sonoro a 100 m",
+  rbBeepSmall:"Un doppio tocco sonoro discreto quando mancano 100 metri al simbolo.",
   pmRealMeters:"Usa i metri reali (senza parole)",
   pmRealMetersDesc:"Attivo: in modalità pilota vedi solo Totale e Parziale in metri. Spento: vedi Totale e la Parola della tabella qui sotto.",
   prevWordLbl:"Prima:",
@@ -1534,6 +1541,8 @@ it:{introTitle:"Come funziona",
   soundDefault:"Predefinito",
   soundPlay:"Ascolta"},
 en:{introTitle:"How it works",
+  rbBeepLabel:"Sound alert 100 m before",
+  rbBeepSmall:"A soft double chime when the symbol is 100 metres away.",
   pmRealMeters:"Use real metres (no words)",
   pmRealMetersDesc:"On: pilot mode shows only Total and Partial in metres. Off: it shows Total and the Word from the table below.",
   prevWordLbl:"Before:",
@@ -1711,6 +1720,8 @@ en:{introTitle:"How it works",
   soundDefault:"Default",
   soundPlay:"Play"},
 fr:{introTitle:"Comment ça marche",
+  rbBeepLabel:"Alerte sonore à 100 m",
+  rbBeepSmall:"Un double son discret quand il reste 100 mètres avant le repère.",
   pmRealMeters:"Utiliser les mètres réels (sans mots)",
   pmRealMetersDesc:"Activé : le mode pilote affiche seulement Total et Partiel en mètres. Désactivé : il affiche Total et le Mot du tableau ci-dessous.",
   prevWordLbl:"Avant :",
@@ -1901,6 +1912,8 @@ fr:{introTitle:"Comment ça marche",
   soundDefault:"Par défaut",
   soundPlay:"Écouter"},
 es:{introTitle:"Cómo funciona",
+  rbBeepLabel:"Aviso sonoro a 100 m",
+  rbBeepSmall:"Un doble sonido discreto cuando faltan 100 metros para el símbolo.",
   pmRealMeters:"Usar metros reales (sin palabras)",
   pmRealMetersDesc:"Activado: el modo piloto muestra solo Total y Parcial en metros. Desactivado: muestra Total y la Palabra de la tabla de abajo.",
   prevWordLbl:"Antes:",
@@ -2091,6 +2104,8 @@ es:{introTitle:"Cómo funciona",
   soundDefault:"Predeterminado",
   soundPlay:"Escuchar"},
 de:{introTitle:"So funktioniert es",
+  rbBeepLabel:"Tonsignal 100 m vorher",
+  rbBeepSmall:"Ein dezenter Doppelton, wenn das Symbol 100 Meter entfernt ist.",
   pmRealMeters:"Echte Meter verwenden (ohne Wörter)",
   pmRealMetersDesc:"Ein: der Pilotmodus zeigt nur Gesamt und Teilstrecke in Metern. Aus: er zeigt Gesamt und das Wort aus der Tabelle unten.",
   prevWordLbl:"Vorher:",
@@ -2281,6 +2296,8 @@ de:{introTitle:"So funktioniert es",
   soundDefault:"Standard",
   soundPlay:"Anhören"},
 pt:{introTitle:"Como funciona",
+  rbBeepLabel:"Aviso sonoro a 100 m",
+  rbBeepSmall:"Um duplo som discreto quando faltam 100 metros para o símbolo.",
   pmRealMeters:"Usar metros reais (sem palavras)",
   pmRealMetersDesc:"Ligado: o modo piloto mostra só Total e Parcial em metros. Desligado: mostra Total e a Palavra da tabela abaixo.",
   prevWordLbl:"Antes:",
@@ -2471,6 +2488,8 @@ pt:{introTitle:"Como funciona",
   soundDefault:"Predefinido",
   soundPlay:"Ouvir"},
 ja:{introTitle:"使い方",
+  rbBeepLabel:"100 m手前で音を鳴らす",
+  rbBeepSmall:"シンボルまで100メートルで、控えめな2音のチャイム。",
   pmRealMeters:"実際のメートルを使う（単語なし）",
   pmRealMetersDesc:"オン：パイロットモードは合計と区間（メートル）のみ表示。オフ：合計と下の表の単語を表示。",
   prevWordLbl:"前回：",
@@ -2661,6 +2680,8 @@ ja:{introTitle:"使い方",
   soundDefault:"デフォルト",
   soundPlay:"再生"},
 cs:{introTitle:"Jak to funguje",
+  rbBeepLabel:"Zvukové upozornění 100 m předem",
+  rbBeepSmall:"Jemný dvojitý tón, když do symbolu zbývá 100 metrů.",
   pmRealMeters:"Používat skutečné metry (bez slov)",
   pmRealMetersDesc:"Zapnuto: pilotní režim ukazuje jen Celkem a Dílčí v metrech. Vypnuto: ukazuje Celkem a Slovo z tabulky níže.",
   prevWordLbl:"Předtím:",
@@ -2902,6 +2923,7 @@ let cfg = {
   speak: false,
   pilotTapReset: false,   /* pilota: un tocco azzera e fa ripartire, invece di avvia/ferma */
   pilotRealMeters: false, /* pilota: solo Totale + Parziale in metri, senza parole */
+  radBeep: true,          /* radar: avviso sonoro a 100 m dal simbolo */
   autoReset: true,
   lang: null,
   hideIntro: false,
@@ -3343,6 +3365,28 @@ function rbAutoReset(){
 
 /* zona radar — mostra il riferimento in arrivo con countdown in metri */
 let radShownIdx = -2;
+/* Avviso a 100 m dal simbolo: due note brevi e morbide (sinusoide con dissolvenza),
+   non un beep squillante. Volume basso, dura meno di mezzo secondo. */
+let radBeepIdx = -1, radAudioCtx = null;
+function radarBeep(){
+  try{
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) return;
+    if(!radAudioCtx) radAudioCtx = new AC();
+    if(radAudioCtx.state === 'suspended') radAudioCtx.resume();
+    const t0 = radAudioCtx.currentTime;
+    [[660, 0], [880, 0.14]].forEach(([f, off])=>{
+      const o = radAudioCtx.createOscillator(), g = radAudioCtx.createGain();
+      o.type = 'sine'; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t0 + off);
+      g.gain.exponentialRampToValueAtTime(0.12, t0 + off + 0.03);   /* attacco dolce */
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + off + 0.13); /* coda corta */
+      o.connect(g); g.connect(radAudioCtx.destination);
+      o.start(t0 + off); o.stop(t0 + off + 0.15);
+    });
+  }catch(e){}
+}
+
 function radarRender(){
   if(!cfg.rb.length){
     if(radShownIdx !== -2){
@@ -3386,6 +3430,12 @@ function radarRender(){
   }
   radDisplayIdx = idx;
   radNextIdx = next === -1 ? cfg.rb.length : next;
+  /* suono quando mancano 100 m al simbolo mostrato, una volta sola per riferimento */
+  if(cfg.radBeep && !isNaN(dM)){
+    const left = dM - tR;
+    if(left > 0 && left <= 100){ if(radBeepIdx !== idx){ radBeepIdx = idx; radarBeep(); } }
+    else if(left > 130) { if(radBeepIdx === idx) radBeepIdx = -1; }
+  }
   if(radShownIdx !== key){
     const r = cfg.rb[idx];
     radNum.textContent = idx + 1;
@@ -3559,6 +3609,9 @@ zoneWord.addEventListener('click', mainAction);
 zonePartial.addEventListener('click', ()=>{
   if(cfg.mode === 'pilot'){ if(cfg.pilotRealMeters) mainAction(); return; }
   if(pHoldFired){ pHoldFired = false; return; }
+  /* radar in AUTOMATICO: ogni tocco vale come la pressione lunga - riallinea e azzera.
+     Il simbolo non viene fatto avanzare a mano: ci pensa l'automatico al chilometraggio. */
+  if(cfg.mode === 'radar' && cfg.autoReset && cfg.rb.length){ radarRealign(true); return; }
   mainAction();
   if(cfg.mode === 'radar' && cfg.rb.length){
     const shown = Math.max(0, Math.min(cfg.rb.length - 1, radDisplayIdx));
@@ -3571,6 +3624,31 @@ zonePartial.addEventListener('click', ()=>{
 });
 
 /* pressione lunga (1 s) sul parziale in radar: azzera lo scarto col GPS */
+/* Riallineamento: assorbe i metri in piu' o in meno rispetto al riferimento mostrato,
+   cosi' l'errore non si trascina sui riferimenti successivi, e azzera il parziale.
+   E' l'azione della pressione lunga; in scorrimento AUTOMATICO la fa anche il tocco
+   semplice (richiesta di Roberto, 16 set 2026): li' il simbolo avanza da solo al
+   chilometraggio, quindi il tocco serve solo a rimettersi in bolla. */
+function radarRealign(advance){
+  if(cfg.mode !== 'radar' || !cfg.rb.length) return;
+  const i = Math.max(0, Math.min(cfg.rb.length - 1, radDisplayIdx));
+  const kmM = parseKm(cfg.rb[i].km) * 1000;
+  if(!isNaN(kmM)) rbOffset = kmM - total;
+  partial = 0;
+  rbPassedIdx = i;
+  radManualIdx = null; radManualAhead = false;
+  radShownIdx = -2;
+  /* col tocco (non con la pressione lunga) si passa anche al simbolo successivo */
+  if(advance && i < cfg.rb.length - 1){
+    radManualIdx = i + 1;
+    const dNext = parseKm(cfg.rb[radManualIdx].km) * 1000;
+    radManualAhead = !isNaN(dNext) && radT() < dNext;
+  }
+  flash.style.opacity = 1;
+  setTimeout(()=>flash.style.opacity = 0, 200);
+  if(navigator.vibrate) navigator.vibrate([40,40,40]);
+}
+
 let pHoldTimer = null, pHoldFired = false;
 const holdBarP = $('holdBarP');
 function pResetBar(){ holdBarP.style.transition = 'none'; holdBarP.style.width = '0'; }
@@ -3579,18 +3657,9 @@ function pStartHold(){
   holdBarP.style.transition = 'width 1s linear';
   holdBarP.style.width = '100%';
   pHoldTimer = setTimeout(()=>{
-    const i = Math.max(0, Math.min(cfg.rb.length - 1, radDisplayIdx));
-    const kmM = parseKm(cfg.rb[i].km) * 1000;
-    if(!isNaN(kmM)) rbOffset = kmM - total;
-    partial = 0;
-    rbPassedIdx = i;
-    radManualIdx = null; radManualAhead = false;
-    radShownIdx = -2;
+    radarRealign();
     pResetBar();
     pHoldFired = true;
-    flash.style.opacity = 1;
-    setTimeout(()=>flash.style.opacity = 0, 200);
-    if(navigator.vibrate) navigator.vibrate([40,40,40]);
     pHoldTimer = null;
   }, 1000);
 }
@@ -3804,8 +3873,10 @@ $('drvWords').addEventListener('click', ()=>{
   $('pilotMenu').classList.add('open');
 });
 if($('rbAdvSel')) $('rbAdvSel').addEventListener('change', ()=>{ cfg.autoReset = ($('rbAdvSel').value !== 'manual'); saveCfg(); });
+if($('rbBeepToggle')) $('rbBeepToggle').addEventListener('change', ()=>{ cfg.radBeep = $('rbBeepToggle').checked; saveCfg(); if(cfg.radBeep) radarBeep(); });
 $('drvRb').addEventListener('click', ()=>{
   if($('rbAdvSel')) $('rbAdvSel').value = cfg.autoReset ? 'auto' : 'manual';
+  if($('rbBeepToggle')) $('rbBeepToggle').checked = cfg.radBeep !== false;
   closeDrawer();
   buildSsList();
   $('navMenu').classList.add('open');
@@ -4405,7 +4476,7 @@ function imgToB64(img, maxDim){
   return b64;
 }
 /* trova le linee della tabella sui pixel: righe (bande) e colonne, in px di un canvas 900 di larghezza */
-function detectTable(img, hint){   /* hint: y (0-1000) dei riferimenti visti dall'AI, opzionale */
+function detectTable(img, hint){   /* hint: {y:[...], photo:bool} — posizioni AI e origine dell'immagine */
   try{
     const W=900, sc=W/img.naturalWidth, H=Math.max(1, Math.round(img.naturalHeight*sc));
     const c=document.createElement('canvas'); c.width=W; c.height=H;
@@ -4422,9 +4493,12 @@ function detectTable(img, hint){   /* hint: y (0-1000) dei riferimenti visti dal
     };
     /* --- 1) linee orizzontali su tutta la larghezza --- */
     const rowr=new Float32Array(H);
-    /* una linea fotografata puo' derivare di qualche pixel da sinistra a destra:
-       la conto se il nero sta entro +-2 righe (sulle scansioni non cambia nulla) */
-    for(let y=0;y<H;y++){ let n=0; for(let x=0;x<W;x++){ let on=0; for(let k=-2;k<=2;k++){ const yy=y+k; if(yy>=0&&yy<H&&dark[yy*W+x]){ on=1; break; } } n+=on; } rowr[y]=n/W; }
+    /* tolleranza verticale SOLO per le foto (hint.photo): una linea fotografata deriva
+       di qualche pixel da sinistra a destra. Sulle pagine da PDF si usa il calcolo
+       originale, identico a prima, cosi' il PDF non puo' cambiare comportamento. */
+    const tolY = (hint && hint.photo) ? 2 : 0;
+    if(tolY){ for(let y=0;y<H;y++){ let n=0; for(let x=0;x<W;x++){ let on=0; for(let k=-tolY;k<=tolY;k++){ const yy=y+k; if(yy>=0&&yy<H&&dark[yy*W+x]){ on=1; break; } } n+=on; } rowr[y]=n/W; } }
+    else { for(let y=0;y<H;y++){ let n=0; const o=y*W; for(let x=0;x<W;x++) n+=dark[o+x]; rowr[y]=n/W; } }
     const hAll=runs(y=>rowr[y]>Math.max(0.42, med(rowr)+0.3), H, H*0.010);
     if(hAll.length<2) return null;
     let bands=[]; for(let i=0;i<hAll.length-1;i++) bands.push([hAll[i], hAll[i+1]]);
@@ -4437,7 +4511,8 @@ function detectTable(img, hint){   /* hint: y (0-1000) dei riferimenti visti dal
     hs.forEach(h=>{ let cov=0; hs.forEach(k=>{ if(Math.abs(k-h)<=h*0.10) cov+=k; });
       if(cov>bestCov || (cov===bestCov && h>modeH)){ bestCov=cov; modeH=h; } });
     const keep=[];
-    const hintY = Array.isArray(hint) ? hint.filter(v=>typeof v==='number' && !isNaN(v)).map(v=>v*H/1000).sort((a,b)=>a-b) : [];
+    const hintRaw = Array.isArray(hint) ? hint : (hint && Array.isArray(hint.y) ? hint.y : []);
+    const hintY = hintRaw.filter(v=>typeof v==='number' && !isNaN(v)).map(v=>v*H/1000).sort((a,b)=>a-b);
     /* CELLE UNITE (Noale, 11 set 2026): quando i riferimenti sono vicini fra loro l'organizzatore
        non stampa il separatore e 2, 3, 4 righe risultano una sola. Su alcune pagine NON esiste
        nessuna riga singola da usare come misura. Stima dell'altezza di UNA riga, in ordine:
@@ -4596,6 +4671,26 @@ function deskewCanvas(img){
 }
 
 
+/* L'immagine e' gia' pulita (pagina resa da PDF, screenshot di un PDF) oppure
+   e' una foto vera? Si misura, non si indovina: nelle immagini pulite la carta
+   e' bianco puro (picco a 255), nelle foto in abitacolo sta fra 159 e 189.
+   Serve perche' le foto caricate a mano dalla galleria possono benissimo essere
+   screenshot di un PDF, e quelle non vanno toccate. */
+function looksLikePhoto(img){
+  try{
+    const W = 400, H = Math.max(1, Math.round((img.naturalHeight || img.height) * 400 / (img.naturalWidth || img.width)));
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(img, 0, 0, W, H);
+    const d = g.getImageData(0, 0, W, H).data;
+    const hist = new Uint32Array(256);
+    for(let i = 0; i < d.length; i += 4) hist[(d[i]*299 + d[i+1]*587 + d[i+2]*114) / 1000 | 0]++;
+    let peak = 128, best = 0;
+    for(let v = 100; v < 256; v++) if(hist[v] > best){ best = hist[v]; peak = v; }
+    c.width = c.height = 0;
+    return peak < 240;      /* carta non bianca = foto */
+  }catch(e){ return true; }
+}
+
 function prepPhoto(img){
   try{
     const n = normalizeContrast(img);
@@ -4604,8 +4699,14 @@ function prepPhoto(img){
   }catch(e){ return img; }
 }
 
-async function scanOnePage(img){
-  img = prepPhoto(img);   /* l'AI e il ritaglio lavorano sulla stessa immagine preparata */
+async function scanOnePage(img, fromPdf){
+  /* DUE PERCORSI SEPARATI (16 set 2026, richiesta di Roberto):
+       - pagina resa da un PDF: immagine gia' perfetta, NESSUN trattamento
+       - foto della fotocamera: contrasto + raddrizzamento (vedi prepPhoto)
+     L'app sa da dove viene l'immagine, non lo deve indovinare: cosi' una
+     modifica pensata per le foto non puo' toccare il PDF, e viceversa. */
+  const isPhoto = !fromPdf && looksLikePhoto(img);
+  if(isPhoto) img = prepPhoto(img);
   const b64 = imgToB64(img, 1800);
   if(!b64) throw new Error('immagine vuota');
   const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
@@ -4628,7 +4729,7 @@ async function scanOnePage(img){
   const cols = (data.cols && typeof data.cols === 'object') ? data.cols : null;
   const okBox = b => Array.isArray(b) && b.length===4 && b.every(v => typeof v === 'number' && !isNaN(v));
   const cyOf0 = r => okBox(r.rowbox) ? (r.rowbox[0]+r.rowbox[2])/2 : (okBox(r.box) ? (r.box[0]+r.box[2])/2 : (okBox(r.numbox) ? r.numbox[0] : null));
-  const tbl = detectTable(img, rows.map(cyOf0).filter(v=>v!=null));
+  const tbl = detectTable(img, { y: rows.map(cyOf0).filter(v=>v!=null), photo: isPhoto });
   let snapped = false;
   if(tbl && tbl.bands.length){
     const M = rows.length;
@@ -4649,7 +4750,7 @@ async function scanOnePage(img){
         if(best===null || cost<best.cost) best={st, cost};
       }
       pick = bands.slice(best.st, best.st+M);
-    } else if(bands.length >= Math.max(2, Math.ceil(M*0.6))){
+    } else if(bands.length && (!isPhoto || bands.length >= Math.max(2, Math.ceil(M*0.6)))){
       /* meno righe che riferimenti (foto con due pagine, o riga in piu' letta dall'AI):
          uso le righe trovate e per le eccedenti proseguo con la stessa altezza.
          Solo se ne ho trovate quasi tutte: con 1 riga su 5 (foto in prospettiva)
@@ -4717,7 +4818,7 @@ async function scanOnePage(img){
 }
 
 /* piu' pagine insieme: una alla volta, poi fuse in un'unica prova ordinata per Totali */
-async function scanAIRunFiles(files){
+async function scanAIRunFiles(files, fromPdf){
   const name = pendingStageName;
   const append = pendingAppend;
   pendingStageName = null; pendingAppend = false;
@@ -4739,7 +4840,7 @@ async function scanAIRunFiles(files){
       if(i >= n) return;
       try{
         const img = await loadImageFile(files[i]);
-        const r = await scanOnePage(img);
+        const r = await scanOnePage(img, !!fromPdf);
         if(r.model && !info) info = r.model + (r.ms ? ' \u00B7 ' + Math.round(r.ms/1000) + 's' : '');
         if(!r.rb.length){ failed.push(i+1); why.push((i+1)+': 0 riferimenti'); }
         else { parts[i] = r.rb; if(r.gap) gaps.push(i+1); }
@@ -5389,7 +5490,7 @@ $('pdfImpConfirm').addEventListener('click', async ()=>{
       pendingAppend = false;
       pendingFolder = folderId;
       pendingMaxKm = (typeof g.km === 'number' && g.km > 0) ? g.km : null;
-      await scanAIRunFiles(blobs);
+      await scanAIRunFiles(blobs, true);   /* pagine da PDF: percorso senza trattamento foto */
       done++;
     }
   }catch(e){
