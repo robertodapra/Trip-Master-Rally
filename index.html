@@ -269,29 +269,47 @@
     color:var(--text);
   }
   /* ====== RADAR, FOTO GRANDE ======
-     Solo frecce, foto, totale e parziale. Via numero, simbolo testuale, nota,
-     distanza e targhetta: la foto prende tutto lo spazio che avanza. */
+     Solo frecce + foto + parziale/totale. La striscia bassa ha altezza FISSA
+     (i numeri hanno corpo fisso: con un'altezza proporzionale uscivano dai
+     riquadri), e la foto si prende tutto il resto. */
   body[data-mode="radar"][data-bigphoto="1"] #radSym,
   body[data-mode="radar"][data-bigphoto="1"] #radNote,
   body[data-mode="radar"][data-bigphoto="1"] #radDist,
   body[data-mode="radar"][data-bigphoto="1"] #radNum,
   body[data-mode="radar"][data-bigphoto="1"] #ssBadge{display:none}
-  body[data-mode="radar"][data-bigphoto="1"] #radImg{max-height:100%;max-width:100%}
-  body[data-mode="radar"][data-bigphoto="1"] #radHead{justify-content:space-between;padding:0 4px}
   body[data-mode="radar"][data-bigphoto="1"] #app{
     grid-template-columns:1fr 1fr;
-    grid-template-rows:minmax(0,4fr) minmax(0,1fr);
-    grid-template-areas:
-      "radar radar"
-      "partial total";
+    grid-template-rows:minmax(0,1fr) 92px;
+    grid-template-areas:"radar radar" "partial total";
+    gap:6px;
   }
+  body[data-mode="radar"][data-bigphoto="1"] #zoneRadar{
+    display:flex; flex-direction:column; gap:6px; min-height:0; padding:6px;
+  }
+  body[data-mode="radar"][data-bigphoto="1"] #zoneRadar #radHead{
+    justify-content:center; gap:18px; flex:0 0 auto;
+  }
+  body[data-mode="radar"][data-bigphoto="1"] #zoneRadar #radImg{
+    display:block !important; flex:1 1 auto; min-height:0; width:100%;
+    max-width:100%; max-height:100%; object-fit:contain;
+  }
+  body[data-mode="radar"][data-bigphoto="1"] #zonePartial,
+  body[data-mode="radar"][data-bigphoto="1"] #zoneTotal{
+    display:flex; flex-direction:row; align-items:center; justify-content:center;
+    gap:10px; padding:0 10px; min-height:0; overflow:hidden;
+  }
+  body[data-mode="radar"][data-bigphoto="1"] #partialVal,
+  body[data-mode="radar"][data-bigphoto="1"] #totalVal{
+    font-size:44px; line-height:1;
+  }
+  body[data-mode="radar"][data-bigphoto="1"] .zone .zlabel{
+    position:static !important; top:auto; left:auto; right:auto; font-size:11px; max-width:38%;
+    white-space:normal; line-height:1.15; text-align:left;
+  }
+  body[data-mode="radar"][data-bigphoto="1"] .unit{font-size:12px}
   @media (orientation:portrait){
     body[data-mode="radar"][data-bigphoto="1"] #app{
-      grid-template-columns:1fr 1fr;
-      grid-template-rows:minmax(0,5fr) minmax(0,1fr);
-      grid-template-areas:
-        "radar radar"
-        "partial total";
+      grid-template-rows:minmax(0,1fr) 96px;
     }
   }
   #ssBadge{
@@ -781,7 +799,7 @@
   <h2 data-t="introTitle"></h2>
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
-  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-16.12</p>
+  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-16.13</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
