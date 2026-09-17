@@ -290,8 +290,14 @@
     justify-content:center; gap:18px; flex:0 0 auto;
   }
   body[data-mode="radar"][data-bigphoto="1"] #zoneRadar #radImg{
-    display:block !important; flex:1 1 auto; min-height:0; width:100%;
-    max-width:100%; max-height:100%; object-fit:contain;
+    /* dimensione naturale ridotta per stare nel riquadro: niente larghezza forzata,
+       altrimenti in verticale il fondo bianco si stira in una colonna vuota */
+    display:block !important; min-height:0;
+    width:auto; height:auto; max-width:100%; max-height:100%;
+    object-fit:contain; background:transparent; margin:auto;
+  }
+  body[data-mode="radar"][data-bigphoto="1"] #zoneRadar{
+    align-items:center; justify-content:center;
   }
   body[data-mode="radar"][data-bigphoto="1"] #zonePartial,
   body[data-mode="radar"][data-bigphoto="1"] #zoneTotal{
@@ -309,8 +315,12 @@
   body[data-mode="radar"][data-bigphoto="1"] .unit{font-size:12px}
   @media (orientation:portrait){
     body[data-mode="radar"][data-bigphoto="1"] #app{
-      grid-template-rows:minmax(0,1fr) 96px;
+      grid-template-rows:minmax(0,1fr) 84px;
     }
+    body[data-mode="radar"][data-bigphoto="1"] #partialVal,
+    body[data-mode="radar"][data-bigphoto="1"] #totalVal{font-size:30px}
+    body[data-mode="radar"][data-bigphoto="1"] .zone .zlabel{font-size:9px;max-width:42%}
+    body[data-mode="radar"][data-bigphoto="1"] .unit{display:none}
   }
   #ssBadge{
     grid-area:badge;
@@ -799,7 +809,7 @@
   <h2 data-t="introTitle"></h2>
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
-  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-16.13</p>
+  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-16.14</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -1454,7 +1464,7 @@ it:{introTitle:"Come funziona",
   totalResetMsg:"Totale azzerato",partialResetMsg:"Parziale azzerato",
   editLayout:"Modifica layout",editArr:"Disposizione",editReset:"Ripristina",editDone:"Fine",
   editHint:"Tocca un riquadro per cambiarne la grandezza · Disposizione cambia lo schema in orizzontale",
-  totalLabel:"Totale · tieni premuto 2s per azzerare",partialLabel:"Parziale",partialLabelRadar:"Parziale · tieni premuto 1s per riallineare",
+  totalLabel:"Totale · tieni premuto 2s per azzerare",partialLabel:"Parziale",partialLabelRadar:"Parziale",
   tut1Title:"Frecce",tut1Text:"Utilizzale per scorrere avanti o indietro con i simboli. La misurazione non subirà modifiche né sui parziali né sul totale.",
   tut2Title:"Foto del riferimento",tut2Text:"Per ogni riferimento vedi il numero, la foto della tabella e i metri mancanti al prossimo.",
   tut3Title:"Tocca il parziale",tut3Text:"In Automatico il tocco corregge i metri di scarto, azzera il parziale e passa al riferimento successivo. In Manuale azzera e passa al successivo, mantenendo i metri.",
@@ -1636,7 +1646,7 @@ en:{introTitle:"How it works",
   totalResetMsg:"Total reset",partialResetMsg:"Partial reset",
   editLayout:"Edit layout",editArr:"Arrangement",editReset:"Reset",editDone:"Done",
   editHint:"Tap a box to change its size · Arrangement changes the landscape scheme",
-  totalLabel:"Total · hold 2s to reset",partialLabel:"Partial",partialLabelRadar:"Partial · hold 1s to realign",
+  totalLabel:"Total · hold 2s to reset",partialLabel:"Partial",partialLabelRadar:"Partial",
   tut1Title:"Arrows",tut1Text:"Use them to scroll forward or back through the symbols. Measurement won't be affected, on either the partial or the total.",
   tut2Title:"Reference photo",tut2Text:"For each reference you see the number, the pace note photo, and the distance to the next one.",
   tut3Title:"Tap the partial",tut3Text:"In Automatic the tap corrects the distance offset, resets the partial and moves to the next reference. In Manual it resets and moves on, keeping the metres.",
@@ -1862,7 +1872,7 @@ fr:{introTitle:"Comment ça marche",
   totalResetMsg:"Total remis à zéro",partialResetMsg:"Partiel remis à zéro",
   editLayout:"Modifier la disposition",editArr:"Schéma",editReset:"Réinitialiser",editDone:"Terminé",
   editHint:"Touchez une zone pour changer sa taille · Schéma change la disposition en paysage",
-  totalLabel:"Total · maintenir 2s pour remettre à zéro",partialLabel:"Partiel",partialLabelRadar:"Partiel · maintenir 1s pour recaler",
+  totalLabel:"Total · maintenir 2s pour remettre à zéro",partialLabel:"Partiel",partialLabelRadar:"Partiel",
   navPartialLabel:"Partiel · toucher pour remettre à zéro",
   wordLabel:"Mot / Partiel · toucher pour start-stop",
   speedLabel:"Vitesse",
@@ -2057,7 +2067,7 @@ es:{introTitle:"Cómo funciona",
   totalResetMsg:"Total a cero",partialResetMsg:"Parcial a cero",
   editLayout:"Editar diseño",editArr:"Esquema",editReset:"Restablecer",editDone:"Hecho",
   editHint:"Toca un recuadro para cambiar su tamaño · Esquema cambia la disposición horizontal",
-  totalLabel:"Total · mantén 2s para poner a cero",partialLabel:"Parcial",partialLabelRadar:"Parcial · mantén 1s para realinear",
+  totalLabel:"Total · mantén 2s para poner a cero",partialLabel:"Parcial",partialLabelRadar:"Parcial",
   navPartialLabel:"Parcial · toca para poner a cero",
   wordLabel:"Palabra / Parcial · toca para start-stop",
   speedLabel:"Velocidad",
@@ -2252,7 +2262,7 @@ de:{introTitle:"So funktioniert es",
   totalResetMsg:"Gesamt zurückgesetzt",partialResetMsg:"Teilstrecke zurückgesetzt",
   editLayout:"Layout bearbeiten",editArr:"Anordnung",editReset:"Zurücksetzen",editDone:"Fertig",
   editHint:"Tippe auf ein Feld, um die Größe zu ändern · Anordnung ändert das Querformat-Schema",
-  totalLabel:"Gesamt · 2s halten zum Nullstellen",partialLabel:"Teilstrecke",partialLabelRadar:"Teilstrecke · 1s halten zum Neuausrichten",
+  totalLabel:"Gesamt · 2s halten zum Nullstellen",partialLabel:"Teilstrecke",partialLabelRadar:"Teilstrecke",
   navPartialLabel:"Teilstrecke · tippen zum Nullstellen",
   wordLabel:"Wort / Teilstrecke · tippen für Start-Stopp",
   speedLabel:"Geschwindigkeit",
@@ -2447,7 +2457,7 @@ pt:{introTitle:"Como funciona",
   totalResetMsg:"Total zerado",partialResetMsg:"Parcial zerado",
   editLayout:"Editar layout",editArr:"Disposição",editReset:"Repor",editDone:"Concluir",
   editHint:"Toque numa caixa para mudar o tamanho · Disposição muda o esquema horizontal",
-  totalLabel:"Total · manter 2s para zerar",partialLabel:"Parcial",partialLabelRadar:"Parcial · manter 1s para realinhar",
+  totalLabel:"Total · manter 2s para zerar",partialLabel:"Parcial",partialLabelRadar:"Parcial",
   navPartialLabel:"Parcial · toque para zerar",
   wordLabel:"Palavra / Parcial · toque para start-stop",
   speedLabel:"Velocidade",
@@ -2642,7 +2652,7 @@ ja:{introTitle:"使い方",
   totalResetMsg:"合計をリセットしました",partialResetMsg:"区間をリセットしました",
   editLayout:"レイアウト編集",editArr:"配置",editReset:"リセット",editDone:"完了",
   editHint:"ボックスをタップでサイズ変更 · 配置は横向きのレイアウトを変更します",
-  totalLabel:"合計 · 2秒長押しでリセット",partialLabel:"区間",partialLabelRadar:"区間 · 1秒長押しで再調整",
+  totalLabel:"合計 · 2秒長押しでリセット",partialLabel:"区間",partialLabelRadar:"区間",
   navPartialLabel:"区間 · タップでリセット",
   wordLabel:"言葉 / 区間 · タップで開始・停止",
   speedLabel:"速度",
@@ -2837,7 +2847,7 @@ cs:{introTitle:"Jak to funguje",
   totalResetMsg:"Celkem vynulováno",partialResetMsg:"Dílčí vynulováno",
   editLayout:"Upravit rozložení",editArr:"Uspořádání",editReset:"Obnovit",editDone:"Hotovo",
   editHint:"Klepnutím na pole změníte velikost · Uspořádání mění schéma na šířku",
-  totalLabel:"Celkem · podržte 2s pro vynulování",partialLabel:"Dílčí",partialLabelRadar:"Dílčí · podržte 1s pro zarovnání",
+  totalLabel:"Celkem · podržte 2s pro vynulování",partialLabel:"Dílčí",partialLabelRadar:"Dílčí",
   navPartialLabel:"Dílčí · klepnutím vynulovat",
   wordLabel:"Slovo / Dílčí · klepnutím start-stop",
   speedLabel:"Rychlost",
