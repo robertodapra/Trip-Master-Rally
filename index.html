@@ -268,6 +268,32 @@
     font-size:11px;
     color:var(--text);
   }
+  /* ====== RADAR, FOTO GRANDE ======
+     Solo frecce, foto, totale e parziale. Via numero, simbolo testuale, nota,
+     distanza e targhetta: la foto prende tutto lo spazio che avanza. */
+  body[data-mode="radar"][data-bigphoto="1"] #radSym,
+  body[data-mode="radar"][data-bigphoto="1"] #radNote,
+  body[data-mode="radar"][data-bigphoto="1"] #radDist,
+  body[data-mode="radar"][data-bigphoto="1"] #radNum,
+  body[data-mode="radar"][data-bigphoto="1"] #ssBadge{display:none}
+  body[data-mode="radar"][data-bigphoto="1"] #radImg{max-height:100%;max-width:100%}
+  body[data-mode="radar"][data-bigphoto="1"] #radHead{justify-content:space-between;padding:0 4px}
+  body[data-mode="radar"][data-bigphoto="1"] #app{
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:minmax(0,4fr) minmax(0,1fr);
+    grid-template-areas:
+      "radar radar"
+      "partial total";
+  }
+  @media (orientation:portrait){
+    body[data-mode="radar"][data-bigphoto="1"] #app{
+      grid-template-columns:1fr 1fr;
+      grid-template-rows:minmax(0,5fr) minmax(0,1fr);
+      grid-template-areas:
+        "radar radar"
+        "partial total";
+    }
+  }
   #ssBadge{
     grid-area:badge;
     display:none;
@@ -755,7 +781,7 @@
   <h2 data-t="introTitle"></h2>
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
-  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-16.10</p>
+  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-16.12</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -811,6 +837,11 @@
     </select>
   </div>
   <p class="small" style="color:var(--muted);margin:0 0 10px" data-t="rbAdvSmall"></p>
+  <div class="setting-row" style="margin-bottom:4px">
+    <span data-t="rbBigLabel"></span>
+    <input type="checkbox" id="rbBigToggle">
+  </div>
+  <p class="small" style="color:var(--muted);margin:0 0 10px" data-t="rbBigSmall"></p>
   <div class="setting-row" style="margin-bottom:4px">
     <span data-t="rbBeepLabel"></span>
     <input type="checkbox" id="rbBeepToggle">
@@ -1362,6 +1393,9 @@ function updateNavFree(){ var el=document.getElementById('navFree'); if(!el) ret
 /* ================= TRADUZIONI ================= */
 const T = {
 it:{introTitle:"Come funziona",
+  scanBlurry:"foto poco leggibile: inquadra solo la pagina, piu’ dritta",
+  rbBigLabel:"Foto grande",
+  rbBigSmall:"Mostra solo frecce, foto, totale e parziale: la foto del riferimento occupa tutto lo schermo.",
   rbBeepLabel:"Avviso sonoro a 100 m",
   rbBeepSmall:"Un doppio tocco sonoro discreto quando mancano 100 metri al simbolo.",
   pmRealMeters:"Usa i metri reali (senza parole)",
@@ -1541,6 +1575,9 @@ it:{introTitle:"Come funziona",
   soundDefault:"Predefinito",
   soundPlay:"Ascolta"},
 en:{introTitle:"How it works",
+  scanBlurry:"photo hard to read: frame only the page, straighter",
+  rbBigLabel:"Large photo",
+  rbBigSmall:"Shows only arrows, photo, total and partial: the reference photo fills the screen.",
   rbBeepLabel:"Sound alert 100 m before",
   rbBeepSmall:"A soft double chime when the symbol is 100 metres away.",
   pmRealMeters:"Use real metres (no words)",
@@ -1720,6 +1757,9 @@ en:{introTitle:"How it works",
   soundDefault:"Default",
   soundPlay:"Play"},
 fr:{introTitle:"Comment ça marche",
+  scanBlurry:"photo peu lisible : cadre seulement la page, plus droite",
+  rbBigLabel:"Grande photo",
+  rbBigSmall:"Affiche seulement les flèches, la photo, le total et le partiel : la photo remplit l'écran.",
   rbBeepLabel:"Alerte sonore à 100 m",
   rbBeepSmall:"Un double son discret quand il reste 100 mètres avant le repère.",
   pmRealMeters:"Utiliser les mètres réels (sans mots)",
@@ -1912,6 +1952,9 @@ fr:{introTitle:"Comment ça marche",
   soundDefault:"Par défaut",
   soundPlay:"Écouter"},
 es:{introTitle:"Cómo funciona",
+  scanBlurry:"foto poco legible: encuadra solo la página, más recta",
+  rbBigLabel:"Foto grande",
+  rbBigSmall:"Muestra solo flechas, foto, total y parcial: la foto ocupa toda la pantalla.",
   rbBeepLabel:"Aviso sonoro a 100 m",
   rbBeepSmall:"Un doble sonido discreto cuando faltan 100 metros para el símbolo.",
   pmRealMeters:"Usar metros reales (sin palabras)",
@@ -2104,6 +2147,9 @@ es:{introTitle:"Cómo funciona",
   soundDefault:"Predeterminado",
   soundPlay:"Escuchar"},
 de:{introTitle:"So funktioniert es",
+  scanBlurry:"Foto schwer lesbar: nur die Seite, gerader aufnehmen",
+  rbBigLabel:"Großes Foto",
+  rbBigSmall:"Zeigt nur Pfeile, Foto, Gesamt und Teilstrecke: das Foto füllt den Bildschirm.",
   rbBeepLabel:"Tonsignal 100 m vorher",
   rbBeepSmall:"Ein dezenter Doppelton, wenn das Symbol 100 Meter entfernt ist.",
   pmRealMeters:"Echte Meter verwenden (ohne Wörter)",
@@ -2296,6 +2342,9 @@ de:{introTitle:"So funktioniert es",
   soundDefault:"Standard",
   soundPlay:"Anhören"},
 pt:{introTitle:"Como funciona",
+  scanBlurry:"foto pouco legível: enquadra só a página, mais direita",
+  rbBigLabel:"Foto grande",
+  rbBigSmall:"Mostra só setas, foto, total e parcial: a foto ocupa todo o ecrã.",
   rbBeepLabel:"Aviso sonoro a 100 m",
   rbBeepSmall:"Um duplo som discreto quando faltam 100 metros para o símbolo.",
   pmRealMeters:"Usar metros reais (sem palavras)",
@@ -2488,6 +2537,9 @@ pt:{introTitle:"Como funciona",
   soundDefault:"Predefinido",
   soundPlay:"Ouvir"},
 ja:{introTitle:"使い方",
+  scanBlurry:"写真が読みにくい：ページだけをまっすぐに写してください",
+  rbBigLabel:"写真を大きく",
+  rbBigSmall:"矢印・写真・合計・区間のみ表示。写真が画面いっぱいになります。",
   rbBeepLabel:"100 m手前で音を鳴らす",
   rbBeepSmall:"シンボルまで100メートルで、控えめな2音のチャイム。",
   pmRealMeters:"実際のメートルを使う（単語なし）",
@@ -2680,6 +2732,9 @@ ja:{introTitle:"使い方",
   soundDefault:"デフォルト",
   soundPlay:"再生"},
 cs:{introTitle:"Jak to funguje",
+  scanBlurry:"fotka špatně čitelná: zaběr jen stránku, rovněji",
+  rbBigLabel:"Velká fotka",
+  rbBigSmall:"Zobrazí jen šipky, fotku, celkem a dílčí: fotka vyplní obrazovku.",
   rbBeepLabel:"Zvukové upozornění 100 m předem",
   rbBeepSmall:"Jemný dvojitý tón, když do symbolu zbývá 100 metrů.",
   pmRealMeters:"Používat skutečné metry (bez slov)",
@@ -2924,6 +2979,7 @@ let cfg = {
   pilotTapReset: false,   /* pilota: un tocco azzera e fa ripartire, invece di avvia/ferma */
   pilotRealMeters: false, /* pilota: solo Totale + Parziale in metri, senza parole */
   radBeep: true,          /* radar: avviso sonoro a 100 m dal simbolo */
+  radBigPhoto: false,     /* radar: foto grande, solo frecce + totale + parziale */
   autoReset: true,
   lang: null,
   hideIntro: false,
@@ -3244,6 +3300,7 @@ function speedUnitStr(){ return isImp() ? 'mph' : 'km/h'; }
 /* pilot = pilota · nav = trip navigatore · radar = display radar */
 function applyMode(){
   document.body.dataset.pilotreal = (cfg.mode === 'pilot' && cfg.pilotRealMeters) ? '1' : '0';
+  document.body.dataset.bigphoto = (cfg.mode === 'radar' && cfg.radBigPhoto) ? '1' : '0';
   try{ const pw = $('prevWord'), pp = $('prevPartial'); if(cfg.mode !== 'pilot'){ if(pw) pw.hidden = true; if(pp) pp.hidden = true; } }catch(e){}
   document.body.dataset.mode = cfg.mode;
   partialLbl.dataset.t = (cfg.mode === 'radar') ? 'partialLabelRadar' : 'partialLabel';
@@ -3897,10 +3954,12 @@ $('drvWords').addEventListener('click', ()=>{
   $('pilotMenu').classList.add('open');
 });
 if($('rbAdvSel')) $('rbAdvSel').addEventListener('change', ()=>{ cfg.autoReset = ($('rbAdvSel').value !== 'manual'); saveCfg(); });
+if($('rbBigToggle')) $('rbBigToggle').addEventListener('change', ()=>{ cfg.radBigPhoto = $('rbBigToggle').checked; saveCfg(); applyMode(); });
 if($('rbBeepToggle')) $('rbBeepToggle').addEventListener('change', ()=>{ cfg.radBeep = $('rbBeepToggle').checked; saveCfg(); if(cfg.radBeep) radarBeep(); });
 $('drvRb').addEventListener('click', ()=>{
   if($('rbAdvSel')) $('rbAdvSel').value = cfg.autoReset ? 'auto' : 'manual';
   if($('rbBeepToggle')) $('rbBeepToggle').checked = cfg.radBeep !== false;
+  if($('rbBigToggle')) $('rbBigToggle').checked = !!cfg.radBigPhoto;
   closeDrawer();
   buildSsList();
   $('navMenu').classList.add('open');
@@ -4151,6 +4210,7 @@ let pendingAppend = false;
 let pendingMaxKm = null;   /* solo importazione PDF: km della prova letti dal titolo */
 let pendingDetail = null;  /* dettaglio prova aperto durante "+ Aggiungi scan": da ridisegnare al ritorno */
 let pendingFolder = null;  /* importazione PDF: cartella della gara in cui mettere le prove */
+let scanBounds = null;     /* bordi laterali validi per tutte le pagine della prova */
 
 $('ssNew').addEventListener('click', ()=>{
   if(!proGate()) return;
@@ -4730,6 +4790,7 @@ async function scanOnePage(img, fromPdf){
      L'app sa da dove viene l'immagine, non lo deve indovinare: cosi' una
      modifica pensata per le foto non puo' toccare il PDF, e viceversa. */
   const isPhoto = !fromPdf && looksLikePhoto(img);
+  let unreadable = false;
   if(isPhoto) img = prepPhoto(img);
   const b64 = imgToB64(img, 1800);
   if(!b64) throw new Error('immagine vuota');
@@ -4754,6 +4815,13 @@ async function scanOnePage(img, fromPdf){
   const okBox = b => Array.isArray(b) && b.length===4 && b.every(v => typeof v === 'number' && !isNaN(v));
   const cyOf0 = r => okBox(r.rowbox) ? (r.rowbox[0]+r.rowbox[2])/2 : (okBox(r.box) ? (r.box[0]+r.box[2])/2 : (okBox(r.numbox) ? r.numbox[0] : null));
   const tbl = detectTable(img, { y: rows.map(cyOf0).filter(v=>v!=null), photo: isPhoto });
+  /* tolleranza larga: l'avviso scatta solo se NON trova nessuna riga, non alla prima
+     imperfezione. Le foto fatte bene continuano a passare senza dire niente. */
+  if(isPhoto && !tbl) unreadable = true;
+  if(tbl && scanBounds && tbl.W){   /* bordi misurati su tutte le pagine: vincono su quelli di questa */
+    tbl.x0 = scanBounds.x0 * tbl.W;
+    tbl.x1 = scanBounds.x1 * tbl.W;
+  }
   let snapped = false;
   if(tbl && tbl.bands.length){
     const M = rows.length;
@@ -4838,7 +4906,7 @@ async function scanOnePage(img, fromPdf){
     if(Array.isArray(r.box) && r.box.length === 4){ try{ cropped = aiCrop(img, r.box); }catch(e){} }
     rb.push({ km: km, s: '', n: nota, img: imgPut(cropped) });
   }
-  return { rb, gap, model: data.model || '', ms: data.ms || 0 };
+  return { unreadable, rb, gap, model: data.model || '', ms: data.ms || 0 };
 }
 
 /* piu' pagine insieme: una alla volta, poi fuse in un'unica prova ordinata per Totali */
@@ -4852,6 +4920,25 @@ async function scanAIRunFiles(files, fromPdf){
   const parts = new Array(n).fill(null);
   const t0 = Date.now();
   let doneCount = 0;
+  /* BORDI LATERALI CONDIVISI (16 set 2026): le pagine di una stessa prova hanno la
+     stessa tabella, ma su qualche pagina i bordi venivano trovati piu' stretti e la
+     striscia perdeva Totale e Parziale. Li misuro su tutte le pagine e tengo il
+     valore centrale: le pagine difficili ereditano quello delle altre. */
+  scanBounds = null;
+  if(n > 1){
+    try{
+      const xs = [], xe = [];
+      for(const f of files){
+        const im = await loadImageFile(f);
+        const t = detectTable(im, { y: [], photo: !fromPdf && looksLikePhoto(im) });
+        if(t && t.W){ xs.push(t.x0 / t.W); xe.push(t.x1 / t.W); }
+      }
+      if(xs.length >= 2){
+        xs.sort((a,b)=>a-b); xe.sort((a,b)=>a-b);
+        scanBounds = { x0: xs[Math.floor(xs.length/2)], x1: xe[Math.floor(xe.length/2)] };
+      }
+    }catch(e){ scanBounds = null; }
+  }
   const label = ()=> (n>1 ? t('scanPage').replace('{i}', doneCount).replace('{n}', n) : t('scanReading'));
   const tick = setInterval(()=>{ window.__scanBusy(true, label() + ' \u00B7 ' + Math.round((Date.now()-t0)/1000) + ' s'); }, 1000);
   window.__scanBusy(true, label());
@@ -4866,7 +4953,7 @@ async function scanAIRunFiles(files, fromPdf){
         const img = await loadImageFile(files[i]);
         const r = await scanOnePage(img, !!fromPdf);
         if(r.model && !info) info = r.model + (r.ms ? ' \u00B7 ' + Math.round(r.ms/1000) + 's' : '');
-        if(!r.rb.length){ failed.push(i+1); why.push((i+1)+': 0 riferimenti'); }
+        if(!r.rb.length){ failed.push(i+1); why.push((i+1)+': ' + (r.unreadable ? t('scanBlurry') : '0 riferimenti')); }
         else { parts[i] = r.rb; if(r.gap) gaps.push(i+1); }
       }catch(e){ failed.push(i+1); why.push((i+1)+': '+((e&&e.message)||'errore')); }
       doneCount++;
