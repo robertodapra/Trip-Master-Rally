@@ -268,51 +268,80 @@
     font-size:11px;
     color:var(--text);
   }
-  /* ====== RADAR, FOTO GRANDE ======
-     SOLO IN ORIZZONTALE (in verticale resta il layout normale).
-     Frecce ai lati, foto larga quanto lo schermo, parziale e totale centrati
-     sotto, nome della prova in fondo al centro. */
+  /* ====== RADAR, FOTO GRANDE (solo ORIZZONTALE) — 24 set 2026 ======
+     Sul modello del GPS di gara Be Traced:
+       [ nome prova + ◀ metri al prossimo ▶ ] [ PARZIALE ]
+       [                                    ] [ TOTALE   ]
+       [      foto del riferimento a tutta larghezza      ]
+     In VERTICALE non cambia nulla.
+     REGOLA D'ORO di questa griglia: OGNI figlio visibile di #app (e di #zoneRadar,
+     che qui diventa trasparente con display:contents) deve avere un'area che
+     ESISTE in grid-template-areas. Se un elemento punta a un'area inesistente,
+     il browser crea da solo righe e colonne in piu' (e' cosi' che nasceva il
+     terzo vuoto a destra: #ssBadge puntava all'area "badge"). */
+  #radStage{display:none}
   @media (orientation:landscape){
+    body[data-mode="radar"][data-bigphoto="1"] #app#app{
+      grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) !important;
+      grid-template-rows:minmax(0,1fr) minmax(0,1fr) minmax(0,3.3fr) !important;
+      grid-template-areas:"left partial" "left total" "photo photo" !important;
+      gap:6px !important;
+      padding-left:max(8px, env(safe-area-inset-left)) !important;
+      padding-right:max(8px, env(safe-area-inset-right)) !important;
+    }
+    /* tutto cio' che non fa parte del layout esce dalla griglia */
+    body[data-mode="radar"][data-bigphoto="1"] #ssBadge,
+    body[data-mode="radar"][data-bigphoto="1"] #radNum,
     body[data-mode="radar"][data-bigphoto="1"] #radSym,
-    body[data-mode="radar"][data-bigphoto="1"] #radNote,
-    body[data-mode="radar"][data-bigphoto="1"] #radDist,
-    body[data-mode="radar"][data-bigphoto="1"] #radNum{display:none}
-    body[data-mode="radar"][data-bigphoto="1"] #app{
-      grid-template-columns:1fr 1fr;
-      grid-template-rows:minmax(0,1fr) 104px;
-      grid-template-areas:"radar radar" "partial total";
-      gap:8px;
+    body[data-mode="radar"][data-bigphoto="1"] #radNote{display:none !important}
+    /* la zona radar si "apre": i suoi pezzi si piazzano direttamente nella griglia */
+    body[data-mode="radar"][data-bigphoto="1"] #zoneRadar,
+    body[data-mode="radar"][data-bigphoto="1"] #zoneRadar #radHead{display:contents !important}
+
+    /* BLOCCO SINISTRO: nome in alto, frecce ai lati, metri al centro.
+       Stanno tutti nella stessa area "left", allineati in punti diversi. */
+    body[data-mode="radar"][data-bigphoto="1"] #radStage{
+      display:block !important; grid-area:left !important;
+      align-self:start; justify-self:stretch; min-width:0;
+      margin:4px 6px 0; text-align:center;
+      font-size:clamp(11px, 3.4vh, 15px); font-weight:700; letter-spacing:.04em;
+      color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
-    /* le frecce diventano fratelli della foto, una per lato */
-    body[data-mode="radar"][data-bigphoto="1"] #zoneRadar{
-      display:flex; flex-direction:row; align-items:center;
-      gap:10px; padding:6px 10px; min-height:0;
+    body[data-mode="radar"][data-bigphoto="1"] #radPrev{
+      grid-area:left !important; align-self:center; justify-self:start; margin:14px 0 0 4px;
     }
-    body[data-mode="radar"][data-bigphoto="1"] #zoneRadar #radHead{display:contents}
-    body[data-mode="radar"][data-bigphoto="1"] #radPrev{order:1; flex:0 0 auto}
-    body[data-mode="radar"][data-bigphoto="1"] #radNext{order:3; flex:0 0 auto}
-    body[data-mode="radar"][data-bigphoto="1"] #zoneRadar #radImg{
-      display:block !important; order:2;
-      flex:1 1 auto; min-width:0; min-height:0;
-      width:100%; height:auto; max-width:100%; max-height:100%;
-      object-fit:contain; background:transparent;
+    body[data-mode="radar"][data-bigphoto="1"] #radNext{
+      grid-area:left !important; align-self:center; justify-self:end; margin:14px 4px 0 0;
     }
-    /* parziale e totale: etichetta e numero centrati */
+    body[data-mode="radar"][data-bigphoto="1"] #radDist{
+      display:block !important; grid-area:left !important;
+      align-self:center; justify-self:center; margin-top:14px;
+      font-size:clamp(34px, 14vh, 64px); line-height:1; font-weight:800;
+      max-width:calc(100% - 120px); white-space:nowrap; overflow:hidden;
+    }
+
+    /* BLOCCO DESTRO: parziale sopra, totale sotto */
+    body[data-mode="radar"][data-bigphoto="1"] #zonePartial{grid-area:partial !important}
+    body[data-mode="radar"][data-bigphoto="1"] #zoneTotal{grid-area:total !important}
     body[data-mode="radar"][data-bigphoto="1"] #zonePartial,
     body[data-mode="radar"][data-bigphoto="1"] #zoneTotal{
-      display:flex; flex-direction:row; align-items:center; justify-content:center;
-      gap:12px; padding:0 10px; min-height:0; overflow:hidden;
+      display:flex !important; flex-direction:row; align-items:center; justify-content:space-between;
+      gap:10px; padding:0 14px; min-width:0; min-height:0; overflow:hidden;
     }
     body[data-mode="radar"][data-bigphoto="1"] #partialVal,
-    body[data-mode="radar"][data-bigphoto="1"] #totalVal{font-size:48px; line-height:1}
+    body[data-mode="radar"][data-bigphoto="1"] #totalVal{font-size:clamp(26px, 10.5vh, 50px) !important; line-height:1}
     body[data-mode="radar"][data-bigphoto="1"] .zone .zlabel{
       position:static !important; top:auto; left:auto; right:auto;
-      font-size:12px; max-width:none; white-space:nowrap;
+      font-size:11px; white-space:nowrap; flex:0 0 auto;
     }
-    /* nome della prova: in fondo, centrato */
-    body[data-mode="radar"][data-bigphoto="1"] #ssBadge{
-      left:50%; right:auto; transform:translateX(-50%);
-      bottom:calc(env(safe-area-inset-bottom) + 4px);
+    body[data-mode="radar"][data-bigphoto="1"] .unit{display:none}
+
+    /* FOTO: tutta la riga bassa, proporzioni intatte, niente fondo bianco stirato */
+    body[data-mode="radar"][data-bigphoto="1"] #radImg{
+      grid-area:photo !important; justify-self:stretch; align-self:stretch;
+      width:100% !important; height:100% !important; min-width:0; min-height:0;
+      max-width:none !important; max-height:none !important;
+      object-fit:contain !important; background:transparent !important; border-radius:0 !important;
     }
   }
   #ssBadge{
@@ -729,6 +758,7 @@
     <div id="radSym">&mdash;</div>
     <div id="radNote"></div>
     <div id="radDist"></div>
+    <div id="radStage"></div>
   </div>
 
   <span id="ssBadge"></span>
@@ -802,7 +832,7 @@
   <h2 data-t="introTitle"></h2>
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
-  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-17.1</p>
+  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-24.1</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -3308,6 +3338,7 @@ function updateStateText(){
 }
 function updateSsBadge(){
   ssBadge.textContent = cfg.ssActive;
+  { const st = document.getElementById('radStage'); if(st) st.textContent = cfg.ssActive || ''; }
   ssBadge.classList.toggle('show', !!cfg.ssActive);
 }
 
@@ -3905,11 +3936,25 @@ function radarTutStart(force){
   radarTutDontShowCk.checked = false;
   radarTutShowStep();
 }
+/* rettangolo di un elemento; se e' "trasparente" (display:contents, come #radHead
+   nel layout Foto grande) misura 0x0: allora uso l'unione dei figli visibili */
+function radarTutRect(el){
+  const r = el.getBoundingClientRect();
+  if(r.width || r.height) return r;
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for(const c of el.children){
+    const q = c.getBoundingClientRect();
+    if(!q.width || !q.height) continue;
+    x0 = Math.min(x0, q.left); y0 = Math.min(y0, q.top); x1 = Math.max(x1, q.right); y1 = Math.max(y1, q.bottom);
+  }
+  if(x0 === Infinity) return r;
+  return { left:x0, top:y0, right:x1, bottom:y1, width:x1 - x0, height:y1 - y0 };
+}
 function radarTutPosition(){
   const step = RADAR_TUT_STEPS[radarTutIdx];
   const el = $(step.el);
   if(!el) return;
-  const r = el.getBoundingClientRect();
+  const r = radarTutRect(el);
   const pad = 10;
   const edge = 3; /* margine minimo dal bordo dello schermo */
   let left = r.left - pad, top = r.top - pad;
@@ -3924,14 +3969,51 @@ function radarTutPosition(){
   radarTutHi.style.top = Math.round(top) + 'px';
   radarTutHi.style.width = Math.round(width) + 'px';
   radarTutHi.style.height = Math.round(height) + 'px';
-  const spaceBelow = window.innerHeight - r.bottom;
-  if(spaceBelow > 200){
-    radarTutBubble.style.top = Math.round(Math.min(r.bottom + pad + 14, window.innerHeight - 160)) + 'px';
-    radarTutBubble.style.bottom = 'auto';
-  } else {
-    radarTutBubble.style.bottom = Math.round(Math.max(window.innerHeight - r.top + pad + 14, 10)) + 'px';
-    radarTutBubble.style.top = 'auto';
+  const W = window.innerWidth, H = window.innerHeight, b = radarTutBubble;
+  if(W <= H){
+    /* VERTICALE: comportamento originale, invariato */
+    b.style.left = ''; b.style.right = ''; b.style.width = ''; b.style.maxHeight = ''; b.style.overflowY = '';
+    const spaceBelow = window.innerHeight - r.bottom;
+    if(spaceBelow > 200){
+      b.style.top = Math.round(Math.min(r.bottom + pad + 14, window.innerHeight - 160)) + 'px';
+      b.style.bottom = 'auto';
+      /* testi lunghi (dal 16 set i passi 3-4 sono piu' alti di 160 px): se il riquadro
+         uscirebbe dal fondo lo tiro su. Quando ci sta, la posizione e' quella di sempre. */
+      const hh = b.offsetHeight, tt = parseFloat(b.style.top);
+      if(tt + hh > H - 10) b.style.top = Math.max(10, Math.round(H - 10 - hh)) + 'px';
+    } else {
+      b.style.bottom = Math.round(Math.max(window.innerHeight - r.top + pad + 14, 10)) + 'px';
+      b.style.top = 'auto';
+      const hh = b.offsetHeight, bb = parseFloat(b.style.bottom);
+      if(H - bb - hh < 10) b.style.bottom = Math.max(10, Math.round(H - 10 - hh)) + 'px';
+    }
+    return;
   }
+  /* ORIZZONTALE (24 set 2026): lo schermo e' basso, quindi il riquadro e' piu' stretto
+     e va dove c'e' davvero posto — sotto, sopra, a destra o a sinistra dell'elemento —
+     ma resta SEMPRE tutto dentro lo schermo. Prima veniva messo sopra senza
+     controllare e usciva dal bordo superiore. */
+  const m = 8, gap = 12;
+  const bw = Math.min(460, Math.round(W * 0.48));
+  b.style.right = 'auto'; b.style.bottom = 'auto';
+  b.style.width = bw + 'px';
+  b.style.maxHeight = (H - 2 * m) + 'px'; b.style.overflowY = 'auto';
+  const h = Math.min(b.offsetHeight, H - 2 * m);
+  const hl = { l:left, t:top, r:left + width, b:top + height };
+  const cx = (hl.l + hl.r) / 2, cy = (hl.t + hl.b) / 2;
+  const clampTop = v => Math.max(m, Math.min(v, H - h - m));
+  const clampLeft = v => Math.max(m, Math.min(v, W - bw - m));
+  let bt, bl;
+  if(hl.b + gap + h <= H - m){ bt = hl.b + gap; bl = clampLeft(cx - bw / 2); }            /* sotto */
+  else if(hl.t - gap - h >= m){ bt = hl.t - gap - h; bl = clampLeft(cx - bw / 2); }       /* sopra */
+  else if(hl.r + gap + bw <= W - m){ bl = hl.r + gap; bt = clampTop(cy - h / 2); }        /* a destra */
+  else if(hl.l - gap - bw >= m){ bl = hl.l - gap - bw; bt = clampTop(cy - h / 2); }       /* a sinistra */
+  else {                                                                                   /* elemento enorme */
+    bl = clampLeft(cx - bw / 2);
+    bt = (hl.t - m >= H - hl.b - m) ? m : H - h - m;
+  }
+  b.style.left = Math.round(bl) + 'px';
+  b.style.top = Math.round(bt) + 'px';
 }
 function radarTutShowStep(){
   const step = RADAR_TUT_STEPS[radarTutIdx];
