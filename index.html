@@ -832,7 +832,7 @@
   <h2 data-t="introTitle"></h2>
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
-  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-24.1</p>
+  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-28.1</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -1488,7 +1488,7 @@ it:{introTitle:"Come funziona",
   editLayout:"Modifica layout",editArr:"Disposizione",editReset:"Ripristina",editDone:"Fine",
   editHint:"Tocca un riquadro per cambiarne la grandezza · Disposizione cambia lo schema in orizzontale",
   totalLabel:"Totale · tieni premuto 2s per azzerare",partialLabel:"Parziale",partialLabelRadar:"Parziale",
-  tut1Title:"Frecce",tut1Text:"Utilizzale per scorrere avanti o indietro con i simboli. La misurazione non subirà modifiche né sui parziali né sul totale.",
+  tut1Title:"Frecce",tut1Text:"Utilizzale per scorrere avanti o indietro con i simboli. La misurazione non subirà modifiche né sui parziali né sul totale. Il numero in verde è la distanza che manca al prossimo simbolo.",
   tut2Title:"Foto del riferimento",tut2Text:"Per ogni riferimento vedi il numero, la foto della tabella e i metri mancanti al prossimo.",
   tut3Title:"Tocca il parziale",tut3Text:"In Automatico il tocco corregge i metri di scarto, azzera il parziale e passa al riferimento successivo. In Manuale azzera e passa al successivo, mantenendo i metri.",
   tut4Title:"Tieni premuto il parziale",tut4Text:"Serve in Manuale: tieni premuto 1 secondo per correggere i metri di scarto e azzerare il parziale. In Automatico lo fa gia’ il tocco.",
@@ -1516,6 +1516,7 @@ it:{introTitle:"Come funziona",
   pdfImpShowOthers:"Mostra anche le altre sezioni senza nome ({n})",
   pdfImpHideOthers:"Nascondi le altre sezioni ({n})",
   pdfImpDoneN:"{n} prove importate: le trovi qui sotto, pronte per il Radar",
+  pdfImpMissHead:"Queste pagine del PDF non sono state lette:",pdfImpPagesList:"pag. {list}",pdfImpRetryBtn:"Rileggi le pagine mancanti",pdfImpRetryOk:"Pagine rilette: tutto a posto.",scanRetrying:"Rileggo le pagine non lette…",
   pdfImpErrRange:"Intervallo di pagine non valido.",
   navPartialLabel:"Parziale · tocca per azzerare",
   wordLabel:"Parola / Parziale · tocca per start-stop",
@@ -1670,7 +1671,7 @@ en:{introTitle:"How it works",
   editLayout:"Edit layout",editArr:"Arrangement",editReset:"Reset",editDone:"Done",
   editHint:"Tap a box to change its size · Arrangement changes the landscape scheme",
   totalLabel:"Total · hold 2s to reset",partialLabel:"Partial",partialLabelRadar:"Partial",
-  tut1Title:"Arrows",tut1Text:"Use them to scroll forward or back through the symbols. Measurement won't be affected, on either the partial or the total.",
+  tut1Title:"Arrows",tut1Text:"Use them to scroll forward or back through the symbols. Measurement won't be affected, on either the partial or the total. The green number is the distance left to the next symbol.",
   tut2Title:"Reference photo",tut2Text:"For each reference you see the number, the pace note photo, and the distance to the next one.",
   tut3Title:"Tap the partial",tut3Text:"In Automatic the tap corrects the distance offset, resets the partial and moves to the next reference. In Manual it resets and moves on, keeping the metres.",
   tut4Title:"Hold the partial",tut4Text:"Useful in Manual: hold for 1 second to correct the distance offset and reset the partial. In Automatic the tap already does it.",
@@ -1698,6 +1699,7 @@ en:{introTitle:"How it works",
   pdfImpShowOthers:"Also show the other unnamed sections ({n})",
   pdfImpHideOthers:"Hide the other sections ({n})",
   pdfImpDoneN:"{n} stages imported: they are listed below, ready for Radar",
+  pdfImpMissHead:"These PDF pages could not be read:",pdfImpPagesList:"p. {list}",pdfImpRetryBtn:"Re-read the missing pages",pdfImpRetryOk:"Pages re-read: all good.",scanRetrying:"Re-reading the pages that failed…",
   pdfImpErrRange:"Invalid page range.",
   navPartialLabel:"Partial · tap to reset",
   wordLabel:"Word / Partial · tap to start-stop",
@@ -1821,7 +1823,7 @@ fr:{introTitle:"Comment ça marche",
   pmTapResetDesc:"Activé : chaque touche sur l'écran lance une nouvelle mesure depuis zéro. Désactivé : la première touche arrête, la seconde relance.",
   pdfImpFolderAsk:"Nom du dossier",
   tut1Title:"Flèches",
-  tut1Text:"Elles font défiler les repères en avant ou en arrière. La mesure ne change pas, ni sur le partiel ni sur le total.",
+  tut1Text:"Elles font défiler les repères en avant ou en arrière. La mesure ne change pas, ni sur le partiel ni sur le total. Le nombre en vert est la distance restante jusqu'au prochain symbole.",
   tut2Title:"Photo du repère",
   tut2Text:"Pour chaque repère tu vois le numéro, la photo de la note et la distance jusqu'au suivant.",
   tut3Title:"Touche le partiel",
@@ -1856,6 +1858,7 @@ fr:{introTitle:"Comment ça marche",
   pdfImpShowOthers:"Afficher aussi les autres sections sans nom ({n})",
   pdfImpHideOthers:"Masquer les autres sections ({n})",
   pdfImpDoneN:"{n} spéciales importées : elles sont listées ci-dessous, prêtes pour le Radar",
+  pdfImpMissHead:"Ces pages du PDF n'ont pas pu être lues :",pdfImpPagesList:"p. {list}",pdfImpRetryBtn:"Relire les pages manquantes",pdfImpRetryOk:"Pages relues : tout est en ordre.",scanRetrying:"Je relis les pages non lues…",
   pdfImpErrRange:"Plage de pages non valide.",
   tcAlarmLbl:"Alerte pointage",
   tcStartSsLbl:"Départ ES après le TC",
@@ -2016,7 +2019,7 @@ es:{introTitle:"Cómo funciona",
   pmTapResetDesc:"Activado: cada toque en la pantalla inicia una medición nueva desde cero. Desactivado: el primer toque detiene, el segundo reanuda.",
   pdfImpFolderAsk:"Nombre de la carpeta",
   tut1Title:"Flechas",
-  tut1Text:"Úsalas para avanzar o retroceder entre los símbolos. La medición no cambia, ni en el parcial ni en el total.",
+  tut1Text:"Úsalas para avanzar o retroceder entre los símbolos. La medición no cambia, ni en el parcial ni en el total. El número en verde es la distancia que falta hasta el próximo símbolo.",
   tut2Title:"Foto de la referencia",
   tut2Text:"En cada referencia ves el número, la foto de la nota y la distancia hasta la siguiente.",
   tut3Title:"Toca el parcial",
@@ -2051,6 +2054,7 @@ es:{introTitle:"Cómo funciona",
   pdfImpShowOthers:"Mostrar también las otras secciones sin nombre ({n})",
   pdfImpHideOthers:"Ocultar las otras secciones ({n})",
   pdfImpDoneN:"{n} tramos importados: están en la lista de abajo, listos para el Radar",
+  pdfImpMissHead:"Estas páginas del PDF no se han podido leer:",pdfImpPagesList:"pág. {list}",pdfImpRetryBtn:"Volver a leer las páginas que faltan",pdfImpRetryOk:"Páginas leídas de nuevo: todo en orden.",scanRetrying:"Vuelvo a leer las páginas no leídas…",
   pdfImpErrRange:"Rango de páginas no válido.",
   tcAlarmLbl:"Alarma de sello",
   tcStartSsLbl:"Salida TC después del TC",
@@ -2211,7 +2215,7 @@ de:{introTitle:"So funktioniert es",
   pmTapResetDesc:"Ein: jedes Tippen auf den Bildschirm startet eine neue Messung bei null. Aus: das erste Tippen stoppt, das zweite startet wieder.",
   pdfImpFolderAsk:"Ordnername",
   tut1Title:"Pfeile",
-  tut1Text:"Damit blätterst du vor oder zurück durch die Symbole. Die Messung ändert sich nicht, weder Teilstrecke noch Gesamt.",
+  tut1Text:"Damit blätterst du vor oder zurück durch die Symbole. Die Messung ändert sich nicht, weder Teilstrecke noch Gesamt. Die grüne Zahl ist die verbleibende Distanz bis zum nächsten Symbol.",
   tut2Title:"Foto des Bezugspunkts",
   tut2Text:"Zu jedem Bezugspunkt siehst du die Nummer, das Foto der Notiz und die Distanz bis zum nächsten.",
   tut3Title:"Teilstrecke antippen",
@@ -2246,6 +2250,7 @@ de:{introTitle:"So funktioniert es",
   pdfImpShowOthers:"Auch die anderen unbenannten Abschnitte anzeigen ({n})",
   pdfImpHideOthers:"Andere Abschnitte ausblenden ({n})",
   pdfImpDoneN:"{n} Prüfungen importiert: sie stehen unten in der Liste, bereit für Radar",
+  pdfImpMissHead:"Diese PDF-Seiten konnten nicht gelesen werden:",pdfImpPagesList:"S. {list}",pdfImpRetryBtn:"Fehlende Seiten erneut lesen",pdfImpRetryOk:"Seiten erneut gelesen: alles in Ordnung.",scanRetrying:"Nicht gelesene Seiten werden erneut gelesen…",
   pdfImpErrRange:"Ungültiger Seitenbereich.",
   tcAlarmLbl:"Stempel-Wecker",
   tcStartSsLbl:"WP-Start nach dem TC",
@@ -2406,7 +2411,7 @@ pt:{introTitle:"Como funciona",
   pmTapResetDesc:"Ligado: cada toque no ecrã inicia uma nova medição a partir do zero. Desligado: o primeiro toque para, o segundo recomeça.",
   pdfImpFolderAsk:"Nome da pasta",
   tut1Title:"Setas",
-  tut1Text:"Usa-as para avançar ou recuar entre os símbolos. A medição não muda, nem no parcial nem no total.",
+  tut1Text:"Usa-as para avançar ou recuar entre os símbolos. A medição não muda, nem no parcial nem no total. O número a verde é a distância que falta até ao próximo símbolo.",
   tut2Title:"Foto da referência",
   tut2Text:"Em cada referência vês o número, a foto da nota e a distância até à seguinte.",
   tut3Title:"Toca no parcial",
@@ -2441,6 +2446,7 @@ pt:{introTitle:"Como funciona",
   pdfImpShowOthers:"Mostrar também as outras secções sem nome ({n})",
   pdfImpHideOthers:"Ocultar as outras secções ({n})",
   pdfImpDoneN:"{n} provas importadas: estão na lista abaixo, prontas para o Radar",
+  pdfImpMissHead:"Estas páginas do PDF não foram lidas:",pdfImpPagesList:"pág. {list}",pdfImpRetryBtn:"Reler as páginas em falta",pdfImpRetryOk:"Páginas relidas: está tudo certo.",scanRetrying:"A reler as páginas não lidas…",
   pdfImpErrRange:"Intervalo de páginas inválido.",
   tcAlarmLbl:"Alarme de carimbo",
   tcStartSsLbl:"Partida PE depois do TC",
@@ -2601,7 +2607,7 @@ ja:{introTitle:"使い方",
   pmTapResetDesc:"オン：画面をタップするたびにゼロから新しい計測を開始します。オフ：1回目のタップで停止、2回目で再開します。",
   pdfImpFolderAsk:"フォルダ名",
   tut1Title:"矢印",
-  tut1Text:"記号を前後に切り替えます。計測は変わりません（区間も合計も）。",
+  tut1Text:"記号を前後に切り替えます。計測は変わりません（区間も合計も）。緑の数字は次の記号までの残り距離です。",
   tut2Title:"基準点の写真",
   tut2Text:"各基準点で、番号・ノートの写真・次までの距離が表示されます。",
   tut3Title:"区間をタップ",
@@ -2636,6 +2642,7 @@ ja:{introTitle:"使い方",
   pdfImpShowOthers:"名前のない他のセクションも表示（{n}）",
   pdfImpHideOthers:"他のセクションを隠す（{n}）",
   pdfImpDoneN:"{n} 件のステージを読み込みました。下の一覧にあり、レーダーで使えます",
+  pdfImpMissHead:"次のPDFページを読み取れませんでした:",pdfImpPagesList:"{list} ページ",pdfImpRetryBtn:"足りないページを再読み取り",pdfImpRetryOk:"再読み取りしました。すべて正常です。",scanRetrying:"読み取れなかったページを再読み取り中…",
   pdfImpErrRange:"ページ範囲が無効です。",
   tcAlarmLbl:"押印アラーム",
   tcStartSsLbl:"TC後のSSスタート",
@@ -2796,7 +2803,7 @@ cs:{introTitle:"Jak to funguje",
   pmTapResetDesc:"Zapnuto: každé klepnutí na obrazovku spustí nové měření od nuly. Vypnuto: první klepnutí zastaví, druhé spustí znovu.",
   pdfImpFolderAsk:"Název složky",
   tut1Title:"Šipky",
-  tut1Text:"Listují symboly dopředu nebo dozadu. Měření se nemění, ani dílčí, ani celkové.",
+  tut1Text:"Listují symboly dopředu nebo dozadu. Měření se nemění, ani dílčí, ani celkové. Zelené číslo je vzdálenost zbývající do dalšího symbolu.",
   tut2Title:"Foto bodu",
   tut2Text:"U každého bodu vidíš číslo, foto poznámky a vzdálenost k dalšímu.",
   tut3Title:"Klepni na dílčí",
@@ -2831,6 +2838,7 @@ cs:{introTitle:"Jak to funguje",
   pdfImpShowOthers:"Zobrazit i ostatní nepojmenované úseky ({n})",
   pdfImpHideOthers:"Skrýt ostatní úseky ({n})",
   pdfImpDoneN:"{n} zkoušek importováno: jsou v seznamu níže, připravené pro Radar",
+  pdfImpMissHead:"Tyto strany PDF se nepodařilo přečíst:",pdfImpPagesList:"str. {list}",pdfImpRetryBtn:"Znovu načíst chybějící strany",pdfImpRetryOk:"Strany znovu načteny: vše v pořádku.",scanRetrying:"Znovu čtu nepřečtené strany…",
   pdfImpErrRange:"Neplatný rozsah stran.",
   tcAlarmLbl:"Budík razítka",
   tcStartSsLbl:"Start RZ po TC",
@@ -4729,7 +4737,17 @@ function detectTable(img, hint){   /* hint: {y:[...], photo:bool} — posizioni 
           const d=Math.abs(c-g);
           if(best===null || score>best.score || (score===best.score && d<best.d)) best={c, score, d};
         });
-        if(best && best.score>0) h0 = best.c;
+        if(best && best.score>0){
+          h0 = best.c;
+          /* LE LINEE VINCONO (Sardegna p.84, 28 set 2026): se ci sono fasce alte UNA riga
+             secondo questa misura, l'altezza di riga e' quella MISURATA su di loro (mediana),
+             non la stima dell'AI. Prima, con le posizioni dell'AI sfasate del 12-17%, la sua
+             stima vinceva il pareggio, poi nessuna riga vera passava il controllo: tutte
+             scartate e ritaglio con le coordinate dell'AI, sempre piu' sfalsato verso il fondo
+             (47 sforava, 48 partiva a meta', 49 prendeva due righe, 50 il pie' di pagina). */
+          const ones = withHint.map(b=>b[1]-b[0]).filter(h=> Math.round(h/h0)===1 && Math.abs(h-h0)<=h0*0.15).sort((a,b)=>a-b);
+          if(ones.length) h0 = ones[Math.floor(ones.length/2)];
+        }
       }
     }
     bands.forEach(b=>{
@@ -5013,13 +5031,19 @@ async function scanOnePage(img, fromPdf){
 }
 
 /* piu' pagine insieme: una alla volta, poi fuse in un'unica prova ordinata per Totali */
-async function scanAIRunFiles(files, fromPdf){
+async function scanAIRunFiles(files, fromPdf, pageNums){
   const name = pendingStageName;
   const append = pendingAppend;
   pendingStageName = null; pendingAppend = false;
-  if(!files.length || !name) return;
+  /* resoconto per chi chiama: l'importazione PDF lo usa per UN solo avviso finale */
+  const report = { name: name, saved: 0, failed: [], why: [], gaps: [] };
+  if(!files.length || !name) return report;
   const n = files.length;
-  let failed = [], gaps = [], why = [], info = '';
+  /* come si chiama la pagina negli avvisi: il numero VERO della pagina del PDF quando
+     c'e' (prima usciva "7" per la pagina 47), altrimenti la posizione fra le foto */
+  const lbl = i => (pageNums && pageNums[i] != null) ? pageNums[i] : (i+1);
+  let gaps = [], info = '';
+  const bad = {};   /* pagine non lette: indice -> { why, retry } */
   const parts = new Array(n).fill(null);
   const t0 = Date.now();
   let doneCount = 0;
@@ -5042,33 +5066,49 @@ async function scanAIRunFiles(files, fromPdf){
       }
     }catch(e){ scanBounds = null; }
   }
-  const label = ()=> (n>1 ? t('scanPage').replace('{i}', doneCount).replace('{n}', n) : t('scanReading'));
+  let retrying = false;
+  const label = ()=> retrying ? t('scanRetrying') : (n>1 ? t('scanPage').replace('{i}', doneCount).replace('{n}', n) : t('scanReading'));
   const tick = setInterval(()=>{ window.__scanBusy(true, label() + ' \u00B7 ' + Math.round((Date.now()-t0)/1000) + ' s'); }, 1000);
   window.__scanBusy(true, label());
   /* pagine in parallelo, massimo 3 insieme: il tempo totale e' quello della piu' lenta */
   const MAXP = 3;
-  let cursor = 0;
-  async function worker(){
-    while(true){
-      const i = cursor++;
-      if(i >= n) return;
-      try{
-        const img = await loadImageFile(files[i]);
-        const r = await scanOnePage(img, !!fromPdf);
-        if(r.model && !info) info = r.model + (r.ms ? ' \u00B7 ' + Math.round(r.ms/1000) + 's' : '');
-        if(!r.rb.length){ failed.push(i+1); why.push((i+1)+': ' + (r.unreadable ? t('scanBlurry') : '0 riferimenti')); }
-        else { parts[i] = r.rb; if(r.gap) gaps.push(i+1); }
-      }catch(e){ failed.push(i+1); why.push((i+1)+': '+((e&&e.message)||'errore')); }
-      doneCount++;
-    }
+  async function readPage(i){
+    try{
+      const img = await loadImageFile(files[i]);
+      const r = await scanOnePage(img, !!fromPdf);
+      if(r.model && !info) info = r.model + (r.ms ? ' \u00B7 ' + Math.round(r.ms/1000) + 's' : '');
+      if(!r.rb.length) bad[i] = { why: r.unreadable ? t('scanBlurry') : '0 riferimenti', retry: !r.unreadable };
+      else { parts[i] = r.rb; delete bad[i]; if(r.gap) gaps.push(lbl(i)); }
+    }catch(e){ bad[i] = { why: (e&&e.message)||'errore', retry: true }; }
+  }
+  async function runQueue(list, onDone){
+    let cursor = 0;
+    const worker = async ()=>{ while(cursor < list.length){ const i = list[cursor++]; await readPage(i); if(onDone) onDone(); } };
+    await Promise.all(Array.from({length: Math.min(MAXP, list.length)}, worker));
   }
   try{
-    await Promise.all(Array.from({length: Math.min(MAXP, n)}, worker));
+    await runQueue(Array.from({length: n}, (_, i) => i), ()=>{ doneCount++; });
+    /* SECONDA LETTURA AUTOMATICA (28 set 2026): una pagina non letta e' quasi sempre un
+       errore momentaneo dell'AI (risposta malformata, sovraccarico). Si riprova da soli,
+       dopo una breve pausa, PRIMA di avvisare. Le foto illeggibili no: stessa foto,
+       stesso risultato. */
+    const again = Object.keys(bad).map(Number).filter(i => bad[i].retry);
+    if(again.length){
+      retrying = true; window.__scanBusy(true, label());
+      await new Promise(r => setTimeout(r, 1500));
+      await runQueue(again);
+    }
   } finally { clearInterval(tick); }
-  failed.sort((a,b)=>a-b); gaps.sort((a,b)=>a-b);
+  const failIdx = Object.keys(bad).map(Number).sort((a,b)=>a-b);
+  const failed = failIdx.map(lbl), why = failIdx.map(i => lbl(i) + ': ' + bad[i].why);
+  gaps.sort((a,b)=>a-b);
+  report.failed = failed; report.why = why; report.gaps = gaps;
   let all = [];
   parts.forEach(rb=>{ if(rb) all = all.concat(rb); });
-  if(!all.length){ showMsg('\u26A0\uFE0F ' + (n>1 ? t('scanNone') : t('scanConnErr')) + (why.length ? '\n(' + why.join(' \u00B7 ') + ')' : '')); return; }
+  if(!all.length){
+    if(!pageNums) showMsg('\u26A0\uFE0F ' + (n>1 ? t('scanNone') : t('scanConnErr')) + (why.length ? '\n(' + why.join(' \u00B7 ') + ')' : ''));
+    return report;
+  }
   let stage = cfg.ssLib.find(x => x.name === name);
   if(!stage){ stage = { name: name, rb: [] }; const fld = pendingFolder || ssCurFolder; if(fld) stage.folder = fld; cfg.ssLib.push(stage); }
   stage.rb = append ? (stage.rb || []).concat(all) : all;
@@ -5089,7 +5129,9 @@ async function scanAIRunFiles(files, fromPdf){
   updateSsBadge();
   const ok = saveCfg();
   buildSsList();
-  if(!ok){ showMsg('\u26A0\uFE0F ' + t('storeFull')); return; }
+  if(!ok){ showMsg('\u26A0\uFE0F ' + t('storeFull')); return report; }
+  report.saved = all.length;
+  if(pageNums) return report;   /* importazione PDF: gli avvisi li mostra lei, tutti insieme alla fine */
   let warn = '';
   if(failed.length) warn += t('scanPagesFail').replace('{list}', failed.join(', ')) + (why.length ? '\n(' + why.join(' \u00B7 ') + ')' : '');
   if(gaps.length) warn += (warn ? '\n' : '') + t('scanPagesGap').replace('{list}', gaps.join(', '));
@@ -5563,6 +5605,7 @@ function pdfImpUpdateBar(){
 }
 function pdfImpRenderList(){
   const wrap = $('pdfImpGroups'), others = $('pdfImpOthersList'), toggle = $('pdfImpOthers');
+  const openForm = wrap.querySelector('.pdfManualForm');   /* un modulo manuale aperto non si perde */
   wrap.innerHTML = ''; others.innerHTML = '';
   const stages = pdfImpGroups.filter(g => g.isStage);
   const rest = pdfImpGroups.filter(g => !g.isStage);
@@ -5578,6 +5621,7 @@ function pdfImpRenderList(){
   rest.forEach(g => others.appendChild(pdfImpCard(g)));
   toggle.style.display = rest.length ? 'block' : 'none';
   toggle.textContent = (others.style.display === 'none' ? t('pdfImpShowOthers') : t('pdfImpHideOthers')).replace('{n}', rest.length);
+  if(openForm) wrap.appendChild(openForm);
   pdfImpUpdateBar();
 }
 $('pdfImpOthers').addEventListener('click', ()=>{
@@ -5645,6 +5689,15 @@ $('pdfImpClose').addEventListener('click', pdfImpCloseOv);
 $('pdfImpAddManual').addEventListener('click', ()=>{
   if(!pdfImpDoc){ return; }
   const wrap = $('pdfImpGroups');
+  /* UN MODULO ALLA VOLTA (28 set 2026): compilarne diversi e poi premere "Aggiungi" su
+     uno ridisegnava la lista e cancellava gli altri gia' compilati. Se ce n'e' gia' uno
+     aperto, il tasto porta a quello: si aggiunge una prova, poi la successiva. */
+  const open = wrap.querySelector('.pdfManualForm');
+  if(open){
+    try{ open.scrollIntoView({ behavior:'smooth', block:'center' }); }catch(e){}
+    const first = open.querySelector('input'); if(first){ try{ first.focus(); }catch(e){} }
+    return;
+  }
   const form = document.createElement('div');
   form.className = 'pdfManualForm';
   const nameInput = document.createElement('input');
@@ -5665,10 +5718,12 @@ $('pdfImpAddManual').addEventListener('click', ()=>{
   addBtn.textContent = t('pdfImpAdd');
   addBtn.style.cssText = 'width:100%;padding:10px;border-radius:8px;background:var(--blue);color:#fff;border:none;font-weight:700';
   addBtn.addEventListener('click', async ()=>{
+    if(addBtn.disabled) return;   /* doppio tocco: la prova veniva aggiunta due volte */
     const from = parseInt(fromInput.value, 10), to = parseInt(toInput.value, 10);
     if(!from || !to || from < 1 || to > pdfImpDoc.numPages || to < from){
       showMsg('\u26A0\uFE0F ' + t('pdfImpErrRange')); return;
     }
+    addBtn.disabled = true;
     const pages = []; for(let i=from;i<=to;i++) pages.push(i);
     const g = { key:'manual'+(pdfImpManualSeq++), name: nameInput.value || ('Prova '+from+'-'+to), pages, isStage:true, included:true, thumb:'', km:null, repeat:false };
     try{ const blob = await pdfRenderPageToBlob(pdfImpDoc, from, 260); g.thumb = URL.createObjectURL(blob); }catch(e){}
@@ -5678,7 +5733,86 @@ $('pdfImpAddManual').addEventListener('click', ()=>{
   });
   form.appendChild(addBtn);
   wrap.appendChild(form);
+  try{ form.scrollIntoView({ behavior:'smooth', block:'center' }); }catch(e){}
 });
+
+/* Legge (o rilegge) le pagine delle prove indicate. jobs: [{ name, pages, km, append }].
+   Restituisce quante prove sono state salvate e, per ognuna, le pagine del PDF non lette. */
+async function pdfImpRun(pdf, jobs, folderId){
+  const report = [];
+  let done = 0;
+  try{
+    for(const j of jobs){
+      const blobs = [], nums = [], noRender = [];
+      for(let i=0;i<j.pages.length;i++){
+        window.__scanBusy(true, t('pdfImpRendering').replace('{name}', j.name).replace('{i}', i+1).replace('{n}', j.pages.length));
+        let blob = null;
+        try{ blob = await pdfRenderPageToBlob(pdf, j.pages[i], 1800); }
+        catch(e){
+          /* seconda prova: su iPhone a volte la memoria si libera dopo un attimo.
+             Prima una pagina che non si preparava spariva senza dire niente. */
+          try{ await new Promise(r => setTimeout(r, 400)); blob = await pdfRenderPageToBlob(pdf, j.pages[i], 1800); }catch(e2){}
+        }
+        if(blob){ blobs.push(blob); nums.push(j.pages[i]); } else noRender.push(j.pages[i]);
+      }
+      let r = { saved: 0, failed: [], why: [], gaps: [] };
+      if(blobs.length){
+        pendingStageName = j.name;
+        pendingAppend = !!j.append;
+        pendingFolder = folderId;
+        pendingMaxKm = j.km;
+        r = await scanAIRunFiles(blobs, true, nums);   /* pagine da PDF: percorso senza trattamento foto */
+        pendingMaxKm = null;
+      }
+      if(r.saved) done++;
+      const miss = r.failed.concat(noRender).sort((x,y)=>x-y);
+      if(miss.length || r.gaps.length) report.push({ name: j.name, km: j.km, miss: miss, why: r.why, gaps: r.gaps });
+    }
+  }catch(e){
+    showMsg('\u26A0\uFE0F ' + t('scanConnErr'));
+  } finally {
+    pendingMaxKm = null;
+    pendingFolder = null;
+    window.__scanBusy(false);
+  }
+  return { done: done, report: report };
+}
+
+/* Resoconto finale in UN solo messaggio: prove importate + pagine non lette col numero
+   VERO della pagina del PDF, e il tasto per rileggere subito solo quelle (finiscono al
+   posto giusto nella prova, ordinate per Totali). Prima l'avviso diceva "7" invece di
+   "47" e restava sotto il messaggio "prove importate". */
+function pdfImpShowReport(pdf, folderId, res, isRetry){
+  const miss = res.report.filter(x => x.miss.length);
+  const gapped = res.report.filter(x => x.gaps.length);
+  if(!miss.length && !gapped.length){
+    if(isRetry) showMsg('\u2705 ' + t('pdfImpRetryOk'));
+    else if(res.done) showMsg('\u2705 ' + t('pdfImpDoneN').replace('{n}', res.done));
+    return;
+  }
+  const {ov, box} = uiBox();
+  let txt = (!isRetry && res.done) ? '\u2705 ' + t('pdfImpDoneN').replace('{n}', res.done) + '\n\n' : '';
+  if(miss.length) txt += '\u26A0\uFE0F ' + t('pdfImpMissHead') + '\n' + miss.map(x => '\u2022 ' + x.name + ': ' + t('pdfImpPagesList').replace('{list}', x.miss.join(', '))).join('\n');
+  if(gapped.length) txt += (miss.length ? '\n\n' : '\u26A0\uFE0F ') + gapped.map(x => x.name + ': ' + t('scanPagesGap').replace('{list}', x.gaps.join(', '))).join('\n');
+  const p = document.createElement('div'); p.style.cssText = 'white-space:pre-wrap;font-size:14px;line-height:1.5;margin-bottom:10px'; p.textContent = txt; box.appendChild(p);
+  const why = [].concat.apply([], miss.map(x => x.why));
+  if(why.length){ const w = document.createElement('div'); w.style.cssText = 'font-size:12px;color:var(--muted);line-height:1.4;margin-bottom:14px'; w.textContent = '(' + why.join(' \u00B7 ') + ')'; box.appendChild(w); }
+  if(miss.length){
+    const again = document.createElement('button'); again.textContent = t('pdfImpRetryBtn');
+    again.style.cssText = 'width:100%;padding:12px;border-radius:10px;font-weight:800;background:var(--green,#39d353);border:none;color:#000;margin-bottom:8px';
+    again.addEventListener('click', async ()=>{
+      uiClose(ov);
+      window.__scanBusy(true, t('scanRetrying'));
+      const r2 = await pdfImpRun(pdf, miss.map(x => ({ name: x.name, pages: x.miss, km: x.km, append: true })), folderId);
+      buildSsList();
+      pdfImpShowReport(pdf, folderId, r2, true);
+    });
+    box.appendChild(again);
+  }
+  const ok = document.createElement('button'); ok.textContent = 'OK';
+  ok.style.cssText = 'width:100%;padding:12px;border-radius:10px;font-weight:800;background:var(--amber);border:none;color:#000';
+  ok.addEventListener('click', ()=>uiClose(ov)); box.appendChild(ok);
+}
 
 $('pdfImpConfirm').addEventListener('click', async ()=>{
   const toImport = pdfImpGroups.filter(g => g.included && g.pages.length);
@@ -5699,34 +5833,17 @@ $('pdfImpConfirm').addEventListener('click', async ()=>{
     else { folderId = 'r' + Date.now(); ssFolders().push({ id: folderId, name: rallyName }); }
   }
   window.__scanBusy(true, t('scanReading'));
-  let done = 0;
-  try{
-    for(const g of toImport){
-      const blobs = [];
-      for(let i=0;i<g.pages.length;i++){
-        window.__scanBusy(true, t('pdfImpRendering').replace('{name}', g.name).replace('{i}', i+1).replace('{n}', g.pages.length));
-        try{ blobs.push(await pdfRenderPageToBlob(pdf, g.pages[i], 1800)); }catch(e){}
-      }
-      if(!blobs.length) continue;
-      pendingStageName = g.name || ('Prova ' + g.pages[0]);
-      pendingAppend = false;
-      pendingFolder = folderId;
-      pendingMaxKm = (typeof g.km === 'number' && g.km > 0) ? g.km : null;
-      await scanAIRunFiles(blobs, true);   /* pagine da PDF: percorso senza trattamento foto */
-      done++;
-    }
-  }catch(e){
-    showMsg('\u26A0\uFE0F ' + t('scanConnErr'));
-  } finally {
-    pendingMaxKm = null;
-    pendingFolder = null;
-    window.__scanBusy(false);
-  }
+  const res = await pdfImpRun(pdf, toImport.map(g => ({
+    name: g.name || ('Prova ' + g.pages[0]),
+    pages: g.pages,
+    km: (typeof g.km === 'number' && g.km > 0) ? g.km : null,
+    append: false
+  })), folderId);
   if(folderId) ssCurFolder = folderId;   /* apri direttamente la cartella della gara */
   /* le prove sono gia' nell'elenco Radar (scanAIRunFiles le salva): mostralo */
   buildSsList();
   $('navMenu').classList.add('open');
-  if(done) showMsg('\u2705 ' + t('pdfImpDoneN').replace('{n}', done));
+  pdfImpShowReport(pdf, folderId, res, false);
 });
 
 /* ================= SCHERMO SEMPRE ACCESO ================= */
