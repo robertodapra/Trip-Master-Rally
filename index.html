@@ -832,7 +832,7 @@
   <h2 data-t="introTitle"></h2>
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
-  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-10-07.1</p>
+  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-10-13.2</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -4672,7 +4672,24 @@ function detectTable(img, hint){   /* hint: {y:[...], photo:bool} — posizioni 
     const tolY = (hint && hint.photo) ? 2 : 0;
     if(tolY){ for(let y=0;y<H;y++){ let n=0; for(let x=0;x<W;x++){ let on=0; for(let k=-tolY;k<=tolY;k++){ const yy=y+k; if(yy>=0&&yy<H&&dark[yy*W+x]){ on=1; break; } } n+=on; } rowr[y]=n/W; } }
     else { for(let y=0;y<H;y++){ let n=0; const o=y*W; for(let x=0;x<W;x++) n+=dark[o+x]; rowr[y]=n/W; } }
-    const hAll=runs(y=>rowr[y]>Math.max(0.42, med(rowr)+0.3), H, H*0.010);
+    /* LINEE SOTTILI (Sanremo p.53, 13 ott 2026): sulla pagina del fine prova la riga
+       del "Finish" ha la foto, la linguetta rossa della prova e i box Finish/Stop: e'
+       cosi' piena di scuro che la riga di testo dei numeri superava la soglia e veniva
+       presa per una separatrice. La riga si spezzava in tre pezzi, veniva scartata, e
+       tutti i riferimenti dopo scivolavano di una riga.
+       Una separatrice vera e' SOTTILE: scura, con carta chiara 4 px sopra e 4 px sotto.
+       Una foto o un testo sono scuri anche sopra e sotto. Quindi, sul percorso PDF, una
+       linea vale solo se una buona parte dei suoi pixel scuri e' fatta cosi'.
+       Puo' solo TOGLIERE linee false: le linee vere passano come prima. */
+    const thrR = Math.max(0.42, med(rowr)+0.3);
+    let isLine = y => rowr[y] > thrR;
+    if(!tolY){
+      const K = 4, thin = new Float32Array(H);
+      for(let y=K;y<H-K;y++){ let n=0; const o=y*W; for(let x=0;x<W;x++){ if(dark[o+x] && !dark[o-K*W+x] && !dark[o+K*W+x]) n++; } thin[y]=n/W; }
+      const thinNear = y => { let m=0; for(let k=-2;k<=2;k++){ const yy=y+k; if(yy>=0 && yy<H && thin[yy]>m) m=thin[yy]; } return m; };
+      isLine = y => rowr[y] > thrR && thinNear(y) >= rowr[y]*0.30;
+    }
+    const hAll=runs(isLine, H, H*0.010);
     if(hAll.length<2) return null;
     let bands=[]; for(let i=0;i<hAll.length-1;i++) bands.push([hAll[i], hAll[i+1]]);
 
@@ -4882,6 +4899,551 @@ function prepPhoto(img){
   }catch(e){ return img; }
 }
 
+/* =====================================================================================
+   STRISCE DA FOTO FATTA A MANO (13 ott 2026)
+   Solo per le foto della fotocamera: le pagine da PDF restano su detectTable().
+   Il foglio tenuto in mano e' curvo e inclinato: le separatrici derivano di 17-39 px da
+   un lato all'altro, quindi "la riga nera su tutta la larghezza" non esiste. Qui ogni
+   separatrice si insegue a fette e diventa una curva; con le curve dei due bordi si
+   ritaglia a maglia e la striscia esce dritta, come una scansione.
+   Verificato su 13 foto di tre road book (Sardegna, Campagnolo, Roma): 59 riferimenti, 0 errori.
+   ===================================================================================== */
+const PhotoTable = (function(){
+  /* ============================================================
+     RILEVAMENTO TABELLA SU FOTO FATTA A MANO
+     Il foglio e' curvo: le separatrici NON sono righe orizzontali
+     (misurato: derivano da 17 a 39 px da sinistra a destra).
+     Quindi la pagina si divide in FETTE verticali strette: dentro
+     una fetta la linea e' quasi orizzontale e si vede benissimo.
+     Poi le fette si collegano fra loro e ogni separatrice diventa
+     una curva y(x).
+     ============================================================ */
+
+  const NS = 14;            /* fette verticali */
+  const MINS = 0.70;        /* una separatrice deve attraversare almeno il 70% delle fette */
+
+  /* luminanza a larghezza fissa */
+  function lumOf(img, W){
+    const H = Math.max(1, Math.round((img.naturalHeight||img.height) * W / (img.naturalWidth||img.width)));
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    const g = c.getContext('2d', { willReadFrequently:true }); g.drawImage(img, 0, 0, W, H);
+    const d = g.getImageData(0, 0, W, H).data;
+    const L = new Uint8Array(W*H);
+    for(let i=0,p=0;i<d.length;i+=4,p++) L[p] = (d[i]*299 + d[i+1]*587 + d[i+2]*114)/1000;
+    return { L, W, H };
+  }
+
+  /* maschera delle LINEE SOTTILI: scuro con chiaro sopra e sotto.
+     Lo sfondo scuro (abitacolo, spirale, gamba, ombre) e' scuro ovunque:
+     non ha il chiaro sopra e sotto, quindi non passa. */
+  function thinLines(L, W, H, k, drop){
+    k = k || 4; drop = drop || 18;
+    const m = new Uint8Array(W*H);
+    for(let y=k;y<H-k;y++) for(let x=0;x<W;x++){
+      const p = y*W+x, v = L[p];
+      if(v + drop < L[p-k*W] && v + drop < L[p+k*W]) m[p] = 1;
+    }
+    return m;
+  }
+
+  /* La pagina e' anche INCLINATA, non solo curva. Dentro una fetta larga 30 px
+     un'inclinazione di 8 grandi sposta la linea di 4 px: il picco si spalma e
+     sparisce. Si stima quindi la pendenza media e si legge il profilo inclinato. */
+  function bestSlope(m, W, H, win){
+    const X0 = win ? win[0] : 0, X1 = win ? win[1] : W-1, xc = (X0+X1)/2;
+    let best = 0, bestS = -1;
+    for(let s=-0.30; s<=0.3001; s+=0.01){
+      const prof = new Float32Array(H);
+      for(let x=X0;x<=X1;x+=2){
+        const dy = Math.round(s*(x-xc));
+        for(let y=Math.max(0,-dy); y<H-Math.max(0,dy); y++) if(m[(y+dy)*W+x]) prof[y]++;
+      }
+      let sc = 0; for(let y=0;y<H;y++) sc += prof[y]*prof[y];
+      if(sc > bestS){ bestS = sc; best = s; }
+    }
+    return best;
+  }
+
+  /* picchi di una fetta: dove la fetta e' quasi tutta nera su una riga */
+  function peaksOf(m, W, H, x0, x1, thr, slope, xc){
+    const n = Math.floor((x1-x0)/1)+1, prof = new Float32Array(H);
+    const s = slope || 0, c0 = (xc === undefined) ? (x0+x1)/2 : xc;
+    for(let x=x0;x<=x1;x++){
+      const dy = Math.round(s*(x-c0));
+      for(let y=Math.max(0,-dy); y<H-Math.max(0,dy); y++) if(m[(y+dy)*W+x]) prof[y]++;
+    }
+    for(let y=0;y<H;y++) prof[y] /= n;
+    const out = [];
+    let y = 1;
+    while(y < H-1){
+      if(prof[y] >= thr){
+        let e = y; while(e+1 < H && prof[e+1] >= thr) e++;
+        let bi = y, bv = prof[y];
+        for(let k=y;k<=e;k++) if(prof[k] > bv){ bv = prof[k]; bi = k; }
+        out.push({ y: (y+e)/2, v: bv });
+        y = e+1;
+      } else y++;
+    }
+    return out;
+  }
+
+  /* collega i picchi fra fette vicine: ogni catena e' una separatrice.
+     win = [x0,x1] della tabella; minRun = quante fette consecutive servono */
+  function chains(m, W, H, thr, win, minRun){
+    const X0 = win ? win[0] : 0, X1 = win ? win[1] : W-1, WW = X1-X0+1;
+    const xc = (X0+X1)/2;
+    const slope = bestSlope(m, W, H, [X0, X1]);
+    const cut = [];
+    for(let s=0;s<NS;s++) cut.push([X0+Math.round(WW*s/NS), X0+Math.round(WW*(s+1)/NS)-1]);
+    /* tutte le fette misurano la quota della linea nello STESSO punto (il centro
+       della tabella): cosi' una linea dritta ma inclinata da lo stesso valore in
+       tutte le fette, e collegarle diventa facile. */
+    const pk = cut.map(c=>peaksOf(m, W, H, c[0], c[1], thr, slope, xc));
+    const used = pk.map(p=>new Uint8Array(p.length));
+    const tol = Math.max(6, H*0.012);
+    const out = [];
+    for(let s0=0;s0<NS;s0++){
+      for(let i=0;i<pk[s0].length;i++){
+        if(used[s0][i]) continue;
+        const ys = new Array(NS).fill(null);
+        ys[s0] = pk[s0][i].y; used[s0][i] = 1;
+        const vs0 = [pk[s0][i].v];
+        /* una fetta puo' non vedere la linea (ci passa sopra un disegno, un
+           cartello, l'ombra): si saltano fino a due fette prima di mollare */
+        const walk = (dir)=>{
+          let cy = ys[s0], miss = 0;
+          for(let s=s0+dir; s>=0 && s<NS; s+=dir){
+            let bj=-1, bd=tol+1;
+            for(let j=0;j<pk[s].length;j++){
+              if(used[s][j]) continue;
+              const d = Math.abs(pk[s][j].y - cy);
+              if(d < bd){ bd = d; bj = j; }
+            }
+            if(bj < 0){ miss++; if(miss > 2) break; continue; }
+            miss = 0;
+            ys[s] = pk[s][bj].y; used[s][bj] = 1; cy = ys[s]; vs0.push(pk[s][bj].v);
+          }
+        };
+        walk(1); walk(-1);
+        /* la catena vale se va da una parte all'altra con pochi buchi */
+        let f = -1, l = -1, got = 0;
+        for(let s=0;s<NS;s++) if(ys[s]!==null){ if(f<0) f = s; l = s; got++; }
+        const span = (f<0) ? 0 : l-f+1;
+        const str = vs0.reduce((a,b)=>a+b,0)/vs0.length;
+        if(span >= (minRun || Math.round(NS*MINS)) && got >= span*0.6) out.push({ ys, s0: f, s1: l, str, got });
+      }
+    }
+    /* y(x) per interpolazione fra i centri delle fette */
+    const curves = out.map(o=>{
+      const ys = o.ys, xs = [], vs = [];
+      for(let s=o.s0;s<=o.s1;s++) if(ys[s]!==null){
+        const cx = (cut[s][0]+cut[s][1])/2;
+        xs.push(cx); vs.push(ys[s] + slope*(cx - xc));   /* dalla quota al centro alla quota vera */
+      }
+      const y = new Float32Array(W);
+      for(let x=0;x<W;x++){
+        if(x <= xs[0]) y[x] = vs[0] + slope*(x - xs[0]);
+        else if(x >= xs[xs.length-1]) y[x] = vs[vs.length-1] + slope*(x - xs[xs.length-1]);
+        else { let k=0; while(xs[k+1] < x) k++;
+          const f = (x-xs[k])/(xs[k+1]-xs[k]); y[x] = vs[k] + (vs[k+1]-vs[k])*f; }
+      }
+      return { y, s0: o.s0, s1: o.s1, str: o.str, got: o.got, x0: cut[o.s0][0], x1: cut[o.s1][1], mid: y[Math.round((X0+X1)/2)] };
+    });
+    curves.sort((a,b)=>a.mid-b.mid);
+    return mergeClose(curves, H*0.008, W);
+  }
+
+  /* Fonde le separatrici vicine in una sola, a meta' strada.
+     Serve per le linee spesse e, soprattutto, per i road book dove fra una
+     cella e l'altra c'e' uno stacco bianco: li' di linee ce ne sono due,
+     il confine vero sta in mezzo. */
+  function mergeClose(curves, tol, W){
+    const out = [];
+    let grp = [];
+    const flush = ()=>{
+      if(!grp.length) return;
+      if(grp.length === 1){ out.push(grp[0]); grp = []; return; }
+      const y = new Float32Array(W);
+      for(let x=0;x<W;x++){ let s=0; for(const c of grp) s += c.y[x]; y[x] = s/grp.length; }
+      let x0 = Infinity, x1 = -Infinity;
+      for(const c of grp){ x0 = Math.min(x0, c.x0); x1 = Math.max(x1, c.x1); }
+      out.push({ y, x0, x1, mid: (grp[0].mid + grp[grp.length-1].mid)/2 });
+      grp = [];
+    };
+    for(const c of curves){
+      if(grp.length && c.mid - grp[grp.length-1].mid >= tol) flush();
+      grp.push(c);
+    }
+    flush();
+    return out;
+  }
+
+  /* bande fra separatrici, poi solo le righe dei riferimenti:
+     hanno tutte la stessa altezza. Una banda alta il doppio o il triplo
+     e' una cella unita (separatore non stampato): si divide in parti uguali. */
+  function dataRows(curves, W, H, want){
+    const bands = [];
+    for(let i=0;i<curves.length-1;i++) bands.push({ top: curves[i], bot: curves[i+1], h: curves[i+1].mid - curves[i].mid });
+    const hs = bands.map(b=>b.h).filter(h=>h > H*0.025);
+    if(!hs.length) return { rows: [], modeH: 0, bands };
+    /* altezza della riga dati: quella che spiega piu' tabella, contando anche
+       le bande alte il doppio o il triplo (celle unite, separatore non stampato).
+       Senza questo, una banda alta da sola batte due righe normali. */
+    const cand = [];
+    for(const h of hs){ for(let d=1; d<=5; d++) if(h/d > H*0.025) cand.push(h/d); }
+    const fit = h=>{
+      let cov = 0;
+      for(const k of hs){ const n = Math.round(k/h);
+        if(n >= 1 && n <= 5 && Math.abs(k - n*h) <= h*0.25) cov += n*h; }
+      return cov;
+    };
+    const build = h=>{
+      /* quali bande sono righe dati (altezza = 1, 2, ... 5 volte h) */
+      const n = bands.map(b=>{
+        const k = Math.round(b.h/h);
+        return (k >= 1 && k <= 5 && Math.abs(b.h - k*h) <= h*0.25) ? k : 0;
+      });
+      /* solo il tratto CONTINUO piu' lungo: intestazione, fascia del rally e
+         piede pagina stanno fuori dalla tabella, non in mezzo alle righe */
+      let bs=-1, be=-2, cs=-1;
+      for(let i=0;i<=n.length;i++){
+        if(i < n.length && n[i]){ if(cs < 0) cs = i; }
+        else if(cs >= 0){ if(i-1-cs > be-bs){ bs = cs; be = i-1; } cs = -1; }
+      }
+      const out = [];
+      let sc = 0;
+      for(let i=bs;i<=be;i++){
+        const b = bands[i];
+        for(let k=0;k<n[i];k++) out.push({ top: b.top, bot: b.bot, f0: k/n[i], f1: (k+1)/n[i] });
+        /* punteggio: quanta tabella spiega, pesata da quanto bene combacia
+           (una banda che entra col 25% di scarto non conta quasi niente) */
+        const rel = Math.abs(b.h - n[i]*h)/(n[i]*h);
+        /* una banda divisa in k pezzi vale meno: dividere va fatto solo se
+           serve (cella unita), non per far tornare i conti con un'altezza piccola */
+        sc += b.h * Math.max(0, 1 - 4*rel) / Math.sqrt(n[i]);
+      }
+      out.sc = sc;
+      return out;
+    };
+    /* Quando un separatore non e' stampato (celle unite) le linee da sole non
+       possono dire se la banda alta vale 3 righe o 4. Quel numero lo sa il
+       modello, che ha letto i riferimenti: se ce lo passa, si sceglie l'altezza
+       che fa tornare il conto. Le linee restano le padrone del DOVE tagliare. */
+    if(want > 0){
+      /* fra le altezze che danno il numero giusto di righe vince quella che
+         spiega piu' tabella combaciando bene. Non la piu' grande (Roma p.19,
+         13 ott 2026: un'altezza troppo grande si mangiava l'intestazione come
+         mezza riga) e nemmeno quella con lo scarto minimo (dividere una sola
+         banda in 5 combacia benissimo, ma lascia fuori mezza tabella). */
+      /* valgono anche le altezze che danno PIU' righe del conteggio: le righe vuote
+         stanno in fondo e si tolgono (Roma p.17: 4 riferimenti, 5 caselle). Senza,
+         l'unico modo di fare 4 righe era prendere l'intestazione. */
+      let pick = 0, ps = -1, pex = false;
+      for(const h of cand){
+        const r = build(h);
+        if(r.length < want) continue;
+        const ex = r.length === want;
+        const better = r.sc > ps*1.02 || (r.sc >= ps*0.98 && ((ex && !pex) || (ex === pex && h > pick)));
+        if(better){ ps = Math.max(ps, r.sc); pick = h; pex = ex; }
+      }
+      if(pick){ let r = build(pick); const sc = r.sc; r = r.slice(0, want); r.sc = sc; return { rows: r, modeH: pick, bands, score: sc }; }
+    }
+    /* senza conteggio: vince l'altezza che spiega piu' tabella combaciando bene.
+       A pari merito (entro il 2%) la PIU' GRANDE: dividere una riga in pezzi va
+       fatto solo se serve. Prima vinceva la piu' piccola, e ogni riga poteva
+       finire tagliata in 4 (Roma p.17: 20 strisce invece di 4). */
+    let modeH = 0, best = -1;
+    for(const h of cand){ const c = build(h).sc;
+      if(c > best*1.02 || (c >= best*0.98 && h > modeH)){ if(c > best) best = c; modeH = h; } }
+    let rr = build(modeH);
+    /* il modello ha letto MENO riferimenti delle righe trovate: le righe vuote
+       stanno sempre in fondo (fine settore, l'ultima casella resta bianca),
+       un road book non lascia mai un buco in mezzo. Si tengono le prime. */
+    if(want > 0 && rr.length > want){ const sc = rr.sc; rr = rr.slice(0, want); rr.sc = sc; }
+    return { rows: rr, modeH, bands, score: rr.sc };
+  }
+
+  /* Primo giro: catene anche corte, per capire DOVE sta la tabella.
+     La tabella e' la fascia di x coperta dal maggior numero di separatrici. */
+  function findWindow(m, W, H, thr){
+    const c = chains(m, W, H, thr, null, 5);
+    if(c.length < 3) return null;
+    const cov = new Int32Array(W);
+    for(const t of c) for(let x=t.x0;x<=t.x1;x++) cov[x]++;
+    let mx = 0; for(let x=0;x<W;x++) if(cov[x] > mx) mx = cov[x];
+    const lim = Math.max(2, Math.round(mx*0.45));
+    let x0 = -1, x1 = -1;
+    for(let x=0;x<W;x++) if(cov[x] >= lim){ if(x0 < 0) x0 = x; x1 = x; }
+    return (x1-x0 > W*0.25) ? [x0, x1] : null;
+  }
+
+  /* I bordi della tabella sono la LUNGHEZZA delle separatrici, non le linee
+     verticali (il bordo del foglio e la spirale verrebbero scambiati per colonne).
+     Ogni curva si prolunga a destra e a sinistra finche' c'e' inchiostro. */
+  function extendCurves(curves, m, W, H, win){
+    /* Per ogni colonna x: quante separatrici hanno davvero inchiostro li'?
+       Dentro la tabella ce l'hanno quasi tutte; sulla spirale e sulla pagina
+       a fianco nessuna. Non si insegue una linea sola, che puo' fermarsi su un
+       disegno o sulla barra nera: si contano tutte insieme. */
+    const hit = new Int32Array(W);
+    for(const c of curves){
+      for(let x=0;x<W;x++){
+        const cy = Math.round(c.y[x]);
+        for(let r=0;r<=2;r++){
+          if((cy-r >= 0 && m[(cy-r)*W+x]) || (cy+r < H && m[(cy+r)*W+x])){ hit[x]++; break; }
+        }
+      }
+    }
+    /* lisciatura su 9 px: un pixel mancante non deve contare */
+    const sm = new Float32Array(W);
+    for(let x=0;x<W;x++){
+      let s=0, n=0;
+      for(let k=-4;k<=4;k++){ const xx=x+k; if(xx>=0&&xx<W){ s+=hit[xx]; n++; } }
+      sm[x] = s/n;
+    }
+    let mx = 0; for(let x=0;x<W;x++) if(sm[x] > mx) mx = sm[x];
+    const lim = mx*0.45, gapMax = Math.round(W*0.03);
+    const xc = Math.round((win[0]+win[1])/2);
+    const walk = dir=>{
+      let x = xc, last = xc, gap = 0;
+      while(x+dir >= 0 && x+dir < W){
+        x += dir;
+        if(sm[x] >= lim){ last = x; gap = 0; }
+        else { gap++; if(gap > gapMax) break; }
+      }
+      return last;
+    };
+    return [ walk(-1), walk(1) ];
+  }
+
+  /* la stessa macchina girata di 90 gradi: serve per le linee VERTICALI */
+  function transpose(L, W, H){
+    const T = new Uint8Array(W*H);
+    for(let y=0;y<H;y++) for(let x=0;x<W;x++) T[x*H+y] = L[y*W+x];
+    return { L: T, W: H, H: W };
+  }
+
+  /* Le colonne della tabella. Servono a due cose:
+     - confermare che quella e' davvero una tabella (una pagina di sola mappa
+       non ha colonne, e senza questo controllo verrebbe tagliata a fette)
+     - dare i bordi sinistro e destro esatti */
+  function columns(L, W, H, yTop, yBot){
+    const t = transpose(L, W, H);
+    const m = thinLines(t.L, t.W, t.H, 4, 18);
+    /* limita alla fascia delle righe dati */
+    const y0 = Math.max(0, Math.round(yTop)), y1 = Math.min(t.H-1, Math.round(yBot));
+    const cv = chains(m, t.W, t.H, 0.45, [y0, y1]);
+    return cv.map(c=>({ x: c.mid, y: c.y }));
+  }
+
+
+
+  /* Alcuni road book non stampano la riga di separazione nella colonna delle
+     INFORMAZIONI (celle unite): li' la separatrice esiste solo nella meta'
+     sinistra. Quindi si cercano le righe DUE volte — su tutta la tabella e solo
+     sulla parte sinistra, dove la griglia e' sempre completa — e si tiene il
+     risultato che spiega piu' tabella. */
+  function attempt(cv, W, H, want){
+    if(cv.length < 3) return null;
+    const dr = dataRows(cv, W, H, want);
+    const out = [{ cv, dr }];
+    /* secondo giro: con l'altezza della riga in mano si rifondono le separatrici
+       doppie (lo stacco bianco fra una cella e l'altra conta come due linee) */
+    if(dr.modeH > 0){
+      const cv2 = mergeClose(cv, Math.min(H*0.04, dr.modeH*0.30), W);
+      if(cv2.length !== cv.length) out.push({ cv: cv2, dr: dataRows(cv2, W, H, want) });
+    }
+    const good = out.filter(o=>o.dr.rows.length);
+    if(!good.length) return null;
+    const ok = o=> (want > 0 && o.dr.rows.length === want) ? 1 : 0;
+    good.sort((p,q)=> (ok(q)-ok(p)) || (q.dr.rows.length - p.dr.rows.length) || ((q.dr.score||0) - (p.dr.score||0)));
+    return good[0];
+  }
+
+  function rowsOf(m, W, H, thr, win, want){
+    const a = chains(m, W, H, thr, win);
+    const half = [win[0], Math.round(win[0] + (win[1]-win[0])*0.55)];
+    const b = chains(m, W, H, thr, half);
+    const un = mergeClose(a.concat(b).sort((p,q)=>p.mid-q.mid), H*0.012, W);
+    const cands = [attempt(a, W, H, want), attempt(un, W, H, want), attempt(b, W, H, want)]
+      .map((c,i)=> c ? (c.ord = i, c) : null).filter(Boolean);
+    if(!cands.length) return null;
+    /* vince chi fa tornare il numero di riferimenti; a parita', chi copre
+       piu' tabella. L'ordine iniziale (intera, unione, sinistra) decide i pari. */
+    const ok = c=> (want > 0 && c.dr.rows.length === want) ? 1 : 0;
+    cands.sort((p,q)=> (ok(q)-ok(p))
+                    || (q.dr.rows.length - p.dr.rows.length)
+                    || ((q.dr.score||0) - (p.dr.score||0) > 1 ? 1 : (p.dr.score||0) - (q.dr.score||0) > 1 ? -1 : 0)
+                    || (p.ord - q.ord));   /* a parita' vince la tabella intera */
+    return cands[0];
+  }
+
+  /* ============================================================
+     detectTablePhoto — rilevamento tabella su FOTO FATTA A MANO
+     Il foglio e' curvo: misurato, ogni separatrice deriva da 17 a 39 px
+     da sinistra a destra. Cercare "la riga nera su tutta la larghezza"
+     (quello che funziona sui PDF) qui non trova niente.
+     Qui la pagina si divide in fette verticali strette: dentro una fetta
+     la linea e' quasi orizzontale. Poi le fette si collegano e ogni
+     separatrice diventa una curva y(x).
+     Le stesse curve, piu' quelle dei due bordi verticali, servono a
+     RADDRIZZARE la striscia quando la si ritaglia.
+     ============================================================ */
+
+  function detectTablePhoto(img, want){
+    const W = 900;
+    const { L, H } = lumOf(img, W);
+    const m = thinLines(L, W, H);
+
+    const win = findWindow(m, W, H, 0.45);
+    if(!win) return null;
+
+    const r = rowsOf(m, W, H, 0.45, win, want);
+    if(!r) return null;
+    const curves = r.cv, dr = r.dr;
+    if(!dr.rows.length) return null;
+
+    /* fin dove arrivano davvero le separatrici: e' quella la larghezza della
+       tabella. Le linee verticali da sole ingannano, perche' la pagina a fianco
+       e la spirale ne hanno anche loro. */
+    /* sulle separatrici GREZZE, non su quelle fuse: una curva fusa e' la media di
+       due linee e non sta piu' sull'inchiostro, quindi farebbe sembrare la tabella
+       piu' stretta (Roma p.19: spariva la colonna Information) */
+    const raw = chains(m, W, H, 0.45, win);
+    const ext = extendCurves(raw.length >= 3 ? raw : curves, m, W, H, win);
+
+    /* colonne: confermano che e' una tabella e danno i bordi esatti.
+       Si tiene la CURVA, non solo la posizione: anche i bordi verticali
+       sono storti, e serviranno per raddrizzare. */
+    const all = columns(L, W, H, curves[0].mid, curves[curves.length-1].mid);
+    const pad = W*0.025;
+    const cols = all.filter(c=> c.x > ext[0]-pad && c.x < ext[1]+pad).sort((a,b)=>a.x-b.x);
+    /* una pagina di sola mappa non ha colonne: senza questo controllo
+       verrebbe tagliata a fette come se fosse una tabella */
+    if(cols.length < 4) return null;
+
+    let cL = cols[0], cR = cols[cols.length-1];
+    /* via l'ultima colonna stretta (distanza dal C.O.), come sul percorso PDF */
+    const lastW = cR.x - cols[cols.length-2].x;
+    if(cols.length >= 5 && lastW < (cR.x-cL.x)*0.18) cR = cols[cols.length-2];
+    const bleed = (cR.x-cL.x)*0.015;
+
+    return {
+      W, H, scale: W/(img.naturalWidth||img.width),
+      x0: cL.x-bleed, x1: cR.x+bleed, left: cL.y, right: cR.y, bleed,
+      rows: dr.rows, rowH: dr.modeH, cols: cols.map(c=>c.x), curves
+    };
+  }
+
+  /* ------------------------------------------------------------
+     LUCE: non si prova a inseguire l'ombra (un bordo netto non si toglie
+     senza lasciare aloni). Si fa la cosa semplice e sicura: si misurano il
+     nero e il bianco della PAGINA INTERA e si allarga la scala fra quei due.
+     La carta va al bianco, l'inchiostro al nero, e tutte le strisce della
+     stessa pagina restano dello stesso tono.
+     ------------------------------------------------------------ */
+  function lightField(src){
+    const sW = src.width, sH = src.height, d = src.data;
+    const h = new Uint32Array(256);
+    for(let y=0;y<sH;y+=3) for(let x=0;x<sW;x+=3){
+      const i = (y*sW+x)*4;
+      h[(d[i]*299 + d[i+1]*587 + d[i+2]*114)/1000 | 0]++;
+    }
+    let tot = 0; for(let v=0;v<256;v++) tot += h[v];
+    let acc = 0, lo = 0, hi = 255;
+    for(let v=0;v<256;v++){ acc += h[v]; if(acc >= tot*0.02){ lo = v; break; } }
+    acc = 0; for(let v=0;v<256;v++){ acc += h[v]; if(acc >= tot*0.88){ hi = v; break; } }
+    if(hi - lo < 40) return null;
+    const lut = new Uint8Array(256);
+    for(let v=0;v<256;v++) lut[v] = Math.max(0, Math.min(255, Math.round((v-lo)*255/(hi-lo))));
+    return { lut };
+  }
+
+  /* ------------------------------------------------------------
+     TAGLIO A MAGLIA
+     Ogni punto della striscia si trova incrociando due famiglie di curve:
+     le due separatrici (sopra e sotto) e i due bordi verticali (sinistro e
+     destro). Si parte da una stima e si itera tre volte: converge subito.
+     Cosi' la striscia esce con le righe orizzontali E le colonne verticali,
+     come se fosse una scansione, non una foto scattata di sbieco.
+     ------------------------------------------------------------ */
+  function cutRow(src, t, row, OUTW, OUTH, lf){
+    const out = new Uint8ClampedArray(OUTW*OUTH*4).fill(255);
+    const sW = src.width, sH = src.height, sd = src.data, sc = t.scale;
+    const H = t.H, W = t.W;
+    const xL = y=> t.left[Math.max(0, Math.min(H-1, Math.round(y)))] - t.bleed;
+    const xR = y=> t.right[Math.max(0, Math.min(H-1, Math.round(y)))] + t.bleed;
+    const yTop = x=> row.top.y[Math.max(0, Math.min(W-1, Math.round(x)))];
+    const yBot = x=> row.bot.y[Math.max(0, Math.min(W-1, Math.round(x)))];
+    /* un filo in fondo: in certi road book il quadratino del numero sta a
+       cavallo della linea e senza questo resta tagliato a meta' */
+    const f0 = row.f0, f1 = row.f1 + (row.f1-row.f0)*0.03;
+
+    /* campionamento bilineare: la striscia resta nitida */
+    const sample = (fx, fy, di)=>{
+      const x0 = Math.floor(fx), y0 = Math.floor(fy);
+      const ax = fx-x0, ay = fy-y0;
+      for(let c=0;c<3;c++){
+        let v = 0;
+        for(let j=0;j<2;j++) for(let i=0;i<2;i++){
+          const xx = Math.max(0, Math.min(sW-1, x0+i)), yy = Math.max(0, Math.min(sH-1, y0+j));
+          v += sd[(yy*sW+xx)*4+c] * (i?ax:1-ax) * (j?ay:1-ay);
+        }
+        const q = Math.max(0, Math.min(255, Math.round(v)));
+        out[di+c] = lf ? lf.lut[q] : q;
+      }
+      out[di+3] = 255;
+    };
+
+    const yMid = (yTop((t.x0+t.x1)/2) + yBot((t.x0+t.x1)/2))/2;
+    for(let oy=0; oy<OUTH; oy++){
+      const v = f0 + (f1-f0)*oy/(OUTH-1);
+      for(let ox=0; ox<OUTW; ox++){
+        const u = ox/(OUTW-1);
+        let gy = yMid, gx = 0;
+        for(let k=0;k<3;k++){
+          const a = xL(gy), b = xR(gy);
+          gx = a + (b-a)*u;
+          const yt = yTop(gx), yb = yBot(gx);
+          gy = yt + (yb-yt)*v;
+        }
+        sample(gx/sc, gy/sc, (oy*OUTW+ox)*4);
+      }
+    }
+    return out;
+  }
+
+
+  /* Dalla foto alle strisce pronte. want = quanti riferimenti ha letto l'AI su
+     questa pagina. Restituisce null se il conto non torna: chi chiama allora
+     ripiega sul metodo di prima, cosi' una foto difficile non va mai peggio. */
+  function strips(img, want){
+    const t = detectTablePhoto(img, want);
+    if(!t || !want || t.rows.length !== want) return null;
+    const W0 = img.naturalWidth || img.width, H0 = img.naturalHeight || img.height;
+    const c = document.createElement('canvas'); c.width = W0; c.height = H0;
+    const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(img, 0, 0, W0, H0);
+    const src = { width: W0, height: H0, data: g.getImageData(0, 0, W0, H0).data };
+    c.width = c.height = 0;
+    const lf = lightField(src);
+    /* stessa larghezza delle strisce di sempre; l'altezza segue le proporzioni
+       vere della riga, uguale per tutte le strisce della pagina */
+    const OUTW = 520, OUTH = Math.max(40, Math.round(OUTW * t.rowH / Math.max(1, t.x1 - t.x0)));
+    const oc = document.createElement('canvas'); oc.width = OUTW; oc.height = OUTH;
+    const og = oc.getContext('2d');
+    const out = [];
+    for(const r of t.rows){
+      const px = cutRow(src, t, r, OUTW, OUTH, lf);
+      const id = og.createImageData(OUTW, OUTH); id.data.set(px); og.putImageData(id, 0, 0);
+      out.push(oc.toDataURL('image/jpeg', 0.8));
+    }
+    oc.width = oc.height = 0;
+    return out;
+  }
+
+  return { strips: strips, detect: detectTablePhoto };
+})();
+
 async function scanOnePage(img, fromPdf){
   /* DUE PERCORSI SEPARATI (16 set 2026, richiesta di Roberto):
        - pagina resa da un PDF: immagine gia' perfetta, NESSUN trattamento
@@ -4890,6 +5452,7 @@ async function scanOnePage(img, fromPdf){
      modifica pensata per le foto non puo' toccare il PDF, e viceversa. */
   const isPhoto = !fromPdf && looksLikePhoto(img);
   let unreadable = false;
+  const img0 = img;   /* la foto com'e': il nuovo ritaglio lavora sull'originale, non ruotato */
   if(isPhoto) img = prepPhoto(img);
   const b64 = imgToB64(img, 1800);
   if(!b64) throw new Error('immagine vuota');
@@ -4910,13 +5473,18 @@ async function scanOnePage(img, fromPdf){
   let rows = Array.isArray(data.rows) ? data.rows : [];
   if(!rows.length) return { rb: [], gap: 0 };
   rows = rows.slice().sort((a,b)=> (parseInt(a.num,10)||0) - (parseInt(b.num,10)||0));
+  /* FOTO A MANO (13 ott 2026): strisce raddrizzate a maglia (vedi PhotoTable). Il numero
+     di riferimenti letto dall'AI serve solo a dire in quante parti va una cella unita.
+     Se il conto non torna (es. due pagine nella stessa foto) si ripiega sul metodo di prima. */
+  let photoCrops = null;
+  if(isPhoto){ try{ photoCrops = PhotoTable.strips(img0, rows.length); }catch(e){ photoCrops = null; } }
   const cols = (data.cols && typeof data.cols === 'object') ? data.cols : null;
   const okBox = b => Array.isArray(b) && b.length===4 && b.every(v => typeof v === 'number' && !isNaN(v));
   const cyOf0 = r => okBox(r.rowbox) ? (r.rowbox[0]+r.rowbox[2])/2 : (okBox(r.box) ? (r.box[0]+r.box[2])/2 : (okBox(r.numbox) ? r.numbox[0] : null));
   const tbl = detectTable(img, { y: rows.map(cyOf0).filter(v=>v!=null), photo: isPhoto });
   /* tolleranza larga: l'avviso scatta solo se NON trova nessuna riga, non alla prima
      imperfezione. Le foto fatte bene continuano a passare senza dire niente. */
-  if(isPhoto && !tbl) unreadable = true;
+  if(isPhoto && !tbl && !photoCrops) unreadable = true;
   if(tbl && scanBounds && tbl.W){   /* bordi misurati su tutte le pagine: vincono su quelli di questa */
     tbl.x0 = scanBounds.x0 * tbl.W;
     tbl.x1 = scanBounds.x1 * tbl.W;
@@ -4998,11 +5566,13 @@ async function scanOnePage(img, fromPdf){
   let gap = 0;
   for(let i=1;i<rows.length;i++){ const a=parseInt(rows[i-1].num,10), b=parseInt(rows[i].num,10); if(a && b && b>a+1){ gap=a+1; break; } }
   const rb = [];
-  for(const r of rows){
+  for(let ri = 0; ri < rows.length; ri++){
+    const r = rows[ri];
     const km = (r.km == null ? '' : String(r.km)).replace('.', ',').trim();
     const nota = (r.nota || '').trim();
     let cropped = '';
-    if(Array.isArray(r.box) && r.box.length === 4){ try{ cropped = aiCrop(img, r.box); }catch(e){} }
+    if(photoCrops) cropped = photoCrops[ri];
+    else if(Array.isArray(r.box) && r.box.length === 4){ try{ cropped = aiCrop(img, r.box); }catch(e){} }
     rb.push({ km: km, s: '', n: nota, img: imgPut(cropped) });
   }
   return { unreadable, rb, gap, model: data.model || '', ms: data.ms || 0 };
