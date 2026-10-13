@@ -832,7 +832,7 @@
   <h2 data-t="introTitle"></h2>
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
-  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-09-28.1</p>
+  <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-10-07.1</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -888,11 +888,6 @@
     </select>
   </div>
   <p class="small" style="color:var(--muted);margin:0 0 10px" data-t="rbAdvSmall"></p>
-  <div class="setting-row" style="margin-bottom:4px">
-    <span data-t="rbBigLabel"></span>
-    <input type="checkbox" id="rbBigToggle">
-  </div>
-  <p class="small" style="color:var(--muted);margin:0 0 10px" data-t="rbBigSmall"></p>
   <div class="setting-row" style="margin-bottom:4px">
     <span data-t="rbBeepLabel"></span>
     <input type="checkbox" id="rbBeepToggle">
@@ -1445,8 +1440,6 @@ function updateNavFree(){ var el=document.getElementById('navFree'); if(!el) ret
 const T = {
 it:{introTitle:"Come funziona",
   scanBlurry:"foto poco leggibile: inquadra solo la pagina, piu’ dritta",
-  rbBigLabel:"Foto grande",
-  rbBigSmall:"Mostra solo frecce, foto, totale e parziale: la foto del riferimento occupa tutto lo schermo.",
   rbBeepLabel:"Avviso sonoro a 100 m",
   rbBeepSmall:"Un doppio tocco sonoro discreto quando mancano 100 metri al simbolo.",
   pmRealMeters:"Usa i metri reali (senza parole)",
@@ -1628,8 +1621,6 @@ it:{introTitle:"Come funziona",
   soundPlay:"Ascolta"},
 en:{introTitle:"How it works",
   scanBlurry:"photo hard to read: frame only the page, straighter",
-  rbBigLabel:"Large photo",
-  rbBigSmall:"Shows only arrows, photo, total and partial: the reference photo fills the screen.",
   rbBeepLabel:"Sound alert 100 m before",
   rbBeepSmall:"A soft double chime when the symbol is 100 metres away.",
   pmRealMeters:"Use real metres (no words)",
@@ -1811,8 +1802,6 @@ en:{introTitle:"How it works",
   soundPlay:"Play"},
 fr:{introTitle:"Comment ça marche",
   scanBlurry:"photo peu lisible : cadre seulement la page, plus droite",
-  rbBigLabel:"Grande photo",
-  rbBigSmall:"Affiche seulement les flèches, la photo, le total et le partiel : la photo remplit l'écran.",
   rbBeepLabel:"Alerte sonore à 100 m",
   rbBeepSmall:"Un double son discret quand il reste 100 mètres avant le repère.",
   pmRealMeters:"Utiliser les mètres réels (sans mots)",
@@ -2007,8 +1996,6 @@ fr:{introTitle:"Comment ça marche",
   soundPlay:"Écouter"},
 es:{introTitle:"Cómo funciona",
   scanBlurry:"foto poco legible: encuadra solo la página, más recta",
-  rbBigLabel:"Foto grande",
-  rbBigSmall:"Muestra solo flechas, foto, total y parcial: la foto ocupa toda la pantalla.",
   rbBeepLabel:"Aviso sonoro a 100 m",
   rbBeepSmall:"Un doble sonido discreto cuando faltan 100 metros para el símbolo.",
   pmRealMeters:"Usar metros reales (sin palabras)",
@@ -2203,8 +2190,6 @@ es:{introTitle:"Cómo funciona",
   soundPlay:"Escuchar"},
 de:{introTitle:"So funktioniert es",
   scanBlurry:"Foto schwer lesbar: nur die Seite, gerader aufnehmen",
-  rbBigLabel:"Großes Foto",
-  rbBigSmall:"Zeigt nur Pfeile, Foto, Gesamt und Teilstrecke: das Foto füllt den Bildschirm.",
   rbBeepLabel:"Tonsignal 100 m vorher",
   rbBeepSmall:"Ein dezenter Doppelton, wenn das Symbol 100 Meter entfernt ist.",
   pmRealMeters:"Echte Meter verwenden (ohne Wörter)",
@@ -2399,8 +2384,6 @@ de:{introTitle:"So funktioniert es",
   soundPlay:"Anhören"},
 pt:{introTitle:"Como funciona",
   scanBlurry:"foto pouco legível: enquadra só a página, mais direita",
-  rbBigLabel:"Foto grande",
-  rbBigSmall:"Mostra só setas, foto, total e parcial: a foto ocupa todo o ecrã.",
   rbBeepLabel:"Aviso sonoro a 100 m",
   rbBeepSmall:"Um duplo som discreto quando faltam 100 metros para o símbolo.",
   pmRealMeters:"Usar metros reais (sem palavras)",
@@ -2595,8 +2578,6 @@ pt:{introTitle:"Como funciona",
   soundPlay:"Ouvir"},
 ja:{introTitle:"使い方",
   scanBlurry:"写真が読みにくい：ページだけをまっすぐに写してください",
-  rbBigLabel:"写真を大きく",
-  rbBigSmall:"矢印・写真・合計・区間のみ表示。写真が画面いっぱいになります。",
   rbBeepLabel:"100 m手前で音を鳴らす",
   rbBeepSmall:"シンボルまで100メートルで、控えめな2音のチャイム。",
   pmRealMeters:"実際のメートルを使う（単語なし）",
@@ -2791,8 +2772,6 @@ ja:{introTitle:"使い方",
   soundPlay:"再生"},
 cs:{introTitle:"Jak to funguje",
   scanBlurry:"fotka špatně čitelná: zaběr jen stránku, rovněji",
-  rbBigLabel:"Velká fotka",
-  rbBigSmall:"Zobrazí jen šipky, fotku, celkem a dílčí: fotka vyplní obrazovku.",
   rbBeepLabel:"Zvukové upozornění 100 m předem",
   rbBeepSmall:"Jemný dvojitý tón, když do symbolu zbývá 100 metrů.",
   pmRealMeters:"Používat skutečné metry (bez slov)",
@@ -3038,7 +3017,6 @@ let cfg = {
   pilotTapReset: false,   /* pilota: un tocco azzera e fa ripartire, invece di avvia/ferma */
   pilotRealMeters: false, /* pilota: solo Totale + Parziale in metri, senza parole */
   radBeep: true,          /* radar: avviso sonoro a 100 m dal simbolo */
-  radBigPhoto: false,     /* radar: foto grande, solo frecce + totale + parziale */
   autoReset: true,
   lang: null,
   hideIntro: false,
@@ -3360,7 +3338,9 @@ function speedUnitStr(){ return isImp() ? 'mph' : 'km/h'; }
 /* pilot = pilota · nav = trip navigatore · radar = display radar */
 function applyMode(){
   document.body.dataset.pilotreal = (cfg.mode === 'pilot' && cfg.pilotRealMeters) ? '1' : '0';
-  document.body.dataset.bigphoto = (cfg.mode === 'radar' && cfg.radBigPhoto) ? '1' : '0';
+  /* FOTO GRANDE SEMPRE (7 ott 2026, richiesta di Roberto): non e' piu' un'impostazione.
+     Il layout grande vive solo nella @media (orientation:landscape): in verticale non cambia nulla. */
+  document.body.dataset.bigphoto = (cfg.mode === 'radar') ? '1' : '0';
   try{ const pw = $('prevWord'), pp = $('prevPartial'); if(cfg.mode !== 'pilot'){ if(pw) pw.hidden = true; if(pp) pp.hidden = true; } }catch(e){}
   document.body.dataset.mode = cfg.mode;
   partialLbl.dataset.t = (cfg.mode === 'radar') ? 'partialLabelRadar' : 'partialLabel';
@@ -4065,12 +4045,10 @@ $('drvWords').addEventListener('click', ()=>{
   $('pilotMenu').classList.add('open');
 });
 if($('rbAdvSel')) $('rbAdvSel').addEventListener('change', ()=>{ cfg.autoReset = ($('rbAdvSel').value !== 'manual'); saveCfg(); });
-if($('rbBigToggle')) $('rbBigToggle').addEventListener('change', ()=>{ cfg.radBigPhoto = $('rbBigToggle').checked; saveCfg(); applyMode(); });
 if($('rbBeepToggle')) $('rbBeepToggle').addEventListener('change', ()=>{ cfg.radBeep = $('rbBeepToggle').checked; saveCfg(); if(cfg.radBeep) radarBeep(); });
 $('drvRb').addEventListener('click', ()=>{
   if($('rbAdvSel')) $('rbAdvSel').value = cfg.autoReset ? 'auto' : 'manual';
   if($('rbBeepToggle')) $('rbBeepToggle').checked = cfg.radBeep !== false;
-  if($('rbBigToggle')) $('rbBigToggle').checked = !!cfg.radBigPhoto;
   closeDrawer();
   buildSsList();
   $('navMenu').classList.add('open');
@@ -5847,17 +5825,24 @@ $('pdfImpConfirm').addEventListener('click', async ()=>{
 });
 
 /* ================= SCHERMO SEMPRE ACCESO ================= */
+/* Nell'app iPhone lo schermo resta acceso grazie al comando NATIVO isIdleTimerDisabled
+   (passaggio "Schermo sempre acceso" in codemagic.yaml): funziona con qualsiasi Blocco
+   automatico e anche col Risparmio energetico. Questo blocco web resta per Safari/PWA:
+   iOS lo toglie quando la pagina va in secondo piano e a volte lo concede solo dopo un
+   tocco, quindi si richiede al ritorno in primo piano e al primo tocco utile. */
 let wakeLock = null;
 async function keepAwake(){
   try{
-    if('wakeLock' in navigator){
+    if('wakeLock' in navigator && (!wakeLock || wakeLock.released) && document.visibilityState === 'visible'){
       wakeLock = await navigator.wakeLock.request('screen');
+      if(wakeLock && wakeLock.addEventListener) wakeLock.addEventListener('release', ()=>{ wakeLock = null; });
     }
   }catch(e){}
 }
 document.addEventListener('visibilitychange', ()=>{
   if(document.visibilityState === 'visible') keepAwake();
 });
+['touchend','click'].forEach(ev => document.addEventListener(ev, ()=>{ if(!wakeLock || wakeLock.released) keepAwake(); }, { passive:true }));
 keepAwake();
 
 /* ================= SERVICE WORKER (PWA) ================= */
