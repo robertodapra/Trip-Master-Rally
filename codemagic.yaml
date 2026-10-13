@@ -30,6 +30,25 @@ workflows:
       - name: Sincronizza Capacitor iOS
         script: |
           npx cap sync ios
+      - name: Schermo sempre acceso con l'app aperta
+        script: |
+          # iOS spegne lo schermo dopo il "Blocco automatico" scelto nelle Impostazioni
+          # (30 secondi fissi col Risparmio energetico). Dentro un'app il blocco "web"
+          # dello spegnimento non basta: serve il comando nativo isIdleTimerDisabled,
+          # dato all'avvio e ogni volta che l'app torna in primo piano.
+          # Il file AppDelegate.swift del repo non va toccato: lo modifica questo passaggio.
+          cd "$CM_BUILD_DIR/ios/App/App"
+          if ! grep -q "isIdleTimerDisabled" AppDelegate.swift; then
+            perl -0pi -e 's#(didFinishLaunchingWithOptions launchOptions: \[UIApplication\.LaunchOptionsKey\s*:\s*Any\]\?\)\s*->\s*Bool\s*\{)#$1\n        UIApplication.shared.isIdleTimerDisabled = true   // iRally: schermo sempre acceso#' AppDelegate.swift
+            perl -0pi -e 's#(func applicationDidBecomeActive\(_ application: UIApplication\)\s*\{)#$1\n        UIApplication.shared.isIdleTimerDisabled = true   // iRally: schermo sempre acceso#' AppDelegate.swift
+          fi
+          echo "--- VERIFICA schermo sempre acceso ---"
+          N=$(grep -c "isIdleTimerDisabled = true" AppDelegate.swift || true)
+          grep -n -B1 "isIdleTimerDisabled" AppDelegate.swift || true
+          if [ "$N" -lt 2 ]; then
+            echo "ERRORE: AppDelegate.swift non e' come previsto, schermo sempre acceso NON applicato"; exit 1
+          fi
+          echo "OK: schermo sempre acceso ($N punti)"
       - name: Tipo di file iRally (Apri in iRally da WhatsApp, Mail, File)
         script: |
           cd "$CM_BUILD_DIR/ios/App/App"
