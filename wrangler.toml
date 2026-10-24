@@ -12,3 +12,10 @@ keep_vars = true
 # Il modello del RADAR si cambia qui.
 [vars]
 MODEL = "gemini-3.1-flash-lite"
+
+# Contatori del worker (tetto scansioni per utente + /usage).
+# Namespace KV "rally-counters". Deve stare QUI: un collegamento fatto solo
+# dal pannello Cloudflare sparisce al primo deploy automatico dal repo.
+[[kv_namespaces]]
+binding = "RALLY_KV"
+id = "dfda6f58e97a4a5fb0c7323e640cfe87"
