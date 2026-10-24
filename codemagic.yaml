@@ -27,6 +27,17 @@ workflows:
       - name: Plugin per aprire i file .irally da altre app
         script: |
           npm install @capacitor/app @capacitor/filesystem --save
+      - name: File dell'app dentro la build (www)
+        script: |
+          # Da quando l'app non si carica piu' da GitHub Pages, parte dai file
+          # in www: qui ci si copia SEMPRE l'index.html aggiornato, prima di cap sync.
+          cd "$CM_BUILD_DIR"
+          mkdir -p www
+          cp index.html www/index.html
+          for f in manifest.json sw.js icon.png *.wav; do [ -f "$f" ] && cp "$f" www/; done
+          echo "--- VERIFICA www ---"
+          ls -la www
+          grep -o "build 20[0-9-]*\.[0-9]*" www/index.html | head -1
       - name: Sincronizza Capacitor iOS
         script: |
           npx cap sync ios
