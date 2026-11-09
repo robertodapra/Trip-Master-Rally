@@ -5,7 +5,7 @@ export default {
   async fetch(request, env, ctx) {
     if (new URL(request.url).pathname === "/version") {
       const m = (env && env.MODEL && String(env.MODEL).trim()) || PREFERRED_BY_MODE.radar[0];
-      return new Response("iRally worker RADAR v10 - modello: " + m + (env && env.MODEL ? " (da variabile MODEL)" : " (predefinito)"), { headers: { "content-type": "text/plain" } });
+      return new Response("iRally worker RADAR v11 - modello: " + m + (env && env.MODEL ? " (da variabile MODEL)" : " (predefinito)"), { headers: { "content-type": "text/plain" } });
     }
     if (new URL(request.url).pathname === "/usage") {
       const mk = "tok:" + new Date().toISOString().slice(0, 7);
@@ -158,7 +158,7 @@ export default {
 
 
 /* ---- tetto per utente (Cloudflare KV) ---- */
-const DAILY_LIMIT = 250;   // scansioni al giorno per utente
+const DAILY_LIMIT = 100;   // scansioni al giorno per utente (era 250; abbassato il 9 nov 2026 per contenere i costi con l'app pubblica)
 const HOURLY_LIMIT = 200;  // scansioni all'ora per utente
 async function checkLimit(env, ctx, deviceId) {
   if (!env.RALLY_KV || !deviceId) return { ok: true }; // KV non configurato -> non blocco
