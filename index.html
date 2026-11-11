@@ -835,7 +835,7 @@
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
   <p class="g-links"><a href="https://rally-scan.roberto-dapra5858.workers.dev/privacy" data-t="pwPrivacy"></a> &middot; <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" data-t="pwTerms"></a> &middot; <a href="https://rally-scan.roberto-dapra5858.workers.dev/support" data-t="gSupport"></a></p>
- <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-11-04.2</p>
+ <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-11-11.1</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -4851,33 +4851,7 @@ function detectTable(img, hint){   /* hint: {y:[...], photo:bool} — posizioni 
       const hs = out.map(q => q[1]-q[0]), mx = Math.max(...hs), mn = Math.min(...hs);
       return (mn > 0 && mx/mn <= 1.6) ? out : eq();
     };
-    const inB = b => hintY.filter(y => y >= b[0] && y < b[1]);
-    /* altezza di UNA riga misurata su fasce pulite con un solo riferimento, se ce ne sono */
-    const singles = photo ? [] : bands.filter(b => inB(b).length === 1 && Math.abs((b[1]-b[0]) - h0) <= h0*0.12).map(b => b[1]-b[0]);
-    bands.forEach(b=>{
-      const h=b[1]-b[0];
-      const kr = Math.round(h/h0);
-      const clean = kr>=1 && Math.abs(h-kr*h0) <= h0*(kr===1 ? 0.12 : 0.25);
-      let k = clean ? kr : 0;
-      /* ZONE SENZA LINEE (Schio, 4 nov 2026): l'AI vede n riferimenti in una fascia che per
-         altezza sarebbe UNA riga (celle unite senza separatrici, foto aerea fra due righe).
-         Come nello scanner delle foto, il numero di righe lo decide l'AI. Solo pagine non-foto. */
-      if(!photo && hintY.length && k === 1 && !singles.length){
-        /* la fascia e' l'unica misura della pagina (nessuna riga singola con cui confrontarla):
-           se l'AI ci vede piu' riferimenti ben distribuiti, sono righe unite senza linee */
-        const hy = inB(b), n = hy.length;
-        if(n >= 2 && n <= 12 && (hy[n-1] - hy[0]) >= h*0.3){ splitZone(b, hy).forEach(q => keep.push(q)); return; }
-      }
-      if(!k && hintY.length){ const n=cntIn(b); if(n>=2 && h >= h0*1.5) k = n; }   /* altezza sporca: conta l'AI */
-      if(k===1) keep.push(b);
-      else if(k>=2 && k<=12){ for(let j=0;j<k;j++) keep.push([b[0]+h*j/k, b[0]+h*(j+1)/k]); }
-    });
-    if(!keep.length) return null;
-    keep.sort((p,q)=>p[0]-q[0]);
-    const yTop=keep[0][0], yBot=keep[keep.length-1][1];
-
-    /* --- 3) bordi della tabella = lunghezza delle linee di separazione fra le righe.
-       E' la misura piu' diretta: i bordi dello screenshot non c'entrano. */
+    /* lunghezza della linea orizzontale piu' lunga all'altezza y (dice dove sono i bordi della tabella) */
     const lineExtent=(y)=>{
       const yy=Math.round(y); let best=null, st=-1;
       for(let x=0;x<=W;x++){
@@ -4888,8 +4862,136 @@ function detectTable(img, hint){   /* hint: {y:[...], photo:bool} — posizioni 
       }
       return best;
     };
+    const inB = b => hintY.filter(y => y >= b[0] && y < b[1]);
+    /* RIGHE CONTATE SULLA PAGINA (Ticino, 5 nov 2026): nel road book del Ticino (e di Schio) le
+       righe hanno una linea di separazione solo ogni tanto. Una zona senza linee veniva divisa in
+       tante parti quanti riferimenti vedeva l'AI: un riferimento letto in piu' o in meno spostava
+       TUTTE le strisce della zona. Ora il numero di righe si legge sulla pagina: nella prima
+       colonna (Totali) ogni riga ha il suo numero stampato, sempre nello stesso punto della riga.
+       n e' giusto se la zona divisa in n parti uguali ha un testo nello stesso punto di ogni parte.
+       Se la pagina non risponde chiaramente (foto nella colonna, niente linee verticali) torna 0
+       e resta il conto dell'AI. Se l'AI e' d'accordo con la pagina vince l'AI (anche quando a una
+       riga manca il Totale stampato). */
+    const textRows = (b, nAi) => {
+      const a0 = b[0], b0 = b[1], h = b0 - a0;
+      if(h < H*0.06) return 0;
+      const e = lineExtent(a0) || lineExtent(b0);
+      if(!e || (e[1]-e[0]) < W*0.4) return 0;
+      const KT = Math.max(4, Math.round(4*R));
+      const y0 = Math.ceil(a0 + KT), y1 = Math.floor(b0 - KT);
+      if(y1 - y0 < H*0.04) return 0;
+      /* linee verticali nella parte sinistra della tabella, misurate dentro questa zona */
+      const L = e[0], xs = [];
+      for(let x = Math.max(0, L-3); x <= Math.min(W-2, L + Math.round((e[1]-e[0])*0.4)); x++){
+        let n = 0, c = 0;
+        for(let y = y0; y < y1; y += 2){ c++; const o = y*W + x; if(darkV[o] || (x > 0 && darkV[o-1]) || darkV[o+1]) n++; }
+        if(c && n/c >= 0.92) xs.push(x);
+      }
+      const vl = []; xs.forEach(x => { if(vl.length && x - vl[vl.length-1][1] <= 2) vl[vl.length-1][1] = x; else vl.push([x, x]); });
+      if(vl.length < 2 || vl[0][0] > L + W*0.02) return 0;
+      const nx = vl.find(v => v[0] - vl[0][1] >= W*0.03);
+      if(!nx) return 0;
+      const c0 = vl[0][1] + 3, c1 = nx[0] - 3;
+      if(c1 - c0 < W*0.02) return 0;
+      /* i testi della colonna: fasce orizzontali con inchiostro */
+      const gapMax = Math.max(2, Math.round(H*0.002)), blobs = [];
+      let s = -1, last = -1;
+      for(let y = y0; y <= y1; y++){
+        let on = false;
+        if(y < y1){ const o = y*W; for(let x = c0; x <= c1; x++){ if(dark[o+x]){ on = true; break; } } }
+        if(on){ if(s < 0) s = y; last = y; }
+        else if(s >= 0 && (y === y1 || y - last > gapMax)){ blobs.push([s, last]); s = -1; }
+      }
+      if(blobs.some(q => q[1]-q[0] > H*0.05)) return 0;   /* foto o disegno nella colonna: non e' una colonna di numeri */
+      const cs = blobs.filter(q => q[1]-q[0] >= Math.max(3, H*0.003)).map(q => (q[0]+q[1])/2);
+      if(cs.length < 2) return 0;
+      /* in quante delle n parti c'e' un testo nello stesso punto */
+      const match = n => {
+        const P = h/n, rel = Array.from({length:n}, () => []);
+        cs.forEach(c => { const u = (c - a0)/P, j = Math.min(n-1, Math.max(0, Math.floor(u))); rel[j].push(u - j); });
+        const near = (v, r0) => { const d = Math.abs(v - r0); return Math.min(d, 1 - d) <= 0.08; };
+        let best = 0;
+        rel.forEach(r => r.forEach(r0 => { let m = 0; rel.forEach(q => { if(q.some(v => near(v, r0))) m++; }); if(m > best) best = m; }));
+        return best;
+      };
+      if(nAi >= 2 && nAi <= 12){
+        const mA = match(nAi);
+        if(mA === nAi || (nAi >= 3 && mA === nAi - 1)) return nAi;
+      }
+      for(let n = Math.min(12, cs.length); n >= 2; n--) if(match(n) === n) return n;
+      return 0;
+    };
+    /* altezza di UNA riga misurata su fasce pulite con un solo riferimento, se ce ne sono */
+    const singles = photo ? [] : bands.filter(b => inB(b).length === 1 && Math.abs((b[1]-b[0]) - h0) <= h0*0.12).map(b => b[1]-b[0]);
+    bands.forEach(b=>{
+      const h=b[1]-b[0];
+      const kr = Math.round(h/h0);
+      const clean = kr>=1 && Math.abs(h-kr*h0) <= h0*(kr===1 ? 0.12 : 0.25);
+      let k = clean ? kr : 0;
+      /* ZONE SENZA LINEE (Schio, 4 nov 2026): l'AI vede n riferimenti in una fascia che per
+         altezza sarebbe UNA riga (celle unite senza separatrici, foto aerea fra due righe).
+         Come nello scanner delle foto, il numero di righe lo decide l'AI. Solo pagine non-foto. */
+      /* senza righe singole sulla pagina l'altezza di riga e' una stima: le righe di una zona
+         con piu' riferimenti si contano sulla pagina, se la pagina risponde */
+      if(!photo && hintY.length && !singles.length && (k >= 1 || h >= h0*1.5)){
+        const n = inB(b).length;
+        if(n >= 2){ const nt = textRows(b, n); if(nt >= 2){ for(let j=0;j<nt;j++) keep.push([b[0]+h*j/nt, b[0]+h*(j+1)/nt]); return; } }
+      }
+      if(!photo && hintY.length && k === 1 && !singles.length){
+        /* la fascia e' l'unica misura della pagina (nessuna riga singola con cui confrontarla):
+           se l'AI ci vede piu' riferimenti ben distribuiti, sono righe unite senza linee */
+        const hy = inB(b), n = hy.length;
+        if(n >= 2 && n <= 12 && (hy[n-1] - hy[0]) >= h*0.3){ splitZone(b, hy).forEach(q => keep.push(q)); return; }
+      }
+      if(!k && hintY.length){ const n=cntIn(b); if(n>=2 && h >= h0*1.5){ const nt = photo ? 0 : textRows(b, n); k = nt >= 2 ? nt : n; } }   /* altezza sporca: conta la pagina, se no l'AI */
+      if(k===1) keep.push(b);
+      else if(k>=2 && k<=12){ for(let j=0;j<k;j++) keep.push([b[0]+h*j/k, b[0]+h*(j+1)/k]); }
+    });
+    /* RIFERIMENTI SENZA RIGA (Ticino p.92, 5 nov 2026): l'AI vede riferimenti in una zona che
+       nessuna fascia contiene, perche' non e' chiusa da due linee (righe unite che finiscono
+       contro una foto aerea, riga con altezza "sporca"). La zona va dalla linea sopra al primo
+       confine sotto, linea o bordo della foto, e si divide come le zone unite. */
+    if(!photo && hintY.length){
+      const orphans = hintY.filter(y => !keep.some(b => y >= b[0] && y < b[1]));
+      if(orphans.length){
+        const tolL = Math.max(3, H*0.004);   /* un bordo attaccato a una linea e' quella linea */
+        const bounds = Array.from(new Set(hAll.concat(edgesIn(-H, 2*H).filter(e => !hAll.some(v => Math.abs(v - e) <= tolL))))).sort((p,q)=>p-q);
+        for(let i=0; i<orphans.length; ){
+          const y = orphans[i];
+          const above = bounds.filter(v => v <= y), below = bounds.filter(v => v > y);
+          if(!above.length || !below.length){ i++; continue; }
+          const top = above[above.length-1], bot = below[0];
+          const grp = orphans.filter(v => v >= top && v < bot);
+          i += Math.max(1, grp.length);
+          if((bot - top) >= H*0.03*grp.length && !keep.some(b => b[0] < bot && b[1] > top)){
+            /* con l'altezza di riga misurata sulle linee (ci sono righe singole) la zona ha tante
+               righe quante ne entrano: due posizioni dell'AI a cavallo fra due righe non la
+               dividono a meta' (Galles p.126 e p.176 con le posizioni spostate di mezza riga) */
+            const zh = bot - top, nh = Math.round(zh / h0);
+            if(singles.length && nh >= 1 && nh <= 12 && Math.abs(zh - nh*h0) <= h0*0.25){
+              for(let j=0;j<nh;j++) keep.push([top+zh*j/nh, top+zh*(j+1)/nh]);
+            } else {
+              const nt = grp.length >= 2 ? textRows([top, bot], grp.length) : 0;
+              if(nt >= 2){ for(let j=0;j<nt;j++) keep.push([top+zh*j/nt, top+zh*(j+1)/nt]); }
+              else splitZone([top, bot], grp).forEach(q => keep.push(q));
+            }
+          }
+        }
+      }
+    }
+    if(!keep.length) return null;
+    keep.sort((p,q)=>p[0]-q[0]);
+    const yTop=keep[0][0], yBot=keep[keep.length-1][1];
+
+    /* --- 3) bordi della tabella = lunghezza delle linee di separazione fra le righe (lineExtent).
+       E' la misura piu' diretta: i bordi dello screenshot non c'entrano. */
     const st=[], en=[];
-    keep.forEach(b=>{ [b[0], b[1]].forEach(y=>{ const e=lineExtent(y); if(e && (e[1]-e[0])>W*0.4){ st.push(e[0]); en.push(e[1]); } }); });
+    /* con le posizioni dell'AI, i bordi si misurano sulle righe che contengono un riferimento:
+       le fasce dell'intestazione (box C.O./T.C.) sono piu' strette della tabella */
+    const backed = (!photo && hintY.length) ? keep.filter(b => hintY.some(y => y >= b[0] && y < b[1])) : [];
+    /* solo sui confini che sono LINEE vere: il bordo di una foto non dice dove finisce la tabella */
+    const realLine = y => hAll.some(v => Math.abs(v - y) <= Math.max(3, H*0.004));
+    (backed.length ? backed : keep).forEach(b=>{ [b[0], b[1]].forEach(y=>{ if(!realLine(y)) return; const e=lineExtent(y); if(e && (e[1]-e[0])>W*0.4){ st.push(e[0]); en.push(e[1]); } }); });
     if(!st.length) return null;
     const pick=(arr)=>{ const t=arr.slice().sort((p,q)=>p-q); return t[Math.floor(t.length/2)]; };
     const tabL=pick(st), tabR=pick(en);
@@ -5563,6 +5665,44 @@ const PhotoTable = (function(){
   return { strips: strips, detect: detectTablePhoto };
 })();
 
+/* RIFERIMENTI E RIGHE ABBINATI PER POSIZIONE (Ticino, 5 nov 2026). Prima, con tante righe quanti
+   riferimenti (o meno), i riferimenti andavano alle righe in ordine: se l'AI ne leggeva uno in piu'
+   tutte le strisce dopo scivolavano di una riga (prova sul Ticino: 41 strisce giuste su 100).
+   Qui ogni riferimento va alla riga dove l'AI lo vede, sempre in ordine; un riferimento puo' restare
+   senza riga (costa mezza riga) e una riga senza riferimento (non costa niente). Chi resta senza
+   riga prende una riga aggiunta sopra la prima o sotto l'ultima, oppure, in mezzo, la riga vicina.
+   Torna { pick, free } (free = riferimenti rimasti senza una riga loro) oppure null. */
+function matchPick(bands, cys){
+  const M = cys.length, B = bands.length, INF = 1e18, ctr = r => (r[0]+r[1])/2;
+  if(!B || !M) return null;
+  const hs = bands.map(r => r[1]-r[0]).sort((p,q)=>p-q), pen = hs[Math.floor(hs.length/2)] * 0.5;
+  const dp = [], mv = [];
+  for(let k=0;k<=M;k++){ dp.push(new Array(B+1).fill(INF)); mv.push(new Array(B+1).fill(0)); }
+  for(let j=0;j<=B;j++) dp[0][j] = 0;
+  for(let k=1;k<=M;k++) for(let j=0;j<=B;j++){
+    let v = dp[k-1][j] + pen, m = 1;                                   /* riferimento senza riga */
+    if(j > 0){
+      if(dp[k][j-1] < v){ v = dp[k][j-1]; m = 2; }                      /* riga senza riferimento */
+      const w = dp[k-1][j-1] + Math.abs(cys[k-1] - ctr(bands[j-1]));    /* riferimento nella riga */
+      if(w < v){ v = w; m = 3; }
+    }
+    dp[k][j] = v; mv[k][j] = m;
+  }
+  const at = new Array(M).fill(-1);
+  for(let k=M, j=B; k>0; ){ const m = mv[k][j]; if(m === 3){ at[k-1] = j-1; k--; j--; } else if(m === 2) j--; else k--; }
+  const first = at.findIndex(v => v >= 0); if(first < 0) return null;
+  let lastI = first; at.forEach((v,i)=>{ if(v >= 0) lastI = i; });
+  const out = at.map(v => v >= 0 ? bands[v] : null);
+  const f = bands[at[first]], hf = f[1]-f[0];
+  for(let i=first-1, t=1; i>=0; i--, t++){ const top = f[0]-hf*t; out[i] = top >= -hf*0.5 ? [Math.max(0, top), Math.max(0, f[0]-hf*(t-1))] : f; }
+  const l = bands[at[lastI]], hl = l[1]-l[0];
+  for(let i=lastI+1, t=1; i<M; i++, t++) out[i] = [l[1]+hl*(t-1), l[1]+hl*t];
+  for(let i=first+1;i<lastI;i++) if(!out[i]){
+    let pv = i-1; while(at[pv] < 0) pv--; let nx = i+1; while(at[nx] < 0) nx++;
+    out[i] = Math.abs(cys[i] - ctr(bands[at[pv]])) <= Math.abs(cys[i] - ctr(bands[at[nx]])) ? bands[at[pv]] : bands[at[nx]];
+  }
+  return { pick: out, free: at.filter(v => v < 0).length };
+}
 async function scanOnePage(img, fromPdf){
   /* DUE PERCORSI SEPARATI (16 set 2026, richiesta di Roberto):
        - pagina resa da un PDF: immagine gia' perfetta, NESSUN trattamento
@@ -5660,6 +5800,18 @@ async function scanOnePage(img, fromPdf){
         while(nA-- > 0 && pick.length < M){ const f = pick[0], hf = f[1]-f[0]; if(f[0] < hf*0.5) break; pick.unshift([Math.max(0, f[0]-hf), f[0]]); }
       }
       while(pick.length < M){ const last = pick[pick.length-1]; pick.push([last[1], last[1]+h]); }
+    }
+    /* ABBINAMENTO PER POSIZIONE (5 nov 2026, vedi matchPick): se mettendo ogni riferimento nella
+       riga dove l'AI lo vede si sta molto piu' vicini all'AI (meno del 60% della distanza), vince
+       questo. Con l'AI precisa le due scelte coincidono e non cambia niente. */
+    if(pick && !isPhoto && M >= 2 && cys.every(v => v != null)){
+      const alt = matchPick(bands, cys);
+      const cst = a => a.reduce((s, r, i) => s + Math.abs(cys[i] - (r[0]+r[1])/2), 0);
+      if(alt && cst(alt.pick) < cst(pick)*0.6){
+        pick = alt.pick;
+        /* un riferimento senza una riga sua (letto in piu' o riga non trovata): pagina da controllare */
+        if(alt.free && !short) short = { found: M - alt.free, want: M };
+      }
     }
     if(pick){
       const X0 = tbl.x0!=null ? tbl.x0*1000/tbl.W : ((cols && typeof cols.left==='number') ? cols.left : 0);
@@ -6885,7 +7037,11 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
     }
     const mr=$('tc_modeRow'); if(mr) mr.style.display='none';   /* la scelta e' nel riquadro impostazioni */
     const hd0=$('tc_head'); if(hd0) hd0.innerHTML='Rally: <b>'+esc(card.rally||'?')+'</b> \u00b7 Sezione: <b>'+esc(card.section||'?')+'</b> \u00b7 Data: <b>'+esc(card.date||'?')+'</b>';
-    function descOf(code){ const L=legs.find(x=>x.from===code); return (L && !L.ss)?(L.desc||''):''; }
+    /* NOME DEL CONTROLLO (11 nov 2026, tabella Due Valli sez. 3): il worker mette in "desc" il testo
+       del controllo di QUELLA riga, cioe' del "to" del leg. Prima qui si cercava il leg che PARTE dal
+       controllo, e ogni nome finiva sul controllo precedente (Cappella Fasani, che e' il CO 4, appariva
+       sul CO 3C col suo 0:30). La partenza non e' il "to" di nessun leg: resta "Partenza sezione". */
+    function descOf(code){ const L=legs.find(x=>x.to===code); return (L && !L.ss)?(L.desc||''):''; }
     const controls=[];
     if(legs.length){
       controls.push({code:legs[0].from, kind:'start', title:(descOf(legs[0].from)||'Partenza sezione')});
