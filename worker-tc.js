@@ -36,12 +36,13 @@ Crea un elemento "leg" per OGNI controllo dal SECONDO in poi (i leg sono le TRAT
 - "to": codice del controllo di QUESTA riga.
 - "target": il TEMPO IMPOSTO STAMPATO di questa tratta. Etichette possibili: "Tempo imposto", "Tempo di settore", "Tempo PS", "Target Time", "New Target Time", "TEMPO IMPOSTO". E' una DURATA breve in ore/minuti, es. "00 30", "0 53", "01 26", "1 17". Normalizzala SEMPRE come "HH:MM" (es. "0 53" -> "00:53", "1 17" -> "01:17"). "" se assente. ATTENZIONE: NON e' un orario dell'orologio (tipo 16:24, 13:30): quelli sono transiti/partenze, NON metterli qui. Se ci sono sia "Target Time" sia "New Target Time", usa "Target Time" (usa "New Target Time" solo se "Target Time" e' assente).
 - "theo": l'ORARIO TEORICO stampato di transito o partenza di questo controllo, se stampato. Etichette: "Transito CO", "Transito teorico", "Teorico CO", "Ora transito", "Orario teorico", "Partenza teorica". Formato "HH:MM". "" se assente o presente solo a mano.
-- "ss": nome della prova speciale se la riga e' una PS/SS, altrimenti "".
+- "ss": se la riga e' una PS/SS, SOLO il NOME della prova, senza sigla, senza numero e senza virgolette (es. da 'PS8 "PELLEGRINO PARMENSE C" km 7,49' -> "PELLEGRINO PARMENSE C"; da 'PS 4 "Cappella Fasani 2"' -> "Cappella Fasani 2"). Altrimenti "".
+- "sscode": se la riga e' una PS/SS, la SIGLA col NUMERO della prova, scritta "PS 8" oppure "SS 9" (es. "PS8" -> "PS 8", "P.S. 7" -> "PS 7", "S.S. 9" -> "SS 9"). Altrimenti "".
 - "km": distanza della prova come stampata (es. "12,89", "14,80"), altrimenti "".
-- "desc": testo descrittivo stampato (Assistenza, Riordino, Service IN/OUT, Partenza, Arrivo...), altrimenti "".
+- "desc": il NOME del controllo di ARRIVO di questa tratta (il "to"), con le parole che usano i navigatori. Se la riga ha un campo di arrivo ("a:", "a ", "Arrivo:"), copia ESATTAMENTE quel testo (es. "Assistenza IN", "Assistenza OUT", "Riordino OUT", "Ponte Grosso") e NON sostituirlo con altre scritte grandi della riga come 'ASSISTENZA "C"' o "RIORDINO 1". Se il campo di arrivo non c'e', usa il testo stampato accanto al codice di questo controllo (es. "Service OUT", "Riordino IN", il nome del luogo, "Arrivo"). Altrimenti "".
 
 Restituisci SOLO questo JSON, senza markdown:
-{ "rally": nome del rally stampato in alto ("" se illeggibile), "section": numero di sezione stampato ("" se assente), "date": data stampata ("" se assente), "legs": [ ... ] }
+{ "rally": nome del rally stampato in alto ("" se illeggibile), "section": numero di sezione stampato ("" se assente), "date": data stampata ("" se assente), "start": nome del controllo di PARTENZA della sezione con le parole dei navigatori (se la riga della prima tratta ha un campo di partenza "da:", copia quel testo, es. "Riordino OUT"; altrimenti il testo stampato accanto al codice del primo controllo; "" se non c'e'), "legs": [ ... ] }
 Ordina i legs dall'alto verso il basso come sono stampati.`;
 
 function json(obj, status, cors) {
@@ -62,7 +63,7 @@ export default {
 
     const MODEL = (env && env.MODEL && String(env.MODEL).trim()) || DEFAULT_MODEL;
     if (url.pathname === "/version") {
-      return new Response("iRally worker TABELLA v3 - modello: " + MODEL
+      return new Response("iRally worker TABELLA v4 - modello: " + MODEL
         + (env && env.MODEL ? " (da variabile MODEL)" : " (predefinito)"),
         { headers: { "content-type": "text/plain" } });
     }
