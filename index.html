@@ -835,7 +835,7 @@
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
   <p class="g-links"><a href="https://rally-scan.roberto-dapra5858.workers.dev/privacy" data-t="pwPrivacy"></a> &middot; <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" data-t="pwTerms"></a> &middot; <a href="https://rally-scan.roberto-dapra5858.workers.dev/support" data-t="gSupport"></a></p>
- <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-11-11.1</p>
+ <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-11-11.2</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -6922,6 +6922,9 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
     if(!lastCard.rally && nc.rally) lastCard.rally=nc.rally;
     if(!lastCard.section && nc.section) lastCard.section=nc.section;
     if(!lastCard.date && nc.date) lastCard.date=nc.date;
+    /* nome della partenza (worker tabella v4): vale solo quello della PRIMA pagina letta,
+       la seconda pagina comincia da un controllo intermedio */
+    if(!lastCard.legs.length && !lastCard.start && nc.start) lastCard.start=String(nc.start).trim();
     const have={}; lastCard.legs.forEach(L=>{ have[sig(L)]=1; });
     let added=0;
     (Array.isArray(nc.legs)?nc.legs:[]).forEach(L=>{ const s=sig(L); if(!have[s]){ lastCard.legs.push(L); have[s]=1; added++; } });
@@ -7042,10 +7045,25 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
        controllo, e ogni nome finiva sul controllo precedente (Cappella Fasani, che e' il CO 4, appariva
        sul CO 3C col suo 0:30). La partenza non e' il "to" di nessun leg: resta "Partenza sezione". */
     function descOf(code){ const L=legs.find(x=>x.to===code); return (L && !L.ss)?(L.desc||''):''; }
+    /* PROVE SPECIALI (11 nov 2026, scelto da Simone): titolo "Nome (PS 8)". Il nome viene da "ss",
+       la sigla da "sscode" (worker tabella v4); coi worker di prima la sigla si prende da dentro "ss"
+       ('PS 4 "Cappella Fasani 2"') o dal codice del controllo quando e' una PS ("PS 4"). */
+    function ssCode(c){ const m=String(c||'').match(/^\s*([PS])\.?\s*S\.?\s*(\d+[A-Za-z]?)\s*$/i); return m ? (m[1].toUpperCase()==='P'?'PS ':'SS ')+m[2].toUpperCase() : ''; }
+    function ssTitle(L){
+      let name=String(L.ss||'').trim(), code=ssCode(L.sscode);
+      const m=name.match(/^\s*([PS]\.?\s*S\.?\s*\d+[A-Za-z]?)(?![A-Za-z0-9])\s*[-\u2013:.,]?\s*/i);
+      if(m){ if(!code) code=ssCode(m[1]); name=name.slice(m[0].length).trim(); }
+      if(!code) code=ssCode(L.to);
+      name=name.replace(/^["\u201C\u201D'\u00AB\u00BB]+|["\u201C\u201D'\u00AB\u00BB]+$/g,'').trim();
+      if(!code) return name;
+      if(!name) return code;
+      if(new RegExp('(^|[^A-Za-z])'+code.replace(/\s+/g,'\\s*')+'(?![0-9A-Za-z])','i').test(name)) return name;   /* sigla gia' nel nome: non la ripeto */
+      return name+' ('+code+')';
+    }
     const controls=[];
     if(legs.length){
-      controls.push({code:legs[0].from, kind:'start', title:(descOf(legs[0].from)||'Partenza sezione')});
-      legs.forEach(L=>{ controls.push({code:L.to, kind:(L.ss?'ss':'ctrl'), target:L.target, ss:L.ss, km:L.km, title:(L.ss? L.ss : descOf(L.to))}); });
+      controls.push({code:legs[0].from, kind:'start', title:((card.start?String(card.start).trim():'')||descOf(legs[0].from)||'Partenza sezione')});
+      legs.forEach(L=>{ controls.push({code:L.to, kind:(L.ss?'ss':'ctrl'), target:L.target, ss:L.ss, km:L.km, title:(L.ss? ssTitle(L) : descOf(L.to))}); });
     }
     BANDS=controls;
 
