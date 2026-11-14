@@ -10,3 +10,11 @@ keep_vars = true
 # Modello della TABELLA DI MARCIA, versionato nel repo.
 [vars]
 MODEL = "gemini-3.1-flash-lite"
+
+# Contatore per il tetto di 50 scansioni al giorno per telefono.
+# Stesso namespace KV del radar ("rally-counters"), chiavi separate ("tc:...").
+# Deve stare QUI: un collegamento fatto solo dal pannello Cloudflare
+# sparisce al primo deploy automatico dal repo.
+[[kv_namespaces]]
+binding = "RALLY_KV"
+id = "dfda6f58e97a4a5fb0c7323e640cfe87"
