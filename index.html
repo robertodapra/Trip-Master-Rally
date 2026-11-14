@@ -835,7 +835,7 @@
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
   <p class="g-links"><a href="https://rally-scan.roberto-dapra5858.workers.dev/privacy" data-t="pwPrivacy"></a> &middot; <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" data-t="pwTerms"></a> &middot; <a href="https://rally-scan.roberto-dapra5858.workers.dev/support" data-t="gSupport"></a></p>
- <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-11-11.2</p>
+ <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-11-14.1</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -6916,6 +6916,33 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
   function persistSoon(){ clearTimeout(persistTimer); persistTimer=setTimeout(persist, 350); }
 
   function sig(L){ return (L.from||'')+'|'+(L.to||'')+'|'+(L.target||'')+'|'+(L.ss||''); }
+  /* UN TIMBRO = UN RIQUADRO (14 nov 2026, tabella Due Valli sez. 3). Regola generale, vale per
+     tutte le tabelle. Dove la PS ha una riga sua, l'AI la legge come due tratte ("CO 4 -> PS 4"
+     e "PS 4 -> CO 5"): l'app mostrava due timbri dove sulla carta ce n'e' uno solo, e il tempo
+     imposto finiva ora sull'una ora sull'altra (con l'altra a 00). Le due tratte diventano UNA,
+     nella stessa forma delle tabelle dove la PS sta gia' nella riga del controllo (RST
+     "SETTORE 21", Targa Florio "T.C. 3"): codice e timbro del controllo DOPO la PS, nome e km
+     della PS, il tempo imposto che c'e' ("00:00" = assente). Il calcolo BLOCCATO non cambia. */
+  function codeKey(c){ return String(c||'').replace(/[\s.]/g,'').toUpperCase(); }
+  function isPsCode(c){ return /^[PS]S\d+[A-Z]?$/.test(codeKey(c)); }
+  function hasTgt(v){ const m=String(v||'').match(/(\d{1,2})\D+(\d{1,2})/); return !!m && (+m[1]>0 || +m[2]>0); }
+  function joinSplitPS(legs){
+    const out=[];
+    for(let i=0;i<legs.length;i++){
+      const L=legs[i], N=legs[i+1];
+      if(N && isPsCode(L.to) && !isPsCode(N.to) && !N.ss && (!N.from || codeKey(N.from)===codeKey(L.to))){
+        out.push(Object.assign({}, N, {
+          from: L.from, to: N.to,
+          target: hasTgt(N.target) ? N.target : (hasTgt(L.target) ? L.target : ''),
+          ss: L.ss || String(L.to).trim(), sscode: L.sscode || String(L.to).trim(),
+          km: L.km || N.km || ''
+        }));
+        i++;
+      } else out.push(L);
+    }
+    /* foto sovrapposte: se la stessa PS c'e' sia unita sia ancora da sola, resta quella unita */
+    return out.filter(L => !(isPsCode(L.to) && out.some(M => M!==L && !isPsCode(M.to) && M.ss && codeKey(M.from)===codeKey(L.from) && codeKey(M.sscode)===codeKey(L.sscode||L.to))));
+  }
   function mergeCard(nc){
     if(!lastCard) lastCard={rally:'',section:'',date:'',legs:[]};
     if(!Array.isArray(lastCard.legs)) lastCard.legs=[];
@@ -6925,10 +6952,20 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
     /* nome della partenza (worker tabella v4): vale solo quello della PRIMA pagina letta,
        la seconda pagina comincia da un controllo intermedio */
     if(!lastCard.legs.length && !lastCard.start && nc.start) lastCard.start=String(nc.start).trim();
-    const have={}; lastCard.legs.forEach(L=>{ have[sig(L)]=1; });
-    let added=0;
-    (Array.isArray(nc.legs)?nc.legs:[]).forEach(L=>{ const s=sig(L); if(!have[s]){ lastCard.legs.push(L); have[s]=1; added++; } });
-    return added;
+    const before=lastCard.legs.length;
+    /* doppioni di una pagina riletta: come prima, stessa firma. In piu', con la PS unita, il pezzo
+       "PS 4 -> CO 5" di una rilettura ha un'altra firma ma un CO 5 che c'e' gia': non e' un timbro nuovo */
+    const haveSig={}, haveTo={};
+    lastCard.legs.forEach(L=>{ haveSig[sig(L)]=1; const k=codeKey(L.to); if(k) haveTo[k]=1; });
+    joinSplitPS(Array.isArray(nc.legs)?nc.legs:[]).forEach(L=>{
+      const s=sig(L), k=codeKey(L.to);
+      if(haveSig[s] || (k && haveTo[k] && isPsCode(L.from))) return;
+      lastCard.legs.push(L); haveSig[s]=1; if(k) haveTo[k]=1;
+    });
+    /* un timbro = un riquadro anche quando la PS e' in fondo a una foto e il controllo dopo
+       e' in cima alla seguente */
+    lastCard.legs=joinSplitPS(lastCard.legs);
+    return Math.max(0, lastCard.legs.length-before);
   }
   /* ===== SCANNER TABELLA DISATTIVATO (versione di prova): mostra la rotella, poi "non riuscito", non legge mai =====
      Per riattivarlo mettere TC_SCAN_OFF = false. */
