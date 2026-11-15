@@ -835,7 +835,7 @@
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
   <p class="g-links"><a href="https://rally-scan.roberto-dapra5858.workers.dev/privacy" data-t="pwPrivacy"></a> &middot; <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" data-t="pwTerms"></a> &middot; <a href="https://rally-scan.roberto-dapra5858.workers.dev/support" data-t="gSupport"></a></p>
- <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-11-14.1</p>
+ <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-11-15.1</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -5703,7 +5703,7 @@ function matchPick(bands, cys){
   }
   return { pick: out, free: at.filter(v => v < 0).length };
 }
-async function scanOnePage(img, fromPdf){
+async function scanOnePage(img, fromPdf, pdfBands){
   /* DUE PERCORSI SEPARATI (16 set 2026, richiesta di Roberto):
        - pagina resa da un PDF: immagine gia' perfetta, NESSUN trattamento
        - foto della fotocamera: contrasto + raddrizzamento (vedi prepPhoto)
@@ -5730,7 +5730,7 @@ async function scanOnePage(img, fromPdf){
   const data = await res.json();
   if(data.error) throw new Error(data.error);
   let rows = Array.isArray(data.rows) ? data.rows : [];
-  if(!rows.length) return { rb: [], gap: 0 };
+  if(!rows.length && !(Array.isArray(pdfBands) && pdfBands.length)) return { rb: [], gap: 0 };   /* col testo del PDF le righe ci sono anche se l'AI non ne vede */
   rows = rows.slice().sort((a,b)=> (parseInt(a.num,10)||0) - (parseInt(b.num,10)||0));
   /* FOTO A MANO (13 ott 2026): strisce raddrizzate a maglia (vedi PhotoTable). Il numero
      di riferimenti letto dall'AI serve solo a dire in quante parti va una cella unita.
@@ -5749,12 +5749,31 @@ async function scanOnePage(img, fromPdf){
     tbl.x1 = scanBounds.x1 * tbl.W;
   }
   let snapped = false;
+  /* RIGHE DAL TESTO DEL PDF (15 nov 2026, vedi planPdfBands): una striscia per ogni numerino
+     scritto nella pagina. Dall'AI si prendono solo i dati della riga con lo stesso numero
+     (o, se i numeri non tornano, nello stesso ordine); il Totale scritto nel PDF vince su
+     quello letto dall'AI. Le posizioni dell'AI qui non servono piu'. */
+  const fromText = !isPhoto && Array.isArray(pdfBands) && pdfBands.length > 0;
+  if(fromText){
+    const HH = img.naturalHeight || img.height;
+    let X0 = 0, X1 = 1000;
+    if(tbl && tbl.W){ X0 = tbl.x0*1000/tbl.W; X1 = tbl.x1*1000/tbl.W; }
+    else if(scanBounds){ X0 = scanBounds.x0*1000; X1 = scanBounds.x1*1000; }
+    const byNum = {};
+    rows.forEach(r => { const k = parseInt(r.num, 10); if(k && !byNum[k]) byNum[k] = r; });
+    const allNum = pdfBands.every(b => byNum[b.n]);
+    rows = pdfBands.map((b, i) => {
+      const r = allNum ? byNum[b.n] : (rows.length === pdfBands.length ? rows[i] : (byNum[b.n] || null));
+      return { num: String(b.n), km: b.km || (r && r.km != null ? r.km : ''), nota: r ? (r.nota || '') : '', box: [b.y0*1000/HH, X0, b.y1*1000/HH, X1] };
+    });
+    snapped = true;
+  }
   /* RIGHE CHE NON TORNANO (4 nov 2026): se sulla pagina (non foto) si trovano meno righe
      dei riferimenti letti, il taglio resta quello di sempre ma la pagina viene segnalata
      nel resoconto finale, cosi' si sa quali strisce controllare. */
   let short = null;
-  if(!isPhoto && !photoCrops && (!tbl || tbl.bands.length < rows.length)) short = { found: tbl ? tbl.bands.length : 0, want: rows.length };
-  if(tbl && tbl.bands.length){
+  if(!fromText && !isPhoto && !photoCrops && (!tbl || tbl.bands.length < rows.length)) short = { found: tbl ? tbl.bands.length : 0, want: rows.length };
+  if(!fromText && tbl && tbl.bands.length){
     const M = rows.length;
     const bands = tbl.bands;   /* gia' filtrate: solo righe dei riferimenti */
     const cyOf = r => okBox(r.rowbox) ? (r.rowbox[0]+r.rowbox[2])/2 : (okBox(r.box) ? (r.box[0]+r.box[2])/2 : (okBox(r.numbox) ? r.numbox[0] : null));
@@ -5919,7 +5938,7 @@ async function scanAIRunFiles(files, fromPdf, pageNums){
   async function readPage(i){
     try{
       const img = await loadImageFile(files[i]);
-      const r = await scanOnePage(img, !!fromPdf);
+      const r = await scanOnePage(img, !!fromPdf, files[i] && files[i].__bands);
       if(r.model && !info) info = r.model + (r.ms ? ' \u00B7 ' + Math.round(r.ms/1000) + 's' : '');
       if(!r.rb.length) bad[i] = { why: r.unreadable ? t('scanBlurry') : '0 riferimenti', retry: !r.unreadable };
       else { parts[i] = r.rb; delete bad[i]; if(r.gap) gaps.push(lbl(i)); if(r.short) shortP[i] = r.short; else delete shortP[i]; }
@@ -6398,11 +6417,129 @@ async function pdfRenderPageToBlob(pdf, pageNum, targetPx){
   canvas.height = Math.round(viewport.height);
   const ctx = canvas.getContext('2d');
   await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+  /* righe dal testo del PDF: solo per le pagine da leggere, non per le miniature */
+  let rowsInfo = null;
+  if((targetPx || 1800) >= 1000){ try{ rowsInfo = await pdfPageRowsInfo(page, viewport, ctx, canvas.width, canvas.height); }catch(e){ rowsInfo = null; } }
   const blob = await new Promise(res => canvas.toBlob(b => res(b), 'image/jpeg', 0.9));
   canvas.width = canvas.height = 0;
   try{ page.cleanup(); }catch(e){}
   if(!blob || blob.size < 3000) throw new Error('pagina non renderizzata');
+  if(rowsInfo){ try{ blob.__pdfRows = rowsInfo; }catch(e){} }
   return blob;
+}
+
+/* ===== STRISCE DAL TESTO DEL PDF (15 nov 2026) =====
+   Ogni riga del radar ha il suo numerino (16, 17, 18...) e quasi sempre il suo Totale, e nei
+   PDF fatti al computer sono scritti come TESTO, con la posizione esatta. Prima le righe si
+   cercavano solo sui pixel, aiutati dalle posizioni lette dall'AI: quando l'AI sbagliava di
+   mezza riga, o la pagina non aveva le linee fra le righe (Ticino p. 28, 29, 59, 80), una riga
+   spariva e tutte le strisce dopo scivolavano di una. Qui:
+     - una striscia per ogni numerino scritto nel PDF (anche le righe senza Totale, come la
+       partenza della PS a Schio p. 40);
+     - il taglio fra due righe e' la linea della tabella che sta fra i due numerini;
+     - dove la linea non c'e', il taglio va alla stessa distanza dal numerino che ha sulle
+       righe con la linea (stessa prova): le righe del radar sono tutte uguali.
+   Provato fuori dall'app su Ticino (145 righe), Schio (221), Galles (144) e Cassino (165):
+   tutte giuste. Le foto e i PDF fatti di sole immagini non hanno testo: restano come prima. */
+async function pdfPageRowsInfo(page, vp, ctx, W, H){
+  /* linee orizzontali: righe di pixel scure per almeno il 60% della pagina, sottili e con il
+     chiaro sopra e sotto (una foto o una mappa scura non e' una linea) */
+  const d = ctx.getImageData(0, 0, W, H).data;
+  const cnt = new Int32Array(H);
+  for(let y=0, i=0; y<H; y++){ let c = 0; for(let x=0; x<W; x++, i+=4){ if(d[i]*0.299 + d[i+1]*0.587 + d[i+2]*0.114 < 210) c++; } cnt[y] = c; }
+  const lines = [], lim = W*0.6;
+  for(let y=0; y<H; y++){
+    if(cnt[y] < lim) continue;
+    let e = y; while(e+1 < H && cnt[e+1] >= lim) e++;
+    const up = y-3 >= 0 ? cnt[y-3] : 0, dn = e+3 < H ? cnt[e+3] : 0;
+    if(e - y <= 8 && up < cnt[y]*0.5 && dn < cnt[e]*0.5) lines.push((y+e)/2);
+    y = e;
+  }
+  /* numeri scritti nel PDF, con il centro del carattere */
+  const tc = await page.getTextContent();
+  const nums = [];
+  for(const it of tc.items){
+    const s = String(it.str || '').trim();
+    if(!/^\d{1,3}([,.]\d{2})?$/.test(s)) continue;
+    const tr = it.transform, p = vp.convertToViewportPoint(tr[4], tr[5]);
+    const fh = Math.hypot(tr[2], tr[3]) * vp.scale;
+    nums.push({ s: s, x: p[0], y: p[1] - fh*0.35, dec: /[,.]/.test(s) });
+  }
+  /* numerini dei riferimenti: interi in colonna, in fila n, n+1, n+2... nella meta' sinistra,
+     ognuno con un Totale o un Parziale alla sua sinistra nella stessa riga. Senza questo, su una
+     pagina di sola mappa due numeri dell'intestazione ("Start P.S. 2", "C.O. 3") sembravano
+     due riferimenti (Schio p. 47) */
+  const decs0 = nums.filter(q => q.dec);
+  const ints = nums.filter(q => !q.dec && q.x < W*0.5 && decs0.some(d => d.x < q.x && Math.abs(d.y - q.y) < H*0.12));
+  let best = [];
+  for(const q0 of ints){
+    const col = ints.filter(q => Math.abs(q.x - q0.x) < W*0.012).sort((a,b) => a.y - b.y);
+    let run = [];
+    for(const q of col){
+      const lst = run[run.length-1];
+      if(!lst) run = [q];
+      else if(+q.s === +lst.s + 1 && q.y > lst.y) run.push(q);
+      else if(+q.s !== +lst.s) run = [q];
+      if(run.length > best.length) best = run.slice();
+    }
+  }
+  /* Totali: la colonna di decimali piu' a sinistra */
+  const decs = nums.filter(q => q.dec);
+  let tots = [];
+  if(decs.length){ const xm = Math.min.apply(null, decs.map(q => q.x)); tots = decs.filter(q => q.x < xm + W*0.02).sort((a,b) => a.y - b.y); }
+  return { W: W, H: H, lines: lines, refs: best.map(q => ({ n: +q.s, y: q.y })), tots: tots.map(q => ({ t: q.s, y: q.y })) };
+}
+function pdfMedian(a){ const b = a.slice().sort((x,y) => x-y); return b.length ? b[Math.floor(b.length/2)] : null; }
+/* piano delle strisce per tutte le pagine di UNA prova (stesso road book, stesse righe) */
+function planPdfBands(blobs){
+  const infos = blobs.map(b => (b && b.__pdfRows && b.__pdfRows.refs.length >= 2) ? b.__pdfRows : null);
+  /* il numerino e il Totale della stessa riga: si porta il numerino all'altezza del Totale
+     (in certi road book il testo del numerino sta a cavallo della linea) */
+  const sh = [];
+  infos.forEach(p => { if(p && p.tots.length === p.refs.length) p.refs.forEach((r, i) => sh.push(r.y - p.tots[i].y)); });
+  const SHIFT = sh.length ? pdfMedian(sh) : 0;
+  infos.forEach(p => { if(p) p.anc = p.refs.map(r => r.y - SHIFT); });
+  /* ogni numerino: la linea subito sopra e subito sotto, senza scavalcare i numerini vicini.
+     Fra due righe ci puo' essere una mappa o una foto aerea (Schio p. 65): conta la linea
+     attaccata alla riga, non quella dopo la mappa. */
+  infos.forEach(p => { if(!p) return; const a = p.anc, L = p.lines;
+    p.up = a.map((y, k) => { const lo = k ? a[k-1] : -1e9, c = L.filter(l => l < y-2 && l > lo+2); return c.length ? Math.max.apply(null, c) : null; });
+    p.dn = a.map((y, k) => { const hi = k < a.length-1 ? a[k+1] : 1e9, c = L.filter(l => l > y+2 && l < hi-2); return c.length ? Math.min.apply(null, c) : null; }); });
+  /* misure della prova, dove le linee ci sono: altezza della riga e posto del numerino nella riga */
+  const hs = [], ab = [], be = [];
+  infos.forEach(p => { if(!p) return; p.anc.forEach((y, k) => { if(p.up[k] != null && p.dn[k] != null){ hs.push(p.dn[k] - p.up[k]); ab.push(y - p.up[k]); be.push(p.dn[k] - y); } }); });
+  const M = { rowH: pdfMedian(hs), above: pdfMedian(ab), below: pdfMedian(be) };
+  blobs.forEach((b, i) => { const p = infos[i]; if(!p) return; const bands = pdfBandsOf(p, M); if(bands){ try{ b.__bands = bands; }catch(e){} } });
+}
+function pdfBandsOf(p, M){
+  const a = p.anc, n = a.length;
+  let rowH = M.rowH, above = M.above, below = M.below;
+  if(rowH == null){
+    /* nessuna riga con le linee in tutta la prova: righe uguali, misurate sulla pagina
+       (passo fra i numerini e linea sotto l'intestazione) */
+    const g = []; for(let k=1; k<n; k++) g.push(a[k] - a[k-1]);
+    const P = pdfMedian(g);
+    if(!(P > 10) || p.up[0] == null || a[0] - p.up[0] > 1.6*P) return null;
+    rowH = P; above = a[0] - p.up[0]; below = P - above;
+  }
+  const out = [];
+  for(let k=0; k<n; k++){
+    let y0 = p.up[k], y1 = p.dn[k];
+    /* una linea troppo lontana non e' il bordo di questa riga (sopra o sotto c'e' altro) */
+    if(y0 != null && a[k] - y0 > rowH*1.6) y0 = null;
+    if(y1 != null && y1 - a[k] > rowH*1.6) y1 = null;
+    if(y0 == null) y0 = a[k] - above;   /* linea non stampata: stessa distanza delle altre righe */
+    if(y1 == null) y1 = a[k] + below;
+    out.push([Math.max(0, y0), Math.min(p.H, y1)]);
+  }
+  for(let k=1; k<n; k++) if(out[k][0] < out[k-1][1]){ const m = (out[k][0] + out[k-1][1]) / 2; out[k-1][1] = m; out[k][0] = m; }
+  for(let k=0; k<n; k++) if(!(out[k][1] - out[k][0] > rowH*0.3) || !(a[k] > out[k][0] && a[k] < out[k][1])) return null;   /* qualcosa non torna: metodo di prima */
+  return p.refs.map((r, k) => {
+    const y0 = out[k][0], y1 = out[k][1], ts = p.tots.filter(q => q.y > y0 && q.y < y1);
+    /* riga con due Totali (zona da ... a ...): vale quello accanto al numerino */
+    const t = ts.length ? ts.reduce((x, q) => Math.abs(q.y - a[k]) < Math.abs(x.y - a[k]) ? q : x) : null;
+    return { y0: y0, y1: y1, n: r.n, km: t ? t.t : '' };
+  });
 }
 
 let pdfImpDoc = null;
@@ -6623,6 +6760,7 @@ async function pdfImpRun(pdf, jobs, folderId){
         pendingAppend = !!j.append;
         pendingFolder = folderId;
         pendingMaxKm = j.km;
+        try{ planPdfBands(blobs); }catch(e){}   /* righe dal testo del PDF, per tutta la prova */
         r = await scanAIRunFiles(blobs, true, nums);   /* pagine da PDF: percorso senza trattamento foto */
         pendingMaxKm = null;
       }
