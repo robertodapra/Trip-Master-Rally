@@ -835,7 +835,7 @@
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
   <p class="g-links"><a href="https://rally-scan.roberto-dapra5858.workers.dev/privacy" data-t="pwPrivacy"></a> &middot; <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" data-t="pwTerms"></a> &middot; <a href="https://rally-scan.roberto-dapra5858.workers.dev/support" data-t="gSupport"></a></p>
- <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-11-15.1</p>
+ <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-11-16.1</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -3082,6 +3082,15 @@ if(typeof cfg.tunnel !== 'boolean') cfg.tunnel = true;
 if(typeof cfg.autoReset !== 'boolean') cfg.autoReset = true;
 if(typeof cfg.h24 !== 'boolean') cfg.h24 = true;
 if(typeof cfg.ssActive !== 'string') cfg.ssActive = '';
+/* OGNI PROVA HA UN SUO CODICE (16 nov 2026). Prima la prova si riconosceva solo dal nome:
+   importando "ps2" di Casciana Terme veniva sovrascritta la "ps2" del Ticino, in un'altra
+   cartella. Adesso due prove con lo stesso nome in cartelle diverse restano separate, e la
+   prova caricata in Radar si riconosce dal codice, non dal nome. */
+cfg.ssLib.forEach(ss => { if(ss && !ss.id) ss.id = ssNewId(); });
+if(typeof cfg.ssActiveId !== 'string') cfg.ssActiveId = '';
+if(cfg.ssActive && !cfg.ssActiveId){ const a = cfg.ssLib.find(x => x && x.name === cfg.ssActive); if(a) cfg.ssActiveId = a.id; }
+function ssNewId(){ return 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+function ssIsActive(ss){ return !!ss && (cfg.ssActiveId ? ss.id === cfg.ssActiveId : (!!cfg.ssActive && cfg.ssActive === ss.name)); }
 if(!cfg.lay || typeof cfg.lay !== 'object') cfg.lay = {arr:'top'};
 if(!['top','left','right'].includes(cfg.lay.arr)) cfg.lay.arr = 'top';
 if(![0,1,2].includes(cfg.numSize)) cfg.numSize = 1;
@@ -4172,6 +4181,8 @@ function loadStage(i){
   const ss=cfg.ssLib[i]; if(!ss) return;
   cfg.rb=JSON.parse(JSON.stringify(ss.rb||[]));
   cfg.ssActive=ss.name;
+  if(!ss.id) ss.id=ssNewId();
+  cfg.ssActiveId=ss.id;
   rbPassedIdx=null; radShownIdx=-2; rbOffset=0;
   updateSsBadge(); saveCfg(); buildSsList();
   showToast('\u201C'+ss.name+'\u201D \u2014 '+t('ssLoadedMsg'));
@@ -4202,7 +4213,7 @@ function showStageDetail(i){
       showConfirm(t('rbDelRef').replace('{n}', idx+1), ()=>{
         imgDel(r.img);
         ss.rb.splice(idx,1);
-        if(cfg.ssActive===ss.name){ cfg.rb = JSON.parse(JSON.stringify(ss.rb)); radShownIdx=-2; updateSsBadge(); }
+        if(ssIsActive(ss)){ cfg.rb = JSON.parse(JSON.stringify(ss.rb)); radShownIdx=-2; updateSsBadge(); }
         saveCfg(); uiClose(ov); showStageDetail(i);
       }, t('rbDelOk'), 'var(--red,#e5484d)');
     });
@@ -4211,7 +4222,7 @@ function showStageDetail(i){
   });
   const bw=document.createElement('div'); bw.style.cssText='display:flex;flex-direction:column;gap:8px;margin-top:14px';
   const lo=document.createElement('button'); lo.textContent=t('ssLoad'); lo.style.cssText='padding:12px;border-radius:10px;background:var(--green,#39d353);border:none;color:#000;font-weight:800'; lo.addEventListener('click',()=>{ uiClose(ov); loadStage(i); });
-  const ad=document.createElement('button'); ad.textContent='+ '+t('rbAddScan'); ad.style.cssText='padding:12px;border-radius:10px;background:var(--btnbg,#222);border:2px solid var(--amber);color:var(--amber);font-weight:800'; ad.addEventListener('click',()=>{ if(!proGate()) return; /* la schermata resta aperta sotto il selettore foto; al ritorno viene ridisegnata coi nuovi riferimenti */ pendingDetail={ov:ov, idx:i}; pendingStageName=ss.name; pendingAppend=true; $('aiFile').click(); });
+  const ad=document.createElement('button'); ad.textContent='+ '+t('rbAddScan'); ad.style.cssText='padding:12px;border-radius:10px;background:var(--btnbg,#222);border:2px solid var(--amber);color:var(--amber);font-weight:800'; ad.addEventListener('click',()=>{ if(!proGate()) return; /* la schermata resta aperta sotto il selettore foto; al ritorno viene ridisegnata coi nuovi riferimenti */ pendingDetail={ov:ov, idx:i}; pendingStageName=ss.name; pendingStageObj=ss; pendingAppend=true; $('aiFile').click(); });
   const cl=document.createElement('button'); cl.textContent=t('close'); cl.style.cssText='padding:12px;border-radius:10px;background:var(--btnbg,#222);border:1px solid var(--line,#333);color:var(--text,#eee)'; cl.addEventListener('click',()=>uiClose(ov));
   bw.appendChild(lo); bw.appendChild(ad); bw.appendChild(cl); box.appendChild(bw);
 }
@@ -4221,9 +4232,9 @@ function ssEsc(x){ return String(x==null?'':x).replace(/[&<>"']/g, c=>({'&':'&am
 function ssFolders(){ if(!Array.isArray(cfg.ssFolders)) cfg.ssFolders=[]; return cfg.ssFolders; }
 function ssRow(ss,i){
   const row=document.createElement('div'); row.className='ss-row';
-  if(cfg.ssActive===ss.name) row.style.borderColor='var(--green)';
+  if(ssIsActive(ss)) row.style.borderColor='var(--green)';
   const name=document.createElement('span'); name.className='ss-name'; name.style.cursor='pointer';
-  name.textContent=ss.name+(cfg.ssActive===ss.name?' \u2713':'');
+  name.textContent=ss.name+(ssIsActive(ss)?' \u2713':'');
   name.addEventListener('click',()=>showStageDetail(i));
   const loadBtn=document.createElement('button'); loadBtn.textContent=t('ssLoad'); loadBtn.addEventListener('click',()=>loadStage(i));
   const moreBtn=document.createElement('button'); moreBtn.textContent='\u22EF'; moreBtn.title=t('ssMore');
@@ -4274,7 +4285,7 @@ function ssMenu(i){
   mk('\u2715  '+t('ssDelete'), 'var(--red,#e5484d)', ()=>{
     uiClose(ov);
     showConfirm(t('ssDelAsk')+' \u201C'+ss.name+'\u201D?',()=>{
-      if(cfg.ssActive===cfg.ssLib[i].name){ cfg.ssActive=''; cfg.rb=[]; updateSsBadge(); }
+      if(ssIsActive(cfg.ssLib[i])){ cfg.ssActive=''; cfg.ssActiveId=''; cfg.rb=[]; updateSsBadge(); }
       imgDelStage(cfg.ssLib[i]);
       cfg.ssLib.splice(i,1); saveCfg(); buildSsList();
     });
@@ -4285,9 +4296,9 @@ function ssRename(i){
   const ss=cfg.ssLib[i]; if(!ss) return;
   askName(ss.name, function(name){
     if(!name) return;
-    const old=ss.name;
+    const wasActive=ssIsActive(ss);
     ss.name=name;
-    if(cfg.ssActive===old) cfg.ssActive=name;
+    if(wasActive) cfg.ssActive=name;
     saveCfg(); updateSsBadge(); buildSsList();
   }, 'askStageName');
 }
@@ -4319,6 +4330,7 @@ let pendingAppend = false;
 let pendingMaxKm = null;   /* solo importazione PDF: km della prova letti dal titolo */
 let pendingDetail = null;  /* dettaglio prova aperto durante "+ Aggiungi scan": da ridisegnare al ritorno */
 let pendingFolder = null;  /* importazione PDF: cartella della gara in cui mettere le prove */
+let pendingStageObj = null; /* "+ Aggiungi scan": la prova ESATTA a cui aggiungere (non una omonima in un'altra cartella) */
 let scanBounds = null;     /* bordi laterali validi per tutte le pagine della prova */
 
 $('ssNew').addEventListener('click', ()=>{
@@ -4402,7 +4414,7 @@ async function doImport(parsed, merge){
       (parsed.ssLib||[]).forEach(ss=>{
         let nm = ss.name || 'prova';
         if(names.has(nm)){ let k=2; while(names.has(nm+' ('+k+')')) k++; nm = nm+' ('+k+')'; }
-        names.add(nm); out.ssLib.push(Object.assign({}, ss, {name:nm}));
+        names.add(nm); out.ssLib.push(Object.assign({}, ss, {name:nm, id:undefined}));   /* codice nuovo all'avvio: lo stesso file importato due volte non deve dare due prove con lo stesso codice */
       });
       if(Array.isArray(parsed.tdm)){ if(!Array.isArray(out.tdm)) out.tdm=[]; parsed.tdm.forEach(x=>out.tdm.push(x)); }
     } else {
@@ -4991,7 +5003,22 @@ function detectTable(img, hint){   /* hint: {y:[...], photo:bool} — posizioni 
     const backed = (!photo && hintY.length) ? keep.filter(b => hintY.some(y => y >= b[0] && y < b[1])) : [];
     /* solo sui confini che sono LINEE vere: il bordo di una foto non dice dove finisce la tabella */
     const realLine = y => hAll.some(v => Math.abs(v - y) <= Math.max(3, H*0.004));
-    (backed.length ? backed : keep).forEach(b=>{ [b[0], b[1]].forEach(y=>{ if(!realLine(y)) return; const e=lineExtent(y); if(e && (e[1]-e[0])>W*0.4){ st.push(e[0]); en.push(e[1]); } }); });
+    /* LINEE CON UN BUCO (Casciana Terme, 16 nov 2026): fra DIREZIONE e INFORMAZIONI c'e' la
+       colonnina "A/T" e li' la linea della riga non e' stampata. Il tratto piu' lungo finiva a
+       DIREZIONE e la striscia perdeva tutta la colonna INFORMAZIONI. Come sulle foto
+       (PhotoTable.extendCurves), un buco fino al 3% della pagina non interrompe la linea: la
+       tabella arriva fino al bordo vero, poi si toglie la colonna KM REGR. come sempre. */
+    const lineExtentJ=(y)=>{
+      const yy=Math.round(y), gapMax=Math.round(W*0.03); let best=null, st=-1, last=-1;
+      for(let x=0;x<=W;x++){
+        let on=false;
+        if(x<W){ for(let k=-1;k<=1;k++){ const yk=yy+k; if(yk>=0 && yk<H && darkH[yk*W+x]){ on=true; break; } } }
+        if(on){ if(st<0) st=x; last=x; }
+        else if(st>=0 && (x-last>gapMax || x===W)){ if(!best || (last-st)>(best[1]-best[0])) best=[st, last]; st=-1; }
+      }
+      return best;
+    };
+    (backed.length ? backed : keep).forEach(b=>{ [b[0], b[1]].forEach(y=>{ if(!realLine(y)) return; const e=lineExtentJ(y); if(e && (e[1]-e[0])>W*0.4){ st.push(e[0]); en.push(e[1]); } }); });
     if(!st.length) return null;
     const pick=(arr)=>{ const t=arr.slice().sort((p,q)=>p-q); return t[Math.floor(t.length/2)]; };
     const tabL=pick(st), tabR=pick(en);
@@ -5896,7 +5923,9 @@ async function scanOnePage(img, fromPdf, pdfBands){
 async function scanAIRunFiles(files, fromPdf, pageNums){
   const name = pendingStageName;
   const append = pendingAppend;
-  pendingStageName = null; pendingAppend = false;
+  const target = pendingStageObj;
+  const targetFolder = pendingFolder || ssCurFolder || null;   /* cartella in cui finisce una prova nuova */
+  pendingStageName = null; pendingAppend = false; pendingStageObj = null;
   /* resoconto per chi chiama: l'importazione PDF lo usa per UN solo avviso finale */
   const report = { name: name, saved: 0, failed: [], why: [], gaps: [], rows: [] };
   if(!files.length || !name) return report;
@@ -5974,8 +6003,12 @@ async function scanAIRunFiles(files, fromPdf, pageNums){
     if(!pageNums) showMsg('\u26A0\uFE0F ' + (n>1 ? t('scanNone') : t('scanConnErr')) + (why.length ? '\n(' + why.join(' \u00B7 ') + ')' : ''));
     return report;
   }
-  let stage = cfg.ssLib.find(x => x.name === name);
-  if(!stage){ stage = { name: name, rb: [] }; const fld = pendingFolder || ssCurFolder; if(fld) stage.folder = fld; cfg.ssLib.push(stage); }
+  /* la prova si cerca SOLO nella sua cartella: una omonima in un'altra cartella (Ticino "ps2"
+     contro Casciana "ps2") e' un'altra prova e non va toccata. "+ Aggiungi scan" sa gia' quale. */
+  let stage = (append && target && cfg.ssLib.indexOf(target) >= 0) ? target
+    : cfg.ssLib.find(x => x.name === name && (x.folder || null) === targetFolder);
+  if(!stage){ stage = { id: ssNewId(), name: name, rb: [] }; if(targetFolder) stage.folder = targetFolder; cfg.ssLib.push(stage); }
+  if(!stage.id) stage.id = ssNewId();
   stage.rb = append ? (stage.rb || []).concat(all) : all;
   if(pendingMaxKm != null){
     /* importazione da PDF: il roadbook include spesso il trasferimento dopo il fine prova.
@@ -5989,7 +6022,8 @@ async function scanAIRunFiles(files, fromPdf, pageNums){
   }
   stage.rb.sort((a,b)=> (parseKm(a.km)||0) - (parseKm(b.km)||0));
   cfg.rb = JSON.parse(JSON.stringify(stage.rb));
-  cfg.ssActive = name;
+  cfg.ssActive = stage.name;
+  cfg.ssActiveId = stage.id;
   rbPassedIdx = null; radShownIdx = -2; rbOffset = 0; radManualIdx = null; radManualAhead = false;
   updateSsBadge();
   const ok = saveCfg();
@@ -6020,7 +6054,7 @@ function loadImageFile(f){
 }
 $('aiFile').addEventListener('change', e=>{
   const files = Array.from(e.target.files || []);
-  if(!files.length){ e.target.value = ''; pendingStageName = null; pendingAppend = false; pendingDetail = null; return; }
+  if(!files.length){ e.target.value = ''; pendingStageName = null; pendingAppend = false; pendingStageObj = null; pendingDetail = null; return; }
   const det = pendingDetail; pendingDetail = null;
   window.__scanBusy(true, t('scanReading'));   /* rotellina subito, prima ancora di aprire le foto */
   scanAIRunFiles(files).catch(function(err){ showMsg('\u26A0\uFE0F ' + t('scanConnErr')); })
