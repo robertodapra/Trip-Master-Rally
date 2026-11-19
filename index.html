@@ -824,6 +824,9 @@
   <button class="drawer-item" id="drvTdm"><span class="dic"><svg viewBox="0 0 24 24"><rect x="4" y="4.5" width="16" height="15" rx="2"/><path d="M4 9.5h16M4 14.5h16M12 9.5v10"/></svg></span><span class="dtt" data-t="navTdm"></span><span class="dgo">&rsaquo;</span></button>
   <button class="drawer-item" id="drvCalc"><span class="dic"><svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M8.5 7.5h7M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 15.5h.01M12 15.5h.01M15.5 15.5h.01"/></svg></span><span class="dtt" data-t="navCalc"></span><span class="dgo">&rsaquo;</span></button>
 
+  <div class="dgrp" data-t="spGrp"></div>
+  <button class="drawer-item" id="drvSpect"><span class="dic"><svg viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7"/><path d="M12 13.5V10M10 3.5h4M12 3.5v3M17.6 7.9l1.5-1.5"/></svg></span><span class="dtt" data-t="spNav"></span><span class="dgo">&rsaquo;</span></button>
+
   <div class="dgrp" data-t="grpGen"></div>
   <button class="drawer-item" id="drvSet"><span class="dic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M4.2 7l2.6 1.5M17.2 15.5l2.6 1.5M4.2 17l2.6-1.5M17.2 8.5l2.6-1.5"/></svg></span><span class="dtt" data-t="drvSet"></span><span class="dgo">&rsaquo;</span></button>
   <button class="drawer-item" id="drvInfo"><span class="dic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.7 1.1c0 1.7-2.3 2-2.3 3.4"/><circle cx="12" cy="17" r=".9" fill="currentColor" stroke="none"/></svg></span><span class="dtt" data-t="guideMenu"></span><span class="dgo">&rsaquo;</span></button>
@@ -835,7 +838,7 @@
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
   <p class="g-links"><a href="https://rally-scan.roberto-dapra5858.workers.dev/privacy" data-t="pwPrivacy"></a> &middot; <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" data-t="pwTerms"></a> &middot; <a href="https://rally-scan.roberto-dapra5858.workers.dev/support" data-t="gSupport"></a></p>
- <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-11-16.1</p>
+ <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-11-19.1</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -902,6 +905,132 @@
   <input type="file" id="pdfFile" accept="application/pdf" style="display:none">
   <button class="okbtn" id="closeNav" data-t="close"></button>
 </div>
+
+<!-- ============ SPETTATORE: INTERMEDI ============ -->
+<style>
+#spectOv [hidden],#spPv[hidden]{display:none!important}
+#spectOv h2{padding-right:0;min-height:0}
+#spectOv .sp-hbtns{display:flex;gap:8px;flex-shrink:0}
+#spectOv .sp-newbtn{width:100%;padding:16px;border-radius:12px;font-size:17px;font-weight:800;background:var(--btnbg);border:2px solid var(--green);color:var(--green);margin:4px 0 16px}
+#spStages{display:flex;flex-direction:column;gap:8px}
+#spectOv .sp-srow{display:flex;align-items:center;gap:10px;background:var(--btnbg);border:1px solid var(--line);border-radius:10px;padding:10px 10px 10px 12px;cursor:pointer}
+#spectOv .sp-smain{flex:1;min-width:0}
+#spectOv .sp-sname{font-size:15px;font-weight:700;word-break:break-word;color:var(--text)}
+#spectOv .sp-smeta{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:2px}
+#spectOv .sp-more{flex-shrink:0;background:none;border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-size:18px;font-weight:800;letter-spacing:1px;color:var(--text)}
+.sp-tag{display:inline-block;font-size:9.5px;letter-spacing:.12em;font-weight:800;color:var(--amber);border:1px solid var(--amber);border-radius:5px;padding:1px 5px;margin-left:6px;vertical-align:2px;white-space:nowrap;text-transform:none}
+#spectOv.sp-running{overflow:hidden;padding-bottom:0}
+#spRun{flex:1;min-height:0;display:flex;flex-direction:column}
+#spectOv .sp-rhead{display:flex;align-items:center;gap:10px;min-height:46px;margin-bottom:8px;flex-shrink:0}
+#spectOv .sp-back{width:38px;height:38px;flex-shrink:0;border-radius:50%;background:var(--btnbg);border:1px solid var(--line);font-size:26px;line-height:1;padding:0 0 3px;color:var(--text)}
+#spectOv .sp-titlebox{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:1px}
+#spectOv .sp-title{max-width:100%;font-size:16px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#spectOv .sp-place{max-width:100%;background:none;border:0;font-size:12.5px;color:var(--muted);text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:1px 0}
+#spectOv .sp-place.sp-empty{color:var(--blue);font-weight:600}
+#spectOv .sp-watch{flex-shrink:0;background-color:var(--panel);border:1px solid var(--line);border-radius:14px;padding:8px 14px 10px;text-align:center}
+body[data-theme="dark"] #spectOv .sp-watch{background-image:var(--carbon)}
+#spectOv .sp-wlbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700}
+#spectOv .sp-wnum{font-family:var(--mono);font-size:clamp(42px,14.5vw,64px);font-weight:800;color:var(--amber);font-variant-numeric:tabular-nums;line-height:1.12;letter-spacing:.02em}
+#spectOv .sp-watch.sp-idle .sp-wnum{color:var(--amber-dim)}
+#spectOv .sp-wnext{font-size:13px;color:var(--muted);min-height:18px;line-height:1.4}
+#spectOv .sp-wnext b{color:var(--text);font-weight:700}
+#spectOv .sp-entry{flex-shrink:0;display:flex;gap:8px;align-items:flex-start;margin-top:10px}
+#spInName{flex:1;min-width:0;height:54px;padding:0 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--inputbg);color:var(--text);font-size:17px;font-weight:600;user-select:text;-webkit-user-select:text}
+#spInName::placeholder{color:var(--muted);font-weight:500}
+#spInName:focus{outline:none;border-color:var(--amber)}
+#spectOv .sp-dbox{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px}
+#spectOv .sp-dctl{display:flex;align-items:center;height:54px;border:1.5px solid var(--line);border-radius:12px;background:var(--inputbg);overflow:hidden}
+#spectOv .sp-dctl button{width:40px;height:100%;background:none;border:0;font-size:24px;font-weight:700;color:var(--text)}
+#spectOv .sp-dctl b{min-width:58px;text-align:center;font-family:var(--mono);font-size:18px;font-weight:800;color:var(--green);font-variant-numeric:tabular-nums}
+#spectOv .sp-dbox.sp-changed .sp-dctl{border-color:var(--amber)}
+#spectOv .sp-dbox.sp-changed .sp-dctl b{color:var(--amber)}
+#spectOv .sp-dcap{font-size:10.5px;color:var(--muted);letter-spacing:.03em;white-space:nowrap}
+#spRows{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;margin-top:12px;padding-bottom:8px;display:flex;flex-direction:column;gap:6px}
+#spectOv .sp-row{display:flex;align-items:center;gap:10px;background-color:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 12px;min-height:56px;cursor:pointer;flex-shrink:0}
+#spectOv .sp-row.sp-lead{border-color:var(--amber)}
+#spectOv .sp-row.sp-new{animation:spNewRow 1.8s ease-out}
+@keyframes spNewRow{0%{border-color:var(--amber);box-shadow:inset 0 0 0 2px var(--amber)}100%{border-color:var(--line);box-shadow:none}}
+#spectOv .sp-rk{width:26px;flex-shrink:0;font-family:var(--mono);font-weight:800;font-size:16px;color:var(--amber);text-align:center;font-variant-numeric:tabular-nums}
+#spectOv .sp-who{flex:1;min-width:0}
+#spectOv .sp-nm{font-size:16px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#spectOv .sp-meta{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#spectOv .sp-gap{flex-shrink:0;font-family:var(--mono);font-size:21px;font-weight:800;font-variant-numeric:tabular-nums}
+#spectOv .sp-gap.sp-neg{color:var(--green)}
+#spectOv .sp-gap.sp-pos{color:var(--red)}
+#spectOv .sp-gap.sp-zero{color:var(--amber)}
+#spectOv .sp-bar{flex-shrink:0;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:8px 0 calc(12px + env(safe-area-inset-bottom))}
+#spectOv .sp-side{justify-self:start;display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:6px 4px}
+#spectOv .sp-side svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#spectOv .sp-side:disabled{opacity:.3}
+#spectOv .sp-side.sp-right{justify-self:end}
+#spectOv .sp-shutter{width:86px;height:86px;border-radius:50%;border:4px solid var(--text);background:none;padding:5px;display:flex;align-items:center;justify-content:center;touch-action:manipulation}
+#spectOv .sp-disc{display:block;width:100%;height:100%;border-radius:50%;background:var(--amber);transition:transform .08s ease-out}
+#spectOv .sp-shutter.sp-down .sp-disc{transform:scale(.84)}
+#spectOv .sp-shutter:disabled{opacity:.3}
+#spFlash{position:fixed;inset:0;background:rgba(255,180,0,.22);opacity:0;pointer-events:none;transition:opacity .4s ease-out;z-index:14}
+#spFlash.sp-on{opacity:1;transition:none}
+#spPv{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:max(18px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom))}
+#spPv .sp-pvbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;width:100%;max-width:440px;max-height:100%;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
+#spPv img{display:block;width:100%;height:auto;border-radius:8px;-webkit-touch-callout:default;user-select:auto;-webkit-user-select:auto}
+#spPv p{margin:0;text-align:center;font-size:13px;color:var(--muted)}
+.sp-dlg h3{font-size:16px;font-weight:800;color:var(--amber);margin:0 0 10px;line-height:1.35}
+.sp-dlg p{font-size:14px;line-height:1.55;margin:0 0 14px;white-space:pre-line;color:var(--text)}
+.sp-dlg .sp-in{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--inputbg);color:var(--text);font-size:16px;margin-bottom:14px;user-select:text;-webkit-user-select:text}
+.sp-dlg .sp-btns{display:flex;gap:10px}
+.sp-dlg .sp-btns button,.sp-dlg .sp-vbtns button{flex:1;padding:12px 8px;border-radius:10px;font-weight:700;border:1px solid var(--line);background:var(--btnbg);color:var(--text);font-size:15px}
+.sp-dlg .sp-vbtns{display:flex;flex-direction:column;gap:8px}
+.sp-dlg .sp-vbtns button{padding:13px}
+.sp-dlg .sp-btns .sp-ok,#spPv .sp-ok{background:var(--green);border-color:var(--green);color:#000;font-weight:800}
+body[data-theme="light"] .sp-dlg .sp-btns .sp-ok,body[data-theme="light"] #spPv .sp-ok{color:#fff}
+.sp-dlg .sp-btns .sp-danger{background:var(--red);border-color:var(--red);color:#fff;font-weight:800}
+.sp-dlg .sp-vbtns .sp-dangertxt{color:var(--red)}
+.sp-dlg .sp-vbtns .sp-refb{color:var(--amber);border-color:var(--amber)}
+.sp-dlg .sp-vbtns button:disabled{opacity:.55}
+.sp-dlg .sp-chips{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+.sp-dlg .sp-chips button{padding:12px 2px;border-radius:10px;border:1.5px solid var(--line);background:var(--btnbg);font-family:var(--mono);font-size:17px;font-weight:800;color:var(--text)}
+.sp-dlg .sp-chips button.sp-sel{border-color:var(--green);color:var(--green)}
+.sp-dlg .sp-step{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:16px}
+.sp-dlg .sp-step button{width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:var(--btnbg);font-size:24px;font-weight:700;color:var(--text)}
+.sp-dlg .sp-step b{min-width:118px;text-align:center;font-family:var(--mono);font-size:30px;font-weight:800;color:var(--green);font-variant-numeric:tabular-nums}
+.sp-dlg .sp-kmrow{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:15px;color:var(--muted);font-weight:600}
+.sp-dlg .sp-kmrow input{width:86px;padding:11px 8px;border-radius:10px;border:1px solid var(--line);background:var(--inputbg);color:var(--text);font-family:var(--mono);font-size:18px;font-weight:800;text-align:center;user-select:text;-webkit-user-select:text}
+@media (prefers-reduced-motion: reduce){ #spectOv .sp-row.sp-new{animation:none} #spectOv .sp-disc{transition:none} }
+</style>
+<div class="overlay" id="spectOv">
+  <div id="spList">
+    <div class="tdm-head"><h2 data-t="spNav"></h2><span class="sp-hbtns"><button class="tdm-i" id="spHelp" type="button">i</button><button class="tdm-i" id="spClose" type="button" data-act="close">&#10005;</button></span></div>
+    <p class="small" data-t="spDesc"></p>
+    <button class="sp-newbtn" id="spNew" type="button">+ <span data-t="spNew"></span></button>
+    <div id="spStages"></div>
+    <p class="small" id="spEmpty" data-t="spEmpty" hidden></p>
+  </div>
+  <div id="spRun" hidden>
+    <div class="sp-rhead">
+      <button class="sp-back" id="spBack" type="button" aria-label="Back">&lsaquo;</button>
+      <div class="sp-titlebox"><div class="sp-title" id="spName"></div><button class="sp-place" id="spPlace" type="button"></button></div>
+    </div>
+    <div class="sp-watch sp-idle" id="spWatch">
+      <div class="sp-wlbl" data-t="spSince"></div>
+      <div class="sp-wnum" id="spWNum">0:00,0</div>
+      <div class="sp-wnext" id="spWNext"></div>
+    </div>
+    <div class="sp-entry" id="spEntry">
+      <input id="spInName" type="text" autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false" enterkeyhint="done" maxlength="40">
+      <div class="sp-dbox" id="spDBox" hidden>
+        <div class="sp-dctl"><button id="spDMinus" type="button" aria-label="-">&minus;</button><b id="spDVal">+1'</b><button id="spDPlus" type="button" aria-label="+">+</button></div>
+        <span class="sp-dcap" data-t="spAfterPrev"></span>
+      </div>
+    </div>
+    <div id="spRows"></div>
+    <div class="sp-bar">
+      <button class="sp-side" id="spUndo" type="button" disabled><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg><span data-t="spUndo"></span></button>
+      <button class="sp-shutter" id="spShot" type="button" aria-label="Tempo"><span class="sp-disc"></span></button>
+      <button class="sp-side sp-right" id="spExport" type="button" disabled><svg viewBox="0 0 24 24"><path d="M12 15V4"/><path d="m7.5 8.5 4.5-4.5 4.5 4.5"/><path d="M6 11.5H5a1 1 0 0 0-1 1V20a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7.5a1 1 0 0 0-1-1h-1"/></svg><span data-t="spExport"></span></button>
+    </div>
+  </div>
+</div>
+<div id="spFlash"></div>
+<div id="spPv" hidden><div class="sp-pvbox"><img id="spPvImg" alt=""><p data-t="spLongPress"></p><div class="sp-dlg"><div class="sp-btns"><button class="sp-ok" id="spPvClose" type="button">OK</button></div></div></div></div>
 
 <!-- ============ IMPORTA RADAR DA PDF ============ -->
 <div class="overlay" id="pdfImportOv">
@@ -3698,7 +3827,7 @@ function applyLayout(){
 
 /* ================= AZIONE PRINCIPALE ================= */
 function anyOverlayOpen(){
-  return ['intro','pilotMenu','navMenu','genMenu','tdmMenu','calcMenu','tcMenu'].some(id => $(id).classList.contains('open'))
+  return ['intro','pilotMenu','navMenu','genMenu','tdmMenu','calcMenu','tcMenu','spectOv'].some(id => $(id) && $(id).classList.contains('open'))
     || $('drawer').classList.contains('open');
 }
 
@@ -6918,7 +7047,8 @@ try{ imgInit(); }catch(e){}
 requestAnimationFrame(frame);
 
 /* ===== PONTE verso la schermata Scanner (IIFE separato) ===== */
-window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askName:askName, showConfirm:showConfirm, t:t };
+window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askName:askName, showConfirm:showConfirm, t:t,
+  T:T, uiBox:uiBox, uiClose:uiClose, showMsg:showMsg, closeDrawer:closeDrawer };   /* T, uiBox...: per gli Intermedi (Spettatore) */
 })();
 </script>
 <script>
@@ -7492,7 +7622,7 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
     if(!on) return; on=false;
     var t=e.changedTouches[0];
     if(t.clientX-sx<70 || Math.abs(t.clientY-sy)>60) return;
-    var ids=['tcMenu','paywall','tdmMenu','calcMenu','genMenu','navMenu','pilotMenu','intro'];
+    var ids=['spectOv','tcMenu','paywall','tdmMenu','calcMenu','genMenu','navMenu','pilotMenu','intro'];
     for(var i=0;i<ids.length;i++){
       var ov=document.getElementById(ids[i]);
       if(ov && ov.classList.contains('open')){ closeOverlay(ov); return; }
@@ -7500,6 +7630,592 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
     var d=document.getElementById('drawer');
     if(d && d.classList.contains('open')){ var bg=document.getElementById('drawerBg'); if(bg) bg.click(); }
   },{passive:true});
+})();
+</script>
+<script>
+/* ================= SPETTATORE: INTERMEDI (19 nov 2026) =================
+   Cronometro da bordo strada a meta' prova, provato prima nel sito di prova.
+   Nuova prova -> nome -> distacco fra le partenze -> km e descrizione del posto.
+   Un tocco sul pulsante tondo a ogni auto che passa. Classifica sempre dal piu'
+   veloce al piu' lento; i distacchi si contano dal riferimento (il piu' veloce, o il
+   pilota scelto toccandolo). Esporta crea un'immagine da condividere (WhatsApp...).
+   Dati in localStorage 'irally_spect_v1', separati da cfg (non toccano il resto). */
+(function(){
+'use strict';
+const E = id => document.getElementById(id);
+const B = window.__rallyBridge;
+if(!E('spectOv') || !B || !B.T) return;
+const T = B.T, t = B.t, uiBox = B.uiBox, uiClose = B.uiClose, showMsg = B.showMsg, closeDrawer = B.closeDrawer;
+function lang(){ const c = B.getCfg(); return (c && c.lang) || 'it'; }
+
+/* ---- testi: chiavi "sp..." aggiunte alle 8 lingue dell'app ---- */
+const SP_T = {
+it:{"spGrp":"Spettatore","spNav":"Intermedi","spDesc":"Cronometra le auto a metà prova e scopri chi è più veloce in quel punto.","spNew":"Nuova prova","spIv":"Distacco fra le partenze","spTapFirst":"Premi il pulsante quando passa la prima auto","spSince":"Dalla prima auto","spNext":"Prossima","spStartOff":"partenza +{t}","spPassAt":"passaggio {t}","spDriver":"Nome pilota","spCarN":"Auto {n}","spAfterPrev":"dopo la precedente","spRef":"RIF.","spUndo":"Annulla","spUndoAsk":"Togliere l'ultimo passaggio?","spUndoDelAsk":"Rimettere il tempo cancellato?","spRestore":"Rimetti","spSetRef":"Riferimento","spWhere":"Dove sei nella prova","spKmOfWord":"di","spPlaceHint":"Descrizione (es. al bivio sul dosso)","spKmOf":"Km {a} di {b}","spKmAt":"Km {a}","spAddPlace":"+ Aggiungi km e descrizione","spEmpty":"Nessuna prova. Prima della partenza tocca Nuova prova.","spExample":"ESEMPIO","spExHint":"Prova di esempio: per cronometrare crea una Nuova prova.","spExport":"Esporta","spLongPress":"Tieni premuto sull'immagine per salvarla o condividerla.","spShareFoot":"Cronometrato a mano con iRally · tempi non ufficiali","spHelpTitle":"Come funziona","spHelpBody":"1. Tocca Nuova prova: scrivi il nome, scegli ogni quanto partono le auto e a che km della prova sei.\n2. Scrivi il nome del pilota che sta arrivando.\n3. Premi il pulsante tondo quando ti passa davanti. La prima auto fa partire il cronometro.\n4. Se un'auto manca o il distacco cambia, porta il riquadro accanto al nome a 2', 3'…\n5. La lista va dal più veloce al più lento. Il riferimento (RIF.) è il più veloce, oppure il pilota che scegli tu toccandolo: gli altri mostrano quanto sono più lenti (+) o più veloci (−). Toccando un pilota puoi anche cancellare il suo tempo.\n6. Alla fine tocca Esporta: la classifica diventa un'immagine, con i secondi al km, da mandare per esempio su WhatsApp.","spExPlace":"al bivio sul dosso"},
+en:{"spGrp":"Spectator","spNav":"Split times","spDesc":"Time the cars mid-stage and see who is fastest at that point.","spNew":"New stage","spIv":"Start interval","spTapFirst":"Tap the button when the first car passes","spSince":"Since the first car","spNext":"Next","spStartOff":"start +{t}","spPassAt":"passed {t}","spDriver":"Driver name","spCarN":"Car {n}","spAfterPrev":"after previous","spRef":"REF","spUndo":"Undo","spUndoAsk":"Remove the last pass?","spUndoDelAsk":"Restore the deleted time?","spRestore":"Restore","spSetRef":"Reference","spWhere":"Where you are on the stage","spKmOfWord":"of","spPlaceHint":"Description (e.g. at the junction on the crest)","spKmOf":"Km {a} of {b}","spKmAt":"Km {a}","spAddPlace":"+ Add km and description","spEmpty":"No stages yet. Before the start, tap New stage.","spExample":"EXAMPLE","spExHint":"Example stage: to time cars, create a New stage.","spExport":"Export","spLongPress":"Press and hold the image to save or share it.","spShareFoot":"Hand-timed with iRally · unofficial times","spHelpTitle":"How it works","spHelpBody":"1. Tap New stage: type the name, pick how often the cars start and the km of the stage where you are.\n2. Type the name of the driver who is coming.\n3. Tap the round button when the car passes you. The first car starts the stopwatch.\n4. If a car is missing or the interval changes, set the box next to the name to 2', 3'…\n5. The list goes from fastest to slowest. The reference (REF) is the fastest, or the driver you pick by tapping them: the others show how much slower (+) or faster (−) they are. Tapping a driver also lets you delete their time.\n6. At the end tap Export: the ranking becomes an image, with seconds per km, to send for example on WhatsApp.","spExPlace":"at the junction on the crest"},
+fr:{"spGrp":"Spectateur","spNav":"Temps intermédiaires","spDesc":"Chronomètre les voitures au milieu de la spéciale et vois qui est le plus rapide à cet endroit.","spNew":"Nouvelle spéciale","spIv":"Intervalle entre les départs","spTapFirst":"Appuie sur le bouton quand la première voiture passe","spSince":"Depuis la première voiture","spNext":"Suivante","spStartOff":"départ +{t}","spPassAt":"passage {t}","spDriver":"Nom du pilote","spCarN":"Voiture {n}","spAfterPrev":"après la précédente","spRef":"RÉF.","spUndo":"Annuler","spUndoAsk":"Supprimer le dernier passage ?","spUndoDelAsk":"Rétablir le temps effacé ?","spRestore":"Rétablir","spSetRef":"Référence","spWhere":"Où tu es sur la spéciale","spKmOfWord":"sur","spPlaceHint":"Description (ex. au carrefour sur la bosse)","spKmOf":"Km {a} sur {b}","spKmAt":"Km {a}","spAddPlace":"+ Ajouter le km et une description","spEmpty":"Aucune spéciale. Avant le départ, touche Nouvelle spéciale.","spExample":"EXEMPLE","spExHint":"Spéciale d'exemple : pour chronométrer, crée une Nouvelle spéciale.","spExport":"Exporter","spLongPress":"Appuie longuement sur l'image pour l'enregistrer ou la partager.","spShareFoot":"Chronométré à la main avec iRally · temps non officiels","spHelpTitle":"Comment ça marche","spHelpBody":"1. Touche Nouvelle spéciale : écris le nom, choisis l'intervalle entre les départs et le km de la spéciale où tu te trouves.\n2. Écris le nom du pilote qui arrive.\n3. Appuie sur le bouton rond quand la voiture passe devant toi. La première voiture lance le chrono.\n4. Si une voiture manque ou si l'intervalle change, règle la case à côté du nom sur 2', 3'…\n5. La liste va du plus rapide au plus lent. La référence (RÉF.) est le plus rapide, ou le pilote que tu choisis en le touchant : les autres montrent de combien ils sont plus lents (+) ou plus rapides (−). En touchant un pilote, tu peux aussi effacer son temps.\n6. À la fin, touche Exporter : le classement devient une image, avec les secondes au km, à envoyer par exemple sur WhatsApp.","spExPlace":"au carrefour sur la bosse"},
+es:{"spGrp":"Espectador","spNav":"Tiempos intermedios","spDesc":"Cronometra los coches a mitad de tramo y descubre quién es más rápido en ese punto.","spNew":"Nuevo tramo","spIv":"Intervalo entre salidas","spTapFirst":"Pulsa el botón cuando pase el primer coche","spSince":"Desde el primer coche","spNext":"Siguiente","spStartOff":"salida +{t}","spPassAt":"paso {t}","spDriver":"Nombre del piloto","spCarN":"Coche {n}","spAfterPrev":"tras el anterior","spRef":"REF.","spUndo":"Deshacer","spUndoAsk":"¿Quitar el último paso?","spUndoDelAsk":"¿Recuperar el tiempo borrado?","spRestore":"Recuperar","spSetRef":"Referencia","spWhere":"Dónde estás en el tramo","spKmOfWord":"de","spPlaceHint":"Descripción (p. ej. en el cruce sobre el cambio de rasante)","spKmOf":"Km {a} de {b}","spKmAt":"Km {a}","spAddPlace":"+ Añadir km y descripción","spEmpty":"Ningún tramo. Antes de la salida, toca Nuevo tramo.","spExample":"EJEMPLO","spExHint":"Tramo de ejemplo: para cronometrar, crea un Nuevo tramo.","spExport":"Exportar","spLongPress":"Mantén pulsada la imagen para guardarla o compartirla.","spShareFoot":"Cronometrado a mano con iRally · tiempos no oficiales","spHelpTitle":"Cómo funciona","spHelpBody":"1. Toca Nuevo tramo: escribe el nombre, elige cada cuánto salen los coches y en qué km del tramo estás.\n2. Escribe el nombre del piloto que está llegando.\n3. Pulsa el botón redondo cuando el coche pase delante de ti. El primer coche pone en marcha el cronómetro.\n4. Si falta un coche o cambia el intervalo, pon la casilla junto al nombre en 2', 3'…\n5. La lista va del más rápido al más lento. La referencia (REF.) es el más rápido, o el piloto que eliges tocándolo: los demás muestran cuánto más lentos (+) o más rápidos (−) son. Tocando un piloto también puedes borrar su tiempo.\n6. Al final toca Exportar: la clasificación se convierte en una imagen, con los segundos por km, para enviar por ejemplo por WhatsApp.","spExPlace":"en el cruce sobre el cambio de rasante"},
+de:{"spGrp":"Zuschauer","spNav":"Zwischenzeiten","spDesc":"Stoppe die Autos mitten in der Prüfung und sieh, wer an dieser Stelle am schnellsten ist.","spNew":"Neue Prüfung","spIv":"Startabstand","spTapFirst":"Tippe auf den Knopf, wenn das erste Auto vorbeifährt","spSince":"Seit dem ersten Auto","spNext":"Nächstes","spStartOff":"Start +{t}","spPassAt":"Durchfahrt {t}","spDriver":"Name des Fahrers","spCarN":"Auto {n}","spAfterPrev":"nach dem vorigen","spRef":"REF.","spUndo":"Rückgängig","spUndoAsk":"Letzte Durchfahrt entfernen?","spUndoDelAsk":"Gelöschte Zeit wiederherstellen?","spRestore":"Wiederherstellen","spSetRef":"Referenz","spWhere":"Wo du in der Prüfung stehst","spKmOfWord":"von","spPlaceHint":"Beschreibung (z. B. an der Kreuzung auf der Kuppe)","spKmOf":"Km {a} von {b}","spKmAt":"Km {a}","spAddPlace":"+ Km und Beschreibung hinzufügen","spEmpty":"Noch keine Prüfung. Tippe vor dem Start auf Neue Prüfung.","spExample":"BEISPIEL","spExHint":"Beispielprüfung: Zum Stoppen lege eine Neue Prüfung an.","spExport":"Exportieren","spLongPress":"Halte das Bild gedrückt, um es zu sichern oder zu teilen.","spShareFoot":"Von Hand gestoppt mit iRally · inoffizielle Zeiten","spHelpTitle":"So funktioniert's","spHelpBody":"1. Tippe auf Neue Prüfung: Gib den Namen ein, wähle den Startabstand und den Kilometer der Prüfung, an dem du stehst.\n2. Gib den Namen des Fahrers ein, der gleich kommt.\n3. Tippe auf den runden Knopf, wenn das Auto an dir vorbeifährt. Das erste Auto startet die Stoppuhr.\n4. Fehlt ein Auto oder ändert sich der Abstand, stelle das Feld neben dem Namen auf 2', 3'…\n5. Die Liste geht vom Schnellsten zum Langsamsten. Die Referenz (REF.) ist der Schnellste oder der Fahrer, den du durch Antippen wählst: Die anderen zeigen, wie viel langsamer (+) oder schneller (−) sie sind. Durch Antippen eines Fahrers kannst du auch seine Zeit löschen.\n6. Tippe am Ende auf Exportieren: Die Wertung wird ein Bild mit den Sekunden pro km, zum Beispiel für WhatsApp.","spExPlace":"an der Kreuzung auf der Kuppe"},
+pt:{"spGrp":"Espectador","spNav":"Tempos intermédios","spDesc":"Cronometra os carros a meio da especial e descobre quem é mais rápido nesse ponto.","spNew":"Nova especial","spIv":"Intervalo entre partidas","spTapFirst":"Toca no botão quando passar o primeiro carro","spSince":"Desde o primeiro carro","spNext":"Seguinte","spStartOff":"partida +{t}","spPassAt":"passagem {t}","spDriver":"Nome do piloto","spCarN":"Carro {n}","spAfterPrev":"depois do anterior","spRef":"REF.","spUndo":"Desfazer","spUndoAsk":"Remover a última passagem?","spUndoDelAsk":"Repor o tempo apagado?","spRestore":"Repor","spSetRef":"Referência","spWhere":"Onde estás na especial","spKmOfWord":"de","spPlaceHint":"Descrição (ex.: no cruzamento em cima da lomba)","spKmOf":"Km {a} de {b}","spKmAt":"Km {a}","spAddPlace":"+ Adicionar km e descrição","spEmpty":"Nenhuma especial. Antes da partida, toca em Nova especial.","spExample":"EXEMPLO","spExHint":"Especial de exemplo: para cronometrar, cria uma Nova especial.","spExport":"Exportar","spLongPress":"Mantém o dedo na imagem para a guardar ou partilhar.","spShareFoot":"Cronometrado à mão com iRally · tempos não oficiais","spHelpTitle":"Como funciona","spHelpBody":"1. Toca em Nova especial: escreve o nome, escolhe de quanto em quanto tempo partem os carros e em que km da especial estás.\n2. Escreve o nome do piloto que está a chegar.\n3. Toca no botão redondo quando o carro passar à tua frente. O primeiro carro põe o cronómetro a andar.\n4. Se faltar um carro ou o intervalo mudar, põe o quadrado ao lado do nome em 2', 3'…\n5. A lista vai do mais rápido ao mais lento. A referência (REF.) é o mais rápido, ou o piloto que escolhes tocando nele: os outros mostram quanto são mais lentos (+) ou mais rápidos (−). Tocando num piloto também podes apagar o seu tempo.\n6. No fim toca em Exportar: a classificação passa a ser uma imagem, com os segundos por km, para enviar por exemplo no WhatsApp.","spExPlace":"no cruzamento em cima da lomba"},
+ja:{"spGrp":"観客","spNav":"スプリットタイム","spDesc":"ステージの途中で車のタイムを計り、その地点で誰が速いかを確認します。","spNew":"新しいステージ","spIv":"スタート間隔","spTapFirst":"最初の車が通過したらボタンをタップ","spSince":"最初の車から","spNext":"次","spStartOff":"スタート +{t}","spPassAt":"通過 {t}","spDriver":"ドライバー名","spCarN":"車 {n}","spAfterPrev":"前の車から","spRef":"基準","spUndo":"取り消し","spUndoAsk":"最後の通過を取り消しますか？","spUndoDelAsk":"削除したタイムを元に戻しますか？","spRestore":"元に戻す","spSetRef":"基準にする","spWhere":"ステージ内の位置","spKmOfWord":"/","spPlaceHint":"説明（例：クレスト上の分岐点）","spKmOf":"{b} km中 {a} km地点","spKmAt":"{a} km地点","spAddPlace":"+ kmと説明を追加","spEmpty":"ステージがありません。スタート前に「新しいステージ」をタップしてください。","spExample":"サンプル","spExHint":"サンプルのステージです。計測するには「新しいステージ」を作成してください。","spExport":"書き出し","spLongPress":"画像を長押しして保存または共有します。","spShareFoot":"iRallyで手動計測・非公式タイム","spHelpTitle":"使い方","spHelpBody":"1. 「新しいステージ」をタップし、名前、スタート間隔、ステージ内で自分がいるkm地点を入力します。\n2. 次に来るドライバーの名前を入力します。\n3. 車が目の前を通過したら丸いボタンをタップします。最初の車でストップウォッチが始まります。\n4. 車が欠けたり間隔が変わったりしたら、名前の横の枠を2'、3'…にします。\n5. リストは速い順に並びます。基準は最速の車か、タップして選んだドライバーです。ほかの車はどれだけ遅いか（+）速いか（−）を表示します。ドライバーをタップしてタイムを削除することもできます。\n6. 最後に「書き出し」をタップすると、1kmあたりの秒数付きで順位が画像になり、WhatsAppなどで送れます。","spExPlace":"クレスト上の分岐点"},
+cs:{"spGrp":"Divák","spNav":"Mezičasy","spDesc":"Změř auta uprostřed zkoušky a zjisti, kdo je v tom místě nejrychlejší.","spNew":"Nová zkouška","spIv":"Startovní interval","spTapFirst":"Klepni na tlačítko, až projede první auto","spSince":"Od prvního auta","spNext":"Další","spStartOff":"start +{t}","spPassAt":"průjezd {t}","spDriver":"Jméno jezdce","spCarN":"Auto {n}","spAfterPrev":"po předchozím","spRef":"REF.","spUndo":"Zpět","spUndoAsk":"Odebrat poslední průjezd?","spUndoDelAsk":"Obnovit smazaný čas?","spRestore":"Obnovit","spSetRef":"Reference","spWhere":"Kde na zkoušce stojíš","spKmOfWord":"z","spPlaceHint":"Popis (např. u odbočky na horizontu)","spKmOf":"Km {a} z {b}","spKmAt":"Km {a}","spAddPlace":"+ Přidat km a popis","spEmpty":"Zatím žádná zkouška. Před startem klepni na Nová zkouška.","spExample":"UKÁZKA","spExHint":"Ukázková zkouška: pro měření vytvoř novou zkoušku.","spExport":"Exportovat","spLongPress":"Podrž prst na obrázku a ulož ho nebo sdílej.","spShareFoot":"Ručně změřeno v iRally · neoficiální časy","spHelpTitle":"Jak to funguje","spHelpBody":"1. Klepni na Nová zkouška: napiš název, vyber startovní interval a kilometr zkoušky, kde stojíš.\n2. Napiš jméno jezdce, který přijíždí.\n3. Klepni na kulaté tlačítko, když kolem tebe projede. První auto spustí stopky.\n4. Když auto chybí nebo se interval změní, nastav políčko vedle jména na 2', 3'…\n5. Seznam jde od nejrychlejšího po nejpomalejšího. Reference (REF.) je nejrychlejší, nebo jezdec, kterého vybereš klepnutím: ostatní ukazují, o kolik jsou pomalejší (+) nebo rychlejší (−). Klepnutím na jezdce můžeš také smazat jeho čas.\n6. Na konci klepni na Exportovat: z pořadí vznikne obrázek se sekundami na km, třeba pro WhatsApp.","spExPlace":"u odbočky na horizontu"}
+};
+Object.keys(SP_T).forEach(L => { if(T[L]) Object.assign(T[L], SP_T[L]); });
+function spTexts(){ document.querySelectorAll('#spectOv [data-t], #spPv [data-t], #drawer [data-t^="sp"]').forEach(el => { el.textContent = t(el.dataset.t); }); }
+spTexts();
+
+const LOCALE = {it:'it-IT',en:'en-GB',fr:'fr-FR',es:'es-ES',de:'de-DE',pt:'pt-PT',ja:'ja-JP',cs:'cs-CZ'};
+const LOGO = 'data:image/jpeg;base64,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K8EiSRuySIQyspwQR0INfVXwX+KyeONN/s/UJFXXLZPmJ4+0IP4x7/3h+Pfj5Tq3pOq3Wh6lb39lM1vd27iSOROqkf56d6+s4b4gr8P4tVoa05aSj3Xf1XT7tmfPZ3k9LOMP7OWk18L7P/J9T7vBxxXrH7PPxzu/gz4sEspkufDt6VTUbNOSQOkqD++ufxGR6Y+afAXxf0TxXoMdze31ppd/HhLi3uJljw395Nx5U/p0rpP+E48Oj/mP6X/4GR//ABVf1DVxOU53gXCpUjKlUXVpf8FNfemj8IhQzDK8WpQhKNSD7P8App/c0fslpWqWmt6Za6hYXEd3ZXUSzQXERysiMMhgat1+ev7Jn7YPhrwFfp4S8R+KdKi8NXkpNtdTX0e2xmbrk7uImPXsp56Fq+xP+GkfhLnH/C0PBuf+w/a//F1/KWeZTLJsZLD8ynHeMk07r5dV1X6WP6AyrMVmWGVblcZbNPo/8uz/AFPKv27f2QLP9qb4a7tMiht/H+iI8ujXjYUXAPL2kjf3X6qT918HozZ/CfVtJvNC1S707ULaWyv7SZ4Li2nQpJFIpKsjKeQQQQR7V/Raf2kPhIeP+FoeDP8Awf2v/wAXX51f8FNfhb8LviBFJ8WPh7468JXviWLamvaTY6zbPLfx8KlzEivlpV4VwOWXDdVOfnz2D83aKKKACiiigAooooAKM4oooAM/T8qM/T8qKKADP0/KiiigAz9Pyoz9PyoooAM/T8qM0UUAFFFFABRRRQAUZoooAM0Z+n5UUUAGfp+VGaKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA/9k=';   /* icona dell'app (iR) per l'immagine da condividere */
+
+/* ================= DATI =================
+   Ogni auto: t = istante del passaggio, off = secondi di partenza dopo la prima auto.
+   Prova: t0 = primo passaggio (zero del cronometro), lastOff = partenza dell'ultima auto
+   cronometrata. Cancellare un tempo non sposta le partenze delle altre auto. */
+const LS_KEY = 'irally_spect_v1';
+let SP = null;
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function spLoad(){ try{ const j = JSON.parse(localStorage.getItem(LS_KEY) || 'null'); if(j && Array.isArray(j.stages)) return j; }catch(e){} return null; }
+function spSave(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(SP)); }catch(e){} }
+function fix(st){
+  if(!st || !Array.isArray(st.cars)) return;
+  st.cars.forEach((c,i) => { if(typeof c.off !== 'number') c.off = 0; });
+  if(st.lastOff === undefined) st.lastOff = st.cars.length ? st.cars[st.cars.length - 1].off : null;
+  if(st.t0 === undefined) st.t0 = st.cars.length ? st.cars[0].t : null;
+  if(!st.draft || !(st.draft.d > 0)) st.draft = { name: (st.draft && st.draft.name) || '', d: st.iv || 60 };
+  if(typeof st.km !== 'number') st.km = null;
+  if(typeof st.kmTot !== 'number') st.kmTot = null;
+  if(typeof st.place !== 'string') st.place = '';
+  if(st.refId === undefined) st.refId = null;
+}
+function ensure(){
+  if(SP) return;
+  SP = spLoad();
+  if(!SP){ SP = { v:2, cur:null, stages:[] }; seedExample(); spSave(); }
+  SP.stages.forEach(fix);
+}
+/* prova di esempio: un'auto mancante fra la 4 e la 5 */
+function seedExample(){
+  const base = Date.now() - 26*3600*1000;
+  const names = ['Rossi','Bianchi','Colombo','Ricci','Marino','Greco'];
+  const perf  = [0, -2.4, 3.1, 0.8, -5.6, 12.3];
+  const offs  = [0, 60, 120, 180, 300, 360];
+  const cars = names.map((n,i) => ({ id:uid(), name:n, t: Math.round(base + 154300 + offs[i]*1000 + perf[i]*1000), off: offs[i] }));
+  SP.stages.push({ id:uid(), name:'PS 1', iv:60, created: base, ex:true, cars, t0: cars[0].t, lastOff: 360, draft:{ name:'', d:60 }, km:6, kmTot:16, place: t('spExPlace'), refId:null });
+}
+
+/* ================= FORMATI ================= */
+function carN(n){ return t('spCarN').replace('{n}', n); }
+function carsN(n){
+  switch(lang()){
+    case 'en': return n + (n===1 ? ' car' : ' cars');
+    case 'fr': return n + (n<=1 ? ' voiture' : ' voitures');
+    case 'es': return n + (n===1 ? ' coche' : ' coches');
+    case 'de': return n + (n===1 ? ' Auto' : ' Autos');
+    case 'pt': return n + (n===1 ? ' carro' : ' carros');
+    case 'ja': return n + '台';
+    case 'cs': return n + (n===1 ? ' auto' : (n>=2 && n<=4 ? ' auta' : ' aut'));
+    default:   return n + ' auto';
+  }
+}
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function pad(n){ return (n < 10 ? '0' : '') + n; }
+function dec(){ return (lang() === 'en' || lang() === 'ja') ? '.' : ','; }
+function loc(){ return LOCALE[lang()] || 'it-IT'; }
+/* cronometro m:ss,d (decimi troncati, come un cronometro vero) */
+function fmtWatch(ms){
+  if(!(ms > 0)) ms = 0;
+  const ten = Math.floor(ms/100), d = ten % 10, s = Math.floor(ten/10) % 60, m = Math.floor(ten/600) % 60, h = Math.floor(ten/36000);
+  return (h ? h + ':' + pad(m) + ':' : m + ':') + pad(s) + dec() + d;
+}
+/* distacco dal riferimento, arrotondato al decimo */
+function fmtGap(ms){
+  const ten = Math.sign(ms) * Math.round(Math.abs(ms)/100);
+  if(ten === 0) return '0' + dec() + '0';
+  const a = Math.abs(ten), d = a % 10, s = Math.floor(a/10);
+  const body = s >= 60 ? Math.floor(s/60) + ':' + pad(s % 60) + dec() + d : s + dec() + d;
+  return (ten < 0 ? '−' : '+') + body;
+}
+/* minuti e secondi di partenza: 60 -> 1', 90 -> 1'30", 30 -> 30" */
+function fmtOff(sec){
+  sec = Math.round(sec); const m = Math.floor(sec/60), s = sec % 60;
+  if(m && s) return m + "'" + pad(s) + '"';
+  if(m) return m + "'";
+  return s + '"';
+}
+function timeOfDay(ms){
+  try{ return new Date(ms).toLocaleTimeString(loc(), {hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false}); }
+  catch(e){ const d = new Date(ms); return pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()); }
+}
+function dateShort(ms){
+  try{ return new Date(ms).toLocaleString(loc(), {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit', hour12:false}); }
+  catch(e){ const d = new Date(ms); return pad(d.getDate()) + '/' + pad(d.getMonth()+1) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+}
+function dateLong(ms){
+  try{ return new Date(ms).toLocaleString(loc(), {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:false}); }
+  catch(e){ const d = new Date(ms); return pad(d.getDate()) + '/' + pad(d.getMonth()+1) + '/' + d.getFullYear() + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+}
+/* km: si scrive con la virgola o col punto, fino a due decimali */
+function fmtKm(n){ return String(Math.round(n*100)/100).replace('.', dec()); }
+function parseKm(s){ const v = parseFloat(String(s || '').replace(',', '.').replace(/[^0-9.]/g, '')); return (v > 0 && v < 1000) ? Math.round(v*100)/100 : null; }
+function kmLabel(st){
+  if(!(st.km > 0)) return '';
+  return (st.kmTot > 0) ? t('spKmOf').replace('{a}', fmtKm(st.km)).replace('{b}', fmtKm(st.kmTot)) : t('spKmAt').replace('{a}', fmtKm(st.km));
+}
+function placeText(st){ const k = kmLabel(st), p = (st.place || '').trim(); return (k && p) ? k + ' · ' + p : (k || p); }
+/* secondi al km: distacco (al decimo, come si vede) diviso per il km in cui sei, due decimali */
+function perKm(st, r){
+  if(!(st.km > 0) || r.isRef) return '';
+  return (Math.round(Math.abs(r.gap)/100) / 10 / st.km).toFixed(2).replace('.', dec());
+}
+/* passo del riquadro: un minuto se il distacco e' a minuti interi, altrimenti il distacco stesso */
+function stepOf(iv){ return (iv >= 60 && iv % 60 === 0) ? 60 : iv; }
+
+/* ================= CALCOLO =================
+   Tempo "rimesso in partenza" = passaggio - partenza dopo la prima auto.
+   Ordine sempre dal piu' veloce al piu' lento. Il riferimento e' il pilota scelto
+   (st.refId) oppure, se non e' scelto, il piu' veloce. */
+function ranking(st){
+  const rows = st.cars.map((c,i) => ({ c, i, raw: c.t - c.off*1000, pass: c.t - (st.t0 != null ? st.t0 : c.t) }));
+  if(!rows.length) return rows;
+  rows.sort((a,b) => (a.raw - b.raw) || (a.i - b.i));
+  const ref = rows.find(r => r.c.id === st.refId) || rows[0];
+  rows.forEach(r => { r.gap = r.raw - ref.raw; r.isRef = (r === ref); });
+  return rows;
+}
+function gapCls(r){
+  if(r.isRef) return 'sp-zero';
+  const ten = Math.sign(r.gap) * Math.round(Math.abs(r.gap)/100);
+  return ten < 0 ? 'sp-neg' : (ten > 0 ? 'sp-pos' : 'sp-zero');
+}
+function nextOff(st){ return st.lastOff == null ? 0 : st.lastOff + st.draft.d; }
+function cur(){ return (SP && SP.stages.find(s => s.id === SP.cur)) || null; }
+function dispName(c, i){ return (c.name && c.name.trim()) ? c.name.trim() : carN(i + 1); }
+
+/* Annulla: fotografia della prova prima di ogni tocco o cancellazione (solo in memoria) */
+const HIST = {};
+function pushHist(st, type, label){
+  const h = HIST[st.id] || (HIST[st.id] = []);
+  h.push({ type, label: label || '', snap: JSON.stringify({ cars: st.cars, lastOff: st.lastOff, t0: st.t0, draft: st.draft }) });
+  if(h.length > 40) h.shift();
+}
+
+/* ================= SCHERMATE ================= */
+function spOpen(){
+  ensure(); spTexts();
+  E('spectOv').classList.add('open');
+  if(SP.cur && cur()) showRun(SP.cur); else { SP.cur = null; showList(); }
+}
+function spCloseOv(){
+  try{ E('spInName').blur(); }catch(e){}
+  stopTick();
+  E('spectOv').classList.remove('open', 'sp-running');
+}
+function showList(){
+  try{ E('spInName').blur(); }catch(e){}
+  stopTick();
+  E('spRun').hidden = true; E('spList').hidden = false;
+  E('spectOv').classList.remove('sp-running');
+  renderList();
+}
+function showRun(id){
+  SP.cur = id; spSave();
+  E('spList').hidden = true; E('spRun').hidden = false;
+  E('spectOv').classList.add('sp-running');
+  lastWatch = ''; renderRun(); startTick();
+}
+
+function renderList(){
+  const list = E('spStages'); list.innerHTML = '';
+  const arr = SP.stages.slice().sort((a,b)=> b.created - a.created);
+  arr.forEach(st => {
+    const row = document.createElement('div'); row.className = 'sp-srow';
+    const main = document.createElement('div'); main.className = 'sp-smain';
+    main.innerHTML = '<div class="sp-sname">' + esc(st.name) + (st.ex ? '<span class="sp-tag">' + esc(t('spExample')) + '</span>' : '') + '</div>' +
+      '<div class="sp-smeta">' + esc(fmtOff(st.iv)) + ' · ' + esc(carsN(st.cars.length)) + ' · ' + esc(dateShort(st.created)) + '</div>';
+    const more = document.createElement('button'); more.type = 'button'; more.className = 'sp-more'; more.textContent = '⋯'; more.setAttribute('aria-label', t('ssMore'));
+    more.addEventListener('click', e => { e.stopPropagation(); stageMenu(st.id); });
+    row.addEventListener('click', () => showRun(st.id));
+    row.appendChild(main); row.appendChild(more); list.appendChild(row);
+  });
+  E('spEmpty').hidden = arr.length > 0;
+}
+
+function stageMenu(id){
+  const st = SP.stages.find(s => s.id === id); if(!st) return;
+  const { bg, box } = dlg();
+  const h = document.createElement('h3'); h.textContent = st.name; box.appendChild(h);
+  const v = document.createElement('div'); v.className = 'sp-vbtns';
+  const bR = btn(t('ssRename')), bD = btn(t('ssDelete'), 'sp-dangertxt'), bC = btn(t('tcCancel'));
+  bR.addEventListener('click', () => { close(bg); askText(t('askStageName'), st.name, nv => { st.name = nv; spSave(); renderList(); }); });
+  bD.addEventListener('click', () => { close(bg); confirmBox(t('ssDelAsk') + ' “' + st.name + '”?', '', t('ssDelete'), 'sp-danger', () => {
+    SP.stages = SP.stages.filter(s => s.id !== id); delete HIST[id]; if(SP.cur === id) SP.cur = null; spSave(); renderList(); }); });
+  bC.addEventListener('click', () => close(bg));
+  v.appendChild(bR); v.appendChild(bD); v.appendChild(bC); box.appendChild(v);
+}
+
+function newStage(){
+  askText(t('askStageName'), '', name => {
+    pickInterval(60, iv => {
+      pickPlace({ km:null, kmTot:null, place:'' }, pl => {
+        const st = { id:uid(), name, iv, created: Date.now(), cars:[], t0:null, lastOff:null, draft:{ name:'', d:iv }, km: pl.km, kmTot: pl.kmTot, place: pl.place, refId:null };
+        SP.stages.push(st); spSave(); showRun(st.id);
+      });
+    });
+  });
+}
+
+function renderRun(newId){
+  const st = cur(); if(!st) return;
+  E('spName').innerHTML = esc(st.name) + (st.ex ? '<span class="sp-tag">' + esc(t('spExample')) + '</span>' : '');
+  const pt = placeText(st);
+  E('spPlace').textContent = pt || t('spAddPlace');
+  E('spPlace').classList.toggle('sp-empty', !pt);
+  const n = st.cars.length, started = st.t0 != null;
+  if(!started){ E('spWatch').classList.add('sp-idle'); E('spWNum').textContent = fmtWatch(0); lastWatch = ''; }
+  E('spEntry').hidden = !!st.ex;
+  E('spInName').placeholder = t('spDriver') + ' · ' + carN(n + 1);
+  if(document.activeElement !== E('spInName')) E('spInName').value = st.draft.name || '';
+  renderNext();
+  E('spDBox').hidden = !started;
+  E('spDVal').textContent = '+' + fmtOff(st.draft.d);
+  E('spDBox').classList.toggle('sp-changed', st.draft.d !== st.iv);
+  const rows = ranking(st);
+  E('spRows').innerHTML = rows.map((r,k) => {
+    const meta = r.c.off === 0 ? t('spPassAt').replace('{t}', timeOfDay(r.c.t))
+      : t('spStartOff').replace('{t}', fmtOff(r.c.off)) + ' · ' + t('spPassAt').replace('{t}', fmtWatch(r.pass));
+    return '<div class="sp-row' + (r.isRef ? ' sp-lead' : '') + (r.c.id === newId ? ' sp-new' : '') + '" data-id="' + r.c.id + '">' +
+      '<div class="sp-rk">' + (k + 1) + '</div>' +
+      '<div class="sp-who"><div class="sp-nm">' + esc(dispName(r.c, r.i)) + (r.isRef ? '<span class="sp-tag">' + esc(t('spRef')) + '</span>' : '') + '</div>' +
+      '<div class="sp-meta">' + esc(meta) + '</div></div>' +
+      '<div class="sp-gap ' + gapCls(r) + '">' + fmtGap(r.gap) + '</div></div>';
+  }).join('');
+  E('spUndo').disabled = !(HIST[st.id] && HIST[st.id].length);
+  E('spShot').disabled = !!st.ex;
+  E('spExport').disabled = !n;
+  if(newId){
+    const el = E('spRows').querySelector('.sp-row.sp-new');
+    if(el){ try{ el.scrollIntoView({ block:'nearest' }); }catch(e){} }
+  }
+}
+function renderNext(){
+  const st = cur(); if(!st) return;
+  const w = E('spWNext');
+  if(st.ex){ w.textContent = t('spExHint'); return; }
+  if(st.t0 == null){ w.textContent = t('spTapFirst'); return; }
+  const nm = (E('spInName').value || '').trim() || carN(st.cars.length + 1);
+  w.innerHTML = esc(t('spNext')) + ': <b>' + esc(nm) + '</b> · ' + esc(t('spStartOff').replace('{t}', fmtOff(nextOff(st))));
+}
+
+/* cronometro dal primo passaggio; fermo sull'ultimo se non passa nessuno da 30 minuti */
+let rafId = 0, lastWatch = '';
+function tickOnce(){
+  const st = cur(); if(!st || st.t0 == null) return;
+  let last = st.t0; st.cars.forEach(c => { if(c.t > last) last = c.t; });
+  const now = Date.now(), live = (now - last) < 30*60*1000 && !st.ex;
+  const txt = fmtWatch(live ? now - st.t0 : last - st.t0);
+  if(txt !== lastWatch){ E('spWNum').textContent = txt; lastWatch = txt; }
+  E('spWatch').classList.toggle('sp-idle', !live);
+}
+function loop(){ tickOnce(); rafId = requestAnimationFrame(loop); }
+function startTick(){ stopTick(); rafId = requestAnimationFrame(loop); }
+function stopTick(){ if(rafId) cancelAnimationFrame(rafId); rafId = 0; }
+
+/* ---- il tocco: tempo preso nell'istante in cui il dito tocca, non al rilascio ---- */
+let lastPress = 0;
+function evEpoch(e){
+  let lag = 0;
+  try{ if(e && typeof e.timeStamp === 'number' && e.timeStamp > 0){ lag = performance.now() - e.timeStamp; if(!(lag >= 0 && lag < 1000)) lag = 0; } }catch(_){ lag = 0; }
+  return Date.now() - lag;
+}
+function shot(when){
+  const st = cur(); if(!st || st.ex) return;
+  if(when - lastPress < 350) return;   /* doppio tocco involontario */
+  lastPress = when;
+  pushHist(st, 'shot');
+  const off = nextOff(st);
+  const car = { id:uid(), name: (E('spInName').value || '').trim(), t: Math.round(when), off };
+  if(st.t0 == null) st.t0 = car.t;
+  st.cars.push(car);
+  st.lastOff = off;
+  st.draft = { name:'', d: st.iv };
+  E('spInName').value = '';
+  spSave();
+  const f = E('spFlash'); f.classList.add('sp-on'); requestAnimationFrame(() => requestAnimationFrame(() => f.classList.remove('sp-on')));
+  lastWatch = '';
+  renderRun(car.id);
+  tickOnce();
+}
+
+/* toccando un pilota: Riferimento, Elimina (il suo tempo) o Annulla */
+function rowMenu(id){
+  const st = cur(); if(!st) return;
+  const idx = st.cars.findIndex(c => c.id === id); if(idx < 0) return;
+  const c = st.cars[idx], nm = dispName(c, idx);
+  const isRef = !!(ranking(st).find(x => x.c.id === id) || {}).isRef;
+  const { bg, box } = dlg();
+  const h = document.createElement('h3'); h.textContent = nm; box.appendChild(h);
+  const v = document.createElement('div'); v.className = 'sp-vbtns';
+  const bRef = btn(t('spSetRef') + (isRef ? ' ✓' : ''), 'sp-refb'); bRef.disabled = isRef;
+  const bDel = btn(t('ssDelete'), 'sp-dangertxt'), bNo = btn(t('tcCancel'));
+  bRef.addEventListener('click', () => { close(bg); st.refId = id; spSave(); renderRun(); });
+  bDel.addEventListener('click', () => { close(bg); pushHist(st, 'del', nm); st.cars.splice(idx, 1); spSave(); lastWatch = ''; renderRun(); tickOnce(); });
+  bNo.addEventListener('click', () => close(bg));
+  v.appendChild(bRef); v.appendChild(bDel); v.appendChild(bNo); box.appendChild(v);
+}
+
+function undoLast(){
+  const st = cur(); if(!st) return;
+  const h = HIST[st.id]; if(!h || !h.length) return;
+  const top = h[h.length - 1];
+  const apply = () => {
+    h.pop();
+    try{ const s = JSON.parse(top.snap); st.cars = s.cars; st.lastOff = s.lastOff; st.t0 = s.t0; st.draft = s.draft || { name:'', d: st.iv }; }catch(e){ return; }
+    E('spInName').value = st.draft.name || '';
+    spSave(); lastWatch = ''; renderRun(); tickOnce();
+  };
+  if(top.type === 'shot'){
+    const last = st.cars[st.cars.length - 1];
+    const r = last ? ranking(st).find(x => x.c.id === last.id) : null;
+    confirmBox(t('spUndoAsk'), last ? dispName(last, st.cars.length - 1) + (r ? ' · ' + fmtGap(r.gap) : '') : '', t('ssDelete'), 'sp-danger', apply);
+  } else {
+    confirmBox(t('spUndoDelAsk'), top.label, t('spRestore'), 'sp-ok', apply);
+  }
+}
+function stepDraft(dir){
+  const st = cur(); if(!st) return;
+  const step = stepOf(st.iv);
+  st.draft.d = Math.min(3600, Math.max(step, st.draft.d + dir*step));
+  spSave(); renderRun();
+}
+
+/* ================= IMMAGINE DA CONDIVIDERE ================= */
+const SANS = '-apple-system, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+const MONO = '"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace';
+let logoImg = null;
+(function(){ try{ const im = new Image(); im.onload = () => { logoImg = im; }; im.src = LOGO; }catch(e){} })();
+try{ if(document.fonts && document.fonts.load){ document.fonts.load('800 46px "JetBrains Mono"').catch(()=>{}); document.fonts.load('700 27px "JetBrains Mono"').catch(()=>{}); } }catch(e){}
+function rrect(g, x, y, w, h, r){ g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+function fitText(g, s, maxW){
+  if(g.measureText(s).width <= maxW) return s;
+  let lo = 0, hi = s.length;
+  while(lo < hi){ const mid = (lo + hi + 1) >> 1; if(g.measureText(s.slice(0, mid) + '…').width <= maxW) lo = mid; else hi = mid - 1; }
+  return s.slice(0, lo) + '…';
+}
+function spacedW(g, s, sp){ let w = 0; for(const ch of s) w += g.measureText(ch).width + sp; return Math.max(0, w - sp); }
+function drawSpaced(g, s, x, y, sp, align){
+  if(align === 'right') x -= spacedW(g, s, sp);
+  const a = g.textAlign; g.textAlign = 'left';
+  for(const ch of s){ g.fillText(ch, x, y); x += g.measureText(ch).width + sp; }
+  g.textAlign = a;
+}
+function fitSpaced(g, s, maxW, sp){
+  if(spacedW(g, s, sp) <= maxW) return s;
+  let k = s.length; while(k > 0 && spacedW(g, s.slice(0, k) + '…', sp) > maxW) k--;
+  return s.slice(0, k) + '…';
+}
+function drawShare(st){
+  const rows = ranking(st);
+  const W = 1080, P = 60, L = 112, RH = 112, RG = 14, MAXW = W - 2*P;
+  const km = kmLabel(st), place = (st.place || '').trim(), showPk = st.km > 0;
+  const yTitle = P + L + 62, yDate = yTitle + 50, yPlace = yDate + 44;
+  const top = (place ? yPlace : yDate) + 48;
+  const H = top + rows.length * (RH + RG) - RG + 120;
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d');
+  /* fondo nero con la trama carbonio dell'app */
+  g.fillStyle = '#000'; g.fillRect(0, 0, W, H);
+  const tile = document.createElement('canvas'); tile.width = tile.height = 8;
+  const tg = tile.getContext('2d'); tg.strokeStyle = 'rgba(255,255,255,0.035)'; tg.lineWidth = 2;
+  tg.beginPath(); tg.moveTo(-2, 10); tg.lineTo(10, -2); tg.moveTo(-2, -2); tg.lineTo(10, 10); tg.stroke();
+  const pat = g.createPattern(tile, 'repeat'); if(pat){ g.fillStyle = pat; g.fillRect(0, 0, W, H); }
+  /* logo + nome */
+  if(logoImg){ g.save(); rrect(g, P, P, L, L, 26); g.clip(); g.drawImage(logoImg, P, P, L, L); g.restore(); }
+  g.strokeStyle = '#2a2f36'; g.lineWidth = 2; rrect(g, P, P, L, L, 26); g.stroke();
+  g.textBaseline = 'middle'; g.textAlign = 'left';
+  g.fillStyle = '#f2f4f7'; g.font = '800 68px ' + SANS; g.fillText('iRally', P + L + 28, P + L/2 + 2);
+  const nameEnd = P + L + 28 + g.measureText('iRally').width;
+  g.fillStyle = '#ffb400'; g.font = '800 26px ' + SANS;
+  const mode = t('spNav').toUpperCase();
+  if(W - P - spacedW(g, mode, 4) > nameEnd + 30) drawSpaced(g, mode, W - P, P + L/2 + 2, 4, 'right');
+  /* PS 1  /  Km 6 di 16 */
+  const name = String(st.name).toUpperCase(), kmPart = km ? '  /  ' + km : '';
+  let fs = 46;
+  const widths = () => { g.font = '800 ' + fs + 'px ' + SANS; const a = spacedW(g, name, 3); g.font = '700 ' + fs + 'px ' + SANS; const b = kmPart ? g.measureText(kmPart).width : 0; return [a, b]; };
+  let wd = widths();
+  while(fs > 28 && wd[0] + wd[1] > MAXW){ fs -= 2; wd = widths(); }
+  g.font = '800 ' + fs + 'px ' + SANS; g.fillStyle = '#ffb400';
+  const nm0 = (wd[0] + wd[1] > MAXW) ? fitSpaced(g, name, MAXW - wd[1], 3) : name;
+  drawSpaced(g, nm0, P, yTitle, 3);
+  if(kmPart){ const x = P + spacedW(g, nm0, 3); g.font = '700 ' + fs + 'px ' + SANS; g.fillStyle = '#f2f4f7'; g.fillText(kmPart, x, yTitle); }
+  /* data e descrizione del posto */
+  g.fillStyle = '#8b949e'; g.font = '500 28px ' + SANS; g.fillText(fitText(g, dateLong(st.created), MAXW), P, yDate);
+  if(place){ g.fillStyle = '#f2f4f7'; g.font = '600 30px ' + SANS; g.fillText(fitText(g, place, MAXW), P, yPlace); }
+  /* classifica: distacco e, sotto, i secondi al km */
+  rows.forEach((r, k) => {
+    const y = top + k * (RH + RG), cy = y + RH/2, cls = gapCls(r);
+    const col = cls === 'sp-neg' ? '#39d353' : (cls === 'sp-pos' ? '#ff4d4d' : '#ffb400');
+    g.fillStyle = '#111417'; rrect(g, P, y, W - 2*P, RH, 20); g.fill();
+    g.strokeStyle = r.isRef ? '#ffb400' : '#2a2f36'; g.lineWidth = 2; rrect(g, P, y, W - 2*P, RH, 20); g.stroke();
+    g.fillStyle = '#ffb400'; g.font = '800 40px ' + MONO; g.textAlign = 'center'; g.fillText(String(k + 1), P + 52, cy);
+    const gt = fmtGap(r.gap), pk = showPk ? perKm(st, r) : '';
+    g.textAlign = 'right'; g.fillStyle = col;
+    let gw;
+    if(pk){
+      g.font = '800 44px ' + MONO; gw = g.measureText(gt).width; g.fillText(gt, W - P - 30, cy - 15);
+      g.font = '700 27px ' + MONO; gw = Math.max(gw, g.measureText(pk).width); g.fillText(pk, W - P - 30, cy + 30);
+    } else {
+      g.font = '800 46px ' + MONO; gw = g.measureText(gt).width; g.fillText(gt, W - P - 30, cy);
+    }
+    g.textAlign = 'left';
+    const nx = P + 104;
+    let tagW = 0;
+    if(r.isRef){ g.font = '800 22px ' + SANS; tagW = spacedW(g, t('spRef'), 2) + 24; }
+    g.font = '700 40px ' + SANS; g.fillStyle = '#f2f4f7';
+    const nm = fitText(g, dispName(r.c, r.i), W - P - 30 - gw - 36 - nx - (tagW ? tagW + 16 : 0));
+    g.fillText(nm, nx, cy + 1);
+    if(r.isRef){
+      const tx = nx + g.measureText(nm).width + 16;
+      g.strokeStyle = '#ffb400'; g.lineWidth = 2; rrect(g, tx, cy - 19, tagW, 38, 8); g.stroke();
+      g.fillStyle = '#ffb400'; g.font = '800 22px ' + SANS; drawSpaced(g, t('spRef'), tx + 12, cy + 1, 2);
+    }
+  });
+  /* piede */
+  g.fillStyle = '#8b949e'; g.font = '500 24px ' + SANS; g.textAlign = 'left';
+  g.fillText(fitText(g, t('spShareFoot'), MAXW), P, H - 56);
+  return c;
+}
+function shareName(st){
+  const base = String(st.name).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'prova';
+  return 'iRally-' + base + '.png';
+}
+function dataUrlToBlob(u){
+  const i = u.indexOf(','); const bin = atob(u.slice(i + 1));
+  const a = new Uint8Array(bin.length); for(let k = 0; k < bin.length; k++) a[k] = bin.charCodeAt(k);
+  return new Blob([a], { type:'image/png' });
+}
+/* condivisione di iOS (WhatsApp, Messaggi, Salva immagine...): chiamata subito, nel tocco,
+   come l'esportazione del backup; se il telefono non la offre, anteprima da tenere premuta */
+function exportImage(){
+  const st = cur(); if(!st || !st.cars.length) return;
+  let url;
+  try{ url = drawShare(st).toDataURL('image/png'); }catch(e){ showMsg(String(e && e.message || e)); return; }
+  const blob = dataUrlToBlob(url), fname = shareName(st);
+  try{
+    const file = new File([blob], fname, { type:'image/png' });
+    if(navigator.canShare && navigator.canShare({ files:[file] })){
+      navigator.share({ files:[file] }).catch(err => { if(err && err.name === 'AbortError') return; showPreview(url); });
+      return;
+    }
+  }catch(e){}
+  showPreview(url);
+}
+function showPreview(url){ E('spPvImg').src = url; E('spPv').hidden = false; }
+
+/* ================= FINESTRE (stile uiBox dell'app) ================= */
+function dlg(){ const r = uiBox(); r.box.classList.add('sp-dlg'); return { bg: r.ov, box: r.box }; }
+function close(bg){ uiClose(bg); }
+function btn(label, cls){ const b = document.createElement('button'); b.type = 'button'; b.textContent = label; if(cls) b.className = cls; return b; }
+function confirmBox(title, text, yes, yesCls, onYes){
+  const { bg, box } = dlg();
+  const h = document.createElement('h3'); h.textContent = title; box.appendChild(h);
+  if(text){ const p = document.createElement('p'); p.textContent = text; box.appendChild(p); }
+  const b = document.createElement('div'); b.className = 'sp-btns';
+  const no = btn(t('tcCancel')); no.addEventListener('click', () => close(bg));
+  const ye = btn(yes, yesCls || 'sp-danger'); ye.addEventListener('click', () => { close(bg); onYes(); });
+  b.appendChild(no); b.appendChild(ye); box.appendChild(b);
+}
+function askText(title, preset, onOk){
+  const { bg, box } = dlg();
+  const h = document.createElement('h3'); h.textContent = title; box.appendChild(h);
+  const inp = document.createElement('input'); inp.type = 'text'; inp.className = 'sp-in'; inp.id = 'spAsk'; inp.value = preset || ''; inp.maxLength = 40;
+  inp.setAttribute('autocapitalize','characters'); inp.setAttribute('autocomplete','off');
+  box.appendChild(inp);
+  const b = document.createElement('div'); b.className = 'sp-btns';
+  const no = btn(t('tcCancel')); no.addEventListener('click', () => close(bg));
+  const ok = btn('OK', 'sp-ok');
+  const go = () => { const v = inp.value.trim(); if(!v){ inp.focus(); return; } close(bg); onOk(v); };
+  ok.addEventListener('click', go);
+  inp.addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); go(); } });
+  b.appendChild(no); b.appendChild(ok); box.appendChild(b);
+  setTimeout(() => { try{ inp.focus(); }catch(e){} }, 120);
+}
+function pickInterval(start, onOk){
+  const { bg, box } = dlg();
+  let v = start || 60;
+  const h = document.createElement('h3'); h.textContent = t('spIv'); box.appendChild(h);
+  const chips = document.createElement('div'); chips.className = 'sp-chips';
+  const btns = [30, 60, 120, 180, 300].map(sec => { const c = btn(fmtOff(sec)); c.dataset.sec = sec; c.addEventListener('click', () => { v = sec; upd(); }); chips.appendChild(c); return c; });
+  box.appendChild(chips);
+  const stp = document.createElement('div'); stp.className = 'sp-step';
+  const m = btn('−'); m.setAttribute('aria-label','-');
+  const val = document.createElement('b'); val.id = 'spIvVal';
+  const p = btn('+'); p.setAttribute('aria-label','+');
+  m.addEventListener('click', () => { v = Math.max(5, v - 5); upd(); });
+  p.addEventListener('click', () => { v = Math.min(900, v + 5); upd(); });
+  stp.appendChild(m); stp.appendChild(val); stp.appendChild(p); box.appendChild(stp);
+  const upd = () => { val.textContent = fmtOff(v); btns.forEach(c => c.classList.toggle('sp-sel', +c.dataset.sec === v)); };
+  upd();
+  const b = document.createElement('div'); b.className = 'sp-btns';
+  const no = btn(t('tcCancel')); no.addEventListener('click', () => close(bg));
+  const ok = btn('OK', 'sp-ok'); ok.id = 'spIvOk';
+  ok.addEventListener('click', () => { close(bg); onOk(v); });
+  b.appendChild(no); b.appendChild(ok); box.appendChild(b);
+}
+function pickPlace(v, onOk){
+  const { bg, box } = dlg();
+  const h = document.createElement('h3'); h.textContent = t('spWhere'); box.appendChild(h);
+  const row = document.createElement('div'); row.className = 'sp-kmrow';
+  const l1 = document.createElement('span'); l1.textContent = 'Km';
+  const a = document.createElement('input'); a.type = 'text'; a.id = 'spKmAt'; a.inputMode = 'decimal'; a.autocomplete = 'off'; a.maxLength = 6; a.placeholder = '6'; a.value = v.km != null ? fmtKm(v.km) : '';
+  const l2 = document.createElement('span'); l2.textContent = t('spKmOfWord');
+  const b2 = document.createElement('input'); b2.type = 'text'; b2.id = 'spKmTot'; b2.inputMode = 'decimal'; b2.autocomplete = 'off'; b2.maxLength = 6; b2.placeholder = '16'; b2.value = v.kmTot != null ? fmtKm(v.kmTot) : '';
+  const l3 = document.createElement('span'); l3.textContent = 'km';
+  [l1, a, l2, b2, l3].forEach(e => row.appendChild(e)); box.appendChild(row);
+  const d = document.createElement('input'); d.type = 'text'; d.className = 'sp-in'; d.id = 'spPlaceTxt'; d.maxLength = 60; d.autocomplete = 'off'; d.setAttribute('autocapitalize','sentences'); d.placeholder = t('spPlaceHint'); d.value = v.place || '';
+  box.appendChild(d);
+  const bt = document.createElement('div'); bt.className = 'sp-btns';
+  const no = btn(t('tcCancel')); no.addEventListener('click', () => close(bg));
+  const ok = btn('OK', 'sp-ok'); ok.id = 'spPlaceOk';
+  ok.addEventListener('click', () => { close(bg); onOk({ km: parseKm(a.value), kmTot: parseKm(b2.value), place: d.value.trim() }); });
+  a.addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); b2.focus(); } });
+  b2.addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); d.focus(); } });
+  d.addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); ok.click(); } });
+  bt.appendChild(no); bt.appendChild(ok); box.appendChild(bt);
+}
+function showHelp(){
+  const { bg, box } = dlg();
+  const h = document.createElement('h3'); h.textContent = t('spNav') + ' · ' + t('spHelpTitle'); box.appendChild(h);
+  const p = document.createElement('p'); p.textContent = t('spHelpBody'); box.appendChild(p);
+  const b = document.createElement('div'); b.className = 'sp-btns';
+  const ok = btn('OK', 'sp-ok'); ok.addEventListener('click', () => close(bg));
+  b.appendChild(ok); box.appendChild(b);
+}
+
+/* ================= COLLEGAMENTI ================= */
+E('drvSpect').addEventListener('click', () => { closeDrawer(); spOpen(); });
+E('spClose').addEventListener('click', () => { if(!E('spRun').hidden){ SP.cur = null; spSave(); showList(); } else spCloseOv(); });
+E('spHelp').addEventListener('click', showHelp);
+E('spNew').addEventListener('click', newStage);
+E('spBack').addEventListener('click', () => { SP.cur = null; spSave(); showList(); });
+E('spPlace').addEventListener('click', () => { const st = cur(); if(!st) return; pickPlace(st, pl => { st.km = pl.km; st.kmTot = pl.kmTot; st.place = pl.place; spSave(); renderRun(); }); });
+E('spUndo').addEventListener('click', undoLast);
+E('spExport').addEventListener('click', exportImage);
+E('spPvClose').addEventListener('click', () => { E('spPv').hidden = true; E('spPvImg').removeAttribute('src'); });
+E('spDMinus').addEventListener('click', () => stepDraft(-1));
+E('spDPlus').addEventListener('click', () => stepDraft(1));
+E('spInName').addEventListener('input', () => { const st = cur(); if(!st) return; st.draft.name = E('spInName').value; spSave(); renderNext(); });
+E('spInName').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); E('spInName').blur(); } });
+E('spRows').addEventListener('click', e => { const r = e.target.closest('.sp-row'); if(r) rowMenu(r.getAttribute('data-id')); });
+E('spRows').addEventListener('touchstart', () => { if(document.activeElement === E('spInName')) E('spInName').blur(); }, { passive:true });
+E('spWatch').addEventListener('click', () => { if(document.activeElement === E('spInName')) E('spInName').blur(); });
+const SH = E('spShot');
+/* touchstart con preventDefault: il tempo parte al tocco e la tastiera, se aperta, resta aperta */
+SH.addEventListener('touchstart', e => { e.preventDefault(); if(SH.disabled) return; SH.classList.add('sp-down'); shot(evEpoch(e)); }, { passive:false });
+SH.addEventListener('touchend', () => SH.classList.remove('sp-down'));
+SH.addEventListener('touchcancel', () => SH.classList.remove('sp-down'));
+SH.addEventListener('mousedown', e => { e.preventDefault(); if(SH.disabled) return; SH.classList.add('sp-down'); shot(evEpoch(e)); });
+SH.addEventListener('mouseup', () => SH.classList.remove('sp-down'));
+SH.addEventListener('mouseleave', () => SH.classList.remove('sp-down'));
+SH.addEventListener('keydown', e => { if(e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); if(!e.repeat) shot(Date.now()); } });
 })();
 </script>
 </body>
