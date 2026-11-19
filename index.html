@@ -810,24 +810,29 @@
 <div id="drawer">
   <h2 data-t="drawerTitle"></h2>
 
-  <div class="dgrp" data-t="grpPilot"></div>
-  <button class="drawer-item" id="drvPilot"><span class="dic"><svg viewBox="0 -960 960 960"><path class="solid" d="M579-182H96q-5 0-9-4t-4-9q0-47 1.5-82.5T89-341h314q69 0 117.5-49T569-510q0-51-28.5-92.5T464-664l-134-53q54-30 113.5-45.5T567-778q128 0 219 86.5T877-480q0 125-86.5 211.5T579-182ZM102-420q20-71 59-133.5T254-664l180 73q26 11 41 33t15 48q0 38-25.5 64T401-420H102Z"/></svg></span><span class="dtt" data-t="drvPilot"></span><span class="di-tag" data-t="activeTag"></span><span class="dgo">&rsaquo;</span></button>
-  <button class="drawer-item" id="drvWords"><span class="dic"><svg viewBox="0 0 24 24"><path d="M20 12.5a6.5 6.5 0 0 1-6.5 6.5H8l-4 2.5V12.5A6.5 6.5 0 0 1 10.5 6h3A6.5 6.5 0 0 1 20 12.5Z"/><path d="M9 12.5h6"/></svg></span><span class="dtt" data-t="wordsTitle"></span><span class="dgo">&rsaquo;</span></button>
+  <!-- 19 nov 2026: menu a sottomenu. Pilota, Navigatore e Spettatore si aprono toccandoli (uno alla volta);
+       all'apertura del menu e' aperto quello della modalita' in uso -->
+  <button class="drawer-sec" data-sec="pil" type="button"><span class="dic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="2"/><path d="M3.8 10.5h6.2M14 10.5h6.2M12 14v6.4"/></svg></span><span class="dst" data-t="grpPilot"></span><span class="chev">&rsaquo;</span></button>
+  <div class="drawer-body" data-body="pil">
+    <button class="drawer-item" id="drvPilot"><span class="dic"><svg viewBox="0 -960 960 960"><path class="solid" d="M579-182H96q-5 0-9-4t-4-9q0-47 1.5-82.5T89-341h314q69 0 117.5-49T569-510q0-51-28.5-92.5T464-664l-134-53q54-30 113.5-45.5T567-778q128 0 219 86.5T877-480q0 125-86.5 211.5T579-182ZM102-420q20-71 59-133.5T254-664l180 73q26 11 41 33t15 48q0 38-25.5 64T401-420H102Z"/></svg></span><span class="dtt" data-t="drvPilot"></span><span class="di-tag" data-t="activeTag"></span><span class="dgo">&rsaquo;</span></button>
+    <button class="drawer-item" id="drvWords"><span class="dic"><svg viewBox="0 0 24 24"><path d="M20 12.5a6.5 6.5 0 0 1-6.5 6.5H8l-4 2.5V12.5A6.5 6.5 0 0 1 10.5 6h3A6.5 6.5 0 0 1 20 12.5Z"/><path d="M9 12.5h6"/></svg></span><span class="dtt" data-t="wordsTitle"></span><span class="dgo">&rsaquo;</span></button>
+  </div>
 
-  <div class="dgrp" data-t="grpNav"></div>
-  <button class="drawer-item" id="drvTrip"><span class="dic"><svg viewBox="0 0 24 24"><path d="M9 4.5c5.5 0 5.5 5 0 6.5-5.5 1.5-5.5 6.5 0 6.5"/><circle cx="9" cy="4.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="9" cy="17.5" r="1.3" fill="currentColor" stroke="none"/></svg></span><span class="dtt" data-t="navTrip"></span><span class="di-tag" data-t="activeTag"></span><span class="dgo">&rsaquo;</span></button>
-  <button class="drawer-item" id="drvRadar"><span class="dic"><svg viewBox="0 0 24 24"><rect x="4.3" y="3.5" width="15.4" height="17" rx="2.2"/><path d="M8 3.5v17"/><path d="M11 7.4h5.6M11 9.6h3.6"/><path d="M11.4 17.6v-2.8c0-1.4 1.1-2.5 2.5-2.5h2.4"/><path d="M14.6 10.6 16.8 12.3 14.6 14"/></svg></span><span class="dtt">Radar</span><span class="di-tag" data-t="activeTag"></span><span class="dgo">&rsaquo;</span></button>
-  <button class="drawer-item" id="drvRb"><span class="dic"><svg viewBox="0 0 24 24"><rect x="4.3" y="3.5" width="15.4" height="17" rx="2.2"/><path d="M8 3.5v17"/><path d="M11 7.4h5.6M11 9.6h3.6"/><path d="M11.4 17.6v-2.8c0-1.4 1.1-2.5 2.5-2.5h2.4"/><path d="M14.6 10.6 16.8 12.3 14.6 14"/></svg></span><span class="dtt" data-t="navRadar"></span><span class="dgo">&rsaquo;</span></button>
+  <button class="drawer-sec" data-sec="nav" type="button"><span class="dic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8z"/></svg></span><span class="dst" data-t="grpNav"></span><span class="chev">&rsaquo;</span></button>
+  <div class="drawer-body" data-body="nav">
+    <button class="drawer-item" id="drvTrip"><span class="dic"><svg viewBox="0 0 24 24"><path d="M9 4.5c5.5 0 5.5 5 0 6.5-5.5 1.5-5.5 6.5 0 6.5"/><circle cx="9" cy="4.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="9" cy="17.5" r="1.3" fill="currentColor" stroke="none"/></svg></span><span class="dtt" data-t="navTrip"></span><span class="di-tag" data-t="activeTag"></span><span class="dgo">&rsaquo;</span></button>
+    <button class="drawer-item" id="drvRb"><span class="dic"><svg viewBox="0 0 24 24"><rect x="4.3" y="3.5" width="15.4" height="17" rx="2.2"/><path d="M8 3.5v17"/><path d="M11 7.4h5.6M11 9.6h3.6"/><path d="M11.4 17.6v-2.8c0-1.4 1.1-2.5 2.5-2.5h2.4"/><path d="M14.6 10.6 16.8 12.3 14.6 14"/></svg></span><span class="dtt" data-t="navRadar"></span><span class="di-tag" data-t="activeTag"></span><span class="dgo">&rsaquo;</span></button>
+    <button class="drawer-item" id="drvTimecard"><span class="dic"><svg viewBox="0 0 24 24"><rect x="4" y="4.5" width="16" height="15" rx="2"/><path d="M4 9.5h16M4 14.5h16M12 9.5v10"/></svg></span><span class="dtt" data-t="navTimecard"></span><span class="dgo">&rsaquo;</span></button>
+    <button class="drawer-item" id="drvTdm"><span class="dic"><svg viewBox="0 0 24 24"><rect x="4" y="4.5" width="16" height="15" rx="2"/><path d="M4 9.5h16M4 14.5h16M12 9.5v10"/></svg></span><span class="dtt" data-t="navTdm"></span><span class="dgo">&rsaquo;</span></button>
+    <button class="drawer-item" id="drvCalc"><span class="dic"><svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M8.5 7.5h7M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 15.5h.01M12 15.5h.01M15.5 15.5h.01"/></svg></span><span class="dtt" data-t="navCalc"></span><span class="dgo">&rsaquo;</span></button>
+  </div>
 
-  <div class="dgrp" data-t="grpTdm"></div>
-  <button class="drawer-item" id="drvTimecard"><span class="dic"><svg viewBox="0 0 24 24"><rect x="4" y="4.5" width="16" height="15" rx="2"/><path d="M4 9.5h16M4 14.5h16M12 9.5v10"/></svg></span><span class="dtt" data-t="navTimecard"></span><span class="dgo">&rsaquo;</span></button>
-  <button class="drawer-item" id="drvTdm"><span class="dic"><svg viewBox="0 0 24 24"><rect x="4" y="4.5" width="16" height="15" rx="2"/><path d="M4 9.5h16M4 14.5h16M12 9.5v10"/></svg></span><span class="dtt" data-t="navTdm"></span><span class="dgo">&rsaquo;</span></button>
-  <button class="drawer-item" id="drvCalc"><span class="dic"><svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M8.5 7.5h7M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 15.5h.01M12 15.5h.01M15.5 15.5h.01"/></svg></span><span class="dtt" data-t="navCalc"></span><span class="dgo">&rsaquo;</span></button>
+  <button class="drawer-sec" data-sec="spe" type="button"><span class="dic"><svg viewBox="0 0 24 24"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.8"/></svg></span><span class="dst" data-t="spGrp"></span><span class="chev">&rsaquo;</span></button>
+  <div class="drawer-body" data-body="spe">
+    <button class="drawer-item" id="drvSpect"><span class="dic"><svg viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7"/><path d="M12 13.5V10M10 3.5h4M12 3.5v3M17.6 7.9l1.5-1.5"/></svg></span><span class="dtt" data-t="spNav"></span><span class="dgo">&rsaquo;</span></button>
+  </div>
 
-  <div class="dgrp" data-t="spGrp"></div>
-  <button class="drawer-item" id="drvSpect"><span class="dic"><svg viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7"/><path d="M12 13.5V10M10 3.5h4M12 3.5v3M17.6 7.9l1.5-1.5"/></svg></span><span class="dtt" data-t="spNav"></span><span class="dgo">&rsaquo;</span></button>
-
-  <div class="dgrp" data-t="grpGen"></div>
+  <div class="dsep2"></div>
   <button class="drawer-item" id="drvSet"><span class="dic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M4.2 7l2.6 1.5M17.2 15.5l2.6 1.5M4.2 17l2.6-1.5M17.2 8.5l2.6-1.5"/></svg></span><span class="dtt" data-t="drvSet"></span><span class="dgo">&rsaquo;</span></button>
   <button class="drawer-item" id="drvInfo"><span class="dic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.7 1.1c0 1.7-2.3 2-2.3 3.4"/><circle cx="12" cy="17" r=".9" fill="currentColor" stroke="none"/></svg></span><span class="dtt" data-t="guideMenu"></span><span class="dgo">&rsaquo;</span></button>
 </div>
@@ -838,7 +843,7 @@
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
   <p class="g-links"><a href="https://rally-scan.roberto-dapra5858.workers.dev/privacy" data-t="pwPrivacy"></a> &middot; <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" data-t="pwTerms"></a> &middot; <a href="https://rally-scan.roberto-dapra5858.workers.dev/support" data-t="gSupport"></a></p>
- <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-11-19.2</p>
+ <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-11-19.5</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -882,6 +887,7 @@
     <h2 style="margin:0">Radar</h2>
     <button id="rbInfo" style="background:var(--btnbg);border:1px solid var(--line);color:var(--muted);border-radius:50%;width:30px;height:30px;font-size:15px;font-weight:700;flex-shrink:0">i</button>
   </div>
+  <button id="rbGoRadar" type="button" hidden style="width:100%;padding:14px 16px;border-radius:12px;font-size:16px;font-weight:800;background:var(--btnbg);border:2px solid var(--amber);color:var(--amber);margin:2px 0 14px;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">&#9654; <span data-t="rbGoRadar"></span><span id="rbGoName" style="color:var(--text)"></span></button>
   <p class="small" data-t="rbListDesc"></p>
   <button id="ssNew" style="width:100%;padding:16px;border-radius:12px;font-size:17px;font-weight:800;background:var(--btnbg);border:2px solid var(--green);color:var(--green);margin-bottom:16px">+ <span data-t="rbNew"></span></button>
   <button id="ssNewPdf" style="width:100%;padding:13px;border-radius:12px;font-size:15px;font-weight:700;background:var(--btnbg);border:2px solid var(--blue);color:var(--blue);margin-bottom:16px" data-t="rbNewPdf"></button>
@@ -1278,6 +1284,19 @@ body[data-theme="dark"] #drawer{background-image:var(--carbon)}
 #drawer .drawer-item.active .dic svg{stroke:var(--amber)}
 #drawer .drawer-item .di-tag{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);display:none;flex-shrink:0}
 #drawer .drawer-item.active .di-tag{display:inline}
+/* ===== sottomenu (19 nov 2026) ===== */
+#drawer .drawer-sec{gap:12px;justify-content:flex-start;background-color:var(--panel);border-radius:12px;padding:12px;margin-bottom:8px;font-size:16px;letter-spacing:.02em;flex-shrink:0}
+#drawer .drawer-sec .dic{width:34px;height:34px;border-radius:9px;background:var(--panel);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#drawer .drawer-sec .dic svg{width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#drawer .drawer-sec .dst{flex:1;min-width:0;text-align:left}
+#drawer .drawer-sec .chev{margin-left:auto}
+#drawer .drawer-sec.open .dic{border-color:var(--amber)}
+#drawer .drawer-sec.open .dic svg{stroke:var(--amber)}
+#drawer .drawer-body{margin:-2px 0 12px 16px;padding-left:12px;flex-shrink:0}
+#drawer .drawer-body .drawer-item{padding:8px 10px;font-size:14.5px;margin-bottom:6px}
+#drawer .drawer-body .drawer-item .dic{width:30px;height:30px}
+#drawer .dsep2{height:1px;background:var(--line);margin:10px 2px 12px;flex-shrink:0}
+body[data-theme="dark"] #drawer .drawer-sec{background-image:var(--carbon)}
 
 /* ===== carbonio su tutte le superfici ===== */
 body[data-theme="dark"] .zone,
@@ -1571,7 +1590,7 @@ function updateNavFree(){ var el=document.getElementById('navFree'); if(!el) ret
 
 /* ================= TRADUZIONI ================= */
 const T = {
-it:{introTitle:"Come funziona",
+it:{rbGoRadar:"Torna al Radar",introTitle:"Come funziona",
   scanBlurry:"foto poco leggibile: inquadra solo la pagina, piu’ dritta",
   rbBeepLabel:"Avviso sonoro a 100 m",
   rbBeepSmall:"Un doppio tocco sonoro discreto quando mancano 100 metri al simbolo.",
@@ -1754,7 +1773,7 @@ it:{introTitle:"Come funziona",
   soundLabel:"Suono notifica",
   soundDefault:"Predefinito",
   soundPlay:"Ascolta"},
-en:{introTitle:"How it works",
+en:{rbGoRadar:"Back to Radar",introTitle:"How it works",
   scanBlurry:"photo hard to read: frame only the page, straighter",
   rbBeepLabel:"Sound alert 100 m before",
   rbBeepSmall:"A soft double chime when the symbol is 100 metres away.",
@@ -1937,7 +1956,7 @@ en:{introTitle:"How it works",
   soundLabel:"Notification sound",
   soundDefault:"Default",
   soundPlay:"Play"},
-fr:{introTitle:"Comment ça marche",
+fr:{rbGoRadar:"Retour au Radar",introTitle:"Comment ça marche",
   scanBlurry:"photo peu lisible : cadre seulement la page, plus droite",
   rbBeepLabel:"Alerte sonore à 100 m",
   rbBeepSmall:"Un double son discret quand il reste 100 mètres avant le repère.",
@@ -2133,7 +2152,7 @@ fr:{introTitle:"Comment ça marche",
   soundLabel:"Son de notification",
   soundDefault:"Par défaut",
   soundPlay:"Écouter"},
-es:{introTitle:"Cómo funciona",
+es:{rbGoRadar:"Volver al Radar",introTitle:"Cómo funciona",
   scanBlurry:"foto poco legible: encuadra solo la página, más recta",
   rbBeepLabel:"Aviso sonoro a 100 m",
   rbBeepSmall:"Un doble sonido discreto cuando faltan 100 metros para el símbolo.",
@@ -2329,7 +2348,7 @@ es:{introTitle:"Cómo funciona",
   soundLabel:"Sonido de notificación",
   soundDefault:"Predeterminado",
   soundPlay:"Escuchar"},
-de:{introTitle:"So funktioniert es",
+de:{rbGoRadar:"Zurück zum Radar",introTitle:"So funktioniert es",
   scanBlurry:"Foto schwer lesbar: nur die Seite, gerader aufnehmen",
   rbBeepLabel:"Tonsignal 100 m vorher",
   rbBeepSmall:"Ein dezenter Doppelton, wenn das Symbol 100 Meter entfernt ist.",
@@ -2525,7 +2544,7 @@ de:{introTitle:"So funktioniert es",
   soundLabel:"Benachrichtigungston",
   soundDefault:"Standard",
   soundPlay:"Anhören"},
-pt:{introTitle:"Como funciona",
+pt:{rbGoRadar:"Voltar ao Radar",introTitle:"Como funciona",
   scanBlurry:"foto pouco legível: enquadra só a página, mais direita",
   rbBeepLabel:"Aviso sonoro a 100 m",
   rbBeepSmall:"Um duplo som discreto quando faltam 100 metros para o símbolo.",
@@ -2721,7 +2740,7 @@ pt:{introTitle:"Como funciona",
   soundLabel:"Som de notificação",
   soundDefault:"Predefinido",
   soundPlay:"Ouvir"},
-ja:{introTitle:"使い方",
+ja:{rbGoRadar:"レーダーに戻る",introTitle:"使い方",
   scanBlurry:"写真が読みにくい：ページだけをまっすぐに写してください",
   rbBeepLabel:"100 m手前で音を鳴らす",
   rbBeepSmall:"シンボルまで100メートルで、控えめな2音のチャイム。",
@@ -2917,7 +2936,7 @@ ja:{introTitle:"使い方",
   soundLabel:"通知音",
   soundDefault:"デフォルト",
   soundPlay:"再生"},
-cs:{introTitle:"Jak to funguje",
+cs:{rbGoRadar:"Zpět na radar",introTitle:"Jak to funguje",
   scanBlurry:"fotka špatně čitelná: zaběr jen stránku, rovněji",
   rbBeepLabel:"Zvukové upozornění 100 m předem",
   rbBeepSmall:"Jemný dvojitý tón, když do symbolu zbývá 100 metrů.",
@@ -3292,14 +3311,14 @@ const PW_SUB_LITE = {
   cs:"iRally Pro odemkne celou aplikaci: režim Pilot a skener road booku se všemi funkcemi."
 };
 const GUIDE_MENU_LITE = {
-  it:"Tocca <b>☰</b> in alto per aprire il menu e scegliere cosa usare: <b>Pilota</b> (legge le note ai metri), <b>Navigatore / Trip</b> (parziale e velocità), <b>Radar</b> (road book), <b>Calcolatrice</b>, <b>Impostazioni</b> e <b>Guida</b>.",
-  en:"Tap <b>☰</b> at the top to open the menu and pick what to use: <b>Driver</b> (reads notes at set distances), <b>Co-driver / Trip</b> (partial and speed), <b>Radar</b> (road book), <b>Time calculator</b>, <b>Settings</b> and <b>Guide</b>.",
-  fr:"Touchez <b>☰</b> en haut pour ouvrir le menu et choisir : <b>Pilote</b> (lit les notes aux mètres réglés), <b>Copilote / Trip</b> (partiel et vitesse), <b>Radar</b> (carnet de route), <b>Calculatrice</b>, <b>Réglages</b> et <b>Guide</b>.",
-  es:"Toca <b>☰</b> arriba para abrir el menú y elegir: <b>Piloto</b> (lee las notas en los metros que marques), <b>Copiloto / Trip</b> (parcial y velocidad), <b>Radar</b> (road book), <b>Calculadora</b>, <b>Ajustes</b> y <b>Guía</b>.",
-  de:"Tippe oben auf <b>☰</b>, um das Menü zu öffnen und zu wählen: <b>Fahrer</b> (liest Notizen bei den eingestellten Metern), <b>Beifahrer / Trip</b> (Teilstrecke und Tempo), <b>Radar</b> (Roadbook), <b>Zeitrechner</b>, <b>Einstellungen</b> und <b>Anleitung</b>.",
-  pt:"Toca em <b>☰</b> em cima para abrir o menu e escolher: <b>Piloto</b> (lê as notas aos metros definidos), <b>Navegador / Trip</b> (parcial e velocidade), <b>Radar</b> (road book), <b>Calculadora</b>, <b>Definições</b> e <b>Guia</b>.",
-  ja:"上部の <b>☰</b> をタップしてメニューを開き、使うものを選びます: <b>ドライバー</b>（設定した距離でノートを読み上げ）、<b>ナビゲーター / トリップ</b>（区間距離と速度）、<b>レーダー</b>（ロードブック）、<b>計算機</b>、<b>設定</b>、<b>ガイド</b>。",
-  cs:"Klepnutím na <b>☰</b> nahoře otevřete menu a vyberete: <b>Řidič</b> (čte poznámky na nastavených metrech), <b>Navigátor / Trip</b> (mezisoučet a rychlost), <b>Radar</b> (road book), <b>Kalkulačka</b>, <b>Nastavení</b> a <b>Nápověda</b>."
+  it:"Tocca <b>☰</b> in alto per aprire il menu. <b>Pilota</b>, <b>Navigatore</b> e <b>Spettatore</b> si aprono toccandoli e mostrano le loro voci: <b>Pilota</b> (legge le note ai metri), <b>Navigatore / Trip</b> (parziale e velocità), <b>Scanner radar</b> (road book e Radar), <b>Calcolatrice</b>, <b>Intermedi</b> (per lo spettatore), <b>Impostazioni</b> e <b>Guida</b>.",
+  en:"Tap <b>☰</b> at the top to open the menu. <b>Driver</b>, <b>Co-driver</b> and <b>Spectator</b> open when you tap them and show their items: <b>Driver</b> (reads notes at set distances), <b>Co-driver / Trip</b> (partial and speed), <b>Radar scanner</b> (road book and Radar), <b>Time calculator</b>, <b>Split times</b> (for spectators), <b>Settings</b> and <b>Guide</b>.",
+  fr:"Touchez <b>☰</b> en haut pour ouvrir le menu. <b>Pilote</b>, <b>Navigateur</b> et <b>Spectateur</b> s'ouvrent quand vous les touchez et montrent leurs éléments : <b>Pilote</b> (lit les notes aux mètres réglés), <b>Copilote / Trip</b> (partiel et vitesse), <b>Scanner radar</b> (carnet de route et Radar), <b>Calculatrice</b>, <b>Temps intermédiaires</b> (pour les spectateurs), <b>Réglages</b> et <b>Guide</b>.",
+  es:"Toca <b>☰</b> arriba para abrir el menú. <b>Piloto</b>, <b>Navegante</b> y <b>Espectador</b> se abren al tocarlos y muestran sus opciones: <b>Piloto</b> (lee las notas en los metros que marques), <b>Copiloto / Trip</b> (parcial y velocidad), <b>Escáner radar</b> (road book y Radar), <b>Calculadora</b>, <b>Tiempos intermedios</b> (para espectadores), <b>Ajustes</b> y <b>Guía</b>.",
+  de:"Tippe oben auf <b>☰</b>, um das Menü zu öffnen. <b>Fahrer</b>, <b>Beifahrer</b> und <b>Zuschauer</b> öffnen sich beim Antippen und zeigen ihre Einträge: <b>Fahrer</b> (liest Notizen bei den eingestellten Metern), <b>Beifahrer / Trip</b> (Teilstrecke und Tempo), <b>Radar-Scanner</b> (Roadbook und Radar), <b>Zeitrechner</b>, <b>Zwischenzeiten</b> (für Zuschauer), <b>Einstellungen</b> und <b>Anleitung</b>.",
+  pt:"Toca em <b>☰</b> em cima para abrir o menu. <b>Piloto</b>, <b>Navegador</b> e <b>Espectador</b> abrem-se ao tocar e mostram as suas opções: <b>Piloto</b> (lê as notas aos metros definidos), <b>Navegador / Trip</b> (parcial e velocidade), <b>Scanner radar</b> (road book e Radar), <b>Calculadora</b>, <b>Tempos intermédios</b> (para espectadores), <b>Definições</b> e <b>Guia</b>.",
+  ja:"上部の <b>☰</b> をタップしてメニューを開きます。<b>ドライバー</b>、<b>ナビ</b>、<b>観客</b> はタップすると開き、項目が表示されます: <b>ドライバー</b>（設定した距離でノートを読み上げ）、<b>ナビゲーター / トリップ</b>（区間距離と速度）、<b>レーダースキャナー</b>（ロードブックとレーダー）、<b>計算機</b>、<b>スプリットタイム</b>（観客用）、<b>設定</b>、<b>ガイド</b>。",
+  cs:"Klepnutím na <b>☰</b> nahoře otevřete menu. <b>Jezdec</b>, <b>Navigátor</b> a <b>Divák</b> se otevřou klepnutím a ukážou své položky: <b>Řidič</b> (čte poznámky na nastavených metrech), <b>Navigátor / Trip</b> (mezisoučet a rychlost), <b>Skener radaru</b> (road book a radar), <b>Kalkulačka</b>, <b>Mezičasy</b> (pro diváky), <b>Nastavení</b> a <b>Nápověda</b>."
 };
 if(HIDE_TIMECARDS){ Object.keys(PW_SUB_LITE).forEach(function(l){ if(T[l]) T[l].pwSub = PW_SUB_LITE[l]; }); }
 function t(k){ return (T[cfg.lang]||T.en)[k] || T.en[k] || k; }
@@ -3316,7 +3335,7 @@ cs:"Vše potřebné po sekcích. Klepnutím na nadpis jej otevřete."
 var GUIDE_SUP={it:"ID assistenza:",en:"Support ID:",fr:"ID d'assistance :",es:"ID de soporte:",de:"Support-ID:",pt:"ID de apoio:",ja:"サポートID:",cs:"ID podpory:"};
 var GUIDE={
 it:[
-["☰","Menu e modalità","Tocca <b>☰</b> in alto per aprire il menu e scegliere cosa usare: <b>Pilota</b> (legge le note ai metri), <b>Navigatore / Trip</b> (parziale e velocità), <b>Radar</b> (road book), <b>Scanner tabella di marcia</b>, <b>Tabella di marcia manuale</b>, <b>Impostazioni</b> e <b>Guida</b>."],
+["☰","Menu e modalità","Tocca <b>☰</b> in alto per aprire il menu. <b>Pilota</b>, <b>Navigatore</b> e <b>Spettatore</b> si aprono toccandoli e mostrano le loro voci: <b>Pilota</b> (legge le note ai metri), <b>Navigatore / Trip</b> (parziale e velocità), <b>Scanner radar</b> (road book e Radar), <b>Scanner tabella di marcia</b>, <b>Tabella di marcia manuale</b>, <b>Calcolatrice tempo</b>, <b>Intermedi</b> (per lo spettatore), <b>Impostazioni</b> e <b>Guida</b>."],
 ["🏁","Pilota","Imposti una <b>parola o nota</b> e il <b>range di metri</b> in cui deve comparire. Durante il tratto, quando il contametri entra nel range, la nota compare e viene <b>letta a voce</b> se attivi l'interruttore. Azzera il contatore alla partenza.<div class=\"tip\">Con un telecomando Bluetooth compatibile dai il parziale senza toccare lo schermo.</div>"],
 ["🧭","Navigatore / Trip","<b>Parziale sempre attivo</b>, <b>velocità</b> e <b>qualità del GPS</b>. In galleria attiva la <b>modalità Tunnel</b>: la distanza continua a essere stimata anche senza segnale. Tieni premuto sul parziale per azzerarlo."],
 ["📡","Radar (road book)","<ul><li>Tocca <b>+</b> per creare una prova: scrivi il nome, fotografa la pagina e l'app la legge e la salva da sola.</li><li>Tocca una prova salvata per <b>caricarla</b>.</li><li>In gara <b>azzera il TOTALE</b> alla partenza (tieni premuto 2 secondi).</li><li>Tieni premuto sul <b>PARZIALE</b> per azzerare i metri e passare <b>subito al riferimento successivo</b>.</li><li>Per ogni riferimento vedi <b>numero</b>, <b>foto</b> e <b>metri mancanti</b>. Le frecce scorrono senza toccare il totale.</li></ul><div class=\"tip\">Fotografa la pagina dritta e ben illuminata.</div>"],
@@ -3327,7 +3346,7 @@ it:[
 ["⚙️","Impostazioni","Da qui cambi <b>lingua</b>, <b>unità</b> (km/mi), <b>stile e dimensione dei numeri</b> con anteprima dal vivo, <b>tema</b> e formato orario 12/24."]
 ],
 en:[
-["☰","Menu and modes","Tap <b>☰</b> at the top to open the menu and pick what to use: <b>Driver</b> (reads notes at set distances), <b>Co-driver / Trip</b> (partial and speed), <b>Radar</b> (road book), <b>Time card scanner</b>, <b>Manual time card</b>, <b>Settings</b> and <b>Guide</b>."],
+["☰","Menu and modes","Tap <b>☰</b> at the top to open the menu. <b>Driver</b>, <b>Co-driver</b> and <b>Spectator</b> open when you tap them and show their items: <b>Driver</b> (reads notes at set distances), <b>Co-driver / Trip</b> (partial and speed), <b>Radar scanner</b> (road book and Radar), <b>Time card scanner</b>, <b>Manual time card</b>, <b>Time calculator</b>, <b>Split times</b> (for spectators), <b>Settings</b> and <b>Guide</b>."],
 ["🏁","Driver","Set a <b>word or note</b> and the <b>metre range</b> where it should appear. During the stage, when the counter enters the range the note shows up and is <b>read aloud</b> if you turn the switch on. Reset the counter at the start.<div class=\"tip\">With a compatible Bluetooth remote you can reset the partial without touching the screen.</div>"],
 ["🧭","Co-driver / Trip","<b>Always-on partial</b>, <b>speed</b> and <b>GPS quality</b>. In a tunnel turn on <b>Tunnel mode</b>: distance keeps being estimated even without signal. Hold the partial to reset it."],
 ["📡","Radar (road book)","<ul><li>Tap <b>+</b> to create a stage: type a name, photograph the page and the app reads and saves it on its own.</li><li>Tap a saved stage to <b>load</b> it.</li><li>In the race <b>reset the TOTAL</b> at the start (hold 2 seconds).</li><li>Hold the <b>PARTIAL</b> to zero the metres and jump <b>straight to the next reference</b>.</li><li>For each reference you see <b>number</b>, <b>photo</b> and <b>metres to go</b>. The arrows scroll without touching the total.</li></ul><div class=\"tip\">Photograph the page straight and well lit.</div>"],
@@ -3338,7 +3357,7 @@ en:[
 ["⚙️","Settings","Here you change <b>language</b>, <b>units</b> (km/mi), <b>number style and size</b> with a live preview, <b>theme</b> and 12/24-hour format."]
 ],
 fr:[
-["☰","Menu et modes","Touchez <b>☰</b> en haut pour ouvrir le menu et choisir : <b>Pilote</b> (lit les notes aux mètres réglés), <b>Copilote / Trip</b> (partiel et vitesse), <b>Radar</b> (carnet de route), <b>Scanner du carnet de contrôle</b>, <b>Carnet de contrôle manuel</b>, <b>Réglages</b> et <b>Guide</b>."],
+["☰","Menu et modes","Touchez <b>☰</b> en haut pour ouvrir le menu. <b>Pilote</b>, <b>Navigateur</b> et <b>Spectateur</b> s'ouvrent quand vous les touchez et montrent leurs éléments : <b>Pilote</b> (lit les notes aux mètres réglés), <b>Copilote / Trip</b> (partiel et vitesse), <b>Scanner radar</b> (carnet de route et Radar), <b>Scanner du carnet de contrôle</b>, <b>Carnet de contrôle manuel</b>, <b>Calculatrice de temps</b>, <b>Temps intermédiaires</b> (pour les spectateurs), <b>Réglages</b> et <b>Guide</b>."],
 ["🏁","Pilote","Vous réglez un <b>mot ou une note</b> et la <b>plage de mètres</b> où il doit apparaître. Pendant la spéciale, quand le compteur entre dans la plage, la note s'affiche et est <b>lue à voix haute</b> si vous activez l'interrupteur. Remettez le compteur à zéro au départ.<div class=\"tip\">Avec une télécommande Bluetooth compatible, vous remettez le partiel à zéro sans toucher l'écran.</div>"],
 ["🧭","Copilote / Trip","<b>Partiel toujours actif</b>, <b>vitesse</b> et <b>qualité du GPS</b>. En tunnel, activez le <b>mode Tunnel</b> : la distance continue d'être estimée sans signal. Appui long sur le partiel pour le remettre à zéro."],
 ["📡","Radar (carnet de route)","<ul><li>Touchez <b>+</b> pour créer une spéciale : saisissez le nom, photographiez la page et l'application la lit et l'enregistre seule.</li><li>Touchez une spéciale enregistrée pour la <b>charger</b>.</li><li>En course, <b>remettez le TOTAL à zéro</b> au départ (appui long 2 secondes).</li><li>Appui long sur le <b>PARTIEL</b> pour remettre les mètres à zéro et passer <b>directement au repère suivant</b>.</li><li>Pour chaque repère : <b>numéro</b>, <b>photo</b> et <b>mètres restants</b>. Les flèches défilent sans toucher au total.</li></ul><div class=\"tip\">Photographiez la page bien droite et bien éclairée.</div>"],
@@ -3349,7 +3368,7 @@ fr:[
 ["⚙️","Réglages","Ici vous changez la <b>langue</b>, les <b>unités</b> (km/mi), le <b>style et la taille des chiffres</b> avec aperçu en direct, le <b>thème</b> et le format 12/24 h."]
 ],
 es:[
-["☰","Menú y modos","Toca <b>☰</b> arriba para abrir el menú y elegir: <b>Piloto</b> (lee las notas en los metros que marques), <b>Copiloto / Trip</b> (parcial y velocidad), <b>Radar</b> (road book), <b>Escáner de carné de control</b>, <b>Carné de control manual</b>, <b>Ajustes</b> y <b>Guía</b>."],
+["☰","Menú y modos","Toca <b>☰</b> arriba para abrir el menú. <b>Piloto</b>, <b>Navegante</b> y <b>Espectador</b> se abren al tocarlos y muestran sus opciones: <b>Piloto</b> (lee las notas en los metros que marques), <b>Copiloto / Trip</b> (parcial y velocidad), <b>Escáner radar</b> (road book y Radar), <b>Escáner de carné de control</b>, <b>Carné de control manual</b>, <b>Calculadora de tiempo</b>, <b>Tiempos intermedios</b> (para espectadores), <b>Ajustes</b> y <b>Guía</b>."],
 ["🏁","Piloto","Defines una <b>palabra o nota</b> y el <b>rango de metros</b> donde debe aparecer. Durante el tramo, cuando el contador entra en el rango, la nota aparece y se <b>lee en voz alta</b> si activas el interruptor. Pon el contador a cero en la salida.<div class=\"tip\">Con un mando Bluetooth compatible pones el parcial a cero sin tocar la pantalla.</div>"],
 ["🧭","Copiloto / Trip","<b>Parcial siempre activo</b>, <b>velocidad</b> y <b>calidad del GPS</b>. En túnel activa el <b>modo Túnel</b>: la distancia se sigue estimando sin señal. Mantén pulsado el parcial para ponerlo a cero."],
 ["📡","Radar (road book)","<ul><li>Toca <b>+</b> para crear un tramo: escribe el nombre, fotografía la página y la app la lee y la guarda sola.</li><li>Toca un tramo guardado para <b>cargarlo</b>.</li><li>En carrera <b>pon el TOTAL a cero</b> en la salida (mantén 2 segundos).</li><li>Mantén pulsado el <b>PARCIAL</b> para poner los metros a cero y pasar <b>directo a la referencia siguiente</b>.</li><li>De cada referencia ves <b>número</b>, <b>foto</b> y <b>metros que faltan</b>. Las flechas avanzan sin tocar el total.</li></ul><div class=\"tip\">Fotografía la página recta y bien iluminada.</div>"],
@@ -3360,7 +3379,7 @@ es:[
 ["⚙️","Ajustes","Aquí cambias <b>idioma</b>, <b>unidades</b> (km/mi), <b>estilo y tamaño de los números</b> con vista previa en directo, <b>tema</b> y formato de hora 12/24."]
 ],
 de:[
-["☰","Menü und Modi","Tippe oben auf <b>☰</b>, um das Menü zu öffnen und zu wählen: <b>Fahrer</b> (liest Notizen bei den eingestellten Metern), <b>Beifahrer / Trip</b> (Teilstrecke und Tempo), <b>Radar</b> (Roadbook), <b>Bordkarten-Scanner</b>, <b>Bordkarte manuell</b>, <b>Einstellungen</b> und <b>Anleitung</b>."],
+["☰","Menü und Modi","Tippe oben auf <b>☰</b>, um das Menü zu öffnen. <b>Fahrer</b>, <b>Beifahrer</b> und <b>Zuschauer</b> öffnen sich beim Antippen und zeigen ihre Einträge: <b>Fahrer</b> (liest Notizen bei den eingestellten Metern), <b>Beifahrer / Trip</b> (Teilstrecke und Tempo), <b>Radar-Scanner</b> (Roadbook und Radar), <b>Bordkarten-Scanner</b>, <b>Bordkarte manuell</b>, <b>Zeitrechner</b>, <b>Zwischenzeiten</b> (für Zuschauer), <b>Einstellungen</b> und <b>Anleitung</b>."],
 ["🏁","Fahrer","Du legst ein <b>Wort oder eine Notiz</b> und den <b>Meterbereich</b> fest, in dem sie erscheinen soll. Auf der Prüfung erscheint die Notiz, sobald der Zähler in den Bereich kommt, und wird <b>vorgelesen</b>, wenn du den Schalter aktivierst. Setze den Zähler am Start zurück.<div class=\"tip\">Mit einer kompatiblen Bluetooth-Fernbedienung setzt du die Teilstrecke zurück, ohne den Bildschirm zu berühren.</div>"],
 ["🧭","Beifahrer / Trip","<b>Teilstrecke immer aktiv</b>, <b>Geschwindigkeit</b> und <b>GPS-Qualität</b>. Im Tunnel den <b>Tunnel-Modus</b> einschalten: die Distanz wird auch ohne Signal geschätzt. Lange auf die Teilstrecke drücken, um sie zurückzusetzen."],
 ["📡","Radar (Roadbook)","<ul><li>Tippe auf <b>+</b>, um eine Prüfung anzulegen: Namen eingeben, Seite fotografieren – die App liest und speichert sie selbst.</li><li>Tippe eine gespeicherte Prüfung an, um sie zu <b>laden</b>.</li><li>Im Rennen am Start den <b>GESAMTWERT zurücksetzen</b> (2 Sekunden halten).</li><li>Die <b>TEILSTRECKE</b> gedrückt halten, um die Meter zu nullen und <b>direkt zum nächsten Punkt</b> zu springen.</li><li>Zu jedem Punkt siehst du <b>Nummer</b>, <b>Foto</b> und <b>Restmeter</b>. Die Pfeile blättern, ohne den Gesamtwert zu ändern.</li></ul><div class=\"tip\">Fotografiere die Seite gerade und gut beleuchtet.</div>"],
@@ -3371,7 +3390,7 @@ de:[
 ["⚙️","Einstellungen","Hier änderst du <b>Sprache</b>, <b>Einheiten</b> (km/mi), <b>Stil und Größe der Zahlen</b> mit Live-Vorschau, <b>Design</b> und 12/24-Stunden-Format."]
 ],
 pt:[
-["☰","Menu e modos","Toca em <b>☰</b> em cima para abrir o menu e escolher: <b>Piloto</b> (lê as notas aos metros definidos), <b>Navegador / Trip</b> (parcial e velocidade), <b>Radar</b> (road book), <b>Scanner do cartão de controlo</b>, <b>Cartão de controlo manual</b>, <b>Definições</b> e <b>Guia</b>."],
+["☰","Menu e modos","Toca em <b>☰</b> em cima para abrir o menu. <b>Piloto</b>, <b>Navegador</b> e <b>Espectador</b> abrem-se ao tocar e mostram as suas opções: <b>Piloto</b> (lê as notas aos metros definidos), <b>Navegador / Trip</b> (parcial e velocidade), <b>Scanner radar</b> (road book e Radar), <b>Scanner do cartão de controlo</b>, <b>Cartão de controlo manual</b>, <b>Calculadora de tempo</b>, <b>Tempos intermédios</b> (para espectadores), <b>Definições</b> e <b>Guia</b>."],
 ["🏁","Piloto","Defines uma <b>palavra ou nota</b> e o <b>intervalo de metros</b> em que deve aparecer. Durante o troço, quando o contador entra no intervalo, a nota aparece e é <b>lida em voz alta</b> se ligares o interruptor. Põe o contador a zero na partida.<div class=\"tip\">Com um comando Bluetooth compatível zeras o parcial sem tocar no ecrã.</div>"],
 ["🧭","Navegador / Trip","<b>Parcial sempre ativo</b>, <b>velocidade</b> e <b>qualidade do GPS</b>. Em túnel liga o <b>modo Túnel</b>: a distância continua a ser estimada sem sinal. Mantém premido o parcial para o zerar."],
 ["📡","Radar (road book)","<ul><li>Toca em <b>+</b> para criar um troço: escreve o nome, fotografa a página e a app lê e guarda sozinha.</li><li>Toca num troço guardado para o <b>carregar</b>.</li><li>Em prova <b>zera o TOTAL</b> na partida (mantém 2 segundos).</li><li>Mantém premido o <b>PARCIAL</b> para zerar os metros e passar <b>já para a referência seguinte</b>.</li><li>Em cada referência vês <b>número</b>, <b>foto</b> e <b>metros em falta</b>. As setas avançam sem mexer no total.</li></ul><div class=\"tip\">Fotografa a página direita e bem iluminada.</div>"],
@@ -3382,7 +3401,7 @@ pt:[
 ["⚙️","Definições","Aqui mudas <b>idioma</b>, <b>unidades</b> (km/mi), <b>estilo e tamanho dos números</b> com pré-visualização, <b>tema</b> e formato de hora 12/24."]
 ],
 ja:[
-["☰","メニューとモード","上部の <b>☰</b> をタップしてメニューを開き、使うものを選びます: <b>ドライバー</b>（設定した距離でノートを読み上げ）、<b>ナビゲーター / トリップ</b>（区間距離と速度）、<b>レーダー</b>（ロードブック）、<b>タイムカード・スキャナー</b>、<b>タイムカード（手動）</b>、<b>設定</b>、<b>ガイド</b>。"],
+["☰","メニューとモード","上部の <b>☰</b> をタップしてメニューを開きます。<b>ドライバー</b>、<b>ナビ</b>、<b>観客</b> はタップすると開き、項目が表示されます: <b>ドライバー</b>（設定した距離でノートを読み上げ）、<b>ナビゲーター / トリップ</b>（区間距離と速度）、<b>レーダースキャナー</b>（ロードブックとレーダー）、<b>タイムカード・スキャナー</b>、<b>タイムカード（手動）</b>、<b>タイム計算機</b>、<b>スプリットタイム</b>（観客用）、<b>設定</b>、<b>ガイド</b>。"],
 ["🏁","ドライバー","<b>単語やノート</b>と、それを表示する<b>距離の範囲</b>を設定します。走行中、距離計がその範囲に入るとノートが表示され、スイッチを入れておけば<b>読み上げ</b>られます。スタート時にカウンターをリセットしてください。<div class=\"tip\">対応する Bluetooth リモコンがあれば、画面に触れずに区間距離をリセットできます。</div>"],
 ["🧭","ナビゲーター / トリップ","<b>常時作動の区間距離</b>、<b>速度</b>、<b>GPSの精度</b>を表示します。トンネルでは<b>トンネルモード</b>をオンに: 電波がなくても距離を推定し続けます。区間距離を長押しでリセット。"],
 ["📡","レーダー（ロードブック）","<ul><li><b>+</b> をタップしてステージを作成: 名前を入力してページを撮影すると、アプリが自動で読み取り保存します。</li><li>保存済みのステージをタップして<b>読み込み</b>。</li><li>競技ではスタート時に<b>合計をリセット</b>（2秒長押し）。</li><li><b>区間距離</b>を長押しすると距離がゼロになり、<b>次のポイントへ即座に</b>進みます。</li><li>各ポイントで<b>番号</b>、<b>写真</b>、<b>残り距離</b>を表示。矢印は合計に影響せず送れます。</li></ul><div class=\"tip\">ページはまっすぐ、明るい場所で撮影してください。</div>"],
@@ -3393,7 +3412,7 @@ ja:[
 ["⚙️","設定","ここで<b>言語</b>、<b>単位</b>（km/mi）、<b>数字のスタイルと大きさ</b>（プレビュー付き）、<b>テーマ</b>、12/24時間表示を変更できます。"]
 ],
 cs:[
-["☰","Menu a režimy","Klepnutím na <b>☰</b> nahoře otevřete menu a vyberete: <b>Řidič</b> (čte poznámky na nastavených metrech), <b>Navigátor / Trip</b> (mezisoučet a rychlost), <b>Radar</b> (road book), <b>Skener jízdního výkazu</b>, <b>Ruční jízdní výkaz</b>, <b>Nastavení</b> a <b>Nápověda</b>."],
+["☰","Menu a režimy","Klepnutím na <b>☰</b> nahoře otevřete menu. <b>Jezdec</b>, <b>Navigátor</b> a <b>Divák</b> se otevřou klepnutím a ukážou své položky: <b>Řidič</b> (čte poznámky na nastavených metrech), <b>Navigátor / Trip</b> (mezisoučet a rychlost), <b>Skener radaru</b> (road book a radar), <b>Skener jízdního výkazu</b>, <b>Ruční jízdní výkaz</b>, <b>Kalkulačka času</b>, <b>Mezičasy</b> (pro diváky), <b>Nastavení</b> a <b>Nápověda</b>."],
 ["🏁","Řidič","Nastavíte <b>slovo nebo poznámku</b> a <b>rozsah metrů</b>, kde se má objevit. Během zkoušky se poznámka zobrazí, jakmile počítadlo vstoupí do rozsahu, a je <b>přečtena nahlas</b>, pokud zapnete přepínač. Na startu počítadlo vynulujte.<div class=\"tip\">S kompatibilním Bluetooth ovladačem vynulujete mezisoučet bez dotyku displeje.</div>"],
 ["🧭","Navigátor / Trip","<b>Stále aktivní mezisoučet</b>, <b>rychlost</b> a <b>kvalita GPS</b>. V tunelu zapněte <b>režim Tunel</b>: vzdálenost se odhaduje i bez signálu. Podržením mezisoučtu jej vynulujete."],
 ["📡","Radar (road book)","<ul><li>Klepnutím na <b>+</b> vytvoříte zkoušku: napište název, vyfoťte stránku a aplikace ji sama načte a uloží.</li><li>Klepnutím na uloženou zkoušku ji <b>načtete</b>.</li><li>V soutěži na startu <b>vynulujte CELKEM</b> (podržte 2 sekundy).</li><li>Podržením <b>MEZISOUČTU</b> vynulujete metry a přejdete <b>rovnou na další bod</b>.</li><li>U každého bodu vidíte <b>číslo</b>, <b>foto</b> a <b>zbývající metry</b>. Šipky posouvají bez zásahu do celku.</li></ul><div class=\"tip\">Stránku foťte rovně a dobře osvětlenou.</div>"],
@@ -3505,7 +3524,7 @@ function applyMode(){
   applyUnits();
   $('drvPilot').classList.toggle('active', cfg.mode === 'pilot');
   $('drvTrip').classList.toggle('active', cfg.mode === 'nav');
-  $('drvRadar').classList.toggle('active', cfg.mode === 'radar');
+  $('drvRb').classList.toggle('active', cfg.mode === 'radar');   /* la voce Radar non c'e' piu': il Radar si apre da Scanner radar */
   if(cfg.mode === 'pilot'){
     if(!running) zonePartial.classList.add('stopped');
   } else {
@@ -4010,6 +4029,13 @@ $('closeIntro').addEventListener('click', ()=>{
 
 /* ================= DRAWER ================= */
 function openDrawer(){
+  /* sottomenu: all'apertura e' aperto quello della modalita' in uso (Pilota o Navigatore) */
+  try{
+    const k = cfg.mode === 'pilot' ? 'pil' : 'nav';
+    document.querySelectorAll('#drawer .drawer-sec').forEach(x => x.classList.toggle('open', x.dataset.sec === k));
+    document.querySelectorAll('#drawer .drawer-body').forEach(x => x.classList.toggle('open', x.dataset.body === k));
+    $('drawer').scrollTop = 0;
+  }catch(e){}
   $('drawer').classList.add('open');
   $('drawerBg').classList.add('open');
 }
@@ -4058,7 +4084,7 @@ function setMode(m){
 }
 $('drvPilot').addEventListener('click', ()=>{ if(!proGate()) return; setMode('pilot'); });
 $('drvTrip').addEventListener('click', ()=> setMode('nav'));
-$('drvRadar').addEventListener('click', ()=>{ if(!proGate()) return; setMode('radar'); });
+$('rbGoRadar').addEventListener('click', ()=>{ if(!proGate()) return; $('navMenu').classList.remove('open'); setMode('radar'); });   /* torna al Radar dal simbolo dove eri */
 
 /* ================= GUIDA INTERATTIVA RADAR ================= */
 const RADAR_TUT_STEPS = [
@@ -4401,6 +4427,14 @@ function buildSsList(){
     cfg.ssLib.forEach((ss,i)=>{ if(!ss.folder){ list.appendChild(ssRow(ss,i)); shown++; } });
   }
   $('ssEmpty').style.display=shown?'none':'block';
+  updateGoRadar();
+}
+/* tasto "Torna al Radar": c'e' solo se una prova e' caricata */
+function updateGoRadar(){
+  const b=$('rbGoRadar'); if(!b) return;
+  const on = Array.isArray(cfg.rb) && cfg.rb.length > 0;
+  b.hidden = !on;
+  const nm=$('rbGoName'); if(nm) nm.textContent = (on && cfg.ssActive) ? ' \u00B7 ' + cfg.ssActive : '';
 }
 function ssMenu(i){
   const ss=cfg.ssLib[i]; if(!ss) return;
