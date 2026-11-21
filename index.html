@@ -843,7 +843,7 @@
   <p class="g-lead" id="gLead"></p>
   <div id="guideAcc"></div>
   <p class="g-links"><a href="https://rally-scan.roberto-dapra5858.workers.dev/privacy" data-t="pwPrivacy"></a> &middot; <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" data-t="pwTerms"></a> &middot; <a href="https://rally-scan.roberto-dapra5858.workers.dev/support" data-t="gSupport"></a></p>
- <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-11-19.6</p>
+ <p class="small" style="color:var(--muted);opacity:.7;margin-top:6px">build 2026-11-21.2</p>
   <div id="supCode" style="text-align:center;font-size:11px;color:var(--muted);margin:6px 0 2px;word-break:break-all"><span id="gSup"></span> <span id="supCodeVal">&mdash;</span></div>
   <div class="chk"><input type="checkbox" id="hideIntro"><label for="hideIntro" data-t="dontShow"></label></div>
   <button class="okbtn" id="closeIntro" data-t="gOk"></button>
@@ -933,6 +933,8 @@
 #spectOv .sp-title{max-width:100%;font-size:16px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #spectOv .sp-place{max-width:100%;background:none;border:0;font-size:12.5px;color:var(--muted);text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:1px 0}
 #spectOv .sp-place.sp-empty{color:var(--blue);font-weight:600}
+#spectOv .sp-stop{flex-shrink:0;display:flex;align-items:center;gap:6px;height:38px;padding:0 13px 0 11px;border-radius:19px;background:var(--btnbg);border:1.5px solid var(--red);color:var(--red);font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+#spectOv .sp-stop svg{width:14px;height:14px;fill:currentColor;flex-shrink:0}
 #spectOv .sp-watch{flex-shrink:0;background-color:var(--panel);border:1px solid var(--line);border-radius:14px;padding:8px 14px 10px;text-align:center}
 body[data-theme="dark"] #spectOv .sp-watch{background-image:var(--carbon)}
 #spectOv .sp-wlbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700}
@@ -1014,6 +1016,7 @@ body[data-theme="light"] .sp-dlg .sp-btns .sp-ok,body[data-theme="light"] #spPv 
     <div class="sp-rhead">
       <button class="sp-back" id="spBack" type="button" aria-label="Back">&lsaquo;</button>
       <div class="sp-titlebox"><div class="sp-title" id="spName"></div><button class="sp-place" id="spPlace" type="button"></button></div>
+      <button class="sp-stop" id="spStop" type="button" hidden><svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2.5"/></svg><span id="spStopTxt"></span></button>
     </div>
     <div class="sp-watch sp-idle" id="spWatch">
       <div class="sp-wlbl" data-t="spSince"></div>
@@ -3241,6 +3244,10 @@ function ssNewId(){ return 's' + Date.now().toString(36) + Math.random().toStrin
 function ssIsActive(ss){ return !!ss && (cfg.ssActiveId ? ss.id === cfg.ssActiveId : (!!cfg.ssActive && cfg.ssActive === ss.name)); }
 if(!cfg.lay || typeof cfg.lay !== 'object') cfg.lay = {arr:'top'};
 if(!['top','left','right'].includes(cfg.lay.arr)) cfg.lay.arr = 'top';
+/* Radar in orizzontale (21 nov 2026): 'big' = foto grande (partenza, come dal 7 ott),
+   poi con ⇄ le disposizioni di prima: 'top', 'left', 'right'. Chiave nuova, cosi' chi
+   aveva 'top' salvato in cfg.lay.arr non si ritrova di colpo senza la foto grande. */
+if(!['big','top','left','right'].includes(cfg.lay.rad)) cfg.lay.rad = 'big';
 if(![0,1,2].includes(cfg.numSize)) cfg.numSize = 1;
 if(!['jb','share','orbitron','system'].includes(cfg.numFont)) cfg.numFont = 'jb';
 /* ===== Archivio immagini (IndexedDB): le strisce non stanno piu' nei 5 MB
@@ -3515,9 +3522,10 @@ function speedUnitStr(){ return isImp() ? 'mph' : 'km/h'; }
 /* pilot = pilota · nav = trip navigatore · radar = display radar */
 function applyMode(){
   document.body.dataset.pilotreal = (cfg.mode === 'pilot' && cfg.pilotRealMeters) ? '1' : '0';
-  /* FOTO GRANDE SEMPRE (7 ott 2026, richiesta di Roberto): non e' piu' un'impostazione.
+  /* FOTO GRANDE (7 ott 2026, richiesta di Roberto): e' la disposizione di partenza del Radar.
+     Dal 21 nov il tasto ⇄ torna a funzionare e passa anche alle disposizioni di prima (cfg.lay.rad).
      Il layout grande vive solo nella @media (orientation:landscape): in verticale non cambia nulla. */
-  document.body.dataset.bigphoto = (cfg.mode === 'radar') ? '1' : '0';
+  document.body.dataset.bigphoto = radBigPhoto() ? '1' : '0';
   try{ const pw = $('prevWord'), pp = $('prevPartial'); if(cfg.mode !== 'pilot'){ if(pw) pw.hidden = true; if(pp) pp.hidden = true; } }catch(e){}
   document.body.dataset.mode = cfg.mode;
   partialLbl.dataset.t = (cfg.mode === 'radar') ? 'partialLabelRadar' : 'partialLabel';
@@ -3838,8 +3846,16 @@ function frame(){
 }
 
 /* ================= DISPOSIZIONE RADAR / SCALA NUMERI ================= */
+/* Radar in orizzontale: foto grande -> sopra -> sinistra -> destra (tasto ⇄).
+   Sul telefono "sopra" non lascia spazio ai metri al prossimo riferimento: si salta,
+   e se arriva da un backup del tablet vale come foto grande. Sul tablet ci stanno. */
+function radSmall(){ return Math.min(window.innerWidth, window.innerHeight) < 600; }
+function radLay(){ return (cfg.lay.rad === 'top' && radSmall()) ? 'big' : cfg.lay.rad; }
+function radBigPhoto(){ return cfg.mode === 'radar' && radLay() === 'big'; }
 function applyLayout(){
-  document.body.dataset.arr = cfg.lay.arr;
+  const lay = radLay();
+  document.body.dataset.arr = (lay === 'big') ? 'top' : lay;
+  document.body.dataset.bigphoto = radBigPhoto() ? '1' : '0';
   document.body.dataset.numsize = cfg.numSize;
   document.body.dataset.numfont = cfg.numFont;
 }
@@ -4046,8 +4062,8 @@ function closeDrawer(){
 $('btnMenu').addEventListener('click', e=>{ e.stopPropagation(); openDrawer(); });
 $('btnArr').addEventListener('click', e=>{
   e.stopPropagation();
-  const order = ['top','left','right'];
-  cfg.lay.arr = order[(order.indexOf(cfg.lay.arr) + 1) % 3];
+  const order = radSmall() ? ['big','left','right'] : ['big','top','left','right'];
+  cfg.lay.rad = order[(order.indexOf(radLay()) + 1) % order.length];
   applyLayout();
   saveCfg();
 });
@@ -7680,7 +7696,8 @@ window.__rallyBridge = { getCfg:function(){ return cfg; }, saveCfg:saveCfg, askN
    Un tocco sul pulsante tondo a ogni auto che passa. Classifica sempre dal piu'
    veloce al piu' lento; i distacchi si contano dal riferimento (il piu' veloce, o il
    pilota scelto toccandolo). Esporta crea un'immagine da condividere (WhatsApp...).
-   Dati in localStorage 'irally_spect_v1', separati da cfg (non toccano il resto). */
+   Dati in localStorage 'irally_spect_v1', separati da cfg (non toccano il resto).
+   21 nov 2026: tasto Stop in alto a destra: chiude la prova (non riparte) e chiede se esportare. */
 (function(){
 'use strict';
 const E = id => document.getElementById(id);
@@ -7691,14 +7708,14 @@ function lang(){ const c = B.getCfg(); return (c && c.lang) || 'it'; }
 
 /* ---- testi: chiavi "sp..." aggiunte alle 8 lingue dell'app ---- */
 const SP_T = {
-it:{"spGrp":"Spettatore","spNav":"Intermedi","spDesc":"Cronometra le auto a metà prova e scopri chi è più veloce in quel punto.","spNew":"Nuova prova","spIv":"Distacco fra le partenze","spTapFirst":"Premi il pulsante quando passa la prima auto","spSince":"Dalla prima auto","spNext":"Prossima","spStartOff":"partenza +{t}","spPassAt":"passaggio {t}","spDriver":"Nome pilota","spCarN":"Auto {n}","spAfterPrev":"dopo la precedente","spRef":"RIF.","spUndo":"Annulla","spUndoAsk":"Togliere l'ultimo passaggio?","spUndoDelAsk":"Rimettere il tempo cancellato?","spRestore":"Rimetti","spSetRef":"Riferimento","spWhere":"Dove sei nella prova","spKmOfWord":"di","spPlaceHint":"Descrizione (es. al bivio sul dosso)","spKmOf":"Km {a} di {b}","spKmAt":"Km {a}","spAddPlace":"+ Aggiungi km e descrizione","spEmpty":"Nessuna prova. Prima della partenza tocca Nuova prova.","spExample":"ESEMPIO","spExHint":"Prova di esempio: per cronometrare crea una Nuova prova.","spExport":"Esporta","spLongPress":"Tieni premuto sull'immagine per salvarla o condividerla.","spShareFoot":"Cronometrato a mano con iRally · tempi non ufficiali","spHelpTitle":"Come funziona","spHelpBody":"1. Tocca Nuova prova: scrivi il nome, scegli ogni quanto partono le auto e a che km della prova sei.\n2. Scrivi il nome del pilota che sta arrivando.\n3. Premi il pulsante tondo quando ti passa davanti. La prima auto fa partire il cronometro.\n4. Se un'auto manca o il distacco cambia, porta il riquadro accanto al nome a 2', 3'…\n5. La lista va dal più veloce al più lento. Il riferimento (RIF.) è il più veloce, oppure il pilota che scegli tu toccandolo: gli altri mostrano quanto sono più lenti (+) o più veloci (−). Toccando un pilota puoi anche cancellare il suo tempo.\n6. Alla fine tocca Esporta: la classifica diventa un'immagine, con i secondi al km, da mandare per esempio su WhatsApp.","spExPlace":"al bivio sul dosso"},
-en:{"spGrp":"Spectator","spNav":"Split times","spDesc":"Time the cars mid-stage and see who is fastest at that point.","spNew":"New stage","spIv":"Start interval","spTapFirst":"Tap the button when the first car passes","spSince":"Since the first car","spNext":"Next","spStartOff":"start +{t}","spPassAt":"passed {t}","spDriver":"Driver name","spCarN":"Car {n}","spAfterPrev":"after previous","spRef":"REF","spUndo":"Undo","spUndoAsk":"Remove the last pass?","spUndoDelAsk":"Restore the deleted time?","spRestore":"Restore","spSetRef":"Reference","spWhere":"Where you are on the stage","spKmOfWord":"of","spPlaceHint":"Description (e.g. at the junction on the crest)","spKmOf":"Km {a} of {b}","spKmAt":"Km {a}","spAddPlace":"+ Add km and description","spEmpty":"No stages yet. Before the start, tap New stage.","spExample":"EXAMPLE","spExHint":"Example stage: to time cars, create a New stage.","spExport":"Export","spLongPress":"Press and hold the image to save or share it.","spShareFoot":"Hand-timed with iRally · unofficial times","spHelpTitle":"How it works","spHelpBody":"1. Tap New stage: type the name, pick how often the cars start and the km of the stage where you are.\n2. Type the name of the driver who is coming.\n3. Tap the round button when the car passes you. The first car starts the stopwatch.\n4. If a car is missing or the interval changes, set the box next to the name to 2', 3'…\n5. The list goes from fastest to slowest. The reference (REF) is the fastest, or the driver you pick by tapping them: the others show how much slower (+) or faster (−) they are. Tapping a driver also lets you delete their time.\n6. At the end tap Export: the ranking becomes an image, with seconds per km, to send for example on WhatsApp.","spExPlace":"at the junction on the crest"},
-fr:{"spGrp":"Spectateur","spNav":"Temps intermédiaires","spDesc":"Chronomètre les voitures au milieu de la spéciale et vois qui est le plus rapide à cet endroit.","spNew":"Nouvelle spéciale","spIv":"Intervalle entre les départs","spTapFirst":"Appuie sur le bouton quand la première voiture passe","spSince":"Depuis la première voiture","spNext":"Suivante","spStartOff":"départ +{t}","spPassAt":"passage {t}","spDriver":"Nom du pilote","spCarN":"Voiture {n}","spAfterPrev":"après la précédente","spRef":"RÉF.","spUndo":"Annuler","spUndoAsk":"Supprimer le dernier passage ?","spUndoDelAsk":"Rétablir le temps effacé ?","spRestore":"Rétablir","spSetRef":"Référence","spWhere":"Où tu es sur la spéciale","spKmOfWord":"sur","spPlaceHint":"Description (ex. au carrefour sur la bosse)","spKmOf":"Km {a} sur {b}","spKmAt":"Km {a}","spAddPlace":"+ Ajouter le km et une description","spEmpty":"Aucune spéciale. Avant le départ, touche Nouvelle spéciale.","spExample":"EXEMPLE","spExHint":"Spéciale d'exemple : pour chronométrer, crée une Nouvelle spéciale.","spExport":"Exporter","spLongPress":"Appuie longuement sur l'image pour l'enregistrer ou la partager.","spShareFoot":"Chronométré à la main avec iRally · temps non officiels","spHelpTitle":"Comment ça marche","spHelpBody":"1. Touche Nouvelle spéciale : écris le nom, choisis l'intervalle entre les départs et le km de la spéciale où tu te trouves.\n2. Écris le nom du pilote qui arrive.\n3. Appuie sur le bouton rond quand la voiture passe devant toi. La première voiture lance le chrono.\n4. Si une voiture manque ou si l'intervalle change, règle la case à côté du nom sur 2', 3'…\n5. La liste va du plus rapide au plus lent. La référence (RÉF.) est le plus rapide, ou le pilote que tu choisis en le touchant : les autres montrent de combien ils sont plus lents (+) ou plus rapides (−). En touchant un pilote, tu peux aussi effacer son temps.\n6. À la fin, touche Exporter : le classement devient une image, avec les secondes au km, à envoyer par exemple sur WhatsApp.","spExPlace":"au carrefour sur la bosse"},
-es:{"spGrp":"Espectador","spNav":"Tiempos intermedios","spDesc":"Cronometra los coches a mitad de tramo y descubre quién es más rápido en ese punto.","spNew":"Nuevo tramo","spIv":"Intervalo entre salidas","spTapFirst":"Pulsa el botón cuando pase el primer coche","spSince":"Desde el primer coche","spNext":"Siguiente","spStartOff":"salida +{t}","spPassAt":"paso {t}","spDriver":"Nombre del piloto","spCarN":"Coche {n}","spAfterPrev":"tras el anterior","spRef":"REF.","spUndo":"Deshacer","spUndoAsk":"¿Quitar el último paso?","spUndoDelAsk":"¿Recuperar el tiempo borrado?","spRestore":"Recuperar","spSetRef":"Referencia","spWhere":"Dónde estás en el tramo","spKmOfWord":"de","spPlaceHint":"Descripción (p. ej. en el cruce sobre el cambio de rasante)","spKmOf":"Km {a} de {b}","spKmAt":"Km {a}","spAddPlace":"+ Añadir km y descripción","spEmpty":"Ningún tramo. Antes de la salida, toca Nuevo tramo.","spExample":"EJEMPLO","spExHint":"Tramo de ejemplo: para cronometrar, crea un Nuevo tramo.","spExport":"Exportar","spLongPress":"Mantén pulsada la imagen para guardarla o compartirla.","spShareFoot":"Cronometrado a mano con iRally · tiempos no oficiales","spHelpTitle":"Cómo funciona","spHelpBody":"1. Toca Nuevo tramo: escribe el nombre, elige cada cuánto salen los coches y en qué km del tramo estás.\n2. Escribe el nombre del piloto que está llegando.\n3. Pulsa el botón redondo cuando el coche pase delante de ti. El primer coche pone en marcha el cronómetro.\n4. Si falta un coche o cambia el intervalo, pon la casilla junto al nombre en 2', 3'…\n5. La lista va del más rápido al más lento. La referencia (REF.) es el más rápido, o el piloto que eliges tocándolo: los demás muestran cuánto más lentos (+) o más rápidos (−) son. Tocando un piloto también puedes borrar su tiempo.\n6. Al final toca Exportar: la clasificación se convierte en una imagen, con los segundos por km, para enviar por ejemplo por WhatsApp.","spExPlace":"en el cruce sobre el cambio de rasante"},
-de:{"spGrp":"Zuschauer","spNav":"Zwischenzeiten","spDesc":"Stoppe die Autos mitten in der Prüfung und sieh, wer an dieser Stelle am schnellsten ist.","spNew":"Neue Prüfung","spIv":"Startabstand","spTapFirst":"Tippe auf den Knopf, wenn das erste Auto vorbeifährt","spSince":"Seit dem ersten Auto","spNext":"Nächstes","spStartOff":"Start +{t}","spPassAt":"Durchfahrt {t}","spDriver":"Name des Fahrers","spCarN":"Auto {n}","spAfterPrev":"nach dem vorigen","spRef":"REF.","spUndo":"Rückgängig","spUndoAsk":"Letzte Durchfahrt entfernen?","spUndoDelAsk":"Gelöschte Zeit wiederherstellen?","spRestore":"Wiederherstellen","spSetRef":"Referenz","spWhere":"Wo du in der Prüfung stehst","spKmOfWord":"von","spPlaceHint":"Beschreibung (z. B. an der Kreuzung auf der Kuppe)","spKmOf":"Km {a} von {b}","spKmAt":"Km {a}","spAddPlace":"+ Km und Beschreibung hinzufügen","spEmpty":"Noch keine Prüfung. Tippe vor dem Start auf Neue Prüfung.","spExample":"BEISPIEL","spExHint":"Beispielprüfung: Zum Stoppen lege eine Neue Prüfung an.","spExport":"Exportieren","spLongPress":"Halte das Bild gedrückt, um es zu sichern oder zu teilen.","spShareFoot":"Von Hand gestoppt mit iRally · inoffizielle Zeiten","spHelpTitle":"So funktioniert's","spHelpBody":"1. Tippe auf Neue Prüfung: Gib den Namen ein, wähle den Startabstand und den Kilometer der Prüfung, an dem du stehst.\n2. Gib den Namen des Fahrers ein, der gleich kommt.\n3. Tippe auf den runden Knopf, wenn das Auto an dir vorbeifährt. Das erste Auto startet die Stoppuhr.\n4. Fehlt ein Auto oder ändert sich der Abstand, stelle das Feld neben dem Namen auf 2', 3'…\n5. Die Liste geht vom Schnellsten zum Langsamsten. Die Referenz (REF.) ist der Schnellste oder der Fahrer, den du durch Antippen wählst: Die anderen zeigen, wie viel langsamer (+) oder schneller (−) sie sind. Durch Antippen eines Fahrers kannst du auch seine Zeit löschen.\n6. Tippe am Ende auf Exportieren: Die Wertung wird ein Bild mit den Sekunden pro km, zum Beispiel für WhatsApp.","spExPlace":"an der Kreuzung auf der Kuppe"},
-pt:{"spGrp":"Espectador","spNav":"Tempos intermédios","spDesc":"Cronometra os carros a meio da especial e descobre quem é mais rápido nesse ponto.","spNew":"Nova especial","spIv":"Intervalo entre partidas","spTapFirst":"Toca no botão quando passar o primeiro carro","spSince":"Desde o primeiro carro","spNext":"Seguinte","spStartOff":"partida +{t}","spPassAt":"passagem {t}","spDriver":"Nome do piloto","spCarN":"Carro {n}","spAfterPrev":"depois do anterior","spRef":"REF.","spUndo":"Desfazer","spUndoAsk":"Remover a última passagem?","spUndoDelAsk":"Repor o tempo apagado?","spRestore":"Repor","spSetRef":"Referência","spWhere":"Onde estás na especial","spKmOfWord":"de","spPlaceHint":"Descrição (ex.: no cruzamento em cima da lomba)","spKmOf":"Km {a} de {b}","spKmAt":"Km {a}","spAddPlace":"+ Adicionar km e descrição","spEmpty":"Nenhuma especial. Antes da partida, toca em Nova especial.","spExample":"EXEMPLO","spExHint":"Especial de exemplo: para cronometrar, cria uma Nova especial.","spExport":"Exportar","spLongPress":"Mantém o dedo na imagem para a guardar ou partilhar.","spShareFoot":"Cronometrado à mão com iRally · tempos não oficiais","spHelpTitle":"Como funciona","spHelpBody":"1. Toca em Nova especial: escreve o nome, escolhe de quanto em quanto tempo partem os carros e em que km da especial estás.\n2. Escreve o nome do piloto que está a chegar.\n3. Toca no botão redondo quando o carro passar à tua frente. O primeiro carro põe o cronómetro a andar.\n4. Se faltar um carro ou o intervalo mudar, põe o quadrado ao lado do nome em 2', 3'…\n5. A lista vai do mais rápido ao mais lento. A referência (REF.) é o mais rápido, ou o piloto que escolhes tocando nele: os outros mostram quanto são mais lentos (+) ou mais rápidos (−). Tocando num piloto também podes apagar o seu tempo.\n6. No fim toca em Exportar: a classificação passa a ser uma imagem, com os segundos por km, para enviar por exemplo no WhatsApp.","spExPlace":"no cruzamento em cima da lomba"},
-ja:{"spGrp":"観客","spNav":"スプリットタイム","spDesc":"ステージの途中で車のタイムを計り、その地点で誰が速いかを確認します。","spNew":"新しいステージ","spIv":"スタート間隔","spTapFirst":"最初の車が通過したらボタンをタップ","spSince":"最初の車から","spNext":"次","spStartOff":"スタート +{t}","spPassAt":"通過 {t}","spDriver":"ドライバー名","spCarN":"車 {n}","spAfterPrev":"前の車から","spRef":"基準","spUndo":"取り消し","spUndoAsk":"最後の通過を取り消しますか？","spUndoDelAsk":"削除したタイムを元に戻しますか？","spRestore":"元に戻す","spSetRef":"基準にする","spWhere":"ステージ内の位置","spKmOfWord":"/","spPlaceHint":"説明（例：クレスト上の分岐点）","spKmOf":"{b} km中 {a} km地点","spKmAt":"{a} km地点","spAddPlace":"+ kmと説明を追加","spEmpty":"ステージがありません。スタート前に「新しいステージ」をタップしてください。","spExample":"サンプル","spExHint":"サンプルのステージです。計測するには「新しいステージ」を作成してください。","spExport":"書き出し","spLongPress":"画像を長押しして保存または共有します。","spShareFoot":"iRallyで手動計測・非公式タイム","spHelpTitle":"使い方","spHelpBody":"1. 「新しいステージ」をタップし、名前、スタート間隔、ステージ内で自分がいるkm地点を入力します。\n2. 次に来るドライバーの名前を入力します。\n3. 車が目の前を通過したら丸いボタンをタップします。最初の車でストップウォッチが始まります。\n4. 車が欠けたり間隔が変わったりしたら、名前の横の枠を2'、3'…にします。\n5. リストは速い順に並びます。基準は最速の車か、タップして選んだドライバーです。ほかの車はどれだけ遅いか（+）速いか（−）を表示します。ドライバーをタップしてタイムを削除することもできます。\n6. 最後に「書き出し」をタップすると、1kmあたりの秒数付きで順位が画像になり、WhatsAppなどで送れます。","spExPlace":"クレスト上の分岐点"},
-cs:{"spGrp":"Divák","spNav":"Mezičasy","spDesc":"Změř auta uprostřed zkoušky a zjisti, kdo je v tom místě nejrychlejší.","spNew":"Nová zkouška","spIv":"Startovní interval","spTapFirst":"Klepni na tlačítko, až projede první auto","spSince":"Od prvního auta","spNext":"Další","spStartOff":"start +{t}","spPassAt":"průjezd {t}","spDriver":"Jméno jezdce","spCarN":"Auto {n}","spAfterPrev":"po předchozím","spRef":"REF.","spUndo":"Zpět","spUndoAsk":"Odebrat poslední průjezd?","spUndoDelAsk":"Obnovit smazaný čas?","spRestore":"Obnovit","spSetRef":"Reference","spWhere":"Kde na zkoušce stojíš","spKmOfWord":"z","spPlaceHint":"Popis (např. u odbočky na horizontu)","spKmOf":"Km {a} z {b}","spKmAt":"Km {a}","spAddPlace":"+ Přidat km a popis","spEmpty":"Zatím žádná zkouška. Před startem klepni na Nová zkouška.","spExample":"UKÁZKA","spExHint":"Ukázková zkouška: pro měření vytvoř novou zkoušku.","spExport":"Exportovat","spLongPress":"Podrž prst na obrázku a ulož ho nebo sdílej.","spShareFoot":"Ručně změřeno v iRally · neoficiální časy","spHelpTitle":"Jak to funguje","spHelpBody":"1. Klepni na Nová zkouška: napiš název, vyber startovní interval a kilometr zkoušky, kde stojíš.\n2. Napiš jméno jezdce, který přijíždí.\n3. Klepni na kulaté tlačítko, když kolem tebe projede. První auto spustí stopky.\n4. Když auto chybí nebo se interval změní, nastav políčko vedle jména na 2', 3'…\n5. Seznam jde od nejrychlejšího po nejpomalejšího. Reference (REF.) je nejrychlejší, nebo jezdec, kterého vybereš klepnutím: ostatní ukazují, o kolik jsou pomalejší (+) nebo rychlejší (−). Klepnutím na jezdce můžeš také smazat jeho čas.\n6. Na konci klepni na Exportovat: z pořadí vznikne obrázek se sekundami na km, třeba pro WhatsApp.","spExPlace":"u odbočky na horizontu"}
+it:{"spGrp":"Spettatore","spNav":"Intermedi","spDesc":"Cronometra le auto a metà prova e scopri chi è più veloce in quel punto.","spNew":"Nuova prova","spIv":"Distacco fra le partenze","spTapFirst":"Premi il pulsante quando passa la prima auto","spSince":"Dalla prima auto","spNext":"Prossima","spStartOff":"partenza +{t}","spPassAt":"passaggio {t}","spDriver":"Nome pilota","spCarN":"Auto {n}","spAfterPrev":"dopo la precedente","spRef":"RIF.","spUndo":"Annulla","spUndoAsk":"Togliere l'ultimo passaggio?","spUndoDelAsk":"Rimettere il tempo cancellato?","spRestore":"Rimetti","spSetRef":"Riferimento","spWhere":"Dove sei nella prova","spKmOfWord":"di","spPlaceHint":"Descrizione (es. al bivio sul dosso)","spKmOf":"Km {a} di {b}","spKmAt":"Km {a}","spAddPlace":"+ Aggiungi km e descrizione","spEmpty":"Nessuna prova. Prima della partenza tocca Nuova prova.","spExample":"ESEMPIO","spExHint":"Prova di esempio: per cronometrare crea una Nuova prova.","spExport":"Esporta","spLongPress":"Tieni premuto sull'immagine per salvarla o condividerla.","spShareFoot":"Cronometrato a mano con iRally · tempi non ufficiali","spHelpTitle":"Come funziona","spHelpBody":"1. Tocca Nuova prova: scrivi il nome, scegli ogni quanto partono le auto e a che km della prova sei.\n2. Scrivi il nome del pilota che sta arrivando.\n3. Premi il pulsante tondo quando ti passa davanti. La prima auto fa partire il cronometro.\n4. Se un'auto manca o il distacco cambia, porta il riquadro accanto al nome a 2', 3'…\n5. La lista va dal più veloce al più lento. Il riferimento (RIF.) è il più veloce, oppure il pilota che scegli tu toccandolo: gli altri mostrano quanto sono più lenti (+) o più veloci (−). Toccando un pilota puoi anche cancellare il suo tempo.\n6. Alla fine tocca Stop, in alto a destra: il cronometro si ferma, la prova è chiusa e non riparte più. Ti chiede se vuoi esportare: la classifica diventa un'immagine, con i secondi al km, da mandare per esempio su WhatsApp. Esporta, in basso a destra, funziona anche senza fermare.","spExPlace":"al bivio sul dosso","spStop":"Stop","spStopped":"Cronometro fermato","spExportAsk":"Vuoi esportare la classifica?","spNo":"No"},
+en:{"spGrp":"Spectator","spNav":"Split times","spDesc":"Time the cars mid-stage and see who is fastest at that point.","spNew":"New stage","spIv":"Start interval","spTapFirst":"Tap the button when the first car passes","spSince":"Since the first car","spNext":"Next","spStartOff":"start +{t}","spPassAt":"passed {t}","spDriver":"Driver name","spCarN":"Car {n}","spAfterPrev":"after previous","spRef":"REF","spUndo":"Undo","spUndoAsk":"Remove the last pass?","spUndoDelAsk":"Restore the deleted time?","spRestore":"Restore","spSetRef":"Reference","spWhere":"Where you are on the stage","spKmOfWord":"of","spPlaceHint":"Description (e.g. at the junction on the crest)","spKmOf":"Km {a} of {b}","spKmAt":"Km {a}","spAddPlace":"+ Add km and description","spEmpty":"No stages yet. Before the start, tap New stage.","spExample":"EXAMPLE","spExHint":"Example stage: to time cars, create a New stage.","spExport":"Export","spLongPress":"Press and hold the image to save or share it.","spShareFoot":"Hand-timed with iRally · unofficial times","spHelpTitle":"How it works","spHelpBody":"1. Tap New stage: type the name, pick how often the cars start and the km of the stage where you are.\n2. Type the name of the driver who is coming.\n3. Tap the round button when the car passes you. The first car starts the stopwatch.\n4. If a car is missing or the interval changes, set the box next to the name to 2', 3'…\n5. The list goes from fastest to slowest. The reference (REF) is the fastest, or the driver you pick by tapping them: the others show how much slower (+) or faster (−) they are. Tapping a driver also lets you delete their time.\n6. At the end tap Stop, top right: the stopwatch stops, the stage is closed and does not restart. It asks whether you want to export: the ranking becomes an image, with seconds per km, to send for example on WhatsApp. Export, bottom right, also works without stopping.","spExPlace":"at the junction on the crest","spStop":"Stop","spStopped":"Stopwatch stopped","spExportAsk":"Do you want to export the ranking?","spNo":"No"},
+fr:{"spGrp":"Spectateur","spNav":"Temps intermédiaires","spDesc":"Chronomètre les voitures au milieu de la spéciale et vois qui est le plus rapide à cet endroit.","spNew":"Nouvelle spéciale","spIv":"Intervalle entre les départs","spTapFirst":"Appuie sur le bouton quand la première voiture passe","spSince":"Depuis la première voiture","spNext":"Suivante","spStartOff":"départ +{t}","spPassAt":"passage {t}","spDriver":"Nom du pilote","spCarN":"Voiture {n}","spAfterPrev":"après la précédente","spRef":"RÉF.","spUndo":"Annuler","spUndoAsk":"Supprimer le dernier passage ?","spUndoDelAsk":"Rétablir le temps effacé ?","spRestore":"Rétablir","spSetRef":"Référence","spWhere":"Où tu es sur la spéciale","spKmOfWord":"sur","spPlaceHint":"Description (ex. au carrefour sur la bosse)","spKmOf":"Km {a} sur {b}","spKmAt":"Km {a}","spAddPlace":"+ Ajouter le km et une description","spEmpty":"Aucune spéciale. Avant le départ, touche Nouvelle spéciale.","spExample":"EXEMPLE","spExHint":"Spéciale d'exemple : pour chronométrer, crée une Nouvelle spéciale.","spExport":"Exporter","spLongPress":"Appuie longuement sur l'image pour l'enregistrer ou la partager.","spShareFoot":"Chronométré à la main avec iRally · temps non officiels","spHelpTitle":"Comment ça marche","spHelpBody":"1. Touche Nouvelle spéciale : écris le nom, choisis l'intervalle entre les départs et le km de la spéciale où tu te trouves.\n2. Écris le nom du pilote qui arrive.\n3. Appuie sur le bouton rond quand la voiture passe devant toi. La première voiture lance le chrono.\n4. Si une voiture manque ou si l'intervalle change, règle la case à côté du nom sur 2', 3'…\n5. La liste va du plus rapide au plus lent. La référence (RÉF.) est le plus rapide, ou le pilote que tu choisis en le touchant : les autres montrent de combien ils sont plus lents (+) ou plus rapides (−). En touchant un pilote, tu peux aussi effacer son temps.\n6. À la fin, touche Arrêter, en haut à droite : le chrono s'arrête, la spéciale est close et ne repart plus. Il te demande si tu veux exporter : le classement devient une image, avec les secondes au km, à envoyer par exemple sur WhatsApp. Exporter, en bas à droite, marche aussi sans arrêter.","spExPlace":"au carrefour sur la bosse","spStop":"Arrêter","spStopped":"Chrono arrêté","spExportAsk":"Veux-tu exporter le classement ?","spNo":"Non"},
+es:{"spGrp":"Espectador","spNav":"Tiempos intermedios","spDesc":"Cronometra los coches a mitad de tramo y descubre quién es más rápido en ese punto.","spNew":"Nuevo tramo","spIv":"Intervalo entre salidas","spTapFirst":"Pulsa el botón cuando pase el primer coche","spSince":"Desde el primer coche","spNext":"Siguiente","spStartOff":"salida +{t}","spPassAt":"paso {t}","spDriver":"Nombre del piloto","spCarN":"Coche {n}","spAfterPrev":"tras el anterior","spRef":"REF.","spUndo":"Deshacer","spUndoAsk":"¿Quitar el último paso?","spUndoDelAsk":"¿Recuperar el tiempo borrado?","spRestore":"Recuperar","spSetRef":"Referencia","spWhere":"Dónde estás en el tramo","spKmOfWord":"de","spPlaceHint":"Descripción (p. ej. en el cruce sobre el cambio de rasante)","spKmOf":"Km {a} de {b}","spKmAt":"Km {a}","spAddPlace":"+ Añadir km y descripción","spEmpty":"Ningún tramo. Antes de la salida, toca Nuevo tramo.","spExample":"EJEMPLO","spExHint":"Tramo de ejemplo: para cronometrar, crea un Nuevo tramo.","spExport":"Exportar","spLongPress":"Mantén pulsada la imagen para guardarla o compartirla.","spShareFoot":"Cronometrado a mano con iRally · tiempos no oficiales","spHelpTitle":"Cómo funciona","spHelpBody":"1. Toca Nuevo tramo: escribe el nombre, elige cada cuánto salen los coches y en qué km del tramo estás.\n2. Escribe el nombre del piloto que está llegando.\n3. Pulsa el botón redondo cuando el coche pase delante de ti. El primer coche pone en marcha el cronómetro.\n4. Si falta un coche o cambia el intervalo, pon la casilla junto al nombre en 2', 3'…\n5. La lista va del más rápido al más lento. La referencia (REF.) es el más rápido, o el piloto que eliges tocándolo: los demás muestran cuánto más lentos (+) o más rápidos (−) son. Tocando un piloto también puedes borrar su tiempo.\n6. Al final toca Detener, arriba a la derecha: el cronómetro se para, el tramo queda cerrado y no vuelve a arrancar. Te pregunta si quieres exportar: la clasificación se convierte en una imagen, con los segundos por km, para enviar por ejemplo por WhatsApp. Exportar, abajo a la derecha, también funciona sin detener.","spExPlace":"en el cruce sobre el cambio de rasante","spStop":"Detener","spStopped":"Cronómetro detenido","spExportAsk":"¿Quieres exportar la clasificación?","spNo":"No"},
+de:{"spGrp":"Zuschauer","spNav":"Zwischenzeiten","spDesc":"Stoppe die Autos mitten in der Prüfung und sieh, wer an dieser Stelle am schnellsten ist.","spNew":"Neue Prüfung","spIv":"Startabstand","spTapFirst":"Tippe auf den Knopf, wenn das erste Auto vorbeifährt","spSince":"Seit dem ersten Auto","spNext":"Nächstes","spStartOff":"Start +{t}","spPassAt":"Durchfahrt {t}","spDriver":"Name des Fahrers","spCarN":"Auto {n}","spAfterPrev":"nach dem vorigen","spRef":"REF.","spUndo":"Rückgängig","spUndoAsk":"Letzte Durchfahrt entfernen?","spUndoDelAsk":"Gelöschte Zeit wiederherstellen?","spRestore":"Wiederherstellen","spSetRef":"Referenz","spWhere":"Wo du in der Prüfung stehst","spKmOfWord":"von","spPlaceHint":"Beschreibung (z. B. an der Kreuzung auf der Kuppe)","spKmOf":"Km {a} von {b}","spKmAt":"Km {a}","spAddPlace":"+ Km und Beschreibung hinzufügen","spEmpty":"Noch keine Prüfung. Tippe vor dem Start auf Neue Prüfung.","spExample":"BEISPIEL","spExHint":"Beispielprüfung: Zum Stoppen lege eine Neue Prüfung an.","spExport":"Exportieren","spLongPress":"Halte das Bild gedrückt, um es zu sichern oder zu teilen.","spShareFoot":"Von Hand gestoppt mit iRally · inoffizielle Zeiten","spHelpTitle":"So funktioniert's","spHelpBody":"1. Tippe auf Neue Prüfung: Gib den Namen ein, wähle den Startabstand und den Kilometer der Prüfung, an dem du stehst.\n2. Gib den Namen des Fahrers ein, der gleich kommt.\n3. Tippe auf den runden Knopf, wenn das Auto an dir vorbeifährt. Das erste Auto startet die Stoppuhr.\n4. Fehlt ein Auto oder ändert sich der Abstand, stelle das Feld neben dem Namen auf 2', 3'…\n5. Die Liste geht vom Schnellsten zum Langsamsten. Die Referenz (REF.) ist der Schnellste oder der Fahrer, den du durch Antippen wählst: Die anderen zeigen, wie viel langsamer (+) oder schneller (−) sie sind. Durch Antippen eines Fahrers kannst du auch seine Zeit löschen.\n6. Tippe am Ende oben rechts auf Stopp: Die Stoppuhr hält an, die Prüfung ist abgeschlossen und läuft nicht wieder an. Sie fragt, ob du exportieren möchtest: Die Wertung wird ein Bild mit den Sekunden pro km, zum Beispiel für WhatsApp. Exportieren unten rechts geht auch ohne Anhalten.","spExPlace":"an der Kreuzung auf der Kuppe","spStop":"Stopp","spStopped":"Stoppuhr angehalten","spExportAsk":"Möchtest du die Wertung exportieren?","spNo":"Nein"},
+pt:{"spGrp":"Espectador","spNav":"Tempos intermédios","spDesc":"Cronometra os carros a meio da especial e descobre quem é mais rápido nesse ponto.","spNew":"Nova especial","spIv":"Intervalo entre partidas","spTapFirst":"Toca no botão quando passar o primeiro carro","spSince":"Desde o primeiro carro","spNext":"Seguinte","spStartOff":"partida +{t}","spPassAt":"passagem {t}","spDriver":"Nome do piloto","spCarN":"Carro {n}","spAfterPrev":"depois do anterior","spRef":"REF.","spUndo":"Desfazer","spUndoAsk":"Remover a última passagem?","spUndoDelAsk":"Repor o tempo apagado?","spRestore":"Repor","spSetRef":"Referência","spWhere":"Onde estás na especial","spKmOfWord":"de","spPlaceHint":"Descrição (ex.: no cruzamento em cima da lomba)","spKmOf":"Km {a} de {b}","spKmAt":"Km {a}","spAddPlace":"+ Adicionar km e descrição","spEmpty":"Nenhuma especial. Antes da partida, toca em Nova especial.","spExample":"EXEMPLO","spExHint":"Especial de exemplo: para cronometrar, cria uma Nova especial.","spExport":"Exportar","spLongPress":"Mantém o dedo na imagem para a guardar ou partilhar.","spShareFoot":"Cronometrado à mão com iRally · tempos não oficiais","spHelpTitle":"Como funciona","spHelpBody":"1. Toca em Nova especial: escreve o nome, escolhe de quanto em quanto tempo partem os carros e em que km da especial estás.\n2. Escreve o nome do piloto que está a chegar.\n3. Toca no botão redondo quando o carro passar à tua frente. O primeiro carro põe o cronómetro a andar.\n4. Se faltar um carro ou o intervalo mudar, põe o quadrado ao lado do nome em 2', 3'…\n5. A lista vai do mais rápido ao mais lento. A referência (REF.) é o mais rápido, ou o piloto que escolhes tocando nele: os outros mostram quanto são mais lentos (+) ou mais rápidos (−). Tocando num piloto também podes apagar o seu tempo.\n6. No fim toca em Parar, em cima à direita: o cronómetro para, a especial fica fechada e não volta a arrancar. Pergunta se queres exportar: a classificação passa a ser uma imagem, com os segundos por km, para enviar por exemplo no WhatsApp. Exportar, em baixo à direita, também funciona sem parar.","spExPlace":"no cruzamento em cima da lomba","spStop":"Parar","spStopped":"Cronómetro parado","spExportAsk":"Queres exportar a classificação?","spNo":"Não"},
+ja:{"spGrp":"観客","spNav":"スプリットタイム","spDesc":"ステージの途中で車のタイムを計り、その地点で誰が速いかを確認します。","spNew":"新しいステージ","spIv":"スタート間隔","spTapFirst":"最初の車が通過したらボタンをタップ","spSince":"最初の車から","spNext":"次","spStartOff":"スタート +{t}","spPassAt":"通過 {t}","spDriver":"ドライバー名","spCarN":"車 {n}","spAfterPrev":"前の車から","spRef":"基準","spUndo":"取り消し","spUndoAsk":"最後の通過を取り消しますか？","spUndoDelAsk":"削除したタイムを元に戻しますか？","spRestore":"元に戻す","spSetRef":"基準にする","spWhere":"ステージ内の位置","spKmOfWord":"/","spPlaceHint":"説明（例：クレスト上の分岐点）","spKmOf":"{b} km中 {a} km地点","spKmAt":"{a} km地点","spAddPlace":"+ kmと説明を追加","spEmpty":"ステージがありません。スタート前に「新しいステージ」をタップしてください。","spExample":"サンプル","spExHint":"サンプルのステージです。計測するには「新しいステージ」を作成してください。","spExport":"書き出し","spLongPress":"画像を長押しして保存または共有します。","spShareFoot":"iRallyで手動計測・非公式タイム","spHelpTitle":"使い方","spHelpBody":"1. 「新しいステージ」をタップし、名前、スタート間隔、ステージ内で自分がいるkm地点を入力します。\n2. 次に来るドライバーの名前を入力します。\n3. 車が目の前を通過したら丸いボタンをタップします。最初の車でストップウォッチが始まります。\n4. 車が欠けたり間隔が変わったりしたら、名前の横の枠を2'、3'…にします。\n5. リストは速い順に並びます。基準は最速の車か、タップして選んだドライバーです。ほかの車はどれだけ遅いか（+）速いか（−）を表示します。ドライバーをタップしてタイムを削除することもできます。\n6. 最後に右上の「停止」をタップすると、ストップウォッチが止まり、ステージは終了して再開しません。書き出すかどうか聞かれます。順位は1kmあたりの秒数付きの画像になり、WhatsAppなどで送れます。右下の「書き出し」は止めなくても使えます。","spExPlace":"クレスト上の分岐点","spStop":"停止","spStopped":"ストップウォッチ停止中","spExportAsk":"順位を書き出しますか？","spNo":"いいえ"},
+cs:{"spGrp":"Divák","spNav":"Mezičasy","spDesc":"Změř auta uprostřed zkoušky a zjisti, kdo je v tom místě nejrychlejší.","spNew":"Nová zkouška","spIv":"Startovní interval","spTapFirst":"Klepni na tlačítko, až projede první auto","spSince":"Od prvního auta","spNext":"Další","spStartOff":"start +{t}","spPassAt":"průjezd {t}","spDriver":"Jméno jezdce","spCarN":"Auto {n}","spAfterPrev":"po předchozím","spRef":"REF.","spUndo":"Zpět","spUndoAsk":"Odebrat poslední průjezd?","spUndoDelAsk":"Obnovit smazaný čas?","spRestore":"Obnovit","spSetRef":"Reference","spWhere":"Kde na zkoušce stojíš","spKmOfWord":"z","spPlaceHint":"Popis (např. u odbočky na horizontu)","spKmOf":"Km {a} z {b}","spKmAt":"Km {a}","spAddPlace":"+ Přidat km a popis","spEmpty":"Zatím žádná zkouška. Před startem klepni na Nová zkouška.","spExample":"UKÁZKA","spExHint":"Ukázková zkouška: pro měření vytvoř novou zkoušku.","spExport":"Exportovat","spLongPress":"Podrž prst na obrázku a ulož ho nebo sdílej.","spShareFoot":"Ručně změřeno v iRally · neoficiální časy","spHelpTitle":"Jak to funguje","spHelpBody":"1. Klepni na Nová zkouška: napiš název, vyber startovní interval a kilometr zkoušky, kde stojíš.\n2. Napiš jméno jezdce, který přijíždí.\n3. Klepni na kulaté tlačítko, když kolem tebe projede. První auto spustí stopky.\n4. Když auto chybí nebo se interval změní, nastav políčko vedle jména na 2', 3'…\n5. Seznam jde od nejrychlejšího po nejpomalejšího. Reference (REF.) je nejrychlejší, nebo jezdec, kterého vybereš klepnutím: ostatní ukazují, o kolik jsou pomalejší (+) nebo rychlejší (−). Klepnutím na jezdce můžeš také smazat jeho čas.\n6. Na konci klepni vpravo nahoře na Stop: stopky se zastaví, zkouška je uzavřená a znovu se nespustí. Zeptají se, jestli chceš exportovat: z pořadí vznikne obrázek se sekundami na km, třeba pro WhatsApp. Exportovat vpravo dole funguje i bez zastavení.","spExPlace":"u odbočky na horizontu","spStop":"Stop","spStopped":"Stopky zastaveny","spExportAsk":"Chceš exportovat pořadí?","spNo":"Ne"}
 };
 Object.keys(SP_T).forEach(L => { if(T[L]) Object.assign(T[L], SP_T[L]); });
 function spTexts(){ document.querySelectorAll('#spectOv [data-t], #spPv [data-t], #drawer [data-t^="sp"]').forEach(el => { el.textContent = t(el.dataset.t); }); }
@@ -7726,6 +7743,8 @@ function fix(st){
   if(typeof st.kmTot !== 'number') st.kmTot = null;
   if(typeof st.place !== 'string') st.place = '';
   if(st.refId === undefined) st.refId = null;
+  if(typeof st.stopped !== 'boolean') st.stopped = false;
+  if(typeof st.stopAt !== 'number') st.stopAt = null;
 }
 function ensure(){
   if(SP) return;
@@ -7827,6 +7846,9 @@ function gapCls(r){
   const ten = Math.sign(r.gap) * Math.round(Math.abs(r.gap)/100);
   return ten < 0 ? 'sp-neg' : (ten > 0 ? 'sp-pos' : 'sp-zero');
 }
+/* Stop (21 nov 2026): fine prova. Il cronometro non riparte piu' (fermarlo a meta' prova non
+   serve) e il pulsante tondo non registra; Esporta in basso funziona sempre, come prima. */
+function isStopped(st){ return !!st && !st.ex && st.t0 != null && !!st.stopped; }
 function nextOff(st){ return st.lastOff == null ? 0 : st.lastOff + st.draft.d; }
 function cur(){ return (SP && SP.stages.find(s => s.id === SP.cur)) || null; }
 function dispName(c, i){ return (c.name && c.name.trim()) ? c.name.trim() : carN(i + 1); }
@@ -7910,9 +7932,12 @@ function renderRun(newId){
   const pt = placeText(st);
   E('spPlace').textContent = pt || t('spAddPlace');
   E('spPlace').classList.toggle('sp-empty', !pt);
-  const n = st.cars.length, started = st.t0 != null;
+  const n = st.cars.length, started = st.t0 != null, stopped = isStopped(st);
   if(!started){ E('spWatch').classList.add('sp-idle'); E('spWNum').textContent = fmtWatch(0); lastWatch = ''; }
-  E('spEntry').hidden = !!st.ex;
+  E('spEntry').hidden = !!st.ex || stopped;
+  const sb = E('spStop');
+  sb.hidden = !!st.ex || !started || stopped;   /* dopo Stop sparisce: la prova e' chiusa */
+  E('spStopTxt').textContent = t('spStop'); sb.setAttribute('aria-label', t('spStop'));
   E('spInName').placeholder = t('spDriver') + ' · ' + carN(n + 1);
   if(document.activeElement !== E('spInName')) E('spInName').value = st.draft.name || '';
   renderNext();
@@ -7930,7 +7955,7 @@ function renderRun(newId){
       '<div class="sp-gap ' + gapCls(r) + '">' + fmtGap(r.gap) + '</div></div>';
   }).join('');
   E('spUndo').disabled = !(HIST[st.id] && HIST[st.id].length);
-  E('spShot').disabled = !!st.ex;
+  E('spShot').disabled = !!st.ex || stopped;
   E('spExport').disabled = !n;
   if(newId){
     const el = E('spRows').querySelector('.sp-row.sp-new');
@@ -7942,17 +7967,20 @@ function renderNext(){
   const w = E('spWNext');
   if(st.ex){ w.textContent = t('spExHint'); return; }
   if(st.t0 == null){ w.textContent = t('spTapFirst'); return; }
+  if(isStopped(st)){ w.textContent = t('spStopped'); return; }
   const nm = (E('spInName').value || '').trim() || carN(st.cars.length + 1);
   w.innerHTML = esc(t('spNext')) + ': <b>' + esc(nm) + '</b> · ' + esc(t('spStartOff').replace('{t}', fmtOff(nextOff(st))));
 }
 
-/* cronometro dal primo passaggio; fermo sull'ultimo se non passa nessuno da 30 minuti */
+/* cronometro dal primo passaggio; fermo sull'ultimo se non passa nessuno da 30 minuti,
+   oppure fermo dove l'ha lasciato il tasto Stop */
 let rafId = 0, lastWatch = '';
+function lastPass(st){ let last = st.t0; st.cars.forEach(c => { if(c.t > last) last = c.t; }); return last; }
 function tickOnce(){
   const st = cur(); if(!st || st.t0 == null) return;
-  let last = st.t0; st.cars.forEach(c => { if(c.t > last) last = c.t; });
-  const now = Date.now(), live = (now - last) < 30*60*1000 && !st.ex;
-  const txt = fmtWatch(live ? now - st.t0 : last - st.t0);
+  const last = lastPass(st), stopped = isStopped(st);
+  const now = Date.now(), live = !stopped && (now - last) < 30*60*1000 && !st.ex;
+  const txt = fmtWatch(stopped ? (st.stopAt != null ? st.stopAt : last) - st.t0 : (live ? now - st.t0 : last - st.t0));
   if(txt !== lastWatch){ E('spWNum').textContent = txt; lastWatch = txt; }
   E('spWatch').classList.toggle('sp-idle', !live);
 }
@@ -7969,6 +7997,8 @@ function evEpoch(e){
 }
 function shot(when){
   const st = cur(); if(!st || st.ex) return;
+  if(isStopped(st)) return;   /* fermato col tasto Stop: la prova e' chiusa */
+  if(st.stopped){ st.stopped = false; st.stopAt = null; }   /* tutto annullato: si riparte da zero */
   if(when - lastPress < 350) return;   /* doppio tocco involontario */
   lastPress = when;
   pushHist(st, 'shot');
@@ -8010,6 +8040,7 @@ function undoLast(){
   const apply = () => {
     h.pop();
     try{ const s = JSON.parse(top.snap); st.cars = s.cars; st.lastOff = s.lastOff; st.t0 = s.t0; st.draft = s.draft || { name:'', d: st.iv }; }catch(e){ return; }
+    if(st.t0 == null){ st.stopped = false; st.stopAt = null; }
     E('spInName').value = st.draft.name || '';
     spSave(); lastWatch = ''; renderRun(); tickOnce();
   };
@@ -8020,6 +8051,28 @@ function undoLast(){
   } else {
     confirmBox(t('spUndoDelAsk'), top.label, t('spRestore'), 'sp-ok', apply);
   }
+}
+/* Stop (in alto a destra): il cronometro resta dov'e' e non riparte piu', il pulsante tondo
+   non registra, e se ci sono tempi chiede se esportare. Esporta in basso resta diretto. */
+function stopWatch(){
+  const st = cur(); if(!st || st.ex || st.t0 == null || st.stopped) return;
+  try{ E('spInName').blur(); }catch(e){}
+  const now = Date.now(), last = lastPass(st);
+  st.stopped = true;
+  st.stopAt = (now - last) < 30*60*1000 ? now : last;   /* se era gia' fermo sull'ultimo passaggio, resta li' */
+  spSave(); lastWatch = ''; renderRun(); tickOnce();
+  if(st.cars.length) askExport();
+}
+function askExport(){
+  const { bg, box } = dlg();
+  const h = document.createElement('h3'); h.textContent = t('spStopped'); box.appendChild(h);
+  const p = document.createElement('p'); p.textContent = t('spExportAsk'); box.appendChild(p);
+  const b = document.createElement('div'); b.className = 'sp-btns';
+  const no = btn(t('spNo')); no.id = 'spStopNo'; no.addEventListener('click', () => close(bg));
+  const ye = btn(t('spExport'), 'sp-ok'); ye.id = 'spStopExp';
+  /* condivisione chiamata subito, dentro il tocco, come il tasto Esporta */
+  ye.addEventListener('click', () => { close(bg); exportImage(); });
+  b.appendChild(no); b.appendChild(ye); box.appendChild(b);
 }
 function stepDraft(dir){
   const st = cur(); if(!st) return;
@@ -8240,6 +8293,7 @@ E('spBack').addEventListener('click', () => { SP.cur = null; spSave(); showList(
 E('spPlace').addEventListener('click', () => { const st = cur(); if(!st) return; pickPlace(st, pl => { st.km = pl.km; st.kmTot = pl.kmTot; st.place = pl.place; spSave(); renderRun(); }); });
 E('spUndo').addEventListener('click', undoLast);
 E('spExport').addEventListener('click', exportImage);
+E('spStop').addEventListener('click', stopWatch);
 E('spPvClose').addEventListener('click', () => { E('spPv').hidden = true; E('spPvImg').removeAttribute('src'); });
 E('spDMinus').addEventListener('click', () => stepDraft(-1));
 E('spDPlus').addEventListener('click', () => stepDraft(1));
