@@ -75,6 +75,120 @@ workflows:
           PYEOF
           sed 's/^          //' /tmp/irally_doctype.py > /tmp/irally_doctype_clean.py
           python3 /tmp/irally_doctype_clean.py
+      - name: Controllo app senza internet
+        script: |
+          # Dal 23 nov 2026 l'app usa i file che ha dentro (www) e si apre anche senza rete.
+          # Se capacitor.config.json avesse ancora l'indirizzo di GitHub Pages, la build si ferma qui:
+          # vuol dire che su GitHub manca il capacitor.config.json nuovo.
+          cd "$CM_BUILD_DIR"
+          python3 - <<'PYEOF'
+          import json, sys
+          c = json.load(open('ios/App/App/capacitor.config.json'))
+          url = (c.get('server') or {}).get('url')
+          print('--- VERIFICA app senza internet ---')
+          if url:
+              print("ERRORE: capacitor.config.json carica ancora l'app da " + url)
+              print('Caricare su GitHub il capacitor.config.json nuovo (senza "server").')
+              sys.exit(1)
+          print("OK: nessun indirizzo esterno, l'app usa i file che ha dentro")
+          PYEOF
+      - name: Schermo sempre acceso
+        script: |
+          # A schermo spento il GPS smette di misurare: finche' iRally e' aperta lo schermo resta acceso
+          # (comando nativo isIdleTimerDisabled; il sistema web dentro l'app iPhone non basta).
+          cd "$CM_BUILD_DIR/ios/App/App"
+          python3 - <<'PYEOF'
+          import sys
+          p = 'AppDelegate.swift'
+          s = open(p, encoding='utf-8').read()
+          line = 'UIApplication.shared.isIdleTimerDisabled = true'
+          if s.count(line) < 2:
+              a = 'didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {'
+              b = 'func applicationDidBecomeActive(_ application: UIApplication) {'
+              if a not in s or b not in s:
+                  print('ERRORE: AppDelegate.swift diverso dal previsto, schermo sempre acceso NON inserito')
+                  sys.exit(1)
+              s = s.replace(a, a + '\n        ' + line, 1).replace(b, b + '\n        ' + line, 1)
+              open(p, 'w', encoding='utf-8').write(s)
+          print('--- VERIFICA schermo sempre acceso ---')
+          print('isIdleTimerDisabled in AppDelegate.swift:', s.count(line), '(attese 2)')
+          sys.exit(0 if s.count(line) >= 2 else 1)
+          PYEOF
+      - name: Testi dei permessi in 8 lingue
+        script: |
+          # Le richieste dell'iPhone per GPS, fotocamera e foto: col nome iRally e nella lingua del telefono.
+          # Base in inglese dentro Info.plist, traduzioni in <lingua>.lproj/InfoPlist.strings.
+          cd "$CM_BUILD_DIR/ios/App"
+          python3 - <<'PYEOF'
+          import plistlib, os, json
+          K = ['NSLocationWhenInUseUsageDescription', 'NSCameraUsageDescription', 'NSPhotoLibraryUsageDescription', 'NSPhotoLibraryAddUsageDescription']
+          T = {
+            'en': ["iRally uses GPS to measure distances during stages.",
+                   "iRally uses the camera to scan radar pages and time cards.",
+                   "iRally opens the photos you choose to import radar pages and time cards.",
+                   "iRally saves the images you export, such as split times, to your photos."],
+            'it': ["iRally usa il GPS per misurare le distanze durante le prove.",
+                   "iRally usa la fotocamera per scansionare le pagine del radar e le tabelle di marcia.",
+                   "iRally apre le foto che scegli per importare pagine del radar e tabelle di marcia.",
+                   "iRally salva nelle tue foto le immagini che esporti, come gli intermedi."],
+            'fr': ["iRally utilise le GPS pour mesurer les distances pendant les spéciales.",
+                   "iRally utilise l'appareil photo pour scanner les pages radar et les carnets de contrôle.",
+                   "iRally ouvre les photos que tu choisis pour importer des pages radar et des carnets de contrôle.",
+                   "iRally enregistre dans tes photos les images que tu exportes, comme les temps intermédiaires."],
+            'es': ["iRally usa el GPS para medir las distancias durante los tramos.",
+                   "iRally usa la cámara para escanear páginas del radar y carnés de control.",
+                   "iRally abre las fotos que eliges para importar páginas del radar y carnés de control.",
+                   "iRally guarda en tus fotos las imágenes que exportas, como los tiempos intermedios."],
+            'de': ["iRally nutzt GPS, um während der Prüfungen Distanzen zu messen.",
+                   "iRally nutzt die Kamera, um Radar-Seiten und Bordkarten zu scannen.",
+                   "iRally öffnet die Fotos, die du auswählst, um Radar-Seiten und Bordkarten zu importieren.",
+                   "iRally speichert die Bilder, die du exportierst, zum Beispiel Zwischenzeiten, in deinen Fotos."],
+            'pt': ["O iRally usa o GPS para medir as distâncias durante as provas.",
+                   "O iRally usa a câmara para digitalizar páginas do radar e cartões de controlo.",
+                   "O iRally abre as fotos que escolhes para importar páginas do radar e cartões de controlo.",
+                   "O iRally guarda nas tuas fotos as imagens que exportas, como os tempos intermédios."],
+            'ja': ["iRally はステージ中の距離を測るために GPS を使用します。",
+                   "iRally はレーダーのページとタイムカードをスキャンするためにカメラを使用します。",
+                   "iRally は、レーダーのページやタイムカードを読み込むために、選んだ写真を開きます。",
+                   "iRally は、書き出した画像（スプリットタイムなど）を写真に保存します。"],
+            'cs': ["iRally používá GPS k měření vzdáleností během zkoušek.",
+                   "iRally používá fotoaparát ke skenování stránek radaru a jízdních výkazů.",
+                   "iRally otevírá fotky, které vybereš, aby mohl importovat stránky radaru a jízdní výkazy.",
+                   "iRally ukládá do tvých fotek obrázky, které exportuješ, například mezičasy."],
+          }
+          d = plistlib.load(open('App/Info.plist', 'rb'))
+          for k, v in zip(K, T['en']): d[k] = v
+          plistlib.dump(d, open('App/Info.plist', 'wb'))
+          for L, vals in T.items():
+              os.makedirs('App/%s.lproj' % L, exist_ok=True)
+              with open('App/%s.lproj/InfoPlist.strings' % L, 'w', encoding='utf-8') as f:
+                  for k, v in zip(K, vals):
+                      f.write('"%s" = %s;\n' % (k, json.dumps(v, ensure_ascii=False)))
+          print('--- VERIFICA testi permessi ---')
+          chk = plistlib.load(open('App/Info.plist', 'rb'))
+          for k in K: print(k, '=', chk.get(k))
+          print('lingue:', ' '.join(sorted(T)))
+          PYEOF
+          gem list xcodeproj -i >/dev/null 2>&1 || gem install xcodeproj --no-document
+          ruby <<'RBEOF'
+          require 'xcodeproj'
+          langs = %w[en it fr es de pt ja cs]
+          p = Xcodeproj::Project.open('App.xcodeproj')
+          t = p.targets.find { |x| x.name == 'App' }
+          g = p.main_group.find_subpath('App', true)
+          vg = g.children.find { |c| c.isa == 'PBXVariantGroup' && c.name == 'InfoPlist.strings' } || g.new_variant_group('InfoPlist.strings')
+          langs.each do |l|
+            path = "#{l}.lproj/InfoPlist.strings"
+            next if vg.children.any? { |f| f.path == path }
+            r = vg.new_reference(path)
+            r.name = l
+          end
+          t.add_resources([vg]) unless t.resources_build_phase.files.any? { |b| b.file_ref == vg }
+          p.root_object.known_regions = (p.root_object.known_regions | langs)
+          p.save
+          puts 'testi dei permessi nel progetto: ' + vg.children.map(&:name).join(' ')
+          puts 'lingue del progetto: ' + p.root_object.known_regions.join(' ')
+          RBEOF
       - name: Prepara la firma
         script: |
           xcode-project use-profiles
